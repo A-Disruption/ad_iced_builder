@@ -1,0 +1,20 @@
+# fonts/fonts.toml
+module = "icon"
+
+[glyphs]
+home = "fontawesome-home"
+global = "fontawesome-globe"
+cog = "fontawesome-cog"
+edit = "fontawesome-pencil"
+trash = "fontawesome-trash"
+plus = "fontawesome-plus"
+swap = "fontawesome-exchange"
+copy = "fontawesome-docs"
+code = "fontawesome-file-code"
+theme = "typicons-brush"
+preview = "fontawesome-picture"
+type_icon = "fontawesome-building"
+expanded = "entypo-down-dir"
+collapsed = "entypo-right-dir"
+save = "fontawesome-floppy"
+info = "fontawesome-info-circled"
