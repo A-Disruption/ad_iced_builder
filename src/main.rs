@@ -192,10 +192,10 @@ impl AdUiBuilder {
                         return result.map(|m| Message::ViewMessages(ViewMessage::AddViews(m)));
                     }
                     ViewMessage::Preview(msg) => {
-                        let view = self.views.get_mut(&self.selected_view_id).expect("Selected view must exist");
+//                        let view = self.views.get_mut(&self.selected_view_id).expect("Selected view must exist");
 
                         return preview::update(
-                            &mut view.hierarchy,
+                            &mut self.views,
                             &mut self.type_system,
                             msg
                         )
@@ -342,7 +342,7 @@ impl AdUiBuilder {
                     let view_to_render = self.views.get(&view_id)
                         .expect("View assigned to window must exist");
 
-                    preview::view(&view_to_render.hierarchy, &self.theme, selected_view.show_widget_bounds)
+                    preview::view(&view_to_render.hierarchy, &self.theme, selected_view.show_widget_bounds, &self.views, None)
                             .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))                    
                 }
             }

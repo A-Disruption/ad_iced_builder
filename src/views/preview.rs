@@ -1,6 +1,8 @@
 use iced::{Alignment, Border, Padding, Element, Length, Background, Theme, Color, Font, Shadow, Task};
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, themer, text, text_input, toggler, tooltip, vertical_slider};
+use uuid::Uuid;
+use std::collections::BTreeMap;
 
 use crate::data_structures::types::types::*;
 use crate::data_structures::types::type_implementations::*;
@@ -11,117 +13,174 @@ use crate::enum_builder::TypeSystem;
 #[derive(Debug, Clone)]
 pub enum Message {
     // Widget Operations
-    PropertyChanged(WidgetId, PropertyChange),
+    PropertyChanged(WidgetId, PropertyChange, Option<Uuid>),
 
     // Interactive widget messages
-    ButtonPressed(WidgetId),
-    TextInputChanged(WidgetId, String),
-    Submitted(WidgetId),
-    TextPasted(WidgetId, String),
-    CheckboxToggled(WidgetId, bool),
-    RadioSelected(WidgetId, usize),
-    SliderChanged(WidgetId, f32),
-    TogglerToggled(WidgetId, bool),
-    PickListSelected(WidgetId, String),
-    ComboBoxOnInput(WidgetId, String),
-    ComboBoxSelected(WidgetId, String),
-    ComboBoxOnOptionHovered(WidgetId, String),
-    ComboBoxOnClose(WidgetId),
-    ComboBoxOnOpen(WidgetId),
+    ButtonPressed(WidgetId, Option<Uuid>),
+    TextInputChanged(WidgetId, String, Option<Uuid>),
+    Submitted(WidgetId, Option<Uuid>),
+    TextPasted(WidgetId, String, Option<Uuid>),
+    CheckboxToggled(WidgetId, bool, Option<Uuid>),
+    RadioSelected(WidgetId, usize, Option<Uuid>),
+    SliderChanged(WidgetId, f32, Option<Uuid>),
+    TogglerToggled(WidgetId, bool, Option<Uuid>),
+    PickListSelected(WidgetId, String, Option<Uuid>),
+    ComboBoxOnInput(WidgetId, String, Option<Uuid>),
+    ComboBoxSelected(WidgetId, String, Option<Uuid>),
+    ComboBoxOnOptionHovered(WidgetId, String, Option<Uuid>),
+    ComboBoxOnClose(WidgetId, Option<Uuid>),
+    ComboBoxOnOpen(WidgetId, Option<Uuid>),
     Noop,
 }
 
 pub fn update(
-    hierarchy: &mut WidgetHierarchy,     
+    all_views: &mut BTreeMap<Uuid, AppView>,    
     type_system: &mut TypeSystem,
     message: Message,
 ) -> Task<Message> {
     match message {
-        Message::PropertyChanged(id, change) => {
-            hierarchy.apply_property_change(id, change.clone(), type_system);
+        Message::PropertyChanged(id, change, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, change.clone(), type_system);
 
-            match hierarchy.get_widget_by_id(id) {
-                Some(widget) => { 
-                    if widget.widget_type == WidgetType::Space {
-                        match change {
-                            PropertyChange::Orientation(Orientation::Horizontal) => {
-                                hierarchy.apply_property_change(id, PropertyChange::Width(Length::Fill), type_system);
-                                hierarchy.apply_property_change(id, PropertyChange::Height(Length::Shrink), type_system);
+                    match view.hierarchy.get_widget_by_id(id) {
+                        Some(widget) => { 
+                            if widget.widget_type == WidgetType::Space {
+                                match change {
+                                    PropertyChange::Orientation(Orientation::Horizontal) => {
+                                        view.hierarchy.apply_property_change(id, PropertyChange::Width(Length::Fill), type_system);
+                                        view.hierarchy.apply_property_change(id, PropertyChange::Height(Length::Shrink), type_system);
+                                    }
+                                    PropertyChange::Orientation(Orientation::Vertical) => {
+                                        view.hierarchy.apply_property_change(id, PropertyChange::Width(Length::Shrink), type_system);
+                                        view.hierarchy.apply_property_change(id, PropertyChange::Height(Length::Fill), type_system);
+                                    }
+                                    _ => {}
+                                }
                             }
-                            PropertyChange::Orientation(Orientation::Vertical) => {
-                                hierarchy.apply_property_change(id, PropertyChange::Width(Length::Shrink), type_system);
-                                hierarchy.apply_property_change(id, PropertyChange::Height(Length::Fill), type_system);
-                            }
-                            _ => {}
                         }
+                        _ => {}
                     }
                 }
-                _ => {}
             }
         }
 
         // Interactive widget messages
-        Message::ButtonPressed(id) => {
+        Message::ButtonPressed(id, view_id) => {
             println!("{:?}, button pressed", id);
         }
         
-        Message::TextInputChanged(id, value) => {
-            hierarchy.apply_property_change(id, PropertyChange::TextInputValue(value), type_system);
+        Message::TextInputChanged(id, value, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(
+                        id, 
+                        PropertyChange::TextInputValue(value), 
+                        type_system
+                    );
+                }
+            }
         }
 
-        Message::Submitted(id) => { println!("{:?}, text_input submitted.", id); }
+        Message::Submitted(id, view_id) => { println!("{:?}, text_input submitted.", id); }
 
-        Message::TextPasted(id, value) => {
+        Message::TextPasted(id, value, view_id) => {
             println!("{:?}, text pasted.", id);
-            hierarchy.apply_property_change(id, PropertyChange::TextInputValue(value), type_system)
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::TextInputValue(value), type_system)
+                }
+            }
         }
         
-        Message::CheckboxToggled(id, checked) => {
-            hierarchy.apply_property_change(id, PropertyChange::CheckboxChecked(checked), type_system);
+        Message::CheckboxToggled(id, checked, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::CheckboxChecked(checked), type_system);
+                }
+            }
         }
         
-        Message::RadioSelected(id, index) => {
-            hierarchy.apply_property_change(id, PropertyChange::RadioSelectedIndex(index), type_system);
+        Message::RadioSelected(id, index, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::RadioSelectedIndex(index), type_system);
+                }
+            }  
         }
         
-        Message::SliderChanged(id, value) => {
-            hierarchy.apply_property_change(id, PropertyChange::SliderValue(value), type_system);
+        Message::SliderChanged(id, value, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::SliderValue(value), type_system);
+                }
+            }
         }
         
-        Message::TogglerToggled(id, active) => {
-            hierarchy.apply_property_change(id, PropertyChange::TogglerActive(active), type_system);
+        Message::TogglerToggled(id, active, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::TogglerActive(active), type_system);
+                }
+            }
         }
         
-        Message::PickListSelected(id, index) => {
-            hierarchy.apply_property_change(id, PropertyChange::PickListSelected(Some(index)), type_system);
+        Message::PickListSelected(id, index, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::PickListSelected(Some(index)), type_system);
+                }
+            }
         }
 
-        Message::ComboBoxOnInput(id, value) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_input {
-                println!("combobox {:?} input text: {}", id, value);
+        Message::ComboBoxOnInput(id, value, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    let props = &view.hierarchy.get_widget_by_id(id).unwrap().properties;
+                    if props.combobox_use_on_input {
+                        println!("combobox {:?} input text: {}", id, value);
+                    }
+                }
             }
         }
-        Message::ComboBoxSelected(id, value) => {
+        Message::ComboBoxSelected(id, value, view_id) => {
             println!("combobox selected: {:?}", value);
-            hierarchy.apply_property_change(id, PropertyChange::ComboBoxSelected(Some(value)), type_system);
-        }
-        Message::ComboBoxOnOpen(id) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_open {
-                println!("combobox {:?} opened!", id);
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(id, PropertyChange::ComboBoxSelected(Some(value)), type_system);
+                }
             }
         }
-        Message::ComboBoxOnClose(id) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_close {
-                println!("combobox {:?} closed!", id);
+        Message::ComboBoxOnOpen(id, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    let props = &view.hierarchy.get_widget_by_id(id).unwrap().properties;
+                    if props.combobox_use_on_open {
+                        println!("combobox {:?} opened!", id);
+                    }
+                }
             }
         }
-        Message::ComboBoxOnOptionHovered(id, options) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_option_hovered {
-                println!("combobox option hovered: {:?}", options);
+        Message::ComboBoxOnClose(id, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    let props = &view.hierarchy.get_widget_by_id(id).unwrap().properties;
+                    if props.combobox_use_on_close {
+                        println!("combobox {:?} closed!", id);
+                    }
+                }
+            }
+
+        }
+        Message::ComboBoxOnOptionHovered(id, options, view_id) => {
+            if let Some(view_id) = view_id {
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    let props = &view.hierarchy.get_widget_by_id(id).unwrap().properties;
+                    if props.combobox_use_on_option_hovered {
+                        println!("combobox option hovered: {:?}", options);
+                    }
+                }
             }
         }
         Message::Noop => {
@@ -132,8 +191,14 @@ pub fn update(
     Task::none()
 }
 
-pub fn view<'a>(hierarchy: &'a WidgetHierarchy, theme: &'a Theme, highlight_selected: bool) -> Element<'a, Message> {
-    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, highlight_selected);
+pub fn view<'a>(
+    hierarchy: &'a WidgetHierarchy, 
+    theme: &'a Theme, 
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+) -> Element<'a, Message> {
+    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, highlight_selected, all_views, current_view_id);
 
     widget_preview
 
@@ -198,7 +263,14 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, theme: &'a Theme, highlight_sele
     .into() */
 }
 
-fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, theme: &'a Theme, highlight_selected: bool ) -> Element<'a, Message> {
+fn build_widget_preview<'a>(
+    hierarchy: &'a WidgetHierarchy, 
+    widget: &'a Widget, 
+    theme: &'a Theme, 
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+) -> Element<'a, Message> {
     let is_selected = hierarchy.selected_ids().contains(&widget.id);
     let props = &widget.properties;
 
@@ -208,7 +280,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 if widget.children.is_empty() {
                     text("Empty Container").into()
                 } else {
-                    build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected)
+                    build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id)
                 }
             );
             
@@ -296,7 +368,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
         WidgetType::Row => {
             let children: Vec<Element<'a, Message>> = widget.children
                 .iter()
-                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected))
+                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id))
                 .collect();
             
             if props.is_wrapping_row {
@@ -335,7 +407,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                     content = content.push(text("Row Item 2"));
                 } else {
                     for child in &widget.children {
-                        content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected));
+                        content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
                     }
                 }
                 
@@ -364,7 +436,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 content = content.push(text("Column Item 2"));
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -465,16 +537,16 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
             );
             
             // Always add on_input in preview (using Noop since it's just preview)
-            input = input.on_input(|text| Message::TextInputChanged(widget.id, text));
+            input = input.on_input(move |text| Message::TextInputChanged(widget.id, text, current_view_id));
             
             // Conditionally add on_submit
             if props.text_input_on_submit {
-                input = input.on_submit(Message::Submitted(widget.id,));
+                input = input.on_submit(Message::Submitted(widget.id, current_view_id));
             }
             
             // Conditionally add on_paste
             if props.text_input_on_paste {
-                input = input.on_paste(|text| Message::TextPasted(widget.id, text));
+                input = input.on_paste(move |text| Message::TextPasted(widget.id, text, current_view_id));
             }
             
             // Apply secure mode
@@ -515,7 +587,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 .size(props.checkbox_size)
                 .spacing(props.checkbox_spacing)
                 .width(props.width)
-                .on_toggle(|_| Message::CheckboxToggled(widget.id, !props.checkbox_checked))
+                .on_toggle(move |_| Message::CheckboxToggled(widget.id, !props.checkbox_checked, current_view_id))
                 .into()
         }
 
@@ -527,7 +599,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                             option,
                             i,
                             Some(props.radio_selected_index),
-                            move |selected_index| Message::RadioSelected(widget.id, selected_index)
+                            move |selected_index| Message::RadioSelected(widget.id, selected_index, current_view_id)
                         )
                         .size(props.radio_size)
                         .spacing(props.radio_spacing)
@@ -542,7 +614,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
 
         WidgetType::Slider => {
             slider(props.slider_min..=props.slider_max, props.slider_value, move |value| {
-                Message::SliderChanged(widget.id, value)
+                Message::SliderChanged(widget.id, value, current_view_id)
             })
             .step(props.slider_step)
             .height(props.slider_height)
@@ -551,7 +623,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
 
         WidgetType::VerticalSlider => {
             vertical_slider(props.slider_min..=props.slider_max, props.slider_value, move |value| {
-                Message::SliderChanged(widget.id, value)
+                Message::SliderChanged(widget.id, value, current_view_id)
             })
             .step(props.slider_step)
             .width(props.slider_width)
@@ -572,7 +644,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
 
         WidgetType::Toggler => {
             toggler(props.toggler_active)
-                .on_toggle(|_| Message::TogglerToggled(widget.id, !props.toggler_active))
+                .on_toggle(move |_| Message::TogglerToggled(widget.id, !props.toggler_active, current_view_id))
                 .label(&props.toggler_label)
                 .size(props.toggler_size)
                 .spacing(props.toggler_spacing)
@@ -584,7 +656,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
             pick_list(
                 props.picklist_options.clone(),
                 props.picklist_selected.clone(),
-                |selected| Message::PickListSelected(widget.id, selected)
+                move |selected| Message::PickListSelected(widget.id, selected, current_view_id)
             )
             .placeholder(&props.picklist_placeholder)
             .width(props.width)
@@ -600,7 +672,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 }
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -682,7 +754,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
             // child[0] = trigger (host), child[1] = popup content
             let host = {
                 let element = widget.children.get(0)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected, all_views, current_view_id))
                     .unwrap_or_else(|| text("Tooltip host").into());
 
                 container(element)
@@ -695,7 +767,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
 
             let popup = {
                 let element = widget.children.get(1)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected, all_views, current_view_id))
                     .unwrap_or_else(|| text(&props.tooltip_text).size(14).into());
 
                 container(element)
@@ -718,7 +790,8 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
             let on_selected = move |selected| {
                 Message::PropertyChanged(
                     id,
-                    PropertyChange::ComboBoxSelected(Some(selected)),
+                    PropertyChange::ComboBoxSelected(Some(selected)), 
+                    current_view_id
                 )
             };
 
@@ -728,10 +801,11 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 props.combobox_selected.as_ref(), 
                 on_selected
             )
-            .on_close(Message::ComboBoxOnClose(id))
-            .on_input(move |search| Message::ComboBoxOnInput(id, search))
-            .on_open(Message::ComboBoxOnOpen(id))
-            .on_option_hovered(move |hovered| Message::ComboBoxOnOptionHovered(id, hovered))
+            .on_close(Message::ComboBoxOnClose(id, current_view_id))
+            .on_input(move |search| Message::ComboBoxOnInput(id, search, current_view_id))
+            .on_open(Message::ComboBoxOnOpen(id, current_view_id))
+            .on_option_hovered(move |hovered| Message::ComboBoxOnOptionHovered(id, hovered, current_view_id))
+            .width(props.width)
             .into()
         }
         
@@ -766,7 +840,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                     })
                     .into()
             } else {
-                build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected)
+                build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id)
             };
             
             // Start building mouse_area with conditional handlers
@@ -870,7 +944,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 );
             } else {
                 for child in &widget.children {
-                    layers.push(build_widget_preview(hierarchy, child, theme, highlight_selected));
+                    layers.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -888,7 +962,7 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
             } else {
                 let mut col = column![];
                 for child in &widget.children {
-                    col = col.push(build_widget_preview(hierarchy, child, theme, highlight_selected));
+                    col = col.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
                 }
                 col.into()
             };
@@ -897,6 +971,63 @@ fn build_widget_preview<'a>(hierarchy: &'a WidgetHierarchy, widget: &'a Widget, 
                 themer(Some(theme.clone()), content).into()
             } else {
                 content
+            }
+        }
+
+        WidgetType::ViewReference => {
+            let props = &widget.properties;
+            
+            match props.referenced_view_id {
+                Some(view_id) => {
+                    match all_views.get(&view_id) {
+                        Some(referenced_view) => {
+                            build_widget_preview(
+                                &referenced_view.hierarchy,
+                                referenced_view.hierarchy.root(),
+                                theme,
+                                highlight_selected,
+                                all_views, 
+                                Some(view_id),
+                            )
+                        }
+                        None => {
+                            // View doesn't exist (need to protect used views from being deleted)
+                            container(
+                                text(format!("View not found: {}", view_id))
+                                    .color(Color::from_rgb(1.0, 0.0, 0.0))
+                            )
+                            .padding(10)
+                            .style(|_| container::Style {
+                                border: Border { 
+                                    color: Color::from_rgb(1.0, 0.0, 0.0), 
+                                    width: 2.0, 
+                                    radius: 4.0.into() 
+                                },
+                                background: Some(Background::Color(Color::from_rgba(1.0, 0.0, 0.0, 0.1))),
+                                ..Default::default()
+                            })
+                            .into()
+                        }
+                    }
+                }
+                None => {
+                    // No view selected yet
+                    container(
+                        text("Select a view to reference")
+                            .color(Color::from_rgb(0.5, 0.5, 0.5))
+                    )
+                    .padding(20)
+                    .style(|_| container::Style {
+                        border: Border { 
+                            color: Color::from_rgba(0.5, 0.5, 0.5, 0.5), 
+                            width: 1.0, 
+                            radius: 4.0.into() 
+                        },
+                        background: Some(Background::Color(Color::from_rgba(0.0, 0.0, 0.0, 0.05))),
+                        ..Default::default()
+                    })
+                    .into()
+                }
             }
         }
 

@@ -5508,7 +5508,6 @@ name = "widgets"
 version = "0.1.0"
 dependencies = [
  "iced",
- "uuid",
 ]
 
 [[package]]

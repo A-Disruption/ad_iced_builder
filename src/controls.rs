@@ -2235,26 +2235,95 @@ pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
 }
 
-pub fn view_reference_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, views: &'a BTreeMap<Uuid, AppView>) -> Element<'a, Message> {
-    let w = h.get_widget_by_id(widget_id).unwrap();
-    let props = &w.properties;
-    let on_selected = move |selected| {
-        Message::PropertyChanged(
-            widget_id,
-            PropertyChange::ComboBoxSelected(Some(selected)),
-        )
-    };
-    let view_selections = views.iter().map(|view| {
-        view.1.name.clone()
-    }).collect::<Vec<String>>();
+pub fn view_reference_controls<'a>(
+    h: &'a WidgetHierarchy, 
+    widget_id: WidgetId, 
+    theme: &Theme, 
+    type_system: &'a TypeSystem, 
+    views: &'a BTreeMap<Uuid, AppView>
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    // Create a list of (Uuid, Name) for the pick_list
+    let view_options: Vec<(Uuid, String)> = views
+        .iter()
+        .map(|(id, view)| (*id, view.name.clone()))
+        .collect();
+    
+    // Get the currently selected view name (if any)
+    let selected_view_name = props.referenced_view_id
+        .and_then(|view_id| views.get(&view_id))
+        .map(|view| view.name.clone());
 
     let content = column![
-        row![
-            text("Select View"),
-            combo_box(&props.combobox_state, "Select View", props.combobox_selected.as_ref(), on_selected)
-        ].spacing(MAIN_SPACING)
-    ].into();
-    
+        text("View Reference Properties").size(TITLE_SIZE),
+
+        widget_name(widget_id, &props.widget_name),
+
+        column![
+            text("Referenced View").size(SECTION_SIZE),
+            text("Select which view to display here:")
+                .size(LABEL_SIZE)
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+            
+            pick_list(
+                view_options.iter().map(|(_, name)| name.clone()).collect::<Vec<_>>(),
+                selected_view_name,
+                move |selected_name| {
+                    // Find the UUID for the selected name
+                    let view_id = view_options
+                        .iter()
+                        .find(|(_, name)| name == &selected_name)
+                        .map(|(id, _)| *id);
+                    
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ViewReferenceId(view_id)
+                    )
+                }
+            )
+            .placeholder("Select a view...")
+            .width(300),
+        ]
+        .spacing(LABEL_SPACING),
+
+        // Show warning if current view is selected (would be circular)
+        if let Some(view_id) = props.referenced_view_id {
+            if let Some(view) = views.get(&view_id) {
+                column![
+                    rule::horizontal(2),
+                    text(format!("Selected: {}", view.name))
+                        .size(LABEL_SIZE)
+                        .color(theme.extended_palette().success.base.color),
+                    text("This view will be embedded here")
+                        .size(LABEL_SIZE - 2.0)
+                        .color(Color::from_rgb(0.5, 0.5, 0.5)),
+                ]
+                .spacing(LABEL_SPACING)
+            } else {
+                column![
+                    text("⚠ Selected view no longer exists")
+                        .size(LABEL_SIZE)
+                        .color(theme.extended_palette().danger.base.color),
+                ]
+            }
+        } else {
+            column![]
+        },
+
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
     scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
 }
 
