@@ -2279,7 +2279,7 @@ pub fn view_reference_controls<'a>(
                     
                     Message::PropertyChanged(
                         widget_id,
-                        PropertyChange::ViewReferenceId(view_id)
+                        PropertyChange::ViewReferenceId(view_id, selected_name)
                     )
                 }
             )
@@ -2303,7 +2303,7 @@ pub fn view_reference_controls<'a>(
                 .spacing(LABEL_SPACING)
             } else {
                 column![
-                    text("⚠ Selected view no longer exists")
+                    text("Selected view no longer exists")
                         .size(LABEL_SIZE)
                         .color(theme.extended_palette().danger.base.color),
                 ]

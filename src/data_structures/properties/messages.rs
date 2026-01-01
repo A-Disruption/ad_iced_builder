@@ -184,7 +184,7 @@ pub enum PropertyChange {
     MouseAreaInteraction(Option<MouseInteraction>),
 
     // View references
-    ViewReferenceId(Option<Uuid>),
+    ViewReferenceId(Option<Uuid>, String),
 
     //Do Nothing
     Noop
@@ -553,7 +553,10 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::MouseAreaOnExit(b) => properties.mousearea_on_exit = b,
         PropertyChange::MouseAreaInteraction(interaction) => properties.mousearea_interaction = interaction,
 
-        PropertyChange::ViewReferenceId(v) => properties.referenced_view_id = v,
+        PropertyChange::ViewReferenceId(view_id, name) => { 
+            properties.referenced_view_id = view_id;
+            properties.widget_name = name;
+        }
         
         _ => {} // Placeholder for properties not implemented
     }

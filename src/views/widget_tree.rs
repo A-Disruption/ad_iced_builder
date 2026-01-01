@@ -292,6 +292,12 @@ pub fn view<'a>(
     let widget = hierarchy.root();
     let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views);
 
+    let display_name = if widget.properties.widget_name.is_empty() {
+        &widget.name
+    } else {
+        &widget.properties.widget_name
+    };
+
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> = match widget.widget_type {
         WidgetType::Row        => Some(icon::swap()), 
@@ -315,8 +321,6 @@ pub fn view<'a>(
                     .into()
             };
 
-    //let place_holder = button("  ").style(button::text);
-
     let mut children = Vec::new();
 
     for child in &widget.children {
@@ -325,14 +329,14 @@ pub fn view<'a>(
 
     let root = branch(
         row![
-            container(text(format!("{}", widget.name))).padding(5),
+            container(text(format!("{}", display_name))).padding(5),
             space::horizontal(),
             swap_button,
 
             // Create overlay button with this widget's specific content
             overlay_button(
                 icon::edit(),
-                format!("Editing {}", widget.name),
+                format!("Editing {}", display_name),
                 overlay_content
             )
             .close_on_click_outside()
@@ -372,7 +376,13 @@ fn build_tree_item<'a>(
 ) -> Branch<'a, Message, Theme, iced::Renderer> {     
 
     let is_selected = hierarchy.selected_ids().contains(&widget.id);
-    let selection_count = hierarchy.selected_ids().len();   
+    let selection_count = hierarchy.selected_ids().len();
+
+    let display_name = if widget.properties.widget_name.is_empty() {
+        &widget.name
+    } else {
+        &widget.properties.widget_name
+    };
 
     let is_first_child_of_root = hierarchy.root().children.first()
     .map(|c| c.id == widget.id)
@@ -410,7 +420,7 @@ fn build_tree_item<'a>(
         // Original single-widget edit overlay
         Some(overlay_button(
             icon::edit(),
-            format!("Editing {}", widget.name),
+            format!("Editing {}", display_name),
             build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views)
         )
         .close_on_click_outside()
@@ -438,7 +448,7 @@ fn build_tree_item<'a>(
         WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable | WidgetType::Tooltip | WidgetType::MouseArea => {
 
             let content = row![
-                    container(text(format!("{}", widget.name))).padding(5),
+                    container(text(format!("{}", display_name))).padding(5),
 
                     space::horizontal(),
 
@@ -468,7 +478,7 @@ fn build_tree_item<'a>(
         }
         _ => {
             let content = row![
-                    container(text(format!("{}", widget.name))).padding(5),
+                    container(text(format!("{}",display_name))).padding(5),
 
                     space::horizontal(),
 
@@ -477,7 +487,7 @@ fn build_tree_item<'a>(
                     // Create overlay button with this widget's specific content
                     overlay_button(
                         icon::edit(),
-                        format!("Editing {}", widget.name),
+                        format!("Editing {}", display_name),
                         overlay_content
                     )
                     .overlay_width(500.0)
@@ -545,11 +555,19 @@ fn build_editor_for_widget<'a>(
         _ => column![text("Editor not implemented for this widget type")].into(),
     };
 
+    let display_name = if widget.properties.widget_name.is_empty() {
+        &widget.name
+    } else {
+        &widget.properties.widget_name
+    };
+
     column![
         row![
-            text(format!("Editing: {}", widget.name)).size(20),
+            text(format!("Editing: {}", display_name)).size(20),
             text(format!("{}", widget.widget_type)).size(10).align_y(Alignment::End),
-        ],
+        ]
+        .spacing(16)
+        .align_y(Alignment::End),
         rule::horizontal(5),
         controls_view,
     ]
