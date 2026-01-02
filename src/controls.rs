@@ -164,17 +164,11 @@ pub fn container_controls<'a>(
             props.padding,
             widget_id,
             props.padding_mode,
-        ),
-
-        // Border Controls
-        border_controls(
-            props.border_width,
-            props.border_radius,
-            widget_id,
+            theme,
         ),
 
         // Set a Widget Id
-        widget_id_control(widget_id, props.widget_id.clone()),
+        widget_id_control(widget_id, props.widget_id.clone(), theme),
 
         // Max Width control
         max_width_control(widget_id, props.max_width),
@@ -183,13 +177,17 @@ pub fn container_controls<'a>(
         max_height_control(widget_id, props.max_height),
         
         //Clip control
-        clip_control(widget_id, props.clip),
+        clip_control(widget_id, props.clip, theme),
 
     ]
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -211,8 +209,8 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
                 text("Enable Wrapping"),
                 information(theme, "Items wrap to next line when row width is exceeded.")
             ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
+            .spacing(LABEL_SPACING)
+            .align_y(Alignment::End),
         ]
         .spacing(LABEL_SPACING),
 
@@ -238,14 +236,12 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
                     text("Vertical Spacing (between wrapped rows)").size(SECTION_SIZE),
                     row![
                         checkbox(
-                            props.wrapping_vertical_spacing.is_none(),
+                            props.match_horizontal_spacing,
                         ).label("match horizontal")
                         .on_toggle(move |use_same| {
                             Message::PropertyChanged(
                                 widget_id,
-                                PropertyChange::WrappingVerticalSpacing(
-                                    if use_same { 0.0 } else { props.spacing }
-                                )
+                                PropertyChange::WrappingSpacingMatchToggle(use_same)
                             )
                         }),
                         if let Some(v_spacing) = props.wrapping_vertical_spacing {
@@ -330,14 +326,19 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
             props.padding,
             widget_id,
             props.padding_mode,
+            theme,
         ),
 
-        clip_control(widget_id, props.clip),
+        clip_control(widget_id, props.clip, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn column_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -387,18 +388,23 @@ pub fn column_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
             props.padding,
             widget_id,
             props.padding_mode,
+            theme,
         ),
 
         // Max Width control
         max_width_control(widget_id, props.max_width),
         
         //Clip control
-        clip_control(widget_id, props.clip),
+        clip_control(widget_id, props.clip, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -466,7 +472,7 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
                 ),
                 information(theme, "Button will not respond to clicks"),
             ]
-            .spacing(5)
+            .spacing(LABEL_SPACING)
             .align_y(Alignment::Center),
             
 
@@ -483,7 +489,7 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
                 ),
                 information(theme, "Direct message dispatch - use when message is always the same"),
             ]
-            .spacing(5)
+            .spacing(LABEL_SPACING)
             .align_y(Alignment::Center),
             
             // on_press_with option
@@ -499,7 +505,7 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
                 ),
                 information(theme, "Closure returns message - use when message needs runtime data"),
             ]
-            .spacing(5)
+            .spacing(LABEL_SPACING)
             .align_y(Alignment::Center),
             
             // on_press_maybe option
@@ -515,7 +521,7 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
                 ),
                 information(theme, "Optional message - use when button should be conditionally enabled"),
             ]
-            .spacing(5)
+            .spacing(LABEL_SPACING)
             .align_y(Alignment::Center),
         ]
         .spacing(SECTION_SPACING),
@@ -533,15 +539,19 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
             props.padding,
             widget_id,
             props.padding_mode,
+            theme,
         ),
 
-        clip_control(widget_id, props.clip),
+        clip_control(widget_id, props.clip, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
 
-    //scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
-    add_code_preview(content, h, widget_id, theme, type_system)
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 
@@ -664,7 +674,11 @@ pub fn text_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Th
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -781,7 +795,11 @@ pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, them
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -847,7 +865,11 @@ pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn toggler_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -913,7 +935,11 @@ pub fn toggler_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: 
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn radio_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1040,10 +1066,11 @@ pub fn radio_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, t
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, hierarchy, widget_id, theme, type_system))
-        .width(450)
-        .height(Length::Fixed(600.0))
-        .into()
+    scrollable( 
+        container(
+            add_code_preview(content, hierarchy, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn picklist_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1137,7 +1164,11 @@ pub fn picklist_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1221,7 +1252,11 @@ pub fn slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, 
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, hierarchy, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, hierarchy, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1305,7 +1340,11 @@ pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: W
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, hierarchy, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, hierarchy, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1355,7 +1394,11 @@ pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Th
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn scrollable_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1414,7 +1457,11 @@ pub fn scrollable_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: Widget
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, hierarchy, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, hierarchy, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn space_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1450,7 +1497,11 @@ pub fn space_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, t
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, hierarchy, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, hierarchy, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn progress_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1563,7 +1614,11 @@ pub fn progress_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn image_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1611,7 +1666,11 @@ pub fn image_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &T
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn svg_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1659,7 +1718,11 @@ pub fn svg_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn tooltip_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1705,7 +1768,11 @@ pub fn tooltip_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: 
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn combobox_controls<'a>(
@@ -1947,7 +2014,11 @@ pub fn combobox_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn markdown_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -1996,7 +2067,11 @@ pub fn markdown_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn qrcode_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -2034,7 +2109,11 @@ pub fn qrcode_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn stack_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -2066,7 +2145,11 @@ pub fn stack_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &T
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn mousearea_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -2163,7 +2246,11 @@ pub fn mousearea_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -2202,7 +2289,11 @@ pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
@@ -2232,7 +2323,11 @@ pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 pub fn view_reference_controls<'a>(
@@ -2324,7 +2419,11 @@ pub fn view_reference_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(add_code_preview(content, h, widget_id, theme, type_system)).into()
+    scrollable( 
+        container(
+            add_code_preview(content, h, widget_id, theme, type_system)
+        ).padding(padding::right(10.0))
+    ).into()
 }
 
 fn parse_f32(s: &str, default: f32) -> f32 {
@@ -2387,7 +2486,7 @@ pub fn size_controls_scrollable_aware<'a>(
     let widget = hierarchy.get_widget_by_id(widget_id);
     let props = widget.map(|w| &w.properties);
     
-    column![
+    row![
         length_picker_with_draft(
             "Width",
             width_now,
@@ -2677,10 +2776,9 @@ pub fn length_picker_with_draft<'a>(
                 text("Pixels").size(LABEL_SIZE),
                 text_input(&committed_value, display_text)
                     .on_input(move |v| {
-                        // ONLY update draft, don't change committed value here
                         on_draft_change(v)
                     })
-                    .width(120)
+                    .width(75)
             ]
             .spacing(LABEL_SPACING)
             .into()
@@ -2697,10 +2795,9 @@ pub fn length_picker_with_draft<'a>(
                 text("Portion").size(LABEL_SIZE),
                 text_input(&committed_value, display_text)
                     .on_input(move |v| {
-                        // ONLY update draft, don't change committed value here
                         on_draft_change(v)
                     })
-                    .width(120)
+                    .width(75)
             ]
             .spacing(LABEL_SPACING)
             .into()
@@ -2708,57 +2805,72 @@ pub fn length_picker_with_draft<'a>(
         _ => space::horizontal().into(),
     };
 
-    row![picker, extra].spacing(SECTION_SPACING).into()
+    row![picker, extra].width(Length::Fill).spacing(SECTION_SPACING).into()
 }
 
 pub fn padding_controls<'a>(
     current_padding: Padding,
     widget_id: WidgetId,
     padding_mode: PaddingMode,
+    theme: &Theme
 ) -> Element<'a, Message> {
     column![
         text("Padding").size(SECTION_SIZE),
         
         // Mode selection
         column![
-            text("Padding Mode").size(LABEL_SIZE),
-            column![
-                radio(
-                    "Uniform - All sides equal",
-                    PaddingMode::Uniform,
-                    Some(padding_mode),
-                    move |mode| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::PaddingMode(mode)
-                    )
-                ),
-                radio(
-                    "Symmetric - Vertical/Horizontal pairs",
-                    PaddingMode::Symmetric,
-                    Some(padding_mode),
-                    move |mode| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::PaddingMode(mode)
-                    )
-                ),
-                radio(
-                    "Individual - Each side separate",
-                    PaddingMode::Individual,
-                    Some(padding_mode),
-                    move |mode| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::PaddingMode(mode)
-                    )
-                ),
+            row![
+                row![
+                    radio(
+                        "Uniform",
+                        PaddingMode::Uniform,
+                        Some(padding_mode),
+                        move |mode| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::PaddingMode(mode)
+                        )
+                    ),
+                    information(theme, "Pad all sides equally")
+                ]
+                .spacing(LABEL_SPACING)
+                .align_y(Alignment::End),
+
+                row![
+                    radio(
+                        "Symmetric",
+                        PaddingMode::Symmetric,
+                        Some(padding_mode),
+                        move |mode| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::PaddingMode(mode)
+                        )
+                    ),
+                    information(theme, "Pad vertical and horizontal pairs evenly")
+                ]
+                .spacing(LABEL_SPACING)
+                .align_y(Alignment::End),
+
+                row![
+                    radio(
+                        "Individual",
+                        PaddingMode::Individual,
+                        Some(padding_mode),
+                        move |mode| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::PaddingMode(mode)
+                        )
+                    ),
+                    information(theme, "Pad each size Individually")
+                ]
+                .spacing(LABEL_SPACING)
+                .align_y(Alignment::End),
             ]
-            .spacing(LABEL_SPACING)
+            .spacing(15.0)
         ]
         .spacing(LABEL_SPACING),
         
-        // Controls based on mode
         match padding_mode {
             PaddingMode::Uniform => {
-                // Single slider controls all sides
                 column![
                     text("All Sides").size(LABEL_SIZE),
                     row![
@@ -2781,7 +2893,6 @@ pub fn padding_controls<'a>(
             }
             
             PaddingMode::Symmetric => {
-                // Two sliders: vertical and horizontal
                 column![
                     row![
                         column![
@@ -2794,7 +2905,7 @@ pub fn padding_controls<'a>(
                                     )
                                 })
                                 .step(1.0)
-                                .width(200),
+                                .width(250),
                                 text(format!("{:.0}px", current_padding.top))
                                     .size(LABEL_SIZE)
                                     .width(50),
@@ -2816,7 +2927,7 @@ pub fn padding_controls<'a>(
                                     )
                                 })
                                 .step(1.0)
-                                .width(200),
+                                .width(250),
                                 text(format!("{:.0}px", current_padding.left))
                                     .size(LABEL_SIZE)
                                     .width(50),
@@ -2832,7 +2943,6 @@ pub fn padding_controls<'a>(
             }
             
             PaddingMode::Individual => {
-                // Four separate sliders in a 2x2 grid
                 column![
                     row![
                         column![
@@ -2843,7 +2953,8 @@ pub fn padding_controls<'a>(
                                     PropertyChange::PaddingTop(v)
                                 )
                             })
-                            .step(1.0),
+                            .step(1.0)
+                            .width(250),
                             text(format!("{:.0}px", current_padding.top))
                                 .size(LABEL_SIZE)
                                 .center(),
@@ -2859,7 +2970,8 @@ pub fn padding_controls<'a>(
                                     PropertyChange::PaddingRight(v)
                                 )
                             })
-                            .step(1.0),
+                            .step(1.0)
+                            .width(250),
                             text(format!("{:.0}px", current_padding.right))
                                 .size(LABEL_SIZE)
                                 .center(),
@@ -2878,7 +2990,8 @@ pub fn padding_controls<'a>(
                                     PropertyChange::PaddingBottom(v)
                                 )
                             })
-                            .step(1.0),
+                            .step(1.0)
+                            .width(250),
                             text(format!("{:.0}px", current_padding.bottom))
                                 .size(LABEL_SIZE)
                                 .center(),
@@ -2894,7 +3007,8 @@ pub fn padding_controls<'a>(
                                     PropertyChange::PaddingLeft(v)
                                 )
                             })
-                            .step(1.0),
+                            .step(1.0)
+                            .width(250),
                             text(format!("{:.0}px", current_padding.left))
                                 .size(LABEL_SIZE)
                                 .center(),
@@ -2924,63 +3038,20 @@ pub fn information<'a>(theme: &Theme, info: &'a str) -> Element<'a, Message> {
     ).into()
 }
 
-pub fn border_controls<'a>(
-    border_width: f32,
-    border_radius: f32,
-    widget_id: WidgetId,
-) -> Element<'a, Message> {
-    column![
-        text("Border").size(SECTION_SIZE),
+pub fn clip_control<'a>(widget_id: WidgetId, clipped: bool, theme: &Theme) -> Element<'a, Message>{
         row![
-            column![
-                text("Width").size(LABEL_SIZE),
-                slider(0.0..=10.0, border_width, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::BorderWidth(v))
-                })
-                .step(0.5),
-                text(format!("{:.1}px", border_width))
-                    .size(LABEL_SIZE)
-                    .center(),
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-            
-            column![
-                text("Radius").size(LABEL_SIZE),
-                slider(0.0..=30.0, border_radius, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::BorderRadius(v))
-                })
-                .step(1.0),
-                text(format!("{:.0}px", border_radius))
-                    .size(LABEL_SIZE)
-                    .center(),
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
-    ]
-    .spacing(SECTION_SPACING)
-    .into()
-}
-
-pub fn clip_control<'a>(widget_id: WidgetId, clipped: bool) -> Element<'a, Message>{
-        column![
-            text("Clipping").size(SECTION_SIZE),
             checkbox(clipped,)
-                .label("Clip content on overflow")
+                .label("Enable Clipping")
                 .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::Clip(v))),
-            text("When enabled, child content that exceeds bounds will be clipped")
-                .size(LABEL_SIZE - 1.0)
-                .color(Color::from_rgb(0.5, 0.5, 0.5)),
+            information(theme, "When enabled, child content that exceeds bounds will be clipped"),
         ]
         .spacing(LABEL_SPACING)
+        .align_y(Alignment::End)
         .into()
 }
 
 pub fn max_width_control<'a>(widget_id: WidgetId, max_width: Option<f32>) -> Element<'a, Message> {
         column![
-            text("Maximum Width").size(SECTION_SIZE),
             row![
                 checkbox(max_width.is_some())
                     .label("Set max width")
@@ -3009,7 +3080,6 @@ pub fn max_width_control<'a>(widget_id: WidgetId, max_width: Option<f32>) -> Ele
 
 pub fn max_height_control<'a>(widget_id: WidgetId, max_height: Option<f32>) -> Element<'a, Message> {
         column![
-            text("Maximum Height").size(SECTION_SIZE),
             row![
                 checkbox(max_height.is_some())
                     .label("Set max height")
@@ -3036,36 +3106,35 @@ pub fn max_height_control<'a>(widget_id: WidgetId, max_height: Option<f32>) -> E
         .into()
 }
 
-pub fn widget_id_control<'a>(widget_id: WidgetId, id: Option<String> ) -> Element<'a, Message> {
+pub fn widget_id_control<'a>(widget_id: WidgetId, id: Option<String>, theme: &Theme ) -> Element<'a, Message> {
     let id_clone = id.clone();
 
-    column![
-        text("Widget ID (optional)").size(SECTION_SIZE),
+    row![
         row![
             checkbox(id_clone.is_some())
-                .label("Set custom ID")
+                .label("Set Widget Id")
                 .on_toggle(move |enabled| Message::PropertyChanged(widget_id, PropertyChange::WidgetId(if enabled { Some(String::new()) } else { None }))),
-            if let Some(ref id_val) = id {
-                row![
-                    text_input("widget_id", *&id_val)
-                        .on_input(move |v| {
-                            Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
-                        })
-                        .width(200)
-                ]
+            information(theme, "Use for programmatic access via widget::Id"),
+        ]        
+        .spacing(LABEL_SPACING)
+        .align_y(Alignment::End),
 
-            } else {
-                row![]
-            }
-        ]
-        .spacing(SECTION_SPACING)
-        .align_y(Alignment::Center),
-        text("Use for programmatic access via widget::Id")
-            .size(LABEL_SIZE - 1.0)
-            .color(Color::from_rgb(0.5, 0.5, 0.5)),
+        if let Some(ref id_val) = id {
+            row![
+                text_input("widget_id", *&id_val)
+                    .on_input(move |v| {
+                        Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
+                    })
+                    .width(200)
+            ]
+
+        } else {
+            row![]
+        }
     ]
-    .spacing(LABEL_SPACING)
-    .into()    
+    .spacing(SECTION_SPACING)
+    .align_y(Alignment::Center)
+    .into()
 }
 
 pub fn widget_name<'a>(widget_id: WidgetId, name: &'a str) -> Element<'a, Message> {

@@ -53,6 +53,7 @@ pub enum PropertyChange {
     // Wrapping Row
     IsWrappingRow(bool),
     WrappingVerticalSpacing(f32),
+    WrappingSpacingMatchToggle(bool),
     WrappingAlignX(ContainerAlignX),
     
     // Layout properties
@@ -212,6 +213,10 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::WidgetId(v) => properties.widget_id = v,
         PropertyChange::IsWrappingRow(v) => properties.is_wrapping_row = v,
         PropertyChange::WrappingVerticalSpacing(v) => properties.wrapping_vertical_spacing = Some(v),
+        PropertyChange::WrappingSpacingMatchToggle(toggle) => {
+            if toggle { properties.wrapping_vertical_spacing = None; }
+            properties.match_horizontal_spacing = toggle;
+        },
         PropertyChange::WrappingAlignX(v) => properties.wrapping_align_x = v,
 
         PropertyChange::DraftFixedWidth(text) => {

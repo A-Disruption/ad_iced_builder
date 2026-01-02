@@ -341,7 +341,7 @@ pub fn view<'a>(
             )
             .close_on_click_outside()
             .resizable(widgets::generic_overlay::ResizeMode::Always)
-            .overlay_width(500.0)
+            .overlay_width(600.0)
             .overlay_height(750.0)
             .style(styles::button::edit),
 
@@ -424,7 +424,7 @@ fn build_tree_item<'a>(
             build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views)
         )
         .close_on_click_outside()
-        .overlay_width(500.0)
+        .overlay_width(600.0)
         .overlay_height(750.0)
         .resizable(widgets::generic_overlay::ResizeMode::Always)
         .on_open(|overlay_position, overlay_size| Message::OverlayOpened(overlay_position, overlay_size))
@@ -490,7 +490,7 @@ fn build_tree_item<'a>(
                         format!("Editing {}", display_name),
                         overlay_content
                     )
-                    .overlay_width(500.0)
+                    .overlay_width(600.0)
                     .overlay_height(750.0)
                     .close_on_click_outside()
                     .resizable(widgets::generic_overlay::ResizeMode::Always)
@@ -555,25 +555,7 @@ fn build_editor_for_widget<'a>(
         _ => column![text("Editor not implemented for this widget type")].into(),
     };
 
-    let display_name = if widget.properties.widget_name.is_empty() {
-        &widget.name
-    } else {
-        &widget.properties.widget_name
-    };
-
-    column![
-        row![
-            text(format!("Editing: {}", display_name)).size(20),
-            text(format!("{}", widget.widget_type)).size(10).align_y(Alignment::End),
-        ]
-        .spacing(16)
-        .align_y(Alignment::End),
-        rule::horizontal(5),
-        controls_view,
-    ]
-    .spacing(10)
-    .padding(20)
-    .into()
+    controls_view.into()
 }
 
 pub fn debug_print_widget(widget: &Widget, depth: usize) {

@@ -42,6 +42,7 @@ pub struct Properties {
     // Row wrapping
     pub is_wrapping_row: bool,
     pub wrapping_vertical_spacing: Option<f32>,
+    pub match_horizontal_spacing: bool,
     pub wrapping_align_x: ContainerAlignX,
     
     // Layout properties (Row/Column)
@@ -226,6 +227,7 @@ impl Default for Properties {
             // Row wrapping
             is_wrapping_row: false,
             wrapping_vertical_spacing: None,
+            match_horizontal_spacing: false,
             wrapping_align_x: ContainerAlignX::Left,
             
             // Layout defaults
