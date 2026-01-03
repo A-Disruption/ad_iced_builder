@@ -18,6 +18,7 @@ pub enum PropertyChange {
     MaxHeight(Option<f32>),
     Clip(bool),
     WidgetId(Option<String>),
+    CustomStyle(Option<String>),
 
     // Draft Properties
     DraftFixedWidth(String),
@@ -211,10 +212,10 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::MaxHeight(v) => properties.max_height = v,
         PropertyChange::Clip(v) => properties.clip = v,
         PropertyChange::WidgetId(v) => properties.widget_id = v,
+        PropertyChange::CustomStyle(style_name) => properties.custom_style_name = style_name,
         PropertyChange::IsWrappingRow(v) => properties.is_wrapping_row = v,
-        PropertyChange::WrappingVerticalSpacing(v) => properties.wrapping_vertical_spacing = Some(v),
+        PropertyChange::WrappingVerticalSpacing(v) => properties.wrapping_vertical_spacing = v,
         PropertyChange::WrappingSpacingMatchToggle(toggle) => {
-            if toggle { properties.wrapping_vertical_spacing = None; }
             properties.match_horizontal_spacing = toggle;
         },
         PropertyChange::WrappingAlignX(v) => properties.wrapping_align_x = v,

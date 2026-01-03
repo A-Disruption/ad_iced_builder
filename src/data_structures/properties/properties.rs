@@ -15,6 +15,7 @@ pub struct Properties {
     pub clip: bool, 
     pub padding: Padding,
     pub widget_id: Option<String>,
+    pub custom_style_name: Option<String>,
 
 
     //draft state for text_inputs
@@ -41,7 +42,7 @@ pub struct Properties {
 
     // Row wrapping
     pub is_wrapping_row: bool,
-    pub wrapping_vertical_spacing: Option<f32>,
+    pub wrapping_vertical_spacing: f32,
     pub match_horizontal_spacing: bool,
     pub wrapping_align_x: ContainerAlignX,
     
@@ -204,6 +205,7 @@ impl Default for Properties {
             max_height: None,
             clip: false,
             widget_id: None,
+            custom_style_name: None,
 
             // Draft properties
             draft_fixed_width: String::new(),
@@ -226,7 +228,7 @@ impl Default for Properties {
 
             // Row wrapping
             is_wrapping_row: false,
-            wrapping_vertical_spacing: None,
+            wrapping_vertical_spacing: 0.0,
             match_horizontal_spacing: false,
             wrapping_align_x: ContainerAlignX::Left,
             

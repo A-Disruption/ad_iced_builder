@@ -15,6 +15,7 @@ use crate::data_structures::types::type_implementations::Orientation;
 use widgets::generic_overlay::overlay_button;
 use crate::enum_builder::TypeSystem;
 use crate::views::enum_editor::{self, EnumEditorView};
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -288,9 +289,10 @@ pub fn view<'a>(
     type_system: &'a TypeSystem,
     theme: &'a Theme,
     views: &'a BTreeMap<Uuid, AppView>,
+    custom_themes: &'a CustomThemes,
 ) -> Element<'a, Message> {
     let widget = hierarchy.root();
-    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views);
+    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes);
 
     let display_name = if widget.properties.widget_name.is_empty() {
         &widget.name
@@ -324,7 +326,7 @@ pub fn view<'a>(
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(hierarchy, type_system, theme, child, views));
+        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes));
     }
 
     let root = branch(
@@ -373,6 +375,7 @@ fn build_tree_item<'a>(
     theme: &'a Theme,
     widget: &'a Widget,
     views: &'a BTreeMap<Uuid, AppView>,
+    custom_themes: &'a CustomThemes,
 ) -> Branch<'a, Message, Theme, iced::Renderer> {     
 
     let is_selected = hierarchy.selected_ids().contains(&widget.id);
@@ -389,7 +392,7 @@ fn build_tree_item<'a>(
     .unwrap_or(false);
 
     // Create the overlay content for this specific widget
-    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views);
+    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes);
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> = match widget.widget_type {
         WidgetType::Row        => Some(icon::swap()), 
@@ -421,7 +424,7 @@ fn build_tree_item<'a>(
         Some(overlay_button(
             icon::edit(),
             format!("Editing {}", display_name),
-            build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views)
+            build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes)
         )
         .close_on_click_outside()
         .overlay_width(600.0)
@@ -441,7 +444,7 @@ fn build_tree_item<'a>(
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(hierarchy, type_system, theme, child, views));
+        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes));
     }
 
     let branch = match widget.widget_type {
@@ -523,13 +526,14 @@ fn build_editor_for_widget<'a>(
     widget: &Widget, 
     widget_id: WidgetId,
     views: &'a BTreeMap<Uuid, AppView>,
+    custom_themes: &'a CustomThemes,
 ) -> Element<'a, Message> {
     let controls_view: Element<Message> = match widget.widget_type {
-        WidgetType::Container       => container_controls(&hierarchy, widget_id, theme, &type_system),
+        WidgetType::Container       => container_controls(&hierarchy, widget_id, theme, &type_system, custom_themes),
         WidgetType::Scrollable      => scrollable_controls(&hierarchy, widget_id, theme, &type_system),
         WidgetType::Row             => row_controls(&hierarchy, widget_id, theme, &type_system),
         WidgetType::Column          => column_controls(&hierarchy, widget_id, theme, &type_system),
-        WidgetType::Button          => button_controls(&hierarchy, widget_id, theme, &type_system),
+        WidgetType::Button          => button_controls(&hierarchy, widget_id, theme, &type_system, custom_themes),
         WidgetType::Text            => text_controls(&hierarchy, widget_id, theme, &type_system),
         WidgetType::TextInput       => text_input_controls(&hierarchy, widget_id, theme, &type_system),
         WidgetType::Checkbox        => checkbox_controls(&hierarchy, widget_id, theme, &type_system),

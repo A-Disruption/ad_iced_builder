@@ -404,7 +404,70 @@ pub enum ContainerAlignY { Top, Center, Bottom }
 pub enum RowColumnAlign { Start, Center, End }
 
 #[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum ButtonStyleType { Primary, Secondary, Success, Danger, Text }
+pub enum ButtonStyleType { Primary, Secondary, Success, Danger, Text, Background, Subtle }
+
+impl ButtonStyleType{
+    pub fn all() -> Vec<String> {
+        vec![
+        "Primary".to_string(), 
+        "Secondary".to_string(), 
+        "Success".to_string(), 
+        "Danger".to_string(), 
+        "Text".to_string(), 
+        "Background".to_string(), 
+        "Subtle".to_string()
+        ]
+    }
+
+    pub fn get(name: &str) -> Option<ButtonStyleType> {
+        match name {
+            "Primary" => Some(ButtonStyleType::Primary), 
+            "Secondary" => Some(ButtonStyleType::Secondary),
+            "Success" => Some(ButtonStyleType::Success), 
+            "Danger" => Some(ButtonStyleType::Danger),
+            "Text" => Some(ButtonStyleType::Text),
+            "Background" => Some(ButtonStyleType::Background),
+            "Subtle" => Some(ButtonStyleType::Subtle),
+            _ => None           
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq,)]
+pub enum ContainerStyleType { Transparent, Background, RoundedBox, BorderedBox, Dark, Primary, Secondary, Success, Danger, Warning }
+
+impl ContainerStyleType{
+    pub fn all() -> Vec<String> {
+        vec![
+        "Transparent".to_string(), 
+        "Background".to_string(), 
+        "Rounded Box".to_string(), 
+        "Bordered Box".to_string(), 
+        "Dark".to_string(), 
+        "Primary".to_string(), 
+        "Secondary".to_string(), 
+        "Success".to_string(), 
+        "Danger".to_string(), 
+        "Warning".to_string(), 
+        ]
+    }
+
+    pub fn get(name: &str) -> Option<ContainerStyleType> {
+        match name {
+            "Transparent" => Some(ContainerStyleType::Transparent), 
+            "Background" => Some(ContainerStyleType::Background),
+            "Rounded Box" => Some(ContainerStyleType::RoundedBox), 
+            "Bordered Box" => Some(ContainerStyleType::BorderedBox),
+            "Dark" => Some(ContainerStyleType::Dark),
+            "Primary" => Some(ContainerStyleType::Primary), 
+            "Secondary" => Some(ContainerStyleType::Secondary),
+            "Success" => Some(ContainerStyleType::Success), 
+            "Danger" => Some(ContainerStyleType::Danger),
+            "Warning" => Some(ContainerStyleType::Warning),
+            _ => None           
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq,)]
 pub enum FontType { Default, Monospace }

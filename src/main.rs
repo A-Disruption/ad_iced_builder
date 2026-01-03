@@ -278,7 +278,7 @@ impl AdUiBuilder {
             navigation_bar::ViewSelection::Main => {
                 row![
                     column![ // Left Side
-                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme ).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
+                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme, &self.custom_themes ).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
                         container(add_widgets::view(&preview_view.hierarchy, &selected_widget.id).map(|msg| Message::ViewMessages( ViewMessage::AddWidgets(msg)))).align_bottom(Length::Shrink).width(400),
                     ]
                     .spacing(5),
@@ -342,7 +342,7 @@ impl AdUiBuilder {
                     let view_to_render = self.views.get(&view_id)
                         .expect("View assigned to window must exist");
 
-                    preview::view(&view_to_render.hierarchy, &self.theme, selected_view.show_widget_bounds, &self.views, None)
+                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_themes, selected_view.show_widget_bounds, &self.views, None)
                             .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))                    
                 }
             }

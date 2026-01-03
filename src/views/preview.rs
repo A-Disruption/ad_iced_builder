@@ -9,6 +9,8 @@ use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::enum_builder::TypeSystem;
+use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
+use crate::styles::style_enum::WidgetStyle;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -194,11 +196,12 @@ pub fn update(
 pub fn view<'a>(
     hierarchy: &'a WidgetHierarchy, 
     theme: &'a Theme, 
+    custom_themes: &'a CustomThemes,
     highlight_selected: bool,
     all_views: &'a BTreeMap<Uuid, AppView>,
     current_view_id: Option<Uuid>,
 ) -> Element<'a, Message> {
-    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, highlight_selected, all_views, current_view_id);
+    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, custom_themes, highlight_selected, all_views, current_view_id);
 
     widget_preview
 
@@ -267,6 +270,7 @@ fn build_widget_preview<'a>(
     hierarchy: &'a WidgetHierarchy, 
     widget: &'a Widget, 
     theme: &'a Theme, 
+    custom_themes: &'a CustomThemes,
     highlight_selected: bool,
     all_views: &'a BTreeMap<Uuid, AppView>,
     current_view_id: Option<Uuid>,
@@ -280,7 +284,7 @@ fn build_widget_preview<'a>(
                 if widget.children.is_empty() {
                     text("Empty Container").into()
                 } else {
-                    build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id)
+                    build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id)
                 }
             );
             
@@ -326,40 +330,52 @@ fn build_widget_preview<'a>(
                 }
             }
 
-            // If user sets a style, use that style, otherwise use style from themer
-            container = container.style({
-                let bg = props.background_color;
-                let bw = props.border_width;
-                let br = props.border_radius;
-                let bc = props.border_color;
-                let has_shadow = props.has_shadow;
-                let sh_off = props.shadow_offset;
-                let sh_blur = props.shadow_blur;
-                let sh_col  = props.shadow_color;
-
-                move |_| {
-                    let mut st = container::Style::default();
-
-                    if bg.a > 0.0 {
-                        st.background = Some(Background::Color(bg));
+            container = container.style(move |theme: &Theme| {
+                // Check for a style name
+                if let Some(style_name) = &props.custom_style_name {
+                    if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Container) {
+                        if let Some(WidgetStyle::Container(style)) = style_map.get(style_name) { // check if it's a custom style
+                            return *style;
+                        } else if ContainerStyleType::all().contains(style_name) { // check if it's a built-in style
+                            let style = ContainerStyleType::get(style_name).unwrap();
+                            return match style {
+                                ContainerStyleType::Transparent => container::transparent(theme),
+                                ContainerStyleType::Background => container::background(theme.extended_palette().background.base.color), 
+                                ContainerStyleType::RoundedBox => container::rounded_box(theme), 
+                                ContainerStyleType::BorderedBox => container::bordered_box(theme), 
+                                ContainerStyleType::Dark => container::dark(theme), 
+                                ContainerStyleType::Primary => container::primary(theme), 
+                                ContainerStyleType::Secondary => container::secondary(theme), 
+                                ContainerStyleType::Success => container::success(theme), 
+                                ContainerStyleType::Danger => container::danger(theme), 
+                                ContainerStyleType::Warning => container::warning(theme),
+                            }
+                        }
                     }
-
-                    st.border = Border {
-                        color: bc,
-                        width: bw,
-                        radius: br.into(),
-                    };
-
-                    if has_shadow {
-                        st.shadow = Shadow {
-                            color: sh_col,
-                            offset: sh_off,
-                            blur_radius: sh_blur,
-                        };
-                    }
-
-                    st
                 }
+
+                // Fallback to individual properties if no custom style is found
+                let mut st = container::Style::default();
+
+                if props.background_color.a > 0.0 {
+                    st.background = Some(Background::Color(props.background_color));
+                }
+
+                st.border = Border {
+                    color: props.border_color,
+                    width: props.border_width,
+                    radius: props.border_radius.into(),
+                };
+
+                if props.has_shadow {
+                    st.shadow = Shadow {
+                        color: props.shadow_color,
+                        offset: props.shadow_offset,
+                        blur_radius: props.shadow_blur,
+                    };
+                }
+
+                st
             });
 
             container.into()
@@ -368,7 +384,7 @@ fn build_widget_preview<'a>(
         WidgetType::Row => {
             let children: Vec<Element<'a, Message>> = widget.children
                 .iter()
-                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id))
+                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id))
                 .collect();
             
             if props.is_wrapping_row {
@@ -381,8 +397,8 @@ fn build_widget_preview<'a>(
                     .wrap();
                 
                 // Apply vertical spacing if set
-                if let Some(v_spacing) = props.wrapping_vertical_spacing {
-                    wrapping = wrapping.vertical_spacing(v_spacing);
+                if props.match_horizontal_spacing {
+                    wrapping = wrapping.vertical_spacing(props.wrapping_vertical_spacing);
                 }
                 
                 // Apply horizontal alignment
@@ -407,7 +423,7 @@ fn build_widget_preview<'a>(
                     content = content.push(text("Row Item 2"));
                 } else {
                     for child in &widget.children {
-                        content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
+                        content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
                     }
                 }
                 
@@ -436,7 +452,7 @@ fn build_widget_preview<'a>(
                 content = content.push(text("Column Item 2"));
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -468,15 +484,30 @@ fn build_widget_preview<'a>(
             if props.button_on_press_maybe_enabled{
                 btn = btn.on_press_maybe(Some(Message::Noop));
             }
-            
-            // Apply button style
-            btn = match props.button_style {
-                ButtonStyleType::Primary => btn.style(button::primary),
-                ButtonStyleType::Secondary => btn.style(button::secondary),
-                ButtonStyleType::Success => btn.style(button::success),
-                ButtonStyleType::Danger => btn.style(button::danger),
-                ButtonStyleType::Text => btn.style(button::text),
-            };
+
+            btn = btn.style(move |theme: &Theme, status: button::Status| {
+                if let Some(style_name) = &props.custom_style_name {
+                    if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Button) {
+                        if let Some(WidgetStyle::Button(style)) = style_map.get(style_name) { // check if it's a custom style
+                            return *style;
+                        } else if ButtonStyleType::all().contains(style_name) { // check if it's a built-in style
+                            let style = ButtonStyleType::get(style_name).unwrap();
+                            return match style {
+                                ButtonStyleType::Primary => button::primary(theme, status),
+                                ButtonStyleType::Secondary => button::secondary(theme, status),
+                                ButtonStyleType::Success => button::success(theme, status),
+                                ButtonStyleType::Danger => button::danger(theme, status),
+                                ButtonStyleType::Text => button::text(theme, status),
+                                ButtonStyleType::Background => button::background(theme, status),
+                                ButtonStyleType::Subtle => button::subtle(theme, status),
+                            }
+                        }
+                    }
+                }
+
+                //fallback to default style
+                button::primary(theme, status)
+            });
             
             // Apply layout properties
             btn = btn.width(props.width);
@@ -672,7 +703,7 @@ fn build_widget_preview<'a>(
                 }
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -754,7 +785,7 @@ fn build_widget_preview<'a>(
             // child[0] = trigger (host), child[1] = popup content
             let host = {
                 let element = widget.children.get(0)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected, all_views, current_view_id))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id))
                     .unwrap_or_else(|| text("Tooltip host").into());
 
                 container(element)
@@ -767,7 +798,7 @@ fn build_widget_preview<'a>(
 
             let popup = {
                 let element = widget.children.get(1)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, highlight_selected, all_views, current_view_id))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id))
                     .unwrap_or_else(|| text(&props.tooltip_text).size(14).into());
 
                 container(element)
@@ -840,7 +871,7 @@ fn build_widget_preview<'a>(
                     })
                     .into()
             } else {
-                build_widget_preview(hierarchy, &widget.children[0], theme, highlight_selected, all_views, current_view_id)
+                build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id)
             };
             
             // Start building mouse_area with conditional handlers
@@ -944,7 +975,7 @@ fn build_widget_preview<'a>(
                 );
             } else {
                 for child in &widget.children {
-                    layers.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
+                    layers.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
                 }
             }
             
@@ -962,7 +993,7 @@ fn build_widget_preview<'a>(
             } else {
                 let mut col = column![];
                 for child in &widget.children {
-                    col = col.push(build_widget_preview(hierarchy, child, theme, highlight_selected, all_views, current_view_id));
+                    col = col.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
                 }
                 col.into()
             };
@@ -984,7 +1015,8 @@ fn build_widget_preview<'a>(
                             build_widget_preview(
                                 &referenced_view.hierarchy,
                                 referenced_view.hierarchy.root(),
-                                theme,
+                                theme, 
+                                custom_themes,
                                 highlight_selected,
                                 all_views, 
                                 Some(view_id),

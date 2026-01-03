@@ -12,6 +12,7 @@ use crate::enum_builder::TypeSystem;
 use crate::EnumEditorView;
 use crate::widget_tree;
 use crate::settings_views::window_settings;
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 
 // Application messages
 #[derive(Debug, Clone)]
@@ -91,6 +92,7 @@ pub fn view<'a>(
     selected_view_id: &'a Uuid,
     type_system: &'a TypeSystem,
     theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
 ) -> Element<'a, Message> {
     let header =
         row![
@@ -108,7 +110,7 @@ pub fn view<'a>(
     let view_list: Vec<_> = sorted_list.iter().map( |view| {
         collapsible(
             &view.1.name,
-            crate::widget_tree::view(&view.1.hierarchy, type_system, theme, views).map(|msg| Message::TreeMessage(msg) )
+            crate::widget_tree::view(&view.1.hierarchy, type_system, theme, views, custom_themes).map(|msg| Message::TreeMessage(msg) )
         )
         .expand_icon(icon::collapsed())
         .on_toggle(|_| Message::ViewSelected(view.1.id))

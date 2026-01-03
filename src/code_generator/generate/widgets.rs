@@ -78,6 +78,12 @@ fn generate_button(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wid
         ButtonStyleType::Text => {
             writer.add_style("button","text")
         }
+        ButtonStyleType::Background => {
+            writer.add_style("button","background")
+        }
+        ButtonStyleType::Subtle => {
+            writer.add_style("button","subtle")
+        }
         ButtonStyleType::Primary => {} // Default, don't add
     }
 
@@ -739,13 +745,13 @@ fn generate_row(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widget
         writer.add_plain("()");
         
         // Vertical spacing
-        if let Some(v_spacing) = props.wrapping_vertical_spacing {
+        if props.match_horizontal_spacing {
             writer.add_newline();
             writer.add_indent();
             writer.add_operator(".");
             writer.add_function("vertical_spacing");
             writer.add_plain("(");
-            writer.add_number(&format!("{:.1}", v_spacing));
+            writer.add_number(&format!("{:.1}", props.wrapping_vertical_spacing));
             writer.add_plain(")");
         }
         

@@ -20,6 +20,7 @@ use crate::styles::container::*;
 use crate::icon;
 
 use crate::views::widget_tree::Message;
+use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use control_styling::*;
 
 
@@ -28,7 +29,8 @@ pub fn container_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
     theme: &Theme,
-    type_system: &'a TypeSystem
+    type_system: &'a TypeSystem,
+    custom_themes: &'a CustomThemes,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -38,7 +40,10 @@ pub fn container_controls<'a>(
         text("Container Properties").size(TITLE_SIZE),
 
         // Widget Name
-        widget_name(widget_id, &props.widget_name),
+        row![
+            widget_name(widget_id, &props.widget_name),
+            custom_style_picker(custom_themes, widget_id, props, ThemePaneEnum::Container),
+        ].spacing(MAIN_SPACING),        
 
         column![
             text("Sizing Mode").size(SECTION_SIZE),
@@ -138,7 +143,7 @@ pub fn container_controls<'a>(
                         vec![ContainerAlignX::Left, ContainerAlignX::Center, ContainerAlignX::Right],
                         Some(props.align_x),
                         move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignX(v)),
-                    ),
+                    ).width(160),
                 ]
                 .spacing(LABEL_SPACING)
                 .width(Length::Fill),
@@ -149,12 +154,12 @@ pub fn container_controls<'a>(
                         vec![ContainerAlignY::Top, ContainerAlignY::Center, ContainerAlignY::Bottom],
                         Some(props.align_y),
                         move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignY(v)),
-                    ),
+                    ).width(160),
                 ]
                 .spacing(LABEL_SPACING)
                 .width(Length::Fill),
             ]
-            .spacing(SECTION_SPACING)
+            .spacing(MAIN_SPACING)
         } else {
             row![]
         },
@@ -233,20 +238,27 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
         if props.is_wrapping_row {
             column![
                 column![
-                    text("Vertical Spacing (between wrapped rows)").size(SECTION_SIZE),
+                    row![
+                        text("Vertical Spacing").size(SECTION_SIZE),
+                        information(theme, "Spacing between wrapped rows")
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::End),
+                    
                     row![
                         checkbox(
                             props.match_horizontal_spacing,
-                        ).label("match horizontal")
+                        )
+                        .label("match horizontal spacing")
                         .on_toggle(move |use_same| {
                             Message::PropertyChanged(
                                 widget_id,
                                 PropertyChange::WrappingSpacingMatchToggle(use_same)
                             )
                         }),
-                        if let Some(v_spacing) = props.wrapping_vertical_spacing {
+                        if props.match_horizontal_spacing {
                             row![
-                                slider(0.0..=50.0, v_spacing, move |v| {
+                                slider(0.0..=50.0, props.wrapping_vertical_spacing, move |v| {
                                     Message::PropertyChanged(
                                         widget_id,
                                         PropertyChange::WrappingVerticalSpacing(v)
@@ -254,7 +266,7 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
                                 })
                                 .step(1.0)
                                 .width(180),
-                                text(format!("{:.0}px", v_spacing)).size(LABEL_SIZE).width(50),
+                                text(format!("{:.0}px", props.wrapping_vertical_spacing)).size(LABEL_SIZE).width(50),
                             ]
                             .spacing(SECTION_SPACING)
                             .align_y(Alignment::Center)
@@ -268,7 +280,13 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
                 .spacing(LABEL_SPACING),
                 
                 column![
-                    text("Horizontal Alignment").size(LABEL_SIZE),
+                    row![
+                        text("Horizontal Alignment").size(LABEL_SIZE),
+                        information(theme, "Aligns wrapped lines within the row"),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::End),
+                    
                     pick_list(
                         vec![
                             ContainerAlignX::Left,
@@ -280,10 +298,7 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
                             widget_id,
                             PropertyChange::WrappingAlignX(align)
                         ),
-                    ),
-                    text("Aligns wrapped lines within the row")
-                        .size(LABEL_SIZE - 1.0)
-                        .color(Color::from_rgb(0.5, 0.5, 0.5)),
+                    ).width(160),
                 ]
                 .spacing(LABEL_SPACING),
             ]
@@ -296,17 +311,19 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
         if !props.is_wrapping_row {
             column![
                 text("Vertical Alignment").size(LABEL_SIZE),
-                pick_list(
-                    vec![AlignmentXOption::Start, AlignmentXOption::Center, AlignmentXOption::End],
-                    Some(AlignmentXOption::from_alignment(props.align_items)),
-                    move |sel| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::AlignItems(sel.to_alignment())
+                row![
+                    pick_list(
+                        vec![AlignmentXOption::Start, AlignmentXOption::Center, AlignmentXOption::End],
+                        Some(AlignmentXOption::from_alignment(props.align_items)),
+                        move |sel| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::AlignItems(sel.to_alignment())
+                        ),
                     ),
-                ),
-                text("Aligns children vertically within the row")
-                    .size(LABEL_SIZE - 1.0)
-                    .color(Color::from_rgb(0.5, 0.5, 0.5)),
+                    information(theme, "Aligns children vertically within the row"),
+                ]
+                .spacing(LABEL_SPACING)
+                .align_y(Alignment::End),
             ]
             .spacing(LABEL_SPACING)
         } else {
@@ -407,7 +424,13 @@ pub fn column_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
     ).into()
 }
 
-pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
+pub fn button_controls<'a>(
+    h: &'a WidgetHierarchy, 
+    widget_id: WidgetId, 
+    theme: &Theme, 
+    type_system: &'a TypeSystem, 
+    custom_themes: &'a CustomThemes,
+) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
     let palette = theme.extended_palette();
@@ -436,22 +459,7 @@ pub fn button_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
         ]
         .spacing(LABEL_SPACING),
 
-        column![
-            text("Button Style").size(LABEL_SIZE),
-            pick_list(
-                vec![
-                    ButtonStyleType::Primary,
-                    ButtonStyleType::Secondary,
-                    ButtonStyleType::Success,
-                    ButtonStyleType::Danger,
-                    ButtonStyleType::Text,
-                ],
-                Some(props.button_style),
-                move |v| Message::PropertyChanged(widget_id, PropertyChange::ButtonStyle(v)),
-            )
-            .width(250),
-        ]
-        .spacing(LABEL_SPACING),
+        custom_style_picker(custom_themes, widget_id, props, ThemePaneEnum::Button),
 
         column![
             text("Event Handler").size(SECTION_SIZE),
@@ -2895,9 +2903,9 @@ pub fn padding_controls<'a>(
             PaddingMode::Symmetric => {
                 column![
                     row![
-                        column![
-                            text("Vertical (Top/Bottom)").size(LABEL_SIZE),
-                            row![
+                        row![
+                            column![
+                                text("Vertical (Top/Bottom)").size(LABEL_SIZE),
                                 slider(0.0..=50.0, current_padding.top, move |v| {
                                     Message::PropertyChanged(
                                         widget_id,
@@ -2910,16 +2918,12 @@ pub fn padding_controls<'a>(
                                     .size(LABEL_SIZE)
                                     .width(50),
                             ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING)
-                        .width(Length::Fill),
-                    ],
-                    row![
-                        column![
-                            text("Horizontal (Left/Right)").size(LABEL_SIZE),
-                            row![
+                            .spacing(LABEL_SPACING)
+                            .width(Length::Fill),
+                        ],
+                        row![
+                            column![
+                                text("Horizontal (Left/Right)").size(LABEL_SIZE),
                                 slider(0.0..=50.0, current_padding.left, move |v| {
                                     Message::PropertyChanged(
                                         widget_id,
@@ -2932,12 +2936,10 @@ pub fn padding_controls<'a>(
                                     .size(LABEL_SIZE)
                                     .width(50),
                             ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING)
-                        .width(Length::Fill),
-                    ],
+                            .spacing(LABEL_SPACING)
+                            .width(Length::Fill),
+                        ],
+                    ]
                 ]
                 .spacing(SECTION_SPACING)
             }
@@ -3148,6 +3150,54 @@ pub fn widget_name<'a>(widget_id: WidgetId, name: &'a str) -> Element<'a, Messag
         .into()
 }
 
+fn custom_style_picker<'a>(
+    custom_themes: &'a CustomThemes,
+    widget_id: WidgetId,
+    props: &'a Properties,
+    widget_type_enum: ThemePaneEnum,
+) -> Element<'a, Message> {
+    let custom_styles = custom_themes.styles().get(&widget_type_enum);
+
+    let mut style_options: Vec<String> = vec![];
+    if let Some(styles) = custom_styles {
+        if !styles.is_empty() {
+             style_options.extend(styles.keys().map(|f| f.to_string()));
+        }
+    }
+
+    match widget_type_enum {
+        ThemePaneEnum::Container => {
+            for name in ContainerStyleType::all() {
+                style_options.push(name);
+            }
+        }
+        ThemePaneEnum::Button => {
+            for name in ButtonStyleType::all() {
+                style_options.push(name);
+            }
+        }
+        _ => {}
+    }
+      
+    if style_options.len() < 1 { // Don't show picker if there are no styles
+        return column![].into();
+    }
+
+    column![
+        text("Style").size(LABEL_SIZE),
+        pick_list(
+            style_options,
+            props.custom_style_name.clone(),
+            move |selection| {
+                Message::PropertyChanged(widget_id, PropertyChange::CustomStyle(Some(selection.to_string())))
+            }
+        )
+        .placeholder("default")
+    ]
+    .spacing(LABEL_SPACING)
+    .into()
+}
+
 pub fn add_code_preview<'a>(content: Element<'a, Message>, hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem) -> Element<'a, Message> {
     let mut generator = CodeGenerator::new_single(hierarchy, theme, type_system);
     let tokens = generator.generate_widget_code_rewrite(widget_id);
@@ -3166,7 +3216,8 @@ pub fn add_code_preview<'a>(content: Element<'a, Message>, hierarchy: &'a Widget
         scrollable(
             container(
                 build_code_view_with_height(&tokens, 0.0, theme)
-            ).padding(padding::right(10))
+            )
+            .padding(padding::right(10))
         ),
     ]
     .padding(5)
