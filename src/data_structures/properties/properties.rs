@@ -62,7 +62,7 @@ pub struct Properties {
     pub text_align_y: iced::alignment::Vertical,
     
     // Button properties
-    pub button_style: ButtonStyleType,
+//    pub button_style: ButtonStyleType,
     pub button_on_press_maybe_enabled: bool,
     pub button_on_press_with_enabled: bool,
     pub button_on_press_enabled: bool,
@@ -249,7 +249,7 @@ impl Default for Properties {
             text_align_y: iced::alignment::Vertical::Top,
             
             // Button defaults
-            button_style: ButtonStyleType::Primary,
+//            button_style: ButtonStyleType::Primary,
             button_on_press_maybe_enabled: false,
             button_on_press_with_enabled: false,
             button_on_press_enabled: true,
@@ -586,7 +586,6 @@ impl CommonProperties {
     }
     
     /// Helper to check if all widgets have the same value for a property
-    /// WHY: Generic helper reduces code duplication
     fn get_uniform_property<T, F>(widgets: &[&Widget], getter: F) -> Option<T>
     where
         T: PartialEq + Clone,

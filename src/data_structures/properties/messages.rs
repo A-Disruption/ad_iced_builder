@@ -73,7 +73,7 @@ pub enum PropertyChange {
     TextAlignY(AlignmentYOption),
     
     // Button properties
-    ButtonStyle(ButtonStyleType),
+//    ButtonStyle(ButtonStyleType),
     ButtonPressHandler(OnHandler),
 
     // TextInput properties
@@ -378,7 +378,7 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::TextAlignX(alignment)       => properties.text_align_x = alignment.to_alignment().into(),
         PropertyChange::TextAlignY(alignment)       => properties.text_align_y = alignment.to_alignment(),
 
-        PropertyChange::ButtonStyle(value) => properties.button_style = value,
+//        PropertyChange::ButtonStyle(value) => properties.button_style = value,
         PropertyChange::ButtonPressHandler(handler) => {
             // Reset all to false first
             properties.button_on_press_enabled = false;

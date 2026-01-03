@@ -8,6 +8,7 @@ use crate::data_structures::types::types::*;
 use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::*;
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 pub mod tokens;
 pub mod writer;
 pub mod view;
@@ -285,7 +286,7 @@ impl<'a> CodeGenerator<'a> {
     } */
 
     /// Generates a multi-file project structure
-    pub fn generate_project_structure(&mut self) -> HashMap<String, Vec<Token>> {
+    pub fn generate_project_structure(&mut self, custom_styles: &CustomThemes,) -> HashMap<String, Vec<Token>> {
         let mut files = HashMap::new();
         
         // 1. Generate types.rs (Shared Enums)
@@ -324,7 +325,7 @@ impl<'a> CodeGenerator<'a> {
             };
 
             // Generate the content
-            let tokens = self.generate_single_view_content(view, &struct_name, files.contains_key("types.rs"), &generated_modules);
+            let tokens = self.generate_single_view_content(view, &struct_name, files.contains_key("types.rs"), &generated_modules, custom_styles);
             files.insert(file_name, tokens);
         }
 
@@ -344,7 +345,8 @@ impl<'a> CodeGenerator<'a> {
         view: &AppView, 
         struct_name: &str, 
         has_types: bool,
-        modules_to_mod: &[String]
+        modules_to_mod: &[String],
+        custom_styles: &CustomThemes,
     ) -> Vec<Token> {
         let mut writer = CodeWriter::new();
         let root = view.hierarchy.root();
@@ -388,7 +390,8 @@ impl<'a> CodeGenerator<'a> {
             struct_name, 
             // Only pass title/theme if it's the main view
             if view.is_main { Some((&self.app_name, self.theme)) } else { None }, 
-            self.type_system
+            self.type_system,
+            custom_styles,
         );
         writer.add_newline();
 
@@ -671,7 +674,7 @@ impl<'a> CodeGenerator<'a> {
         }
     }
 
-    pub fn generate_widget_code_rewrite(&mut self, widget_id: WidgetId) -> Vec<Token> {
+    pub fn generate_widget_code_rewrite(&mut self, widget_id: WidgetId, custom_styles: &CustomThemes,) -> Vec<Token> {
         let hierarchy = self.current_hierarchy.expect("No hierarchy set for code generation");
         let widget = match hierarchy.get_widget_by_id(widget_id) {
             Some(w) => w,
@@ -683,7 +686,7 @@ impl<'a> CodeGenerator<'a> {
         }
         
         let mut writer = CodeWriter::new();
-        crate::code_generator::generate::widgets::generate_widget_code(&mut writer, widget, &self.widget_names, false);
+        crate::code_generator::generate::widgets::generate_widget_code(&mut writer, widget, &self.widget_names, false, custom_styles);
 
         writer.tokens()
     }

@@ -2,6 +2,7 @@ use iced::Theme;
 use crate::code_generator::writer::{CodeWriter, to_snake_case};
 use crate::code_generator::generate::{view, events};
 use crate::data_structures::types::types::{Widget, WidgetType, WidgetId};
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::enum_builder::TypeSystem;
 use std::collections::HashMap;
 
@@ -10,7 +11,7 @@ pub fn generate_app_struct(
     root: &Widget, 
     names: &HashMap<WidgetId, String>,
     struct_name: &str,
-    type_system: &TypeSystem
+    type_system: &TypeSystem,
 ) {
     writer.add_newline();
     writer.add_keyword("struct");
@@ -35,6 +36,7 @@ pub fn generate_impl(
     // Optional tuple: (window_title, theme). If None, standard component impl.
     main_config: Option<(&str, &Theme)>, 
     type_system: &TypeSystem,
+    custom_styles: &CustomThemes,
 ) {
     writer.add_keyword("impl");
     writer.add_plain(" ");
@@ -52,7 +54,7 @@ pub fn generate_impl(
     }
 
     events::generate_update(writer, root, names);
-    view::generate_view_method(writer, root, names);
+    view::generate_view_method(writer, root, names, custom_styles);
 
     writer.add_newline();
     writer.decrease_indent();

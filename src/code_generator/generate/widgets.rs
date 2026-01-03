@@ -1,6 +1,7 @@
 use crate::code_generator::writer::{CodeWriter, to_snake_case, to_pascal_case};
 use crate::data_structures::types::types::{WidgetType, Widget, WidgetId};
 use crate::data_structures::types::type_implementations::*;
+use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use iced::widget::text::LineHeight;
 use iced::{Length, Padding, Alignment, Theme};
 use std::collections::HashMap;
@@ -10,40 +11,41 @@ pub fn generate_widget_code(
     writer: &mut CodeWriter, 
     widget: &Widget,
     names: &HashMap<WidgetId, String>, 
-    use_self: bool
+    use_self: bool,
+    custom_styles: &CustomThemes,
 ) {
     match widget.widget_type {
-        WidgetType::Button => generate_button(writer, widget, names, use_self),
+        WidgetType::Button => generate_button(writer, widget, names, custom_styles, use_self),
         WidgetType::Checkbox => generate_checkbox(writer, widget, names, use_self),
-        WidgetType::Column => generate_column(writer, widget, names, use_self),
+        WidgetType::Column => generate_column(writer, widget, names, custom_styles, use_self),
         WidgetType::ComboBox => generate_combobox(writer, widget, names, use_self),
-        WidgetType::Container => generate_container(writer, widget, names, use_self),
+        WidgetType::Container => generate_container(writer, widget, names, custom_styles, use_self),
         WidgetType::Image => generate_image(writer, widget, names, use_self),
         WidgetType::Markdown => generate_markdown(writer, widget, names, use_self),
-        WidgetType::MouseArea => generate_mousearea(writer, widget, names, use_self),
+        WidgetType::MouseArea => generate_mousearea(writer, widget, names, custom_styles, use_self),
         WidgetType::PickList => generate_picklist(writer, widget, names, use_self),
         WidgetType::Pin => generate_pin(writer, widget, names, use_self),
         WidgetType::ProgressBar => generate_progressbar(writer, widget, names, use_self),
         WidgetType::QRCode => generate_qrcode(writer, widget, names, use_self),
         WidgetType::Radio => generate_radio(writer, widget, names, use_self),
-        WidgetType::Row => generate_row(writer, widget, names, use_self),
+        WidgetType::Row => generate_row(writer, widget, names, custom_styles, use_self),
         WidgetType::Rule => generate_rule(writer, widget, names, use_self),
-        WidgetType::Scrollable => generate_scrollable(writer, widget, names, use_self),
+        WidgetType::Scrollable => generate_scrollable(writer, widget, names, custom_styles, use_self),
         WidgetType::Slider => generate_slider(writer, widget, names, use_self),
         WidgetType::Space => generate_space(writer, widget, names, use_self),
-        WidgetType::Stack => generate_stack(writer, widget, names, use_self),
+        WidgetType::Stack => generate_stack(writer, widget, names, custom_styles, use_self),
         WidgetType::Svg => generate_svg(writer, widget, names, use_self),
         WidgetType::Text => generate_text(writer, widget, names, use_self),
         WidgetType::TextInput => generate_textinput(writer, widget, names, use_self),
-        WidgetType::Themer => generate_themer(writer, widget, names, use_self),
+        WidgetType::Themer => generate_themer(writer, widget, names, custom_styles, use_self),
         WidgetType::Toggler => generate_toggler(writer, widget, names, use_self),
-        WidgetType::Tooltip => generate_tooltip(writer, widget, names, use_self),
+        WidgetType::Tooltip => generate_tooltip(writer, widget, names, custom_styles, use_self),
         WidgetType::VerticalSlider => generate_verticalslider(writer, widget, names, use_self),
         WidgetType::ViewReference => {}
     }
 }
 
-fn generate_button(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, _use_self: bool) {
+fn generate_button(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, _use_self: bool) {
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
     writer.add_indent();
@@ -65,26 +67,39 @@ fn generate_button(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wid
         writer.on_press_maybe(&name)
     }
 
-    match widget.properties.button_style {
-        ButtonStyleType::Secondary => {
-            writer.add_style("button","secondary")
+    match widget.properties.custom_style_name.clone() {
+
+        Some(style) => {
+            if let Some(style_map) = custom_styles.styles().get(&ThemePaneEnum::Button) {
+                writer.add_style("styles::button", &style.to_lowercase());
+            }  
+            else if ButtonStyleType::all().contains(&style) {
+                let style = ButtonStyleType::get(&style).unwrap();
+                match style {
+                    ButtonStyleType::Secondary => {
+                        writer.add_style("button","secondary")
+                    }
+                    ButtonStyleType::Success => {
+                        writer.add_style("button","success")
+                    }
+                    ButtonStyleType::Danger => {
+                        writer.add_style("button","danger")
+                    }
+                    ButtonStyleType::Text => {
+                        writer.add_style("button","text")
+                    }
+                    ButtonStyleType::Background => {
+                        writer.add_style("button","background")
+                    }
+                    ButtonStyleType::Subtle => {
+                        writer.add_style("button","subtle")
+                    }
+                    ButtonStyleType::Primary => {}
+                }
+            }
         }
-        ButtonStyleType::Success => {
-            writer.add_style("button","success")
-        }
-        ButtonStyleType::Danger => {
-            writer.add_style("button","danger")
-        }
-        ButtonStyleType::Text => {
-            writer.add_style("button","text")
-        }
-        ButtonStyleType::Background => {
-            writer.add_style("button","background")
-        }
-        ButtonStyleType::Subtle => {
-            writer.add_style("button","subtle")
-        }
-        ButtonStyleType::Primary => {} // Default, don't add
+        None => {},
+
     }
 
     if widget.properties.width != Length::Shrink {
@@ -145,7 +160,7 @@ fn generate_checkbox(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<W
     writer.decrease_indent();
 }
 
-fn generate_column(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_column(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     writer.add_indent();
     writer.add_macro("column!");
     writer.add_plain("[");
@@ -161,7 +176,7 @@ fn generate_column(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wid
         writer.add_newline();
     } else {
         for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(writer, child, names,  use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
             if i < widget.children.len() - 1 {
                 writer.add_plain(",");
             }
@@ -300,7 +315,7 @@ fn generate_combobox(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<W
     }   
 }
 
-fn generate_container(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_container(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
 
     writer.add_indent();
@@ -317,7 +332,7 @@ fn generate_container(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<
         writer.add_plain(")");
     } else {
         for child in &widget.children {
-            generate_widget_code(writer, child, names, use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
         }
     }
     
@@ -415,7 +430,7 @@ fn generate_image(writer: &mut CodeWriter, widget: &Widget, _names: &HashMap<Wid
 
 fn generate_markdown(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {}
 
-fn generate_mousearea(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_mousearea(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
@@ -426,7 +441,7 @@ fn generate_mousearea(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<
     
     writer.increase_indent();
     if !widget.children.is_empty() { // Generate Child
-        generate_widget_code(writer, &widget.children[0], names, use_self);
+        generate_widget_code(writer, &widget.children[0], names, use_self, custom_styles);
     }
     writer.decrease_indent();  
     
@@ -688,7 +703,7 @@ fn generate_radio(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widg
     writer.add_plain("]");    
 }
 
-fn generate_row(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_row(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
 
     writer.add_indent();
@@ -705,7 +720,7 @@ fn generate_row(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widget
         writer.add_plain(")");
     } else {
         for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(writer, child, names, use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
             if i < widget.children.len() - 1 {
                 writer.add_plain(",");
             }
@@ -782,7 +797,7 @@ fn generate_rule(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widge
     writer.add_plain(")");    
 }
 
-fn generate_scrollable(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_scrollable(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
 
     writer.add_indent();
@@ -813,7 +828,7 @@ fn generate_scrollable(writer: &mut CodeWriter, widget: &Widget, names: &HashMap
         writer.add_plain("]");
     } else {
         for child in &widget.children {
-            generate_widget_code(writer, child, names, use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
         }
     }
     
@@ -930,7 +945,7 @@ fn generate_space(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widg
     writer.add_plain("()");
 }
 
-fn generate_stack(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_stack(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
 
     writer.add_indent();
@@ -953,7 +968,7 @@ fn generate_stack(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widg
         writer.add_plain(").into(),");
     } else {
         for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(writer, child, names, use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
             writer.add_operator(".");
             writer.add_function("into");
             writer.add_plain("()");
@@ -1092,7 +1107,7 @@ fn generate_textinput(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<
     writer.decrease_indent();   
 }
 
-fn generate_themer(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_themer(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
@@ -1146,7 +1161,7 @@ fn generate_themer(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wid
         writer.add_plain("))");
     } else {
         for child in &widget.children {
-            generate_widget_code(writer, child, names, use_self);
+            generate_widget_code(writer, child, names, use_self, custom_styles);
         }
     }
     
@@ -1225,7 +1240,7 @@ fn generate_toggler(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wi
     writer.decrease_indent();    
 }
 
-fn generate_tooltip(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_tooltip(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
     
     writer.add_indent();
@@ -1236,7 +1251,7 @@ fn generate_tooltip(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wi
     
     // First child (host)
     if let Some(host) = widget.children.get(0) {
-        generate_widget_code(writer, host, names, use_self);
+        generate_widget_code(writer, host, names, use_self, custom_styles);
     } else {
         writer.add_indent();
         writer.add_function("text");
@@ -1249,7 +1264,7 @@ fn generate_tooltip(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wi
     
     // Second child (tooltip content) or text
     if let Some(content) = widget.children.get(1) {
-        generate_widget_code(writer, content, names, use_self);
+        generate_widget_code(writer, content, names, use_self, custom_styles);
     } else {
         writer.add_indent();
         writer.add_function("text");

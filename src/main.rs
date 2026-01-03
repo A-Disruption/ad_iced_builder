@@ -45,7 +45,7 @@ struct AdUiBuilder {
     active_code_tab: String,
 
     app_name: String,
-    custom_themes: CustomThemes,
+    custom_styles: CustomThemes,
     type_system: enum_builder::TypeSystem,
     type_editor: EnumEditorView,
 
@@ -94,7 +94,7 @@ impl AdUiBuilder {
             active_code_tab: "main.rs".to_string(),
 
             app_name: "App".to_string(),
-            custom_themes: CustomThemes::new(&Theme::Dark),
+            custom_styles: CustomThemes::new(&Theme::Dark),
             type_system: enum_builder::TypeSystem::new(),
             type_editor: EnumEditorView::new(),
 
@@ -163,7 +163,7 @@ impl AdUiBuilder {
                     }
                     ViewMessage::ThemeBuilder(msg) => {
                     
-                        return self.custom_themes.update(msg)
+                        return self.custom_styles.update(msg)
                             .map(|m| Message::ViewMessages(ViewMessage::ThemeBuilder(m)));
                     }
                     ViewMessage::AddWidgets(msg) => {
@@ -278,7 +278,7 @@ impl AdUiBuilder {
             navigation_bar::ViewSelection::Main => {
                 row![
                     column![ // Left Side
-                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme, &self.custom_themes ).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
+                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme, &self.custom_styles ).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
                         container(add_widgets::view(&preview_view.hierarchy, &selected_widget.id).map(|msg| Message::ViewMessages( ViewMessage::AddWidgets(msg)))).align_bottom(Length::Shrink).width(400),
                     ]
                     .spacing(5),
@@ -294,7 +294,7 @@ impl AdUiBuilder {
             }
 //            navigation_bar::ViewSelection::Code => {}
             navigation_bar::ViewSelection::ThemeBuilder => {
-                self.custom_themes.view(&self.theme).map(|msg| Message::ViewMessages( ViewMessage::ThemeBuilder(msg)))
+                self.custom_styles.view(&self.theme).map(|msg| Message::ViewMessages( ViewMessage::ThemeBuilder(msg)))
             }
 //            navigation_bar::ViewSelection::WidgetStyleBuilder => {}
             navigation_bar::ViewSelection::EnumBuilder => {
@@ -342,7 +342,7 @@ impl AdUiBuilder {
                     let view_to_render = self.views.get(&view_id)
                         .expect("View assigned to window must exist");
 
-                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_themes, selected_view.show_widget_bounds, &self.views, None)
+                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_styles, selected_view.show_widget_bounds, &self.views, None)
                             .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))                    
                 }
             }
@@ -379,7 +379,7 @@ impl AdUiBuilder {
         generator.set_app_name(self.app_name.clone());
 
         // Now generates logic for all views
-        self.generated_files = generator.generate_project_structure();
+        self.generated_files = generator.generate_project_structure(&self.custom_styles);
     } 
 }
 

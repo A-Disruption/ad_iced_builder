@@ -1,9 +1,10 @@
 use crate::code_generator::writer::{CodeWriter, to_pascal_case, to_snake_case};
 use crate::data_structures::types::types::{Widget, WidgetType, WidgetId};
 use crate::code_generator::generate::widgets::generate_widget_code;
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 use std::collections::HashMap;
 
-pub fn generate_view_method(writer: &mut CodeWriter, root: &Widget, names: &HashMap<WidgetId, String>, ) {
+pub fn generate_view_method(writer: &mut CodeWriter, root: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, ) {
     writer.add_indent();
     writer.add_keyword("pub fn");
     writer.add_plain(" ");
@@ -41,7 +42,7 @@ pub fn generate_view_method(writer: &mut CodeWriter, root: &Widget, names: &Hash
         writer.increase_indent();
 
         root.children.iter().for_each(|widget|
-            generate_widget_code(writer, widget, names, true)
+            generate_widget_code(writer, widget, names, true, custom_styles)
         );
         
         writer.decrease_indent();
