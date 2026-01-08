@@ -204,14 +204,19 @@ impl AdUiBuilder {
                     ViewMessage::WindowSettings(msg) => {
                         if let settings_views::window_settings::Message::UpdateTheme(theme) = msg {
                             self.theme = theme;
+                            self.custom_styles.theme(&self.theme);
+                            self.regenerate_code();
                             return Task::none();
                         }
-
-                        return settings_views::window_settings::update(
+                        
+                        let result = settings_views::window_settings::update(
                             &mut self.windows,
                             msg
                         )
-                        .map(|m| Message::ViewMessages(ViewMessage::WindowSettings(m)))                        
+                        .map(|m| Message::ViewMessages(ViewMessage::WindowSettings(m)));
+
+                        self.regenerate_code();
+                        return result                      
                     }
                 }
             }
@@ -368,17 +373,15 @@ impl AdUiBuilder {
     fn regenerate_code(&mut self) {
         use crate::code_generator::CodeGenerator;
         
-        // No more dummy hierarchy! 
-        // We pass the actual views map.
         let mut generator = CodeGenerator::new(
-            &self.views, 
+            &self.views,
+            &self.windows,
             &self.theme, 
             &self.type_system
         );
         
         generator.set_app_name(self.app_name.clone());
 
-        // Now generates logic for all views
         self.generated_files = generator.generate_project_structure(&self.custom_styles);
     } 
 }

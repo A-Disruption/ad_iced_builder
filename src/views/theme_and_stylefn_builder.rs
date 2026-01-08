@@ -1,9 +1,12 @@
-use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_input, Space};
+use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_input, tooltip, Space};
 use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme, Padding, Task,};
 use std::collections::BTreeMap;
 use widgets::{color_picker, collapsible::collapsible};
+use widgets::generic_overlay;
+use arboard::Clipboard;
+use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic, internal_overlay};
 use crate::{icon, styles};
-use crate::styles::style_enum::WidgetStyle;
+use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition, evaluate_theme_expression};
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -76,7 +79,7 @@ pub struct CustomThemes {
     pub theme: Theme,
     selected_view: ThemePaneEnum,
     style_name: String,
-    styles: BTreeMap<ThemePaneEnum, BTreeMap<String, WidgetStyle>>,
+    styles: BTreeMap<ThemePaneEnum, BTreeMap<String, SavedStyleDefinition>>,
     text_color: Color,
     border_color: Color,
     border_width: f32,
@@ -91,6 +94,12 @@ pub struct CustomThemes {
     shadow_offset_y: f32,
     shadow_blur_radius: f32,
     snap: bool,
+
+    // source tracking for palette reference in color_picker
+    text_color_source: Option<String>,
+    border_color_source: Option<String>,
+    background_color_source: Option<String>,
+    shadow_color_source: Option<String>,
 }
 
 impl CustomThemes {
@@ -119,7 +128,39 @@ impl CustomThemes {
             shadow_offset_y: 0.0,
             shadow_blur_radius: 0.0,
             snap: true,
+            text_color_source: None,
+            border_color_source: None,
+            background_color_source: None,
+            shadow_color_source: None,
         }
+    }
+
+    pub fn theme(&mut self, theme: &Theme) {
+        self.theme = theme.clone();
+        self.reset_to_theme();
+    }
+
+    fn reset_to_theme(&mut self) {
+        let palette = self.theme.extended_palette();
+
+        self.style_name = String::new();
+        self.text_color = palette.background.base.text;
+        self.border_color = palette.background.strong.color;
+        self.border_width = 0.0;
+        self.border_radius_top_left = 0.0;
+        self.border_radius_top_right = 0.0;
+        self.border_radius_bottom_right = 0.0;
+        self.border_radius_bottom_left = 0.0;
+        self.background_color = palette.background.base.color;
+        self.shadow_enabled = false;
+        self.shadow_color = palette.background.weak.color;
+        self.shadow_offset_x = 0.0;
+        self.shadow_offset_y = 0.0;
+        self.shadow_blur_radius = 0.0;
+        self.text_color_source = None;
+        self.border_color_source = None;
+        self.background_color_source = None;
+        self.shadow_color_source = None;
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -128,19 +169,36 @@ impl CustomThemes {
                 self.selected_view = view;
                 self.reset_style_editor(view);
             }
+            Message::CopyCode(code) => {
+                if let Ok(mut clipboard) = Clipboard::new() {
+                    let _ = clipboard.set_text(code);
+                }
+            }
             Message::UpdateStyleName(name) => {
                 self.style_name = name;
             }
-            Message::UpdateTextColor(color) => self.text_color = color,
-            Message::UpdateBorderColor(color) => self.border_color = color,
+            Message::UpdateTextColor { color, source } => {
+                self.text_color = color;
+                self.text_color_source = source;
+            }
+            Message::UpdateBorderColor { color, source } => {
+                self.border_color = color;
+                self.border_color_source = source;
+            }
             Message::UpdateBorderWidth(width) => self.border_width = width,
             Message::UpdateBorderRadiusTopLeft(radius) => self.border_radius_top_left = radius,
             Message::UpdateBorderRadiusTopRight(radius) => self.border_radius_top_right = radius,
             Message::UpdateBorderRadiusBottomRight(radius) => self.border_radius_bottom_right = radius,
             Message::UpdateBorderRadiusBottomLeft(radius) => self.border_radius_bottom_left = radius,
-            Message::UpdateBackgroundColor(color) => self.background_color = color,
+            Message::UpdateBackgroundColor { color, source } => {
+                self.background_color = color;
+                self.background_color_source = source;
+            }
             Message::UpdateShadowEnabled(enabled) => self.shadow_enabled = enabled,
-            Message::UpdateShadowColor(color) => self.shadow_color = color,
+            Message::UpdateShadowColor { color, source } => {
+                self.shadow_color = color;
+                self.shadow_color_source = source;
+            }
             Message::UpdateShadowOffsetX(x) => self.shadow_offset_x = x,
             Message::UpdateShadowOffsetY(y) => self.shadow_offset_y = y,
             Message::UpdateShadowBlurRadius(blur_radius) => self.shadow_blur_radius = blur_radius,
@@ -148,69 +206,33 @@ impl CustomThemes {
             
             Message::SaveStyle => {
                 if !self.style_name.is_empty() {
-                    let style = match self.selected_view {
-                        ThemePaneEnum::Container => {
-                            let container_style = container_stylefn_builder(
-                                self.text_color,
-                                Background::Color(self.background_color),
-                                Border {
-                                    color: self.border_color,
-                                    width: self.border_width,
-                                    radius: iced::border::Radius {
-                                        top_left: self.border_radius_top_left,
-                                        top_right: self.border_radius_top_right,
-                                        bottom_right: self.border_radius_bottom_right,
-                                        bottom_left: self.border_radius_bottom_left,
-                                    }
-                                },
-                                if self.shadow_enabled {
-                                    Shadow {
-                                        color: self.shadow_color,
-                                        offset: iced::Vector {
-                                            x: self.shadow_offset_x,
-                                            y: self.shadow_offset_y,
-                                        },
-                                        blur_radius: self.shadow_blur_radius,
-                                    }
-                                } else {
-                                    Shadow::default()
-                                },
-                                self.snap
-                            );
-                            WidgetStyle::Container(container_style)
-                        }
-                        ThemePaneEnum::Button => {
-                            let button_style = button_stylefn_builder(
-                                self.text_color,
-                                Background::Color(self.background_color),
-                                Border {
-                                    color: self.border_color,
-                                    width: self.border_width,
-                                    radius: self.border_radius_top_left.into(),
-                                },
-                                if self.shadow_enabled {
-                                    Shadow {
-                                        color: self.shadow_color,
-                                        offset: iced::Vector {
-                                            x: self.shadow_offset_x,
-                                            y: self.shadow_offset_y,
-                                        },
-                                        blur_radius: self.shadow_blur_radius,
-                                    }
-                                } else {
-                                    Shadow::default()
-                                },
-                                self.snap
-                            );
-                            WidgetStyle::Button(button_style)
-                        }
-                        _ => return Task::none(),
+                    let definition = SavedStyleDefinition {
+                        name: self.style_name.clone(),
+                        widget_type: self.selected_view,
+                        text_color: self.text_color,
+                        text_color_source: self.text_color_source.clone(),
+                        background_color: self.background_color,
+                        background_color_source: self.background_color_source.clone(),
+                        border_color: self.border_color,
+                        border_color_source: self.border_color_source.clone(),
+                        border_width: self.border_width,
+                        border_radius_top_left: self.border_radius_top_left,
+                        border_radius_top_right: self.border_radius_top_right,
+                        border_radius_bottom_right: self.border_radius_bottom_right,
+                        border_radius_bottom_left: self.border_radius_bottom_left,
+                        shadow_enabled: self.shadow_enabled,
+                        shadow_color: self.shadow_color,
+                        shadow_color_source: self.shadow_color_source.clone(),
+                        shadow_offset_x: self.shadow_offset_x,
+                        shadow_offset_y: self.shadow_offset_y,
+                        shadow_blur_radius: self.shadow_blur_radius,
+                        snap: self.snap,
                     };
 
                     self.styles
                         .entry(self.selected_view)
                         .or_default()
-                        .insert(self.style_name.clone(), style);
+                        .insert(self.style_name.clone(), definition);
 
                     self.style_name.clear();
 
@@ -218,27 +240,68 @@ impl CustomThemes {
             }
 
             Message::SelectStyle(name) => {
-                let style_map = self.styles.get(&self.selected_view).expect("No Styles to select").clone();
-                let style = style_map.get(&name).expect("Invalid Style Selected");
-                self.apply_style(style);
-                self.style_name = name;
+                if let Some(style_map) = self.styles.get(&self.selected_view) {
+                    if let Some(definition) = style_map.get(&name) {
+                        self.style_name = definition.name.clone();
+                        self.border_width = definition.border_width;
+                        self.border_radius_top_left = definition.border_radius_top_left;
+                        self.border_radius_top_right = definition.border_radius_top_right;
+                        self.border_radius_bottom_right = definition.border_radius_bottom_right;
+                        self.border_radius_bottom_left = definition.border_radius_bottom_left;
+                        self.shadow_enabled = definition.shadow_enabled;
+                        self.shadow_offset_x = definition.shadow_offset_x;
+                        self.shadow_offset_y = definition.shadow_offset_y;
+                        self.shadow_blur_radius = definition.shadow_blur_radius;
+                        self.snap = definition.snap;
+
+                        match &definition.text_color_source {
+                            Some(expression) => {
+                                self.text_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.text_color_source = definition.text_color_source.clone();
+                                }
+                            None => {
+                                self.text_color = definition.text_color;
+                                self.text_color_source = None;
+                            }
+                        }
+                        match &definition.background_color_source {
+                            Some(expression) => {
+                                self.background_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.background_color_source = definition.background_color_source.clone();
+                                }
+                            None => {
+                                self.background_color = definition.background_color;
+                                self.background_color_source = None;
+                            }
+                        }
+                        match &definition.border_color_source {
+                            Some(expression) => {
+                                self.border_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.border_color_source = definition.border_color_source.clone();
+                                }
+                            None => {
+                                self.border_color = definition.border_color;
+                                self.border_color_source = None;
+                            }
+                        }
+                        match &definition.shadow_color_source {
+                            Some(expression) => {
+                                self.shadow_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.shadow_color_source = definition.shadow_color_source.clone();
+                                }
+                            None => {
+                                self.shadow_color = definition.shadow_color;
+                                self.shadow_color_source = None;
+                            }
+                        }
+                    }
+                }
+
+
             }
 
-            Message::ResetToTheme => {
-                let palette = self.theme.extended_palette();
-                self.text_color = palette.background.base.text;
-                self.border_color = palette.background.strong.color;
-                self.border_width = 0.0;
-                self.border_radius_top_left = 0.0;
-                self.border_radius_top_right = 0.0;
-                self.border_radius_bottom_right = 0.0;
-                self.border_radius_bottom_left = 0.0;
-                self.background_color = palette.background.base.color;
-                self.shadow_enabled = false;
-                self.shadow_color = palette.background.weak.color;
-                self.shadow_offset_x = 0.0;
-                self.shadow_offset_y = 0.0;
-                self.shadow_blur_radius = 0.0;
+            Message::ResetToDefault => {
+                self.reset_to_theme();
             }
         }
         Task::none()
@@ -385,22 +448,22 @@ impl CustomThemes {
                 column![
                     container(text("text_color").size(16)).center_x(Length::Fill),
                     color_picker::ColorButton::new(self.text_color)
-                    .on_change(Message::UpdateTextColor)
-                    .title("text_color")
-                    .width(Length::Fill)
-                    .height(Length::Fixed(50.0))
-                    .show_hex(),
+                        .on_change_with_source(|color, source| Message::UpdateTextColor { color, source })
+                        .title("text_color")
+                        .width(Length::Fill)
+                        .height(Length::Fixed(50.0))
+                        .show_hex(),
                 ]
                 .width(Length::FillPortion(1)),
 
                 column![
                     container(text("background color").size(16)).center_x(Length::Fill),
                     color_picker::ColorButton::new(self.background_color)
-                    .on_change(Message::UpdateBackgroundColor)
-                    .title("background color")
-                    .width(Length::Fill)
-                    .height(Length::Fixed(50.0))
-                    .show_hex(),
+                        .on_change_with_source(|color, source| Message::UpdateBackgroundColor { color, source })
+                        .title("background color")
+                        .width(Length::Fill)
+                        .height(Length::Fixed(50.0))
+                        .show_hex(),
                 ]
                 .width(Length::FillPortion(1)),
             ].spacing(10),
@@ -420,11 +483,11 @@ impl CustomThemes {
                     column![
                         container(text("border color").size(16)).center_x(Length::Fill),
                         color_picker::ColorButton::new(self.border_color)
-                        .on_change(Message::UpdateBorderColor)
-                        .title("border color")
-                        .width(Length::Fill)
-                        .height(Length::Fixed(50.0))
-                        .show_hex(),
+                            .on_change_with_source(|color, source| Message::UpdateBorderColor { color, source })
+                            .title("border color")
+                            .width(Length::Fill)
+                            .height(Length::Fixed(50.0))
+                            .show_hex(),
                     ]
                     .width(Length::FillPortion(1)),
                 ].spacing(10).align_y(Alignment::Center),
@@ -485,11 +548,11 @@ impl CustomThemes {
                             container(text("shadow color").size(16)).center_x(Length::Fill),
 
                             color_picker::ColorButton::new(self.shadow_color)
-                            .on_change(Message::UpdateShadowColor)
-                            .title("shadow color")
-                            .width(Length::Fill)
-                            .height(Length::Fixed(50.0))
-                            .show_hex()
+                                .on_change_with_source(|color, source| Message::UpdateShadowColor { color, source })
+                                .title("shadow color")
+                                .width(Length::Fill)
+                                .height(Length::Fixed(50.0))
+                                .show_hex()
                         ]
                         .width(Length::FillPortion(1))
                     } else { column![].width(Length::FillPortion(1)) }
@@ -558,20 +621,21 @@ impl CustomThemes {
                     styles_for_view
                         .unwrap()
                         .iter()
-                        .map(|(name, style)| {
-                            let (preview_style, _) = match style {
-                                WidgetStyle::Container(s) => (s.clone(), s.text_color.unwrap_or(Color::BLACK)),
-                                WidgetStyle::Button(s) => {
-                                    // need to convert button::Style to container::Style for the preview button
-                                    let container_preview_style = container::Style {
-                                        text_color: Some(s.text_color),
-                                        background: s.background,
-                                        border: s.border,
-                                        shadow: s.shadow,
-                                        snap: s.snap
-                                    };
-                                    (container_preview_style, s.text_color)
+                        .map(|(name, definition)| {
+                            let preview_style = match definition.widget_type {
+                                ThemePaneEnum::Container => definition.to_container_style(&theme),
+                                ThemePaneEnum::Button => {
+                                    let button_style = definition.to_button_style(&theme);
+                                    // Convert to container style for preview
+                                    container::Style {
+                                        text_color: Some(button_style.text_color),
+                                        background: button_style.background,
+                                        border: button_style.border,
+                                        shadow: button_style.shadow,
+                                        snap: button_style.snap,
+                                    }
                                 }
+                                _ => container::Style::default(),
                             };
 
                             button(
@@ -614,7 +678,7 @@ impl CustomThemes {
                         .padding(10),
                     row![
                         button("Save Style").on_press(Message::SaveStyle).style(button::secondary),
-                        button("Reset to Default").on_press(Message::ResetToTheme).style(button::secondary),
+                        button("Reset to Default").on_press(Message::ResetToDefault).style(button::secondary),
                     ].spacing(10),
                 ]
                 .spacing(10)
@@ -622,6 +686,7 @@ impl CustomThemes {
             ),
         ].spacing(15);
 
+        let preview_style = self.create_current_preview_style(theme);
         let preview_content = container(
             column![
                 text("Preview").size(16),
@@ -637,43 +702,18 @@ impl CustomThemes {
             .padding(15)
         ).center_x(Length::Fill)
         .style(move |_: &Theme| {
-            container_stylefn_builder(
-                self.text_color,
-                Background::Color(self.background_color),
-                Border {
-                    color: self.border_color,
-                    width: self.border_width,
-                    radius: iced::border::Radius {
-                        top_left: self.border_radius_top_left,
-                        top_right: self.border_radius_top_right,
-                        bottom_right: self.border_radius_bottom_right,
-                        bottom_left: self.border_radius_bottom_left,
-                    }
-                },
-                if self.shadow_enabled {
-                    Shadow {
-                        color: self.shadow_color,
-                        offset: iced::Vector {
-                            x: self.shadow_offset_x,
-                            y: self.shadow_offset_y,
-                        },
-                        blur_radius: self.shadow_blur_radius,
-                    }
-                } else {
-                    Shadow::default()
-                },
-                self.snap
-            )
+            preview_style
         });
 
         let code_view = {
-            // This part needs to be generalized as well
-            use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic};
-            
             let tokens = generate_container_style_tokens(
+                &self.style_name,
                 self.text_color,
+                &self.text_color_source,
                 self.background_color,
+                &self.background_color_source,
                 self.border_color,
+                &self.border_color_source,
                 self.border_width,
                 self.border_radius_top_left,
                 self.border_radius_top_right,
@@ -681,15 +721,30 @@ impl CustomThemes {
                 self.border_radius_bottom_left,
                 self.shadow_enabled,
                 self.shadow_color,
+                &self.shadow_color_source,
                 self.shadow_offset_x,
                 self.shadow_offset_y,
                 self.shadow_blur_radius,
                 self.snap
             );
 
+            let code_string: String = tokens.iter().map(|t| t.text.clone()).collect();
+
             column![
                 container(text("Style Code").size(18)).center_x(Length::Fill),
-                build_code_view_with_height_generic::<Message>(&tokens, 0.0, self.theme.clone())
+                internal_overlay(
+                        build_code_view_with_height_generic::<Message>(&tokens, 0.0, self.theme.clone()),
+
+                        tooltip(
+                            button(icon::copy())
+                                .style(button::text)
+                                .on_press(Message::CopyCode(code_string)),
+                            text("Copy current file").size(12),
+                            tooltip::Position::Left
+                        ),
+                    )
+                    .style(button::text)
+                    .overlay_style(generic_overlay::blank)
             ]
             .spacing(10)
             .height(Length::Fill)
@@ -716,7 +771,8 @@ impl CustomThemes {
                 column![
                     container(text("Live Preview").size(18)).center_x(Length::Fill),
                     preview_content.center_x(Length::Fill),
-                    code_view,
+                    code_view,            
+                    
                 ]
                 .height(Length::Fill)
                 .spacing(10)
@@ -734,14 +790,72 @@ impl CustomThemes {
             .into()
     }
 
+    fn create_current_preview_style(&self, theme: &Theme) -> container::Style {
+        let text_color = if let Some(ref source) = self.text_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.text_color)
+        } else {
+            self.text_color
+        };
+        
+        let background_color = if let Some(ref source) = self.background_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.background_color)
+        } else {
+            self.background_color
+        };
+        
+        let border_color = if let Some(ref source) = self.border_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.border_color)
+        } else {
+            self.border_color
+        };
+        
+        let shadow_color = if let Some(ref source) = self.shadow_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.shadow_color)
+        } else {
+            self.shadow_color
+        };
+        
+        container_stylefn_builder(
+            text_color,
+            Background::Color(background_color),
+            Border {
+                color: border_color,
+                width: self.border_width,
+                radius: iced::border::Radius {
+                    top_left: self.border_radius_top_left,
+                    top_right: self.border_radius_top_right,
+                    bottom_right: self.border_radius_bottom_right,
+                    bottom_left: self.border_radius_bottom_left,
+                },
+            },
+            if self.shadow_enabled {
+                Shadow {
+                    color: shadow_color,
+                    offset: iced::Vector {
+                        x: self.shadow_offset_x,
+                        y: self.shadow_offset_y,
+                    },
+                    blur_radius: self.shadow_blur_radius,
+                }
+            } else {
+                Shadow::default()
+            },
+            self.snap,
+        )
+    }
+
     fn reset_style_editor(&mut self, view: ThemePaneEnum) {
         let palette = self.theme.extended_palette();
+        self.style_name = String::new();
         
         match view {
             ThemePaneEnum::Container => {
                 self.text_color = palette.background.base.text;
+                self.text_color_source = None;
                 self.background_color = palette.background.base.color;
+                self.background_color_source = None;
                 self.border_color = palette.background.strong.color;
+                self.border_color_source = None;
                 self.border_width = 0.0;
                 self.border_radius_top_left = 0.0;
                 self.border_radius_top_right = 0.0;
@@ -749,6 +863,7 @@ impl CustomThemes {
                 self.border_radius_bottom_left = 0.0;
                 self.shadow_enabled = false;
                 self.shadow_color = palette.background.weak.color;
+                self.shadow_color_source = None;
                 self.shadow_offset_x = 0.0;
                 self.shadow_offset_y = 0.0;
                 self.shadow_blur_radius = 0.0;
@@ -757,8 +872,11 @@ impl CustomThemes {
             ThemePaneEnum::Button => {
                 // Using primary button colors as a default
                 self.text_color = palette.primary.base.text;
+                self.text_color_source = None;
                 self.background_color = palette.primary.base.color;
+                self.background_color_source = None;
                 self.border_color = palette.primary.strong.color;
+                self.border_color_source = None;
                 self.border_width = 1.0;
                 // Buttons in iced typically have a single radius value
                 let radius = 4.0; 
@@ -768,6 +886,7 @@ impl CustomThemes {
                 self.border_radius_bottom_left = radius;
                 self.shadow_enabled = true;
                 self.shadow_color = palette.background.weak.color;
+                self.shadow_color_source = None;
                 self.shadow_offset_x = 0.0;
                 self.shadow_offset_y = 2.0; // A subtle shadow is a nice default
                 self.shadow_blur_radius = 4.0;
@@ -776,8 +895,11 @@ impl CustomThemes {
             // For other views, just reset to the base theme defaults for now
             _ => {
                 self.text_color = palette.background.base.text;
+                self.text_color_source = None;
                 self.background_color = palette.background.base.color;
+                self.background_color_source = None;
                 self.border_color = palette.background.strong.color;
+                self.border_color_source = None;
                 self.border_width = 0.0;
                 self.border_radius_top_left = 0.0;
                 self.border_radius_top_right = 0.0;
@@ -785,51 +907,11 @@ impl CustomThemes {
                 self.border_radius_bottom_left = 0.0;
                 self.shadow_enabled = false;
                 self.shadow_color = palette.background.weak.color;
+                self.shadow_color_source = None;
                 self.shadow_offset_x = 0.0;
                 self.shadow_offset_y = 0.0;
                 self.shadow_blur_radius = 0.0;
                 self.snap = true;
-            }
-        }
-    }
-
-    fn apply_style(&mut self, style: &WidgetStyle) {
-        match style {
-            WidgetStyle::Container(s) => {
-                if let Some(text_color) = s.text_color { self.text_color = text_color; }
-                if let Some(Background::Color(bg_color)) = s.background { self.background_color = bg_color; }
-                self.border_color = s.border.color;
-                self.border_width = s.border.width;
-                self.border_radius_top_left = s.border.radius.top_left;
-                self.border_radius_top_right = s.border.radius.top_right;
-                self.border_radius_bottom_right = s.border.radius.bottom_right;
-                self.border_radius_bottom_left = s.border.radius.bottom_left;
-                self.shadow_enabled = s.shadow.color.a > 0.0;
-                if self.shadow_enabled {
-                    self.shadow_color = s.shadow.color;
-                    self.shadow_offset_x = s.shadow.offset.x;
-                    self.shadow_offset_y = s.shadow.offset.y;
-                    self.shadow_blur_radius = s.shadow.blur_radius;
-                }
-                self.snap = s.snap;
-            }
-            WidgetStyle::Button(s) => {
-                self.text_color = s.text_color;
-                if let Some(Background::Color(bg_color)) = s.background { self.background_color = bg_color; }
-                self.border_color = s.border.color;
-                self.border_width = s.border.width;
-                self.border_radius_top_left = s.border.radius.top_left;
-                self.border_radius_top_right = s.border.radius.top_right;
-                self.border_radius_bottom_right = s.border.radius.bottom_right;
-                self.border_radius_bottom_left = s.border.radius.bottom_left;
-                self.shadow_enabled = s.shadow.color.a > 0.0;
-                if self.shadow_enabled {
-                    self.shadow_color = s.shadow.color;
-                    self.shadow_offset_x = s.shadow.offset.x;
-                    self.shadow_offset_y = s.shadow.offset.y;
-                    self.shadow_blur_radius = s.shadow.blur_radius;
-                }
-                self.snap = s.snap;
             }
         }
     }
@@ -1299,7 +1381,7 @@ impl CustomThemes {
         .into()
     }
 
-    pub fn styles(&self) -> &BTreeMap<ThemePaneEnum, BTreeMap<String, WidgetStyle>> {
+    pub fn styles(&self) -> &BTreeMap<ThemePaneEnum, BTreeMap<String, SavedStyleDefinition >> {
         &self.styles
     }
 }
@@ -1307,18 +1389,19 @@ impl CustomThemes {
 #[derive(Debug, Clone)]
 pub enum Message {
     ChangeView(ThemePaneEnum),
+    CopyCode(String),
 
     // Generic Style properties
-    UpdateTextColor(Color),
-    UpdateBorderColor(Color),
+    UpdateTextColor { color: Color, source: Option<String> },
+    UpdateBorderColor { color: Color, source: Option<String> },
     UpdateBorderWidth(f32),
     UpdateBorderRadiusTopLeft(f32),
     UpdateBorderRadiusTopRight(f32),
     UpdateBorderRadiusBottomRight(f32),
     UpdateBorderRadiusBottomLeft(f32),
-    UpdateBackgroundColor(Color),
+    UpdateBackgroundColor { color: Color, source: Option<String> },
     UpdateShadowEnabled(bool),
-    UpdateShadowColor(Color),
+    UpdateShadowColor { color: Color, source: Option<String> },
     UpdateShadowOffsetX(f32),
     UpdateShadowOffsetY(f32),
     UpdateShadowBlurRadius(f32),
@@ -1328,5 +1411,5 @@ pub enum Message {
     UpdateStyleName(String),
     SaveStyle,
     SelectStyle(String),
-    ResetToTheme,
+    ResetToDefault,
 }

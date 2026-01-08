@@ -1027,6 +1027,7 @@ fn generate_text(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widge
     writer.add_plain("(");
     writer.add_string(&format!("\"{}\"", props.text_content));
     writer.add_plain(")");
+    writer.increase_indent();
 
     if props.text_size != 16.0 {
         writer.add_size(props.text_size);
@@ -1038,7 +1039,9 @@ fn generate_text(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Widge
 
     if !matches!(props.height, Length::Shrink) {
         writer.add_height(props.height);
-    }  
+    }
+
+    writer.decrease_indent();
 }
 
 fn generate_textinput(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {

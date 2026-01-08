@@ -142,7 +142,7 @@ impl WindowConfig {
         Self::new(
             "UI Builder".to_string(),
             Settings {
-                size: iced::Size::new(700.0, 1000.0),
+                size: iced::Size::new(1920.0, 1080.0),
                 min_size: Some(iced::Size::new(700.0, 975.0)),
                 position: iced::window::Position::Centered,
                 exit_on_close_request: true,
@@ -155,11 +155,12 @@ impl WindowConfig {
     pub fn visualizer() -> Self {
         Self::new(
             "Visualizer".to_string(),
-            Settings {
+            Settings::default()
+/*             Settings {
                 size: iced::Size::new(1920.0, 1080.0),
                 min_size: Some(iced::Size::new(700.0, 975.0)),
                 ..Settings::default()
-            }
+            } */
         )
     }
 }

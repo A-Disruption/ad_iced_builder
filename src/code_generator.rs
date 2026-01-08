@@ -1,7 +1,8 @@
-use iced::{Alignment, Color, Element, Length, Padding, widget::{column, container, space::horizontal, row, scrollable, text}, Background, Border, Theme};
-//use crate::widget_helper::*;
+use iced::{Alignment, Color, Element, Length, Padding, widget::{button, column, container, space::horizontal, row, scrollable, text}, Background, Border, Theme, window};
 use crate::{enum_builder::{EnumDef, TypeSystem}, views};
-use std::collections::{HashMap, BTreeMap};
+use crate::Window;
+use widgets::generic_overlay::OverlayButton;
+use std::{collections::{BTreeMap, HashMap}, os::windows};
 use uuid::Uuid;
 
 use crate::data_structures::types::types::*;
@@ -9,6 +10,7 @@ use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::*;
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
+use crate::WindowEnum;
 pub mod tokens;
 pub mod writer;
 pub mod view;
@@ -20,7 +22,8 @@ use writer::{CodeWriter, to_snake_case, to_pascal_case, handle_whitespace};
 
 /// Code generator for creating Iced code from widget hierarchy
 pub struct CodeGenerator<'a> {
-    views: Option<&'a BTreeMap<Uuid, AppView>>, 
+    views: Option<&'a BTreeMap<Uuid, AppView>>,
+    windows: Option<&'a BTreeMap<window::Id, Window>>,
     current_hierarchy: Option<&'a WidgetHierarchy>,
     app_name: String,
     app_window_title: String,
@@ -31,9 +34,10 @@ pub struct CodeGenerator<'a> {
 }
 
 impl<'a> CodeGenerator<'a> {
-    pub fn new(views: &'a BTreeMap<Uuid, AppView>,  theme: &'a Theme, type_system: &'a TypeSystem) -> Self {
+    pub fn new(views: &'a BTreeMap<Uuid, AppView>, windows: &'a BTreeMap<window::Id, Window>, theme: &'a Theme, type_system: &'a TypeSystem) -> Self {
         Self {
             views: Some(views),
+            windows: Some(windows),
             current_hierarchy: None,
             app_name: "App".to_string(),
             app_window_title: "App Window".to_string(),
@@ -47,6 +51,7 @@ impl<'a> CodeGenerator<'a> {
     pub fn new_single(hierarchy: &'a WidgetHierarchy, theme: &'a Theme, type_system: &'a TypeSystem) -> Self {
         let mut generation = Self {
             views: None,
+            windows: None,
             current_hierarchy: Some(hierarchy),
             app_name: "App".to_string(),
             app_window_title: "App Window".to_string(),
@@ -352,6 +357,20 @@ impl<'a> CodeGenerator<'a> {
         let root = view.hierarchy.root();
         let names = &self.widget_names;
 
+        let windows = match self.windows {
+            Some(windows) => {
+                let mut window_config = WindowConfig::new("Visualizer".to_string(), window::Settings::default());
+                for window in windows {
+                    if window.1.windowtype == WindowEnum::Visualizer {
+                        window_config =  window.1.config.clone();
+                    }
+                }
+                window_config
+            }
+            None => WindowConfig::new("Visualizer".to_string(), window::Settings::default())
+        };
+
+
         // -- Imports --
         generate::events::generate_imports(&mut writer, root);
         
@@ -389,7 +408,7 @@ impl<'a> CodeGenerator<'a> {
             names, 
             struct_name, 
             // Only pass title/theme if it's the main view
-            if view.is_main { Some((&self.app_name, self.theme)) } else { None }, 
+            if view.is_main { Some((&windows, self.theme)) } else { None }, 
             self.type_system,
             custom_styles,
         );
@@ -397,8 +416,14 @@ impl<'a> CodeGenerator<'a> {
 
         // -- Main Function (Only for Main View) --
         if view.is_main {
-            generate::app::generate_main_function(&mut writer, struct_name);
+            generate::app::generate_main_function(
+                &mut writer, 
+                struct_name, 
+                if view.is_main { Some(&windows) } else { None }, 
+            );
         }
+
+
 
         writer.tokens()
     }
@@ -697,6 +722,7 @@ pub fn build_code_view_with_height<'a>(
     height: f32,
     theme: &Theme
 ) -> Element<'a, views::widget_tree::Message> {
+    let palette = theme.extended_palette();
     // Group tokens by lines
     let mut lines: Vec<Vec<Token>> = vec![vec![]];
     
@@ -721,17 +747,8 @@ pub fn build_code_view_with_height<'a>(
         }
     }
 
-    let bg_color = match theme {
-        Theme::Light => Color::from_rgb8(248, 248, 248),  // Very light gray
-        Theme::Dark => Color::from_rgb8(30, 30, 30),       // Dark gray
-        _ => Color::from_rgb8(40, 40, 40),                 // Default dark
-    };
-
-    let border_color = match theme {
-        Theme::Light => Color::from_rgb8(200, 200, 200),   // Light gray border
-        Theme::Dark => Color::from_rgb8(60, 60, 60),        // Dark gray border
-        _ => Color::from_rgb8(80, 80, 80),
-    };
+    let bg_color = palette.background.weakest.color;
+    let border_color = palette.background.weak.color;
     
     // Build the content as a column of rows
     let content = column(
@@ -766,7 +783,8 @@ pub fn build_code_view_with_height<'a>(
                         radius: 4.0.into(),
                     },
                     ..Default::default()
-                })
+                }
+            )
         )
         .width(Length::Fill)
         .height(
@@ -794,6 +812,7 @@ pub fn build_code_view_with_height_generic<'a, Message: 'a>(
     height: f32,
     theme: Theme
 ) -> Element<'a, Message> {
+    let palette = theme.extended_palette();
     // Group tokens by lines
     let mut lines: Vec<Vec<Token>> = vec![vec![]];
     
@@ -816,17 +835,8 @@ pub fn build_code_view_with_height_generic<'a, Message: 'a>(
         }
     }
 
-    let bg_color = match theme {
-        Theme::Light => Color::from_rgb8(248, 248, 248),
-        Theme::Dark => Color::from_rgb8(30, 30, 30),
-        _ => Color::from_rgb8(40, 40, 40),
-    };
-
-    let border_color = match theme {
-        Theme::Light => Color::from_rgb8(200, 200, 200),
-        Theme::Dark => Color::from_rgb8(60, 60, 60),
-        _ => Color::from_rgb8(80, 80, 80),
-    };
+    let bg_color = palette.background.weakest.color;
+    let border_color = palette.background.weak.color;
     
     let content = column(
         lines.into_iter().map(|line| {
@@ -882,9 +892,13 @@ pub fn build_code_view_with_height_generic<'a, Message: 'a>(
 
 /// Generate tokens for container style code
 pub fn generate_container_style_tokens(
+    style_name: &String,
     text_color: Color,
+    text_color_source: &Option<String>,
     background_color: Color,
+    background_color_source: &Option<String>,
     border_color: Color,
+    border_color_source: &Option<String>,
     border_width: f32,
     border_radius_top_left: f32,
     border_radius_top_right: f32,
@@ -892,15 +906,31 @@ pub fn generate_container_style_tokens(
     border_radius_bottom_left: f32,
     shadow_enabled: bool,
     shadow_color: Color,
+    shadow_color_source: &Option<String>,
     shadow_offset_x: f32,
     shadow_offset_y: f32,
     shadow_blur_radius: f32,
     snap: bool,
 ) -> Vec<Token> {
     let mut builder = TokenBuilder::new();
+    builder.add_keyword("pub fn ");
+    builder.add_function(style_name);
+    builder.add_keyword("(");
+    builder.add_identifier("theme");
+    builder.add_operator(": &");
+    builder.add_type("Theme");
+    builder.add_keyword(")");
+    builder.add_operator(" -> ");
+    builder.add_type("Style ");
+    builder.add_keyword("{");
+    builder.add_newline();
+    builder.increase_indent();
 
-    builder.add_plain("container");
-    builder.add_operator("::");
+    builder.add_extended_palette_var();
+    builder.add_newline();
+    builder.add_newline();
+
+    builder.add_indent();
     builder.add_type("Style");
     builder.add_space();
     builder.add_plain("{");
@@ -910,7 +940,7 @@ pub fn generate_container_style_tokens(
     // text_color field
     builder.add_field("text_color", |b| {
         b.add_plain("Some(");
-        b.add_color(text_color);
+        b.add_color_with_source(text_color, text_color_source);
         b.add_plain(")");
     });
 
@@ -921,14 +951,16 @@ pub fn generate_container_style_tokens(
         b.add_operator("::");
         b.add_type("Color");
         b.add_plain("(");
-        b.add_color(background_color);
+        b.add_color_with_source(background_color, background_color_source);
         b.add_plain("))");
     });
 
     // border field
     builder.add_field("border", |b| {
         b.add_struct("Border", |b| {
-            b.add_field("color", |b| b.add_color(border_color));
+            b.add_field("color", |b| {
+                b.add_color_with_source(border_color, border_color_source);
+            });
             b.add_field("width", |b| b.add_number(&format!("{:.1}", border_width)));
             b.add_field("radius", |b| {
                 b.add_struct("Radius", |b| {
@@ -945,7 +977,9 @@ pub fn generate_container_style_tokens(
     builder.add_field("shadow", |b| {
         if shadow_enabled {
             b.add_struct("Shadow", |b| {
-                b.add_field("color", |b| b.add_color(shadow_color));
+                b.add_field("color", |b| {
+                    b.add_color_with_source(shadow_color, shadow_color_source);
+                });
                 b.add_field("offset", |b| {
                     b.add_struct("Vector", |b| {
                         b.add_field("x", |b| b.add_number(&format!("{:.1}", shadow_offset_x)));
@@ -968,7 +1002,34 @@ pub fn generate_container_style_tokens(
     });
 
     builder.decrease_indent();
+    builder.add_indent();
     builder.add_plain("}");
 
+    builder.add_newline();
+    builder.decrease_indent();
+    builder.add_keyword("}");
+
     builder.into_tokens()
+}
+
+/// Creating your own helper function for overlays.
+pub fn internal_overlay<'a, Message, Theme, Renderer>(
+    hover_element: impl Into<Element<'a, Message, Theme, Renderer>>,
+    copy_button: impl Into<Element<'a, Message, Theme, Renderer>>,
+) -> OverlayButton<'a, Message, Theme, Renderer> 
+where 
+    Renderer: iced::advanced::Renderer + iced::advanced::text::Renderer,
+    Theme: widgets::generic_overlay::Catalog + button::Catalog,
+{
+    OverlayButton::new(hover_element, "", copy_button)
+        .hide_header()
+        .on_hover()
+        .overlay_padding(0.0)
+        .overlay_padding(0.0)
+        .hover_gap(11.0)
+        .overlay_height(Length::Shrink)
+        .overlay_width(Length::Shrink)
+        .hover_position(widgets::generic_overlay::Position::Right)
+        .hover_mode(widgets::generic_overlay::PositionMode::Inside)
+        .hover_alignment(iced::Alignment::Start)
 }

@@ -2,18 +2,17 @@ use iced::{Alignment, Theme, Element, Length, Padding};
 use iced::widget::{column, row, space, tooltip, scrollable, container, button, text, rule};
 use crate::icon;
 use crate::views::widget_tree::Message;
-use crate::code_generator::{build_code_view_with_height, tokens::Token};
+use crate::code_generator::{build_code_view_with_height, tokens::Token, internal_overlay};
 use std::collections::HashMap;
+use widgets::generic_overlay;
 
 pub fn view<'a>(
-    // REMOVED: app_name, app_view, window, type_system 
-    // ADDED: 
     generated_files: &HashMap<String, Vec<Token>>,
     current_filename: &str,
     theme: &'a Theme, 
 ) -> Element<'a, Message> {
 
-    // Sort filenames manually for better UX (main.rs first, then types.rs, then alphabetical)
+    // Sort filenames for better UX (main.rs, types.rs, then alphabetical)
     let mut filenames: Vec<String> = generated_files.keys().cloned().collect();
     filenames.sort_by(|a, b| {
         match (a.as_str(), b.as_str()) {
@@ -54,13 +53,13 @@ pub fn view<'a>(
 
             space::horizontal().width(20),
 
-            tooltip(
+/*             tooltip(
                 button(icon::copy())
                     .style(button::text)
                     .on_press(Message::CopyCode(code_string)),
                 text("Copy current file").size(12),
                 tooltip::Position::Left
-            ),
+            ), */
         ]
         .align_y(Alignment::Center)
         .padding(Padding::new(0.0).horizontal(10.0))
@@ -69,14 +68,23 @@ pub fn view<'a>(
         rule::horizontal(1),
         
         // Code Content
-        container(
+        internal_overlay(
             scrollable(
                 build_code_view_with_height(active_tokens, 0.0, theme)
             )
-            .width(Length::Fill)
+            .width(Length::Fill),
+
+            tooltip(
+                button(icon::copy())
+                    .style(button::text)
+                    .on_press(Message::CopyCode(code_string)),
+                text("Copy current file").size(12),
+                tooltip::Position::Left
+            ),
         )
-        .width(Length::Fill)
-        .height(Length::Fill),
+        .style(button::text)
+        .overlay_style(generic_overlay::blank)
+
     ]
     .spacing(10)
     .padding(10)

@@ -80,6 +80,7 @@ pub fn update(
                 let size = iced::Size::new(3840.0, 2160.0);
                  window.config.draft_width = "3840.0".to_string();
                  window.config.draft_height = "2160.0".to_string();
+                 window.config.settings.size = size;
                 return iced::window::resize(id, size)
             }
         }
@@ -88,6 +89,7 @@ pub fn update(
                 let size = iced::Size::new(2560.0, 1440.0);
                  window.config.draft_width = "2560.0".to_string();
                  window.config.draft_height = "1440.0".to_string();
+                 window.config.settings.size = size;
                 return iced::window::resize(id, size)
             }
         }
@@ -96,6 +98,7 @@ pub fn update(
                 let size = iced::Size::new(1920.0, 1080.0);
                  window.config.draft_width = "1920.0".to_string();
                  window.config.draft_height = "1080.0".to_string();
+                 window.config.settings.size = size;
                 return iced::window::resize(id, size)
             }
         }
@@ -124,6 +127,19 @@ pub fn update(
         Message::MinWidth(id, w) => {
             if let Some(window) = windows.get_mut(&id){
                 window.config.draft_min_width = w;
+
+                if window.config.draft_min_width.len() == 0 && window.config.settings.min_size.is_some() {
+                    if let Some(min_size) = window.config.settings.min_size {
+                        if min_size.height == 100.0 && window.config.draft_min_height.len() == 0 {
+                            window.config.settings.min_size = None;
+                            return iced::window::set_min_size(id, None)                            
+                        } else {
+                            window.config.settings.min_size = Some(iced::Size::new(100.0, min_size.height));
+                            return iced::window::set_min_size(id, window.config.settings.min_size)                            
+                        }
+                    }
+                }
+
                 if let Ok(width) = window.config.draft_min_width.parse::<f32>() {
                     if width > 0.0 {
                         let height = window.config.settings.min_size
@@ -138,6 +154,19 @@ pub fn update(
         Message::MinHeight(id, h) => {
             if let Some(window) = windows.get_mut(&id){
                 window.config.draft_min_height = h;
+
+                if window.config.draft_min_height.len() == 0 && window.config.settings.min_size.is_some() {
+                    if let Some(min_size) = window.config.settings.min_size {
+                        if min_size.width == 100.0 && window.config.draft_min_width.len() == 0 {
+                            window.config.settings.min_size = None;
+                            return iced::window::set_min_size(id, None)                            
+                        } else {
+                            window.config.settings.min_size = Some(iced::Size::new( min_size.width, 100.0));
+                            return iced::window::set_min_size(id, window.config.settings.min_size)                            
+                        }
+                    }
+                }
+
                 if let Ok(height) = window.config.draft_min_height.parse::<f32>() {
                     if height > 0.0 {
                         let width = window.config.settings.min_size
@@ -152,6 +181,19 @@ pub fn update(
         Message::MaxWidth(id, w) => {
             if let Some(window) = windows.get_mut(&id){
                 window.config.draft_max_width = w;
+
+                if window.config.draft_max_width.len() == 0 && window.config.settings.max_size.is_some() {
+                    if let Some(max_size) = window.config.settings.max_size {
+                        if max_size.height == 2000.0 && window.config.draft_max_height.len() == 0 {
+                            window.config.settings.max_size = None;
+                            return iced::window::set_max_size(id, None)                            
+                        } else {
+                            window.config.settings.max_size = Some(iced::Size::new(2000.0, max_size.height));
+                            return iced::window::set_max_size(id, window.config.settings.max_size)                            
+                        }
+                    }
+                }
+
                 if let Ok(width) = window.config.draft_max_width.parse::<f32>() {
                     if width > 0.0 {
                         let height = window.config.settings.max_size
@@ -166,6 +208,19 @@ pub fn update(
         Message::MaxHeight(id, h) => {
             if let Some(window) = windows.get_mut(&id){
                 window.config.draft_max_height = h;
+
+                if window.config.draft_max_height.len() == 0 && window.config.settings.max_size.is_some() {
+                    if let Some(max_size) = window.config.settings.max_size {
+                        if max_size.width == 2000.0 && window.config.draft_max_width.len() == 0 {
+                            window.config.settings.max_size = None;
+                            return iced::window::set_max_size(id, None)                            
+                        } else {
+                            window.config.settings.max_size = Some(iced::Size::new(max_size.width, 2000.0));
+                            return iced::window::set_max_size(id, window.config.settings.max_size)                            
+                        }
+                    }
+                }
+
                 if let Ok(height) = window.config.draft_max_height.parse::<f32>() {
                     if height > 0.0 {
                         let width = window.config.settings.max_size

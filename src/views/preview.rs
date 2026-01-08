@@ -10,7 +10,7 @@ use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::enum_builder::TypeSystem;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
-use crate::styles::style_enum::WidgetStyle;
+use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -334,8 +334,9 @@ fn build_widget_preview<'a>(
                 // Check for a style name
                 if let Some(style_name) = &props.custom_style_name {
                     if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Container) {
-                        if let Some(WidgetStyle::Container(style)) = style_map.get(style_name) { // check if it's a custom style
-                            return *style;
+                        if let Some(style_definition) = style_map.get(style_name) { // check if it's a custom style
+                            let style = style_definition.to_container_style(theme);
+                            return style;
                         } else if ContainerStyleType::all().contains(style_name) { // check if it's a built-in style
                             let style = ContainerStyleType::get(style_name).unwrap();
                             return match style {
@@ -488,8 +489,9 @@ fn build_widget_preview<'a>(
             btn = btn.style(move |theme: &Theme, status: button::Status| {
                 if let Some(style_name) = &props.custom_style_name {
                     if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Button) {
-                        if let Some(WidgetStyle::Button(style)) = style_map.get(style_name) { // check if it's a custom style
-                            return *style;
+                        if let Some(style_definition) = style_map.get(style_name) { // check if it's a custom style
+                            let style = style_definition.to_button_style(theme);
+                            return style;
                         } else if ButtonStyleType::all().contains(style_name) { // check if it's a built-in style
                             let style = ButtonStyleType::get(style_name).unwrap();
                             return match style {

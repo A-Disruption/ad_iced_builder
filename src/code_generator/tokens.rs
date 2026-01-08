@@ -16,66 +16,20 @@ pub enum TokenType {
 }
 
 impl TokenType {
-    pub fn color(&self) -> Color {
-        match self {
-            TokenType::Keyword => Color::from_rgb8(86, 156, 214),     // Blue
-            TokenType::Type => Color::from_rgb8(78, 201, 176),        // Teal
-            TokenType::Function => Color::from_rgb8(220, 220, 170),   // Light yellow
-            TokenType::String => Color::from_rgb8(206, 145, 120),     // Orange
-            TokenType::Number => Color::from_rgb8(181, 206, 168),     // Light green
-            TokenType::Comment => Color::from_rgb8(106, 153, 85),     // Green
-            TokenType::Operator => Color::from_rgb8(212, 212, 212),   // Light gray
-            TokenType::Identifier => Color::from_rgb8(156, 220, 254), // Light blue
-            TokenType::Macro => Color::from_rgb8(197, 134, 192),      // Purple
-            TokenType::Plain => Color::from_rgb8(212, 212, 212),      // Light gray
-        }
-    }
-}
-
-impl TokenType {
     pub fn color_for_theme(&self, theme: &Theme) -> Color {
         let palette = theme.extended_palette();
 
-        match theme {
-            Theme::Light => match self {
-                TokenType::Keyword => Color::from_rgb8(0, 0, 255),         // Blue (like VSCode)
-                TokenType::Type => Color::from_rgb8(0, 128, 128),          // Teal
-                TokenType::Function => Color::from_rgb8(121, 94, 38),      // Brown/yellow
-                TokenType::String => Color::from_rgb8(163, 21, 21),        // Dark red
-                TokenType::Number => Color::from_rgb8(9, 134, 88),         // Green
-                TokenType::Comment => Color::from_rgb8(0, 128, 0),         // Green
-                TokenType::Operator => Color::from_rgb8(0, 0, 0),          // Black
-                TokenType::Identifier => Color::from_rgb8(0, 16, 128),     // Dark blue
-                TokenType::Macro => Color::from_rgb8(175, 0, 219),         // Purple
-                TokenType::Plain => Color::from_rgb8(0, 0, 0),             // Black
-            },
-            Theme::Dark => match self {
-                TokenType::Keyword => Color::from_rgb8(86, 156, 214),      // Blue
-                TokenType::Type => Color::from_rgb8(78, 201, 176),        // Teal/cyan
-                TokenType::Function => Color::from_rgb8(220, 220, 170),    // Light yellow
-                TokenType::String => Color::from_rgb8(206, 145, 120),      // Orange/salmon
-                TokenType::Number => Color::from_rgb8(181, 206, 168),      // Light green
-                TokenType::Comment => Color::from_rgb8(106, 153, 85),      // Green
-                TokenType::Operator => Color::from_rgb8(212, 212, 212),    // Light gray
-                TokenType::Identifier => Color::from_rgb8(156, 220, 254),  // Light blue
-                TokenType::Macro => Color::from_rgb8(197, 134, 192),       // Purple
-                TokenType::Plain => Color::from_rgb8(212, 212, 212),       // Light gray
-            },
-            _ => {
-                // Default/custom theme colors
-                match self {
-                    TokenType::Keyword => palette.danger.base.color,
-                    TokenType::Type => palette.primary.strong.color,
-                    TokenType::Function => palette.warning.weak.color,
-                    TokenType::String => palette.warning.base.color,
-                    TokenType::Number => palette.primary.weak.color,
-                    TokenType::Comment => palette.success.weak.color,
-                    TokenType::Operator => palette.danger.weak.color,
-                    TokenType::Identifier => palette.primary.base.color,
-                    TokenType::Macro => palette.success.base.color,
-                    TokenType::Plain => palette.secondary.base.color,
-                }
-            }
+        match self {
+            TokenType::Keyword =>       palette.danger.base.color,
+            TokenType::Type =>          palette.primary.strong.color,
+            TokenType::Function =>      palette.warning.strong.color,
+            TokenType::String =>        palette.warning.base.color,
+            TokenType::Number =>        palette.success.strong.color,
+            TokenType::Comment =>       palette.success.weak.color,
+            TokenType::Operator =>      palette.danger.weak.color,
+            TokenType::Identifier =>    palette.primary.base.color,
+            TokenType::Macro =>         palette.success.base.color,
+            TokenType::Plain =>         palette.secondary.strong.color,
         }
     }
 }
@@ -224,6 +178,65 @@ impl TokenBuilder {
         self.add_plain(", ");
         self.add_number(&format!("{:.1}", color.a));
         self.add_plain(")");
+    }
+
+    /// Add a color value, using theme palette path if available, otherwise Color::from_rgba
+    pub fn add_color_with_source(&mut self, color: Color, source: &Option<String>,) {
+        if let Some(theme_path) = source {
+            // Parse the theme path and add it with proper syntax highlighting
+            // Example: "palette.primary.strong.color"
+            self.add_theme_path(theme_path);
+        } else {
+            // Fall back to Color::from_rgba for custom colors
+            self.add_color(color);
+        }
+    }
+
+    pub fn add_extended_palette_var(&mut self) {
+        self.add_indent();
+        self.add_keyword("let ");
+        self.add_identifier("palette ");
+        self.add_operator("= ");
+        self.add_identifier("theme");
+        self.add_operator(".");
+        self.add_function("extended_palette");
+        self.add_plain("();");
+    }
+
+    /// Parse and add theme path
+    fn add_theme_path(&mut self, path: &str) {
+        let parts: Vec<&str> = path.split('.').collect();
+        
+        for (i, part) in parts.iter().enumerate() {
+            if i > 1 {
+                 println!("part: {} {}", i, part);
+                 self.add_operator(".");
+            }
+           
+            
+            if part.contains("()") {
+                // This is a function call like "extended_palette()"
+                // not writing this because we are using palette instead of theme.extended_palette()
+            } else if part.starts_with("scale_alpha(") {
+                // Handle scale_alpha(value) specially
+                self.add_function("scale_alpha");
+                self.add_plain("(");
+                let value = part.trim_start_matches("scale_alpha(").trim_end_matches(")");
+                self.add_number(value);
+            } else if *part == "theme" {
+                // "theme" is typically an identifier/parameter
+                self.add_identifier("palette");
+            } else if part.starts_with(|c| char::is_numeric(c)) {
+                let value = part.trim_end_matches(")");
+                self.add_number(value);
+                self.add_plain(")");
+            }
+            else {
+                // Properties like "primary", "strong", "color", "text"
+                self.add_identifier(part);
+            }
+        }
+        println!("{}", path);
     }
 
     pub fn add_field(&mut self, name: &str, value_fn: impl FnOnce(&mut Self)) {

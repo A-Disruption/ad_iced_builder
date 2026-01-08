@@ -1023,7 +1023,8 @@ pub fn generate_imports(writer: &mut CodeWriter, root: &Widget) {
     tracker.scan_widget(root);
     
     writer.add_keyword("use");
-    writer.add_number(" iced::");
+    writer.add_number(" iced");
+    writer.add_operator("::");
     writer.add_plain("{");
     writer.add_newline();
     writer.increase_indent();

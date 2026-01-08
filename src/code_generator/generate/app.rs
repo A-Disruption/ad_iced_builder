@@ -1,7 +1,8 @@
 use iced::Theme;
 use crate::code_generator::writer::{CodeWriter, to_snake_case};
 use crate::code_generator::generate::{view, events};
-use crate::data_structures::types::types::{Widget, WidgetType, WidgetId};
+use crate::code_generator::generate::window_settings::{generate_window_settings, window_settings_are_default};
+use crate::data_structures::types::types::{Widget, WidgetType, WidgetId, WindowConfig};
 use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::enum_builder::TypeSystem;
 use std::collections::HashMap;
@@ -34,7 +35,7 @@ pub fn generate_impl(
     names: &HashMap<WidgetId, String>,
     struct_name: &str,
     // Optional tuple: (window_title, theme). If None, standard component impl.
-    main_config: Option<(&str, &Theme)>, 
+    main_config: Option<(&WindowConfig, &Theme)>,
     type_system: &TypeSystem,
     custom_styles: &CustomThemes,
 ) {
@@ -46,15 +47,21 @@ pub fn generate_impl(
     writer.increase_indent();
 
     generate_new_method(writer, root, names, type_system);
+    writer.add_newline();
 
     // Only generate title and theme if this is the Main App
-    if let Some((window_title, theme)) = main_config {
-        generate_title_method(writer, window_title);
+    if let Some((window_config, theme)) = main_config {
+        generate_title_method(writer, &window_config.title);
+        writer.add_newline();
         generate_theme_method(writer, theme);
+        writer.add_newline();
+        generate_window_settings(writer, &window_config);
     }
 
     events::generate_update(writer, root, names);
+    writer.add_newline();
     view::generate_view_method(writer, root, names, custom_styles);
+
 
     writer.add_newline();
     writer.decrease_indent();
@@ -460,7 +467,7 @@ fn generate_theme_method(writer: &mut CodeWriter, theme: &Theme) {
     writer.add_newline();
 }
 
-pub fn generate_main_function(writer: &mut CodeWriter, struct_name: &str) {
+pub fn generate_main_function(writer: &mut CodeWriter, struct_name: &str, window_config: Option<&WindowConfig>) {
     writer.add_keyword("pub fn");
     writer.add_plain(" ");
     writer.add_function("main");
@@ -482,6 +489,22 @@ pub fn generate_main_function(writer: &mut CodeWriter, struct_name: &str) {
     writer.add_operator("::");
     writer.add_plain("view)");
     writer.add_newline();
+
+    if let Some(window_config) = window_config {
+        if !window_settings_are_default(&window_config.settings) {
+            writer.increase_indent();
+            writer.add_indent();
+            writer.add_operator(".");
+            writer.add_function("window");
+            writer.add_plain("(");
+            writer.add_type(struct_name);
+            writer.add_operator("::");
+            writer.add_plain("window_settings())");
+            writer.add_newline();
+            writer.decrease_indent();
+        }
+    }
+    
     
     writer.increase_indent();
     writer.add_indent();
