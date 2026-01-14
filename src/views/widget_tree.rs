@@ -2,7 +2,7 @@ use iced::widget::{button, column, container, markdown, row, rule, space, text};
 use iced::{Alignment, Element, Length, Task, Theme};
 use widgets::tree::{tree_handle, branch, DropInfo, DropPosition, Branch};
 use std::collections::{HashSet, BTreeMap};
-use arboard::Clipboard;
+use iced::clipboard;
 use uuid::Uuid;
 
 use crate::icon;
@@ -274,9 +274,7 @@ pub fn update(
             println!("Overlay was opened. \n\tPosition: {}, \n\tSize: {:?}", overlay_position, overlay_size)
         },
         Message::CopyCode(code) => {
-            if let Ok(mut clipboard) = Clipboard::new() {
-                let _ = clipboard.set_text(code);
-            }
+            return clipboard::write(code)
         }
         Message::CodeTabSelected(_) => {} // Handled in main.rs
     }

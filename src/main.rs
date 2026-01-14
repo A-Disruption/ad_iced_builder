@@ -1,6 +1,5 @@
-use iced::{event, window, Alignment, Element, Subscription, Task, Theme, Length};
-use iced::widget::{column, row, container, text, scrollable, space};
-use arboard::Clipboard;
+use iced::{event, window, Element, Subscription, Task, Theme, Length};
+use iced::widget::{column, row, container, text};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
@@ -15,13 +14,14 @@ mod views;
 use views::*;
 use views::enum_editor::EnumEditorView;
 use views::theme_and_stylefn_builder::CustomThemes;
-use data_structures::widget_hierarchy::WidgetHierarchy;
-use data_structures::types::types::WidgetType;
 use data_structures::types::types::AppView;
 use data_structures::types::types::WindowConfig;
-
 use views::theme_and_stylefn_builder;
+
+
 //use crate::styles::stylefn_builders;
+
+// mod code_gen_version_two;
 
 
 fn main() {
@@ -40,7 +40,7 @@ struct AdUiBuilder {
     theme: Theme,
 
     views: BTreeMap<Uuid, AppView>,
-    selected_view_id: Uuid, // Used to load the preview for a given user defined view
+    selected_view_id: Uuid,
     selected_window: Option<window::Id>,
     active_code_tab: String,
 
@@ -48,6 +48,8 @@ struct AdUiBuilder {
     custom_styles: CustomThemes,
     type_system: enum_builder::TypeSystem,
     type_editor: EnumEditorView,
+
+//    codegen2: code_gen_version_two::CodeView,
 
     generated_files: std::collections::HashMap<String, Vec<crate::code_generator::tokens::Token>>,
 }
@@ -75,6 +77,7 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
+//    CodeGen2(code_gen_version_two::Message)
 }
 
 impl AdUiBuilder {
@@ -97,6 +100,8 @@ impl AdUiBuilder {
             custom_styles: CustomThemes::new(&Theme::Dark),
             type_system: enum_builder::TypeSystem::new(),
             type_editor: EnumEditorView::new(),
+
+//            codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
 
             generated_files: std::collections::HashMap::new(),
         };
@@ -218,6 +223,14 @@ impl AdUiBuilder {
                         self.regenerate_code();
                         return result                      
                     }
+/*                     ViewMessage::CodeGen2(msg) => {
+                        let result = code_gen_version_two::CodeView::update(
+                            &mut self.codegen2, 
+                            msg
+                        )
+                        .map(|m| Message::ViewMessages(ViewMessage::CodeGen2(m)));
+                        return result
+                    } */
                 }
             }
 
@@ -297,7 +310,9 @@ impl AdUiBuilder {
                 ].into()
                 
             }
-//            navigation_bar::ViewSelection::Code => {}
+/*             navigation_bar::ViewSelection::Code => {
+                code_gen_version_two::CodeView::view(&self.codegen2).map(|msg| Message::ViewMessages( ViewMessage::CodeGen2(msg)))
+            } */
             navigation_bar::ViewSelection::ThemeBuilder => {
                 self.custom_styles.view(&self.theme).map(|msg| Message::ViewMessages( ViewMessage::ThemeBuilder(msg)))
             }

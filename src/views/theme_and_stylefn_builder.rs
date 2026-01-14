@@ -3,7 +3,7 @@ use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme,
 use std::collections::BTreeMap;
 use widgets::{color_picker, collapsible::collapsible};
 use widgets::generic_overlay;
-use arboard::Clipboard;
+use iced::clipboard;
 use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic, internal_overlay};
 use crate::{icon, styles};
 use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition, evaluate_theme_expression};
@@ -170,9 +170,7 @@ impl CustomThemes {
                 self.reset_style_editor(view);
             }
             Message::CopyCode(code) => {
-                if let Ok(mut clipboard) = Clipboard::new() {
-                    let _ = clipboard.set_text(code);
-                }
+                return clipboard::write(code)
             }
             Message::UpdateStyleName(name) => {
                 self.style_name = name;

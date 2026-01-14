@@ -16,13 +16,13 @@ iced = { version = "0.14.0", features = [
     "qr_code",
 ] }
 iced_runtime = { version = "0.14.0" }
-arboard = { version="3.6.0" }
 widgets = { git = "https://github.com/A-Disruption/widgets.git" , features = ["tree", "collapsible", "generic_overlay", "color_picker"] }
 #widgets = { path = "C:/Rust Projects/widgets", features = ["collapsible", "tree", "color_picker", "generic_overlay"]}
 uuid = { version = "1.6", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-
+#iced_custom_highlighter = { version = "0.1.0" }
+#testing_rust_knowledge = { path = "C:/Rust Projects/testing_rust_knowledge" }
 [build-dependencies]
 iced_fontello = "0.13"
 
