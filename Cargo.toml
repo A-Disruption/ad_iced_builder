@@ -23,6 +23,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 #iced_custom_highlighter = { version = "0.1.0" }
 #testing_rust_knowledge = { path = "C:/Rust Projects/testing_rust_knowledge" }
+tree_sitter_highlighter = { path = "C:/Rust Projects/tree_sitter_highlighter"}
+
 [build-dependencies]
 iced_fontello = "0.13"
 

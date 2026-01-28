@@ -21,7 +21,7 @@ use views::theme_and_stylefn_builder;
 
 //use crate::styles::stylefn_builders;
 
-// mod code_gen_version_two;
+ mod code_gen_version_two;
 
 
 fn main() {
@@ -49,7 +49,7 @@ struct AdUiBuilder {
     type_system: enum_builder::TypeSystem,
     type_editor: EnumEditorView,
 
-//    codegen2: code_gen_version_two::CodeView,
+    codegen2: code_gen_version_two::CodeView,
 
     generated_files: std::collections::HashMap<String, Vec<crate::code_generator::tokens::Token>>,
 }
@@ -77,7 +77,7 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
-//    CodeGen2(code_gen_version_two::Message)
+    CodeGen2(code_gen_version_two::Message)
 }
 
 impl AdUiBuilder {
@@ -101,7 +101,7 @@ impl AdUiBuilder {
             type_system: enum_builder::TypeSystem::new(),
             type_editor: EnumEditorView::new(),
 
-//            codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
+            codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
 
             generated_files: std::collections::HashMap::new(),
         };
@@ -223,14 +223,14 @@ impl AdUiBuilder {
                         self.regenerate_code();
                         return result                      
                     }
-/*                     ViewMessage::CodeGen2(msg) => {
+                     ViewMessage::CodeGen2(msg) => {
                         let result = code_gen_version_two::CodeView::update(
                             &mut self.codegen2, 
                             msg
                         )
                         .map(|m| Message::ViewMessages(ViewMessage::CodeGen2(m)));
                         return result
-                    } */
+                    }
                 }
             }
 
@@ -310,9 +310,9 @@ impl AdUiBuilder {
                 ].into()
                 
             }
-/*             navigation_bar::ViewSelection::Code => {
+             navigation_bar::ViewSelection::Code => {
                 code_gen_version_two::CodeView::view(&self.codegen2).map(|msg| Message::ViewMessages( ViewMessage::CodeGen2(msg)))
-            } */
+            } 
             navigation_bar::ViewSelection::ThemeBuilder => {
                 self.custom_styles.view(&self.theme).map(|msg| Message::ViewMessages( ViewMessage::ThemeBuilder(msg)))
             }
