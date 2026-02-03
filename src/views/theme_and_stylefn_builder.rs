@@ -1,12 +1,16 @@
-use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_input, tooltip, Space};
+use iced::advanced::graphics::text::cosmic_text::skrifa::attribute::Stretch;
+use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_editor, text_input, tooltip, Space};
 use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme, Padding, Task,};
 use std::collections::BTreeMap;
+use std::sync::Arc;
 use widgets::{color_picker, collapsible::collapsible};
 use widgets::generic_overlay;
 use iced::clipboard;
 use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic, internal_overlay};
+use crate::code_gen_version_two::{generate_button_style_code, generate_container_style_code};
 use crate::{icon, styles};
 use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition, evaluate_theme_expression};
+use tree_sitter_highlighter::{TsSettings, TreeSitterIcedHighlighter, code_gen_text_editor_style};
 
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -100,6 +104,9 @@ pub struct CustomThemes {
     border_color_source: Option<String>,
     background_color_source: Option<String>,
     shadow_color_source: Option<String>,
+
+    // tree_sitter text_editor content for style code preview (shared across widget types)
+    style_code_content: text_editor::Content,
 }
 
 impl CustomThemes {
@@ -108,8 +115,8 @@ impl CustomThemes {
         let mut styles = BTreeMap::new();
         styles.insert(ThemePaneEnum::Container, BTreeMap::new());
         styles.insert(ThemePaneEnum::Button, BTreeMap::new());
-
-        Self {
+        
+        let mut new_instance = Self {
             theme: theme.clone(),
             selected_view: ThemePaneEnum::Container,
             style_name: String::new(),
@@ -132,7 +139,10 @@ impl CustomThemes {
             border_color_source: None,
             background_color_source: None,
             shadow_color_source: None,
-        }
+            style_code_content: text_editor::Content::new(),
+        };
+        new_instance.regenerate_container_code();
+        new_instance
     }
 
     pub fn theme(&mut self, theme: &Theme) {
@@ -166,8 +176,23 @@ impl CustomThemes {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::ChangeView(view) => {
-                self.selected_view = view;
-                self.reset_style_editor(view);
+                if self.selected_view != view {
+                    self.selected_view = view;
+                    self.reset_style_editor(view);
+                } else {
+                    return Task::none()
+                }
+            }
+            Message::Edit(action) => {
+                match action {
+                    text_editor::Action::Edit(_edit) => {
+                        return Task::none()
+                    }
+                    _ => {
+                        self.style_code_content.perform(action);
+                    }
+                }
+                return Task::none()
             }
             Message::CopyCode(code) => {
                 return clipboard::write(code)
@@ -254,7 +279,8 @@ impl CustomThemes {
 
                         match &definition.text_color_source {
                             Some(expression) => {
-                                self.text_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.text_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.text_color);
                                 self.text_color_source = definition.text_color_source.clone();
                                 }
                             None => {
@@ -264,7 +290,8 @@ impl CustomThemes {
                         }
                         match &definition.background_color_source {
                             Some(expression) => {
-                                self.background_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.background_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.background_color);
                                 self.background_color_source = definition.background_color_source.clone();
                                 }
                             None => {
@@ -274,7 +301,8 @@ impl CustomThemes {
                         }
                         match &definition.border_color_source {
                             Some(expression) => {
-                                self.border_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.border_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.border_color);
                                 self.border_color_source = definition.border_color_source.clone();
                                 }
                             None => {
@@ -284,7 +312,8 @@ impl CustomThemes {
                         }
                         match &definition.shadow_color_source {
                             Some(expression) => {
-                                self.shadow_color = evaluate_theme_expression(&self.theme, &expression).unwrap();
+                                self.shadow_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.shadow_color);
                                 self.shadow_color_source = definition.shadow_color_source.clone();
                                 }
                             None => {
@@ -299,10 +328,72 @@ impl CustomThemes {
             }
 
             Message::ResetToDefault => {
-                self.reset_to_theme();
+//                self.reset_to_theme();
+                self.reset_style_editor(self.selected_view);
+                return Task::none()
             }
         }
+        match self.selected_view {
+            ThemePaneEnum::Button => {
+                self.regenerate_button_code();
+            }
+            ThemePaneEnum::Container => {
+                self.regenerate_container_code();
+            }
+            _ => {}
+        }
+
         Task::none()
+    }
+
+    fn regenerate_button_code(&mut self) {
+        let code = generate_button_style_code(
+            &self.style_name,
+            self.text_color,
+            &self.text_color_source,
+            self.background_color,
+            &self.background_color_source,
+            self.border_color,
+            &self.border_color_source,
+            self.border_width,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
+            self.shadow_enabled,
+            self.shadow_color,
+            &self.shadow_color_source,
+            self.shadow_offset_x,
+            self.shadow_offset_y,
+            self.shadow_blur_radius,
+            self.snap,
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
+    }
+
+    fn regenerate_container_code(&mut self) {
+        let code = generate_container_style_code(
+            &self.style_name,
+            self.text_color,
+            &self.text_color_source,
+            self.background_color,
+            &self.background_color_source,
+            self.border_color,
+            &self.border_color_source,
+            self.border_width,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
+            self.shadow_enabled,
+            self.shadow_color,
+            &self.shadow_color_source,
+            self.shadow_offset_x,
+            self.shadow_offset_y,
+            self.shadow_blur_radius,
+            self.snap,
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
     }
 
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, Message> {
@@ -704,34 +795,63 @@ impl CustomThemes {
         });
 
         let code_view = {
-            let tokens = generate_container_style_tokens(
-                &self.style_name,
-                self.text_color,
-                &self.text_color_source,
-                self.background_color,
-                &self.background_color_source,
-                self.border_color,
-                &self.border_color_source,
-                self.border_width,
-                self.border_radius_top_left,
-                self.border_radius_top_right,
-                self.border_radius_bottom_right,
-                self.border_radius_bottom_left,
-                self.shadow_enabled,
-                self.shadow_color,
-                &self.shadow_color_source,
-                self.shadow_offset_x,
-                self.shadow_offset_y,
-                self.shadow_blur_radius,
-                self.snap
-            );
-
-            let code_string: String = tokens.iter().map(|t| t.text.clone()).collect();
+            // Generate code based on selected widget type
+            let (code_element, code_string): (Element<'_, Message>, String) = match self.selected_view {
+                ThemePaneEnum::Button | ThemePaneEnum::Container => {
+                    let code_string = self.style_code_content.text();
+                    let settings = TsSettings {
+                        text: Arc::<str>::from(code_string.as_str()),
+                    };
+                    let element: Element<'_, Message> = text_editor(&self.style_code_content)
+                        .highlight_with::<TreeSitterIcedHighlighter>(
+                            settings,
+                            TreeSitterIcedHighlighter::to_format,
+                        )
+                        .on_action(Message::Edit)
+                        .height(Length::Fill)
+                        .style(code_gen_text_editor_style)
+                        .font(EDITOR_FONT)
+                        .size(14.0)
+                        .into();
+                    (element, code_string)
+                }
+                _ => {
+                    // Other types still use token-based generation
+                    let tokens = generate_container_style_tokens(
+                        &self.style_name,
+                        self.text_color,
+                        &self.text_color_source,
+                        self.background_color,
+                        &self.background_color_source,
+                        self.border_color,
+                        &self.border_color_source,
+                        self.border_width,
+                        self.border_radius_top_left,
+                        self.border_radius_top_right,
+                        self.border_radius_bottom_right,
+                        self.border_radius_bottom_left,
+                        self.shadow_enabled,
+                        self.shadow_color,
+                        &self.shadow_color_source,
+                        self.shadow_offset_x,
+                        self.shadow_offset_y,
+                        self.shadow_blur_radius,
+                        self.snap,
+                    );
+                    let code_str: String = tokens.iter().map(|t| t.text.clone()).collect();
+                    let element: Element<'_, Message> = build_code_view_with_height_generic::<Message>(
+                        &tokens,
+                        0.0,
+                        self.theme.clone()
+                    );
+                    (element, code_str)
+                }
+            };
 
             column![
                 container(text("Style Code").size(18)).center_x(Length::Fill),
                 internal_overlay(
-                        build_code_view_with_height_generic::<Message>(&tokens, 0.0, self.theme.clone()),
+                        code_element,
 
                         tooltip(
                             button(icon::copy())
@@ -746,7 +866,7 @@ impl CustomThemes {
             ]
             .spacing(10)
             .height(Length::Fill)
-            
+
         };
 
             row![
@@ -849,11 +969,11 @@ impl CustomThemes {
         match view {
             ThemePaneEnum::Container => {
                 self.text_color = palette.background.base.text;
-                self.text_color_source = None;
+                self.text_color_source = Some("palette.background.base.text".to_string());
                 self.background_color = palette.background.base.color;
-                self.background_color_source = None;
+                self.background_color_source = Some("palette.background.base.color".to_string());
                 self.border_color = palette.background.strong.color;
-                self.border_color_source = None;
+                self.border_color_source = Some("palette.background.strong.color".to_string());
                 self.border_width = 0.0;
                 self.border_radius_top_left = 0.0;
                 self.border_radius_top_right = 0.0;
@@ -861,7 +981,7 @@ impl CustomThemes {
                 self.border_radius_bottom_left = 0.0;
                 self.shadow_enabled = false;
                 self.shadow_color = palette.background.weak.color;
-                self.shadow_color_source = None;
+                self.shadow_color_source = Some("palette.background.weak.color".to_string());
                 self.shadow_offset_x = 0.0;
                 self.shadow_offset_y = 0.0;
                 self.shadow_blur_radius = 0.0;
@@ -870,11 +990,11 @@ impl CustomThemes {
             ThemePaneEnum::Button => {
                 // Using primary button colors as a default
                 self.text_color = palette.primary.base.text;
-                self.text_color_source = None;
+                self.text_color_source = Some("palette.primary.base.text".to_string());
                 self.background_color = palette.primary.base.color;
-                self.background_color_source = None;
+                self.background_color_source = Some("palette.primary.base.color".to_string());
                 self.border_color = palette.primary.strong.color;
-                self.border_color_source = None;
+                self.border_color_source = Some("palette.primary.strong.color".to_string());
                 self.border_width = 1.0;
                 // Buttons in iced typically have a single radius value
                 let radius = 4.0; 
@@ -884,7 +1004,7 @@ impl CustomThemes {
                 self.border_radius_bottom_left = radius;
                 self.shadow_enabled = true;
                 self.shadow_color = palette.background.weak.color;
-                self.shadow_color_source = None;
+                self.shadow_color_source = Some("palette.background.weak.color".to_string());
                 self.shadow_offset_x = 0.0;
                 self.shadow_offset_y = 2.0; // A subtle shadow is a nice default
                 self.shadow_blur_radius = 4.0;
@@ -1387,6 +1507,7 @@ impl CustomThemes {
 #[derive(Debug, Clone)]
 pub enum Message {
     ChangeView(ThemePaneEnum),
+    Edit(text_editor::Action),
     CopyCode(String),
 
     // Generic Style properties
@@ -1411,3 +1532,11 @@ pub enum Message {
     SelectStyle(String),
     ResetToDefault,
 }
+
+//const EDITOR_FONT: iced::Font = iced::Font::with_name("Consolas").weight(iced::font::Weight::Medium);
+pub const EDITOR_FONT: iced::Font = iced::Font {
+    family: iced::font::Family::Name("Consolas"),
+    weight: iced::font::Weight::Medium,
+    stretch: iced::font::Stretch::SemiExpanded,
+    style: iced::font::Style::Normal,
+};
