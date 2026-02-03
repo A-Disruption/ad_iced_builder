@@ -1788,7 +1788,7 @@ pub fn combobox_controls<'a>(
     widget_id: WidgetId, 
     theme: &Theme,
     type_system: &'a TypeSystem, 
-    custom_styles: &CustomThemes,
+    custom_styles: &'a CustomThemes,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -1807,6 +1807,8 @@ pub fn combobox_controls<'a>(
         text("ComboBox Properties").size(TITLE_SIZE),
 
         widget_name(widget_id, &props.widget_name),
+
+        custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Combobox),
 
         column![
             text("Placeholder Text").size(LABEL_SIZE),

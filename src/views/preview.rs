@@ -490,7 +490,7 @@ fn build_widget_preview<'a>(
                 if let Some(style_name) = &props.custom_style_name {
                     if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Button) {
                         if let Some(style_definition) = style_map.get(style_name) { // check if it's a custom style
-                            let style = style_definition.to_button_style(theme);
+                            let style = style_definition.to_button_style(theme, status);
                             return style;
                         } else if ButtonStyleType::all().contains(style_name) { // check if it's a built-in style
                             let style = ButtonStyleType::get(style_name).unwrap();
@@ -823,23 +823,40 @@ fn build_widget_preview<'a>(
             let on_selected = move |selected| {
                 Message::PropertyChanged(
                     id,
-                    PropertyChange::ComboBoxSelected(Some(selected)), 
+                    PropertyChange::ComboBoxSelected(Some(selected)),
                     current_view_id
                 )
             };
 
-            combo_box(
+            let mut cb = combo_box(
                 &props.combobox_state,
                 &props.combobox_placeholder,
-                props.combobox_selected.as_ref(), 
+                props.combobox_selected.as_ref(),
                 on_selected
             )
             .on_close(Message::ComboBoxOnClose(id, current_view_id))
             .on_input(move |search| Message::ComboBoxOnInput(id, search, current_view_id))
             .on_open(Message::ComboBoxOnOpen(id, current_view_id))
             .on_option_hovered(move |hovered| Message::ComboBoxOnOptionHovered(id, hovered, current_view_id))
-            .width(props.width)
-            .into()
+            .width(props.width);
+
+            // Apply custom style if set
+            if let Some(ref style_name) = props.custom_style_name {
+                if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Combobox) {
+                    if let Some(definition) = style_map.get(style_name) {
+                        let def_input = definition.clone();
+                        cb = cb.input_style(move |theme: &Theme, status| {
+                            def_input.to_combo_box_input_style(theme, status)
+                        });
+                        let def_menu = definition.clone();
+                        cb = cb.menu_style(move |theme: &Theme| {
+                            def_menu.to_combo_box_menu_style(theme)
+                        });
+                    }
+                }
+            }
+
+            cb.into()
         }
         
         WidgetType::Markdown => {

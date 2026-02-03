@@ -362,7 +362,7 @@ impl AdUiBuilder {
                     let view_to_render = self.views.get(&view_id)
                         .expect("View assigned to window must exist");
 
-                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_styles, selected_view.show_widget_bounds, &self.views, None)
+                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_styles, selected_view.show_widget_bounds, &self.views, Some(view_to_render.id))
                             .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))                    
                 }
             }

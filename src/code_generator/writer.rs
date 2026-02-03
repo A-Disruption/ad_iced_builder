@@ -650,7 +650,27 @@ impl CodeWriter {
         self.add_function("style");
         self.add_number(&format!("({}", widget_type));
         self.add_operator("::");
-        self.add_function(&format!("{})", style));  
+        self.add_function(&format!("{})", style));
+    }
+
+    pub fn add_input_style(&mut self, module: &str, function: &str) {
+        self.add_newline();
+        self.add_indent();
+        self.add_operator(".");
+        self.add_function("input_style");
+        self.add_number(&format!("({}", module));
+        self.add_operator("::");
+        self.add_function(&format!("{})", function));
+    }
+
+    pub fn add_menu_style(&mut self, module: &str, function: &str) {
+        self.add_newline();
+        self.add_indent();
+        self.add_operator(".");
+        self.add_function("menu_style");
+        self.add_number(&format!("({}", module));
+        self.add_operator("::");
+        self.add_function(&format!("{})", function));
     }
 
     pub fn add_derive(&mut self, csv: &str) {

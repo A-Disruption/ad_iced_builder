@@ -1032,4 +1032,5 @@ where
         .hover_position(widgets::generic_overlay::Position::Right)
         .hover_mode(widgets::generic_overlay::PositionMode::Inside)
         .hover_alignment(iced::Alignment::Start)
+        .interactive_base(true)
 }

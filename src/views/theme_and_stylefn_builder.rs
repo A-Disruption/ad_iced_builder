@@ -1,5 +1,5 @@
 use iced::advanced::graphics::text::cosmic_text::skrifa::attribute::Stretch;
-use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_editor, text_input, tooltip, Space};
+use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_editor, text_input, tooltip, Space, combo_box, overlay::menu};
 use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme, Padding, Task,};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -7,7 +7,7 @@ use widgets::{color_picker, collapsible::collapsible};
 use widgets::generic_overlay;
 use iced::clipboard;
 use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic, internal_overlay};
-use crate::code_gen_version_two::{generate_button_style_code, generate_container_style_code};
+use crate::code_gen_version_two::{generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code, generate_container_style_code};
 use crate::{icon, styles};
 use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition, evaluate_theme_expression};
 use tree_sitter_highlighter::{TsSettings, TreeSitterIcedHighlighter, code_gen_text_editor_style};
@@ -105,8 +105,25 @@ pub struct CustomThemes {
     background_color_source: Option<String>,
     shadow_color_source: Option<String>,
 
+    // checkbox/combobox-specific fields
+    icon_color: Color,
+    icon_color_source: Option<String>,
+
+    // combobox-specific fields
+    placeholder_color: Color,
+    placeholder_color_source: Option<String>,
+    selection_color: Color,
+    selection_color_source: Option<String>,
+    selected_text_color: Color,
+    selected_text_color_source: Option<String>,
+    selected_background_color: Color,
+    selected_background_color_source: Option<String>,
+
     // tree_sitter text_editor content for style code preview (shared across widget types)
     style_code_content: text_editor::Content,
+
+    preview_value: String,
+    combobox_state: combo_box::State<String>,
 }
 
 impl CustomThemes {
@@ -115,7 +132,9 @@ impl CustomThemes {
         let mut styles = BTreeMap::new();
         styles.insert(ThemePaneEnum::Container, BTreeMap::new());
         styles.insert(ThemePaneEnum::Button, BTreeMap::new());
-        
+        styles.insert(ThemePaneEnum::Checkbox, BTreeMap::new());
+        styles.insert(ThemePaneEnum::Combobox, BTreeMap::new());
+
         let mut new_instance = Self {
             theme: theme.clone(),
             selected_view: ThemePaneEnum::Container,
@@ -139,7 +158,19 @@ impl CustomThemes {
             border_color_source: None,
             background_color_source: None,
             shadow_color_source: None,
+            icon_color: palette.primary.base.text,
+            icon_color_source: None,
+            placeholder_color: palette.background.weak.text,
+            placeholder_color_source: None,
+            selection_color: palette.primary.weak.color,
+            selection_color_source: None,
+            selected_text_color: palette.primary.base.text,
+            selected_text_color_source: None,
+            selected_background_color: palette.primary.base.color,
+            selected_background_color_source: None,
             style_code_content: text_editor::Content::new(),
+            preview_value: String::new(),
+            combobox_state: combo_box::State::new(vec!["Option 1".to_string(), "Option 2".to_string(), "Option 3".to_string()]),
         };
         new_instance.regenerate_container_code();
         new_instance
@@ -171,6 +202,16 @@ impl CustomThemes {
         self.border_color_source = None;
         self.background_color_source = None;
         self.shadow_color_source = None;
+        self.icon_color = palette.primary.base.text;
+        self.icon_color_source = None;
+        self.placeholder_color = palette.background.weak.text;
+        self.placeholder_color_source = None;
+        self.selection_color = palette.primary.weak.color;
+        self.selection_color_source = None;
+        self.selected_text_color = palette.primary.base.text;
+        self.selected_text_color_source = None;
+        self.selected_background_color = palette.primary.base.color;
+        self.selected_background_color_source = None;
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -226,7 +267,27 @@ impl CustomThemes {
             Message::UpdateShadowOffsetY(y) => self.shadow_offset_y = y,
             Message::UpdateShadowBlurRadius(blur_radius) => self.shadow_blur_radius = blur_radius,
             Message::UpdateSnap(enabled) => self.snap = enabled,
-            
+            Message::UpdateIconColor { color, source } => {
+                self.icon_color = color;
+                self.icon_color_source = source;
+            }
+            Message::UpdatePlaceholderColor { color, source } => {
+                self.placeholder_color = color;
+                self.placeholder_color_source = source;
+            }
+            Message::UpdateSelectionColor { color, source } => {
+                self.selection_color = color;
+                self.selection_color_source = source;
+            }
+            Message::UpdateSelectedTextColor { color, source } => {
+                self.selected_text_color = color;
+                self.selected_text_color_source = source;
+            }
+            Message::UpdateSelectedBackgroundColor { color, source } => {
+                self.selected_background_color = color;
+                self.selected_background_color_source = source;
+            }
+
             Message::SaveStyle => {
                 if !self.style_name.is_empty() {
                     let definition = SavedStyleDefinition {
@@ -250,6 +311,16 @@ impl CustomThemes {
                         shadow_offset_y: self.shadow_offset_y,
                         shadow_blur_radius: self.shadow_blur_radius,
                         snap: self.snap,
+                        icon_color: self.icon_color,
+                        icon_color_source: self.icon_color_source.clone(),
+                        placeholder_color: self.placeholder_color,
+                        placeholder_color_source: self.placeholder_color_source.clone(),
+                        selection_color: self.selection_color,
+                        selection_color_source: self.selection_color_source.clone(),
+                        selected_text_color: self.selected_text_color,
+                        selected_text_color_source: self.selected_text_color_source.clone(),
+                        selected_background_color: self.selected_background_color,
+                        selected_background_color_source: self.selected_background_color_source.clone(),
                     };
 
                     self.styles
@@ -321,6 +392,61 @@ impl CustomThemes {
                                 self.shadow_color_source = None;
                             }
                         }
+                        match &definition.icon_color_source {
+                            Some(expression) => {
+                                self.icon_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.icon_color);
+                                self.icon_color_source = definition.icon_color_source.clone();
+                                }
+                            None => {
+                                self.icon_color = definition.icon_color;
+                                self.icon_color_source = None;
+                            }
+                        }
+                        match &definition.placeholder_color_source {
+                            Some(expression) => {
+                                self.placeholder_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.placeholder_color);
+                                self.placeholder_color_source = definition.placeholder_color_source.clone();
+                            }
+                            None => {
+                                self.placeholder_color = definition.placeholder_color;
+                                self.placeholder_color_source = None;
+                            }
+                        }
+                        match &definition.selection_color_source {
+                            Some(expression) => {
+                                self.selection_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.selection_color);
+                                self.selection_color_source = definition.selection_color_source.clone();
+                            }
+                            None => {
+                                self.selection_color = definition.selection_color;
+                                self.selection_color_source = None;
+                            }
+                        }
+                        match &definition.selected_text_color_source {
+                            Some(expression) => {
+                                self.selected_text_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.selected_text_color);
+                                self.selected_text_color_source = definition.selected_text_color_source.clone();
+                            }
+                            None => {
+                                self.selected_text_color = definition.selected_text_color;
+                                self.selected_text_color_source = None;
+                            }
+                        }
+                        match &definition.selected_background_color_source {
+                            Some(expression) => {
+                                self.selected_background_color = evaluate_theme_expression(&self.theme, &expression)
+                                    .unwrap_or(definition.selected_background_color);
+                                self.selected_background_color_source = definition.selected_background_color_source.clone();
+                            }
+                            None => {
+                                self.selected_background_color = definition.selected_background_color;
+                                self.selected_background_color_source = None;
+                            }
+                        }
                     }
                 }
 
@@ -332,6 +458,11 @@ impl CustomThemes {
                 self.reset_style_editor(self.selected_view);
                 return Task::none()
             }
+
+            Message::Noop => {},
+            Message::ComboboxSelected(value) => {
+                self.preview_value = value;
+            }
         }
         match self.selected_view {
             ThemePaneEnum::Button => {
@@ -339,6 +470,12 @@ impl CustomThemes {
             }
             ThemePaneEnum::Container => {
                 self.regenerate_container_code();
+            }
+            ThemePaneEnum::Checkbox => {
+                self.regenerate_checkbox_code();
+            }
+            ThemePaneEnum::Combobox => {
+                self.regenerate_combo_box_code();
             }
             _ => {}
         }
@@ -396,6 +533,60 @@ impl CustomThemes {
         self.style_code_content = text_editor::Content::with_text(&code);
     }
 
+    fn regenerate_checkbox_code(&mut self) {
+        let code = generate_checkbox_style_code(
+            &self.style_name,
+            self.text_color,
+            &self.text_color_source,
+            self.background_color,
+            &self.background_color_source,
+            self.icon_color,
+            &self.icon_color_source,
+            self.border_color,
+            &self.border_color_source,
+            self.border_width,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
+    }
+
+    fn regenerate_combo_box_code(&mut self) {
+        let code = generate_combo_box_style_code(
+            &self.style_name,
+            self.background_color,
+            &self.background_color_source,
+            self.border_color,
+            &self.border_color_source,
+            self.border_width,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
+            self.icon_color,
+            &self.icon_color_source,
+            self.placeholder_color,
+            &self.placeholder_color_source,
+            self.text_color,
+            &self.text_color_source,
+            self.selection_color,
+            &self.selection_color_source,
+            self.selected_text_color,
+            &self.selected_text_color_source,
+            self.selected_background_color,
+            &self.selected_background_color_source,
+            self.shadow_enabled,
+            self.shadow_color,
+            &self.shadow_color_source,
+            self.shadow_offset_x,
+            self.shadow_offset_y,
+            self.shadow_blur_radius,
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
+    }
+
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, Message> {
         let content = match self.selected_view {
             ThemePaneEnum::ExtendedPalette => self.show_theme_colors(theme),
@@ -430,14 +621,14 @@ impl CustomThemes {
                             styles::button::selected_text
                         } else { button::text }
                     )                
-                    , //.on_press(Message::ChangeView(ThemePaneEnum::Checkbox)),
+                    .on_press(Message::ChangeView(ThemePaneEnum::Checkbox)),
                 button("Combo Box")
                     .style(
                         if self.selected_view == ThemePaneEnum::Combobox {
                             styles::button::selected_text
                         } else { button::text }
                     )
-                    , //.on_press(Message::ChangeView(ThemePaneEnum::Combobox)),
+                    .on_press(Message::ChangeView(ThemePaneEnum::Combobox)),
                 button("Container")
                     .style(
                         if self.selected_view == ThemePaneEnum::Container {
@@ -556,6 +747,79 @@ impl CustomThemes {
                 ]
                 .width(Length::FillPortion(1)),
             ].spacing(10),
+
+            if self.selected_view == ThemePaneEnum::Checkbox || self.selected_view == ThemePaneEnum::Combobox {
+                row![
+                    column![
+                        container(text("icon_color").size(16)).center_x(Length::Fill),
+                        color_picker::ColorButton::new(self.icon_color)
+                            .on_change_with_source(|color, source| Message::UpdateIconColor { color, source })
+                            .title("icon_color")
+                            .width(Length::Fill)
+                            .height(Length::Fixed(50.0))
+                            .show_hex(),
+                    ]
+                    .width(Length::FillPortion(1)),
+                ].spacing(10)
+            } else {
+                row![]
+            },
+
+            if self.selected_view == ThemePaneEnum::Combobox {
+                column![
+                    row![
+                        column![
+                            container(text("placeholder color").size(16)).center_x(Length::Fill),
+                            color_picker::ColorButton::new(self.placeholder_color)
+                                .on_change_with_source(|color, source| Message::UpdatePlaceholderColor { color, source })
+                                .title("placeholder color")
+                                .width(Length::Fill)
+                                .height(Length::Fixed(50.0))
+                                .show_hex(),
+                        ]
+                        .width(Length::FillPortion(1)),
+
+                        column![
+                            container(text("selection color").size(16)).center_x(Length::Fill),
+                            color_picker::ColorButton::new(self.selection_color)
+                                .on_change_with_source(|color, source| Message::UpdateSelectionColor { color, source })
+                                .title("selection color")
+                                .width(Length::Fill)
+                                .height(Length::Fixed(50.0))
+                                .show_hex(),
+                        ]
+                        .width(Length::FillPortion(1)),
+                    ].spacing(10),
+
+                    container(text("Menu Style").size(18)).center_x(Length::Fill),
+
+                    row![
+                        column![
+                            container(text("selected text color").size(16)).center_x(Length::Fill),
+                            color_picker::ColorButton::new(self.selected_text_color)
+                                .on_change_with_source(|color, source| Message::UpdateSelectedTextColor { color, source })
+                                .title("selected text color")
+                                .width(Length::Fill)
+                                .height(Length::Fixed(50.0))
+                                .show_hex(),
+                        ]
+                        .width(Length::FillPortion(1)),
+
+                        column![
+                            container(text("selected bg color").size(16)).center_x(Length::Fill),
+                            color_picker::ColorButton::new(self.selected_background_color)
+                                .on_change_with_source(|color, source| Message::UpdateSelectedBackgroundColor { color, source })
+                                .title("selected background color")
+                                .width(Length::Fill)
+                                .height(Length::Fixed(50.0))
+                                .show_hex(),
+                        ]
+                        .width(Length::FillPortion(1)),
+                    ].spacing(10),
+                ].spacing(10)
+            } else {
+                column![]
+            },
 
             column![
                 container(text("Border").size(20)).center_x(Length::Fill),
@@ -714,7 +978,7 @@ impl CustomThemes {
                             let preview_style = match definition.widget_type {
                                 ThemePaneEnum::Container => definition.to_container_style(&theme),
                                 ThemePaneEnum::Button => {
-                                    let button_style = definition.to_button_style(&theme);
+                                    let button_style = definition.to_button_style(&theme, button::Status::Active);
                                     // Convert to container style for preview
                                     container::Style {
                                         text_color: Some(button_style.text_color),
@@ -722,6 +986,26 @@ impl CustomThemes {
                                         border: button_style.border,
                                         shadow: button_style.shadow,
                                         snap: button_style.snap,
+                                    }
+                                }
+                                ThemePaneEnum::Checkbox => {
+                                    let checkbox_style = definition.to_checkbox_style(&theme, checkbox::Status::Active { is_checked: true });
+                                    container::Style {
+                                        text_color: checkbox_style.text_color,
+                                        background: Some(checkbox_style.background),
+                                        border: checkbox_style.border,
+                                        shadow: Shadow::default(),
+                                        snap: false,
+                                    }
+                                }
+                                ThemePaneEnum::Combobox => {
+                                    let input_style = definition.to_combo_box_input_style(&theme, text_input::Status::Active);
+                                    container::Style {
+                                        text_color: Some(input_style.value),
+                                        background: Some(input_style.background),
+                                        border: input_style.border,
+                                        shadow: Shadow::default(),
+                                        snap: false,
                                     }
                                 }
                                 _ => container::Style::default(),
@@ -775,29 +1059,204 @@ impl CustomThemes {
             ),
         ].spacing(15);
 
-        let preview_style = self.create_current_preview_style(theme);
-        let preview_content = container(
-            column![
-                text("Preview").size(16),
-                text("This is how your custom style looks!").size(14).center(),
-                text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").size(12).center(),
-                row![
-                    text("Sample text").size(10),
-                    Space::new().width(Length::Fill).height(Length::Fixed(1.0)),
-                    text("More text").size(10),
-                ]
-            ]
-            .spacing(5)
-            .padding(15)
-        ).center_x(Length::Fill)
-        .style(move |_: &Theme| {
-            preview_style
-        });
+        let preview_content: Element<'_, Message> = match self.selected_view {
+            ThemePaneEnum::Combobox => {
+                let text_input_base = text_input::Style {
+                    background: Background::Color(self.background_color),
+                    border: Border { 
+                        color: self.border_color,
+                        width: self.border_width,
+                        radius: iced::border::Radius {
+                            bottom_left: self.border_radius_bottom_left,
+                            bottom_right: self.border_radius_bottom_right,
+                            top_left: self.border_radius_top_left,
+                            top_right: self.border_radius_top_right,
+
+                        }}, 
+                    icon: self.icon_color,
+                    placeholder: self.placeholder_color,
+                    value: self.text_color,
+                    selection: self.selection_color,
+                };
+
+                combo_box(
+                    &self.combobox_state,
+                    "Type to search...",
+                    Some(&self.preview_value),
+                    Message::ComboboxSelected
+                )
+                .input_style( move |_theme, status|
+                    match status {
+                        text_input::Status::Active => text_input_base,
+                        text_input::Status::Hovered => text_input::Style {
+                            border: Border {
+                                color: text_input_base.border.color.scale_alpha(0.8),
+                                ..text_input_base.border
+                            },
+                            ..text_input_base
+                        },
+                        text_input::Status::Focused { .. } => text_input::Style {
+                            border: Border {
+                                width: text_input_base.border.width.max(1.0),
+                                ..text_input_base.border
+                            },
+                            ..text_input_base
+                        },
+                        text_input::Status::Disabled => text_input::Style {
+                            background: text_input_base.background.scale_alpha(0.5),
+                            value: text_input_base.value.scale_alpha(0.5),
+                            placeholder: text_input_base.placeholder.scale_alpha(0.5),
+                            ..text_input_base
+                        },
+                    }
+                )
+                .menu_style( move |theme| menu::Style {
+                    background: Background::Color(self.background_color),
+                    border: Border {
+                        color: self.border_color,
+                        width: self.border_width,
+                        radius: iced::border::Radius {
+                            bottom_left: self.border_radius_bottom_left,
+                            bottom_right: self.border_radius_bottom_right,
+                            top_left: self.border_radius_top_left,
+                            top_right: self.border_radius_top_right,
+
+                        }}, 
+                    text_color: self.text_color,
+                    selected_text_color: self.selected_text_color,
+                    selected_background: Background::Color(self.selected_background_color),
+                    shadow: Shadow {
+                        color: self.shadow_color,
+                        offset: iced::Vector::new(self.shadow_offset_x, self.shadow_offset_y),
+                        blur_radius: self.shadow_blur_radius
+                    },
+                })
+                .into()
+            }
+            ThemePaneEnum::Button => {
+                button("Button Style Preview")
+                    .style(move |_theme, status| {
+                        let base = button::Style { 
+                            background:Some(Background::Color(self.background_color)), 
+                            text_color: self.text_color, 
+                            border: Border { 
+                                color: self.border_color,
+                                width: self.border_width,
+                                radius: iced::border::Radius {
+                                    bottom_left: self.border_radius_bottom_left,
+                                    bottom_right: self.border_radius_bottom_right,
+                                    top_left: self.border_radius_top_left,
+                                    top_right: self.border_radius_top_right,
+
+                                }}, 
+                            shadow: Shadow {
+                                color: self.shadow_color,
+                                offset: iced::Vector::new(self.shadow_offset_x, self.shadow_offset_y),
+                                blur_radius: self.shadow_blur_radius
+                            }, 
+                            snap: self.snap 
+                        };
+
+                        match status {
+                            button::Status::Active | button::Status::Pressed => base,
+                            button::Status::Hovered => button::Style {
+                                text_color: base.text_color.scale_alpha(0.8),
+                                ..base
+                            },
+                            button::Status::Disabled => button::Style {
+                                background: base.background.map(|bg| bg.scale_alpha(0.5)),
+                                text_color: base.text_color.scale_alpha(0.5),
+                                ..base
+                            },
+                        }
+                    })
+                    .on_press(Message::Noop)
+                    .into()
+            }
+            ThemePaneEnum::Checkbox => {
+                checkbox(true)
+                    .label("Checkbox Style Preview")
+                    .on_toggle(|_| Message::Noop)
+                    .style(|theme, status| {
+                        let base = checkbox::Style {
+                            background: Background::Color(self.background_color),
+                            icon_color: self.icon_color, 
+                            border: Border { 
+                                color: self.border_color,
+                                width: self.border_width,
+                                radius: iced::border::Radius {
+                                    bottom_left: self.border_radius_bottom_left,
+                                    bottom_right: self.border_radius_bottom_right,
+                                    top_left: self.border_radius_top_left,
+                                    top_right: self.border_radius_top_right,
+
+                                }}, 
+                            text_color: Some(self.text_color), 
+                        };
+
+                        match status {
+                            checkbox::Status::Active { .. } => base,
+                            checkbox::Status::Hovered { .. } => checkbox::Style {
+                                text_color: base.text_color.map(|c| c.scale_alpha(0.8)),
+                                ..base
+                            },
+                            checkbox::Status::Disabled { .. } => checkbox::Style {
+                                icon_color: base.icon_color.scale_alpha(0.5),
+                                text_color: base.text_color.map(|c| c.scale_alpha(0.5)),
+                                ..base
+                            },
+                        }                
+                    })
+                    .into()
+            }
+            ThemePaneEnum::Container => {
+                let preview_style = self.create_current_preview_style(theme);
+                container(
+                    column![
+                        text("Preview").size(16),
+                        text("This is how your custom style looks!").size(14).center(),
+                        text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").size(12).center(),
+                        row![
+                            text("Sample text").size(10),
+                            Space::new().width(Length::Fill).height(Length::Fixed(1.0)),
+                            text("More text").size(10),
+                        ]
+                    ]
+                    .spacing(5)
+                    .padding(15)
+                ).center_x(Length::Fill)
+                .style(move |_: &Theme| {
+                    preview_style
+                })
+                .into()       
+            }
+            _ => {
+                let preview_style = self.create_current_preview_style(theme);
+                container(
+                    column![
+                        text("Preview").size(16),
+                        text("This is how your custom style looks!").size(14).center(),
+                        text("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").size(12).center(),
+                        row![
+                            text("Sample text").size(10),
+                            Space::new().width(Length::Fill).height(Length::Fixed(1.0)),
+                            text("More text").size(10),
+                        ]
+                    ]
+                    .spacing(5)
+                    .padding(15)
+                ).center_x(Length::Fill)
+                .style(move |_: &Theme| {
+                    preview_style
+                })
+                .into()
+            }
+        };
 
         let code_view = {
             // Generate code based on selected widget type
             let (code_element, code_string): (Element<'_, Message>, String) = match self.selected_view {
-                ThemePaneEnum::Button | ThemePaneEnum::Container => {
+                ThemePaneEnum::Button | ThemePaneEnum::Container | ThemePaneEnum::Checkbox | ThemePaneEnum::Combobox => {
                     let code_string = self.style_code_content.text();
                     let settings = TsSettings {
                         text: Arc::<str>::from(code_string.as_str()),
@@ -888,7 +1347,7 @@ impl CustomThemes {
 
                 column![
                     container(text("Live Preview").size(18)).center_x(Length::Fill),
-                    preview_content.center_x(Length::Fill),
+                    container(preview_content).center_x(Length::Fill),
                     code_view,            
                     
                 ]
@@ -962,6 +1421,57 @@ impl CustomThemes {
         )
     }
 
+    fn create_current_combobox_input_style(&self, theme: &Theme) -> text_input::Style {
+        let background_color = if let Some(ref source) = self.background_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.background_color)
+        } else {
+            self.background_color
+        };
+        let border_color = if let Some(ref source) = self.border_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.border_color)
+        } else {
+            self.border_color
+        };
+        let icon_color = if let Some(ref source) = self.icon_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.icon_color)
+        } else {
+            self.icon_color
+        };
+        let placeholder_color = if let Some(ref source) = self.placeholder_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.placeholder_color)
+        } else {
+            self.placeholder_color
+        };
+        let text_color = if let Some(ref source) = self.text_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.text_color)
+        } else {
+            self.text_color
+        };
+        let selection_color = if let Some(ref source) = self.selection_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.selection_color)
+        } else {
+            self.selection_color
+        };
+
+        text_input::Style {
+            background: Background::Color(background_color),
+            border: Border {
+                color: border_color,
+                width: self.border_width,
+                radius: iced::border::Radius {
+                    top_left: self.border_radius_top_left,
+                    top_right: self.border_radius_top_right,
+                    bottom_right: self.border_radius_bottom_right,
+                    bottom_left: self.border_radius_bottom_left,
+                },
+            },
+            icon: icon_color,
+            placeholder: placeholder_color,
+            value: text_color,
+            selection: selection_color,
+        }
+    }
+
     fn reset_style_editor(&mut self, view: ThemePaneEnum) {
         let palette = self.theme.extended_palette();
         self.style_name = String::new();
@@ -1010,6 +1520,62 @@ impl CustomThemes {
                 self.shadow_blur_radius = 4.0;
                 self.snap = true;
             }
+            ThemePaneEnum::Checkbox => {
+                self.text_color = palette.background.base.text;
+                self.text_color_source = Some("palette.background.base.text".to_string());
+                self.background_color = palette.background.base.color;
+                self.background_color_source = Some("palette.background.base.color".to_string());
+                self.icon_color = palette.primary.base.text;
+                self.icon_color_source = Some("palette.primary.base.text".to_string());
+                self.border_color = palette.background.strong.color;
+                self.border_color_source = Some("palette.background.strong.color".to_string());
+                self.border_width = 1.0;
+                let radius = 2.0;
+                self.border_radius_top_left = radius;
+                self.border_radius_top_right = radius;
+                self.border_radius_bottom_right = radius;
+                self.border_radius_bottom_left = radius;
+                self.shadow_enabled = false;
+                self.shadow_color = palette.background.weak.color;
+                self.shadow_color_source = Some("palette.background.weak.color".to_string());
+                self.shadow_offset_x = 0.0;
+                self.shadow_offset_y = 0.0;
+                self.shadow_blur_radius = 0.0;
+                self.snap = true;
+            }
+            ThemePaneEnum::Combobox => {
+                // text_input value color
+                self.text_color = palette.background.base.text;
+                self.text_color_source = Some("palette.background.base.text".to_string());
+                self.background_color = palette.background.base.color;
+                self.background_color_source = Some("palette.background.base.color".to_string());
+                self.icon_color = palette.background.weak.text;
+                self.icon_color_source = Some("palette.background.weak.text".to_string());
+                self.placeholder_color = palette.background.weak.text;
+                self.placeholder_color_source = Some("palette.background.weak.text".to_string());
+                self.selection_color = palette.primary.weak.color;
+                self.selection_color_source = Some("palette.primary.weak.color".to_string());
+                self.border_color = palette.background.strong.color;
+                self.border_color_source = Some("palette.background.strong.color".to_string());
+                self.border_width = 1.0;
+                let radius = 4.0;
+                self.border_radius_top_left = radius;
+                self.border_radius_top_right = radius;
+                self.border_radius_bottom_right = radius;
+                self.border_radius_bottom_left = radius;
+                // menu style defaults
+                self.selected_text_color = palette.primary.base.text;
+                self.selected_text_color_source = Some("palette.primary.base.text".to_string());
+                self.selected_background_color = palette.primary.base.color;
+                self.selected_background_color_source = Some("palette.primary.base.color".to_string());
+                self.shadow_enabled = true;
+                self.shadow_color = palette.background.strong.color;
+                self.shadow_color_source = Some("palette.background.strong.color".to_string());
+                self.shadow_offset_x = 0.0;
+                self.shadow_offset_y = 2.0;
+                self.shadow_blur_radius = 8.0;
+                self.snap = false;
+            }
             // For other views, just reset to the base theme defaults for now
             _ => {
                 self.text_color = palette.background.base.text;
@@ -1030,6 +1596,8 @@ impl CustomThemes {
                 self.shadow_offset_y = 0.0;
                 self.shadow_blur_radius = 0.0;
                 self.snap = true;
+                self.icon_color = palette.primary.base.text;
+                self.icon_color_source = None;
             }
         }
     }
@@ -1525,12 +2093,21 @@ pub enum Message {
     UpdateShadowOffsetY(f32),
     UpdateShadowBlurRadius(f32),
     UpdateSnap(bool),
+    UpdateIconColor { color: Color, source: Option<String> },
+    UpdatePlaceholderColor { color: Color, source: Option<String> },
+    UpdateSelectionColor { color: Color, source: Option<String> },
+    UpdateSelectedTextColor { color: Color, source: Option<String> },
+    UpdateSelectedBackgroundColor { color: Color, source: Option<String> },
 
     // Style management
     UpdateStyleName(String),
     SaveStyle,
     SelectStyle(String),
     ResetToDefault,
+
+    // Messages to handle widget previews
+    Noop,
+    ComboboxSelected(String),
 }
 
 //const EDITOR_FONT: iced::Font = iced::Font::with_name("Consolas").weight(iced::font::Weight::Medium);

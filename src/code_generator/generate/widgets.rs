@@ -18,7 +18,7 @@ pub fn generate_widget_code(
         WidgetType::Button => generate_button(writer, widget, names, custom_styles, use_self),
         WidgetType::Checkbox => generate_checkbox(writer, widget, names, use_self),
         WidgetType::Column => generate_column(writer, widget, names, custom_styles, use_self),
-        WidgetType::ComboBox => generate_combobox(writer, widget, names, use_self),
+        WidgetType::ComboBox => generate_combobox(writer, widget, names, custom_styles, use_self),
         WidgetType::Container => generate_container(writer, widget, names, custom_styles, use_self),
         WidgetType::Image => generate_image(writer, widget, names, use_self),
         WidgetType::Markdown => generate_markdown(writer, widget, names, use_self),
@@ -217,7 +217,7 @@ fn generate_column(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<Wid
     }   
 }
 
-fn generate_combobox(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, use_self: bool) {
+fn generate_combobox(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
@@ -312,7 +312,15 @@ fn generate_combobox(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<W
     
     if !matches!(props.width, Length::Fill) {
         writer.add_width(props.width);
-    }   
+    }
+
+    // Custom style
+    if let Some(ref style) = props.custom_style_name {
+        if custom_styles.styles().get(&ThemePaneEnum::Combobox).is_some() {
+            writer.add_input_style("styles::combo_box", &format!("{}_input_style", style.to_lowercase()));
+            writer.add_menu_style("styles::combo_box", &format!("{}_menu_style", style.to_lowercase()));
+        }
+    }
 }
 
 fn generate_container(writer: &mut CodeWriter, widget: &Widget, names: &HashMap<WidgetId, String>, custom_styles: &CustomThemes, use_self: bool) {
