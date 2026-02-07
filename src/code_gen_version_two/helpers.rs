@@ -1,4 +1,7 @@
-use iced::Color;
+use iced::{Color, Element, Length};
+use iced::widget::button;
+use widgets::generic_overlay::OverlayButton;
+use widgets;
 
 /// Format a color value as code, using theme source if available, otherwise RGBA.
 pub fn format_color_with_source(color: Color, source: &Option<String>) -> String {
@@ -17,9 +20,6 @@ pub fn format_color_with_source(color: Color, source: &Option<String>) -> String
     }
 }
 
-/// Format border radius as a code string.
-/// If all values are the same, outputs the compact `{value}.into()` form.
-/// If values differ, outputs the full `Radius { top_left, top_right, bottom_right, bottom_left }` struct.
 pub fn format_radius(
     top_left: f32,
     top_right: f32,
@@ -43,7 +43,6 @@ pub fn format_radius(
     }
 }
 
-/// Format a shadow struct as a code string.
 pub fn format_shadow(
     enabled: bool,
     color: Color,
@@ -68,4 +67,26 @@ pub fn format_shadow(
     } else {
         "Shadow::default()".to_string()
     }
+}
+
+pub fn internal_overlay<'a, Message, Theme, Renderer>(
+    hover_element: impl Into<Element<'a, Message, Theme, Renderer>>,
+    copy_button: impl Into<Element<'a, Message, Theme, Renderer>>,
+) -> OverlayButton<'a, Message, Theme, Renderer> 
+where 
+    Renderer: iced::advanced::Renderer + iced::advanced::text::Renderer,
+    Theme: widgets::generic_overlay::Catalog + button::Catalog,
+{
+    OverlayButton::new(hover_element, "", copy_button)
+        .hide_header()
+        .on_hover()
+        .overlay_padding(0.0)
+        .overlay_padding(0.0)
+        .hover_gap(11.0)
+        .overlay_height(Length::Shrink)
+        .overlay_width(Length::Shrink)
+        .hover_position(widgets::generic_overlay::Position::Right)
+        .hover_mode(widgets::generic_overlay::PositionMode::Inside)
+        .hover_alignment(iced::Alignment::Start)
+        .interactive_base(true)
 }

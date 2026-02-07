@@ -1,27 +1,21 @@
 use iced::{event, window, Element, Subscription, Task, Theme, Length};
-use iced::widget::{column, row, container, text};
+use iced::widget::{column, row, container, text, text_editor};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
-mod code_generator;
+mod code_gen_version_two;
 mod controls;
 mod data_structures;
+mod enum_builder;
 mod icon;
 mod styles;
-mod enum_builder;
 mod views;
 
 use views::*;
 use views::enum_editor::EnumEditorView;
 use views::theme_and_stylefn_builder::CustomThemes;
-use data_structures::types::types::AppView;
-use data_structures::types::types::WindowConfig;
+use data_structures::types::types::{AppView, WindowConfig, WidgetId};
 use views::theme_and_stylefn_builder;
-
-
-//use crate::styles::stylefn_builders;
-
- mod code_gen_version_two;
 
 
 fn main() {
@@ -51,7 +45,11 @@ struct AdUiBuilder {
 
     codegen2: code_gen_version_two::CodeView,
 
-    generated_files: std::collections::HashMap<String, Vec<crate::code_generator::tokens::Token>>,
+    generated_files: std::collections::HashMap<String, String>,
+    code_view_content: text_editor::Content,
+    widget_preview_content: text_editor::Content,
+
+    open_editor_widget_id: Option<WidgetId>,
 }
 
 #[derive(Clone, Debug)]
@@ -104,6 +102,10 @@ impl AdUiBuilder {
             codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
 
             generated_files: std::collections::HashMap::new(),
+            code_view_content: text_editor::Content::new(),
+            widget_preview_content: text_editor::Content::new(),
+
+            open_editor_widget_id: None,
         };
 
         editor.regenerate_code();
@@ -124,6 +126,7 @@ impl AdUiBuilder {
     }
 
     fn update(&mut self, message: Message) -> Task<Message> {
+        println!("Message: {:?}", message);
         match message {
             Message::ChooseTheme(theme) => {
                 self.theme = theme;
@@ -139,24 +142,65 @@ impl AdUiBuilder {
                         }
                     }
                     ViewMessage::WidgetTree(msg) => {
-                        let view = self.views.get_mut(&self.selected_view_id).expect("Selected view must exist");
                         if let widget_tree::Message::CodeTabSelected(file) = msg {
-                            self.active_code_tab = file;
+                            if self.active_code_tab != file {
+                                self.active_code_tab = file;
+                                self.update_code_view_content();
+                            }
                             return Task::none()
-                        }                       
+                        }
+                        if let widget_tree::Message::CodeViewEdit(action) = msg {
+                            match action {
+                                text_editor::Action::Edit(_edit) => {
+                                    return Task::none()
+                                }
+                                _ => {
+                                    self.code_view_content.perform(action);
+                                }
+                            }
+                            return Task::none()
+                        }
+                        if let widget_tree::Message::WidgetPreviewEdit(action) = msg {
+                            match action {
+                                text_editor::Action::Edit(_edit) => {
+                                    return Task::none()
+                                }
+                                _ => {
+                                    self.widget_preview_content.perform(action);
+                                }
+                            }
+                            return Task::none()
+                        }
+                        if let widget_tree::Message::OverlayOpened(widget_id, _, _) = msg {
+                            self.open_editor_widget_id = Some(widget_id);
+                            self.update_widget_preview_content_for(widget_id);
+                            return Task::none()
+                        }
+                        if let widget_tree::Message::OverlayClosed(_) = msg {
+                            self.open_editor_widget_id = None;
+                            return Task::none()
+                        }
+                        let should_regenerate = matches!(msg,
+                            widget_tree::Message::TreeMove(_) |
+                            widget_tree::Message::DeleteWidget(_) |
+                            widget_tree::Message::PropertyChanged(_, _) |
+                            widget_tree::Message::SwapKind(_)
+                        );
 
+                        let view = self.views.get_mut(&self.selected_view_id).expect("Selected view must exist");
                         let result = widget_tree::update(
-                            msg, 
-                            &mut view.hierarchy, 
+                            msg,
+                            &mut view.hierarchy,
                             &mut self.type_system,
                             &mut self.type_editor
                         );
 
-                        self.regenerate_code();
+                        if should_regenerate {
+                            self.regenerate_code();
+                        }
                         return result.map(|m| Message::ViewMessages(ViewMessage::WidgetTree(m)));
                     }
                     ViewMessage::EnumEditor(msg) => {
-                    
                         let result = enum_editor::update(
                             msg,
                             &mut self.type_system,
@@ -176,7 +220,7 @@ impl AdUiBuilder {
 
                         let result = add_widgets::update(
                             &mut view.hierarchy,
-                            &mut self.type_system, 
+                            &mut self.type_system,
                             msg
                         );
 
@@ -184,6 +228,25 @@ impl AdUiBuilder {
                         return result.map(|m| Message::ViewMessages(ViewMessage::AddWidgets(m)));
                     }
                     ViewMessage::AddViews(msg) => {
+                        // Handle overlay open/close from AddViews tree
+                        if let add_views::Message::TreeMessage(widget_tree::Message::OverlayOpened(widget_id, _, _)) = msg {
+                            self.open_editor_widget_id = Some(widget_id);
+                            self.update_widget_preview_content_for(widget_id);
+                            return Task::none()
+                        }
+                        if let add_views::Message::TreeMessage(widget_tree::Message::OverlayClosed(_)) = msg {
+                            self.open_editor_widget_id = None;
+                            return Task::none()
+                        }
+
+                        let should_regenerate = matches!(&msg,
+                            add_views::Message::TreeMessage(
+                                widget_tree::Message::TreeMove(_) |
+                                widget_tree::Message::DeleteWidget(_) |
+                                widget_tree::Message::PropertyChanged(_, _) |
+                                widget_tree::Message::SwapKind(_)
+                            )
+                        );
 
                         let result = add_views::update(
                             &mut self.views,
@@ -193,7 +256,9 @@ impl AdUiBuilder {
                             msg
                         );
 
-                        self.regenerate_code();
+                        if should_regenerate {
+                            self.regenerate_code();
+                        }
                         return result.map(|m| Message::ViewMessages(ViewMessage::AddViews(m)));
                     }
                     ViewMessage::Preview(msg) => {
@@ -213,7 +278,7 @@ impl AdUiBuilder {
                             self.regenerate_code();
                             return Task::none();
                         }
-                        
+
                         let result = settings_views::window_settings::update(
                             &mut self.windows,
                             msg
@@ -291,22 +356,24 @@ impl AdUiBuilder {
             None => None
         };
         let selected_view = self.views.get(&self.selected_view_id).expect("Failed to get View Id");
+        let code_view = full_code_view::view(
+            &self.generated_files,
+            &self.active_code_tab,
+            &self.code_view_content,
+        ).map(|msg| Message::ViewMessages( ViewMessage::WidgetTree(msg)));
 
         let view = match self.selected_view {
             navigation_bar::ViewSelection::Main => {
                 row![
-                    column![ // Left Side
-                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme, &self.custom_styles ).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
+                    column![ 
+                        // Left Side
+                        add_views::view(&self.views, &self.selected_view_id, &self.type_system, &self.theme, &self.custom_styles, &self.widget_preview_content, self.open_editor_widget_id).map(|msg| Message::ViewMessages( ViewMessage::AddViews(msg))),
                         container(add_widgets::view(&preview_view.hierarchy, &selected_widget.id).map(|msg| Message::ViewMessages( ViewMessage::AddWidgets(msg)))).align_bottom(Length::Shrink).width(400),
                     ]
                     .spacing(5),
 
                     // Right side
-                    full_code_view::view(             
-                        &self.generated_files, 
-                        &self.active_code_tab,
-                        &self.theme
-                    ).map(|msg| Message::ViewMessages( ViewMessage::WidgetTree(msg))),
+                    code_view
                 ].into()
                 
             }
@@ -318,15 +385,12 @@ impl AdUiBuilder {
             }
 //            navigation_bar::ViewSelection::WidgetStyleBuilder => {}
             navigation_bar::ViewSelection::EnumBuilder => {
-                row![// Left Side
+                row![
+                    // Left Side
                     enum_editor::view(&self.type_system, &self.type_editor).map(|msg| Message::ViewMessages( ViewMessage::EnumEditor(msg))),
 
                     // Right side
-                    full_code_view::view(             
-                        &self.generated_files, 
-                        &self.active_code_tab,
-                        &self.theme
-                    ).map(|msg| Message::ViewMessages( ViewMessage::WidgetTree(msg))),
+                    code_view
                 ].into()
                 
             }
@@ -339,11 +403,7 @@ impl AdUiBuilder {
                     ).map(|msg| Message::ViewMessages( ViewMessage::WindowSettings(msg))),
 
                     // Right side
-                    full_code_view::view(             
-                        &self.generated_files, 
-                        &self.active_code_tab,
-                        &self.theme
-                    ).map(|msg| Message::ViewMessages( ViewMessage::WidgetTree(msg))),
+                    code_view
                 ].into()
             }
               _ => { container("No done, sorry :(").into() }
@@ -386,19 +446,63 @@ impl AdUiBuilder {
     }
 
     fn regenerate_code(&mut self) {
-        use crate::code_generator::CodeGenerator;
-        
-        let mut generator = CodeGenerator::new(
+        use crate::code_gen_version_two::CodeGeneratorV2;
+
+        let mut generator = CodeGeneratorV2::new(
             &self.views,
             &self.windows,
-            &self.theme, 
+            &self.theme,
             &self.type_system
         );
-        
+
         generator.set_app_name(self.app_name.clone());
 
         self.generated_files = generator.generate_project_structure(&self.custom_styles);
-    } 
+        self.update_code_view_content();
+        self.update_widget_preview_content();
+    }
+
+    fn update_code_view_content(&mut self) {
+        let code = self.generated_files.get(&self.active_code_tab)
+            .or_else(|| self.generated_files.get("main.rs"))
+            .cloned()
+            .unwrap_or_default();
+        self.code_view_content = text_editor::Content::with_text(&code);
+    }
+
+    fn update_widget_preview_content(&mut self) {
+        use crate::code_gen_version_two::CodeGeneratorV2;
+
+        let view = match self.views.get(&self.selected_view_id) {
+            Some(v) => v,
+            None => return,
+        };
+        let selected = view.hierarchy.get_single_selected()
+            .unwrap_or(view.hierarchy.root());
+        let mut generator = CodeGeneratorV2::new_single(
+            &view.hierarchy,
+            &self.theme,
+            &self.type_system,
+        );
+        let code = generator.generate_widget_code_rewrite(selected.id, &self.custom_styles);
+        self.widget_preview_content = text_editor::Content::with_text(&code);
+    }
+
+    fn update_widget_preview_content_for(&mut self, widget_id: WidgetId) {
+        use crate::code_gen_version_two::CodeGeneratorV2;
+
+        let view = match self.views.get(&self.selected_view_id) {
+            Some(v) => v,
+            None => return,
+        };
+        let mut generator = CodeGeneratorV2::new_single(
+            &view.hierarchy,
+            &self.theme,
+            &self.type_system,
+        );
+        let code = generator.generate_widget_code_rewrite(widget_id, &self.custom_styles);
+        self.widget_preview_content = text_editor::Content::with_text(&code);
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq)]

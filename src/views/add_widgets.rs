@@ -27,11 +27,9 @@ pub fn update<'a>(hierarchy: &'a mut WidgetHierarchy, type_system: &'a mut TypeS
         //Message::SelectWidgetType(widget_type) => {}
 
         Message::AddChild(parent_id, widget_type) => {
-            println!("Adding {:?} to parent {:?}", widget_type, parent_id);
             if let Ok(new_id) = hierarchy.add_child(parent_id, widget_type) {
-                println!("Successfully added with id {:?}", new_id);
                 // Debug print the tree
-                debug_print_widget(&hierarchy.root(), 0);
+//                debug_print_widget(&hierarchy.root(), 0);
             } else {
                 println!("Failed to add child");
             }
@@ -40,11 +38,11 @@ pub fn update<'a>(hierarchy: &'a mut WidgetHierarchy, type_system: &'a mut TypeS
         Message::WrapSelectedInContainer(container_type) => {
             match hierarchy.wrap_selected_in_container(container_type) {
                 Ok(wrapper_id) => {
-                    println!("Successfully wrapped widgets in {:?} with id {:?}", 
-                                container_type, wrapper_id);
+//                    println!("Successfully wrapped widgets in {:?} with id {:?}", 
+//                                container_type, wrapper_id);
                 }
                 Err(e) => {
-                    println!("Failed to wrap widgets: {}", e);
+//                    println!("Failed to wrap widgets: {}", e);
                     // TODO: Show error to user (could add a status message field)
                 }
             }

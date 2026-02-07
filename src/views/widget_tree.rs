@@ -1,5 +1,5 @@
-use iced::widget::{button, column, container, markdown, row, rule, space, text};
-use iced::{Alignment, Element, Length, Task, Theme};
+use iced::widget::{button, column, container, row, space, text, text_editor};
+use iced::{Element, Length, Task, Theme};
 use widgets::tree::{tree_handle, branch, DropInfo, DropPosition, Branch};
 use std::collections::{HashSet, BTreeMap};
 use iced::clipboard;
@@ -55,10 +55,15 @@ pub enum Message {
     // Batch editing operations  
     BatchPropertyChanged(PropertyChange), // Applies property to all selected widgets
 
-    OverlayOpened(iced::Point, iced::Size),
+    OverlayOpened(WidgetId, iced::Point, iced::Size),
+    OverlayClosed(WidgetId),
 
     CodeTabSelected(String),
     CopyCode(String),
+
+    // text_editor actions for code views
+    CodeViewEdit(text_editor::Action),
+    WidgetPreviewEdit(text_editor::Action),
 }
 
 
@@ -270,13 +275,14 @@ pub fn update(
         Message::BatchPropertyChanged(change) => {
             hierarchy.apply_property_to_all_selected(change, type_system);
         }
-        Message::OverlayOpened(overlay_position, overlay_size) => {
-            println!("Overlay was opened. \n\tPosition: {}, \n\tSize: {:?}", overlay_position, overlay_size)
-        },
+        Message::OverlayOpened(_, _, _) => {} // Handled in main.rs
+        Message::OverlayClosed(_) => {}       // Handled in main.rs
         Message::CopyCode(code) => {
             return clipboard::write(code)
         }
         Message::CodeTabSelected(_) => {} // Handled in main.rs
+        Message::CodeViewEdit(_) => {}   // Handled in main.rs
+        Message::WidgetPreviewEdit(_) => {} // Handled in main.rs
     }
     
     Task::none()
@@ -288,9 +294,11 @@ pub fn view<'a>(
     theme: &'a Theme,
     views: &'a BTreeMap<Uuid, AppView>,
     custom_themes: &'a CustomThemes,
+    widget_preview_content: &'a text_editor::Content,
+    open_editor_widget_id: Option<WidgetId>,
 ) -> Element<'a, Message> {
     let widget = hierarchy.root();
-    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes);
+    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes, widget_preview_content, open_editor_widget_id);
 
     let display_name = if widget.properties.widget_name.is_empty() {
         &widget.name
@@ -324,9 +332,10 @@ pub fn view<'a>(
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes));
+        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes, widget_preview_content, open_editor_widget_id));
     }
 
+    let root_widget_id = widget.id;
     let root = branch(
         row![
             container(text(format!("{}", display_name))).padding(5),
@@ -343,6 +352,8 @@ pub fn view<'a>(
             .resizable(widgets::generic_overlay::ResizeMode::Always)
             .overlay_width(600.0)
             .overlay_height(750.0)
+            .on_open(move |pos, size| Message::OverlayOpened(root_widget_id, pos, size))
+            .on_close(move || Message::OverlayClosed(root_widget_id))
             .style(styles::button::edit),
 
             disabled_delete_button
@@ -374,6 +385,8 @@ fn build_tree_item<'a>(
     widget: &'a Widget,
     views: &'a BTreeMap<Uuid, AppView>,
     custom_themes: &'a CustomThemes,
+    widget_preview_content: &'a text_editor::Content,
+    open_editor_widget_id: Option<WidgetId>,
 ) -> Branch<'a, Message, Theme, iced::Renderer> {     
 
     let is_selected = hierarchy.selected_ids().contains(&widget.id);
@@ -390,7 +403,7 @@ fn build_tree_item<'a>(
     .unwrap_or(false);
 
     // Create the overlay content for this specific widget
-    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes);
+    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes, widget_preview_content, open_editor_widget_id);
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> = match widget.widget_type {
         WidgetType::Row        => Some(icon::swap()), 
@@ -417,18 +430,20 @@ fn build_tree_item<'a>(
                 None
             };
 
+    let widget_id = widget.id;
     let edit_button: Element<Message> = if selection_count == 1 {
         // Original single-widget edit overlay
         Some(overlay_button(
             icon::edit(),
             format!("Editing {}", display_name),
-            build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes)
+            build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes, widget_preview_content, open_editor_widget_id)
         )
         .close_on_click_outside()
         .overlay_width(600.0)
         .overlay_height(750.0)
         .resizable(widgets::generic_overlay::ResizeMode::Always)
-        .on_open(|overlay_position, overlay_size| Message::OverlayOpened(overlay_position, overlay_size))
+        .on_open(move |pos, size| Message::OverlayOpened(widget_id, pos, size))
+        .on_close(move || Message::OverlayClosed(widget_id))
         .style(styles::button::edit)).into()
     } else if is_selected {
         // Show indicator that this is in batch selection
@@ -442,7 +457,7 @@ fn build_tree_item<'a>(
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes));
+        children.push(build_tree_item(hierarchy, type_system, theme, child, views, custom_themes, widget_preview_content, open_editor_widget_id));
     }
 
     let branch = match widget.widget_type {
@@ -495,7 +510,8 @@ fn build_tree_item<'a>(
                     .overlay_height(750.0)
                     .close_on_click_outside()
                     .resizable(widgets::generic_overlay::ResizeMode::Always)
-                    .on_open(|overlay_position, overlay_size| Message::OverlayOpened(overlay_position, overlay_size))
+                    .on_open(move |pos, size| Message::OverlayOpened(widget_id, pos, size))
+                    .on_close(move || Message::OverlayClosed(widget_id))
                     .style(styles::button::edit),
 
                     delete_button
@@ -521,39 +537,47 @@ fn build_editor_for_widget<'a>(
     hierarchy: &'a WidgetHierarchy,
     type_system: &'a TypeSystem,
     theme: &'a Theme,
-    widget: &Widget, 
+    widget: &Widget,
     widget_id: WidgetId,
     views: &'a BTreeMap<Uuid, AppView>,
     custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+    open_editor_widget_id: Option<WidgetId>,
 ) -> Element<'a, Message> {
+    // Return empty element if this widget's overlay isn't open
+    // This avoids expensive text_editor + tree-sitter construction for closed overlays
+    if Some(widget_id) != open_editor_widget_id {
+        return space::horizontal().width(0).into();
+    }
+
     let controls_view: Element<Message> = match widget.widget_type {
-        WidgetType::Container       => container_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Scrollable      => scrollable_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Row             => row_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Column          => column_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Button          => button_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Text            => text_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::TextInput       => text_input_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Checkbox        => checkbox_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Radio           => radio_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Toggler         => toggler_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::PickList        => picklist_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Slider          => slider_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::VerticalSlider  => vertical_slider_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Rule            => rule_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Space           => space_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::ProgressBar     => progress_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Image           => image_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Svg             => svg_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Tooltip         => tooltip_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::ComboBox        => combobox_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Markdown        => markdown_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::MouseArea       => mousearea_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::QRCode          => qrcode_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Stack           => stack_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Themer          => themer_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::Pin             => pin_controls(&hierarchy, widget_id, theme, &type_system, custom_styles),
-        WidgetType::ViewReference   => view_reference_controls(&hierarchy, widget_id, theme, &type_system, views, custom_styles),
+        WidgetType::Container       => container_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Scrollable      => scrollable_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Row             => row_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Column          => column_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Button          => button_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Text            => text_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::TextInput       => text_input_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Checkbox        => checkbox_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Radio           => radio_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Toggler         => toggler_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::PickList        => picklist_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Slider          => slider_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::VerticalSlider  => vertical_slider_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Rule            => rule_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Space           => space_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::ProgressBar     => progress_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Image           => image_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Svg             => svg_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Tooltip         => tooltip_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::ComboBox        => combobox_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Markdown        => markdown_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::MouseArea       => mousearea_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::QRCode          => qrcode_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Stack           => stack_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Themer          => themer_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Pin             => pin_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::ViewReference   => view_reference_controls(&hierarchy, widget_id, theme, &type_system, views, custom_styles, preview_content),
         _ => column![text("Editor not implemented for this widget type")].into(),
     };
 

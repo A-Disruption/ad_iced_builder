@@ -1,17 +1,13 @@
-use iced::{Alignment, Element, Length::{self, Shrink}, padding, Settings, Task, Theme, widget::{ Column, button, column, container, row, rule, scrollable, space, text }
-};
+use iced::{Alignment, Element, Length, padding, Task, Theme, widget::{ button, column, container, row, scrollable, space, text, text_editor }};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 use crate::icon;
-use crate::styles;
-use widgets::tree::{tree_handle, branch, DropInfo, DropPosition, Branch};
 use widgets::collapsible::collapsible;
 use widgets::collapsible::CollapsibleGroup;
-use crate::data_structures::types::types::AppView;
+use crate::data_structures::types::types::{AppView, WidgetId};
 use crate::enum_builder::TypeSystem;
 use crate::EnumEditorView;
 use crate::widget_tree;
-use crate::settings_views::window_settings;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
 
 // Application messages
@@ -88,11 +84,13 @@ pub fn update<'a>(
 }
 
 pub fn view<'a>(
-    views: &'a BTreeMap<Uuid, AppView>, 
+    views: &'a BTreeMap<Uuid, AppView>,
     selected_view_id: &'a Uuid,
     type_system: &'a TypeSystem,
     theme: &'a Theme,
     custom_themes: &'a CustomThemes,
+    widget_preview_content: &'a text_editor::Content,
+    open_editor_widget_id: Option<WidgetId>,
 ) -> Element<'a, Message> {
     let header =
         row![
@@ -110,7 +108,7 @@ pub fn view<'a>(
     let view_list: Vec<_> = sorted_list.iter().map( |view| {
         collapsible(
             &view.1.name,
-            crate::widget_tree::view(&view.1.hierarchy, type_system, theme, views, custom_themes).map(|msg| Message::TreeMessage(msg) )
+            crate::widget_tree::view(&view.1.hierarchy, type_system, theme, views, custom_themes, widget_preview_content, open_editor_widget_id).map(|msg| Message::TreeMessage(msg) )
         )
         .expand_icon(icon::collapsed())
         .on_toggle(|_| Message::ViewSelected(view.1.id))

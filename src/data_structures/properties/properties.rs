@@ -23,6 +23,7 @@ pub struct Properties {
     pub draft_fixed_height: String,
     pub draft_fill_portion_width: String,
     pub draft_fill_portion_height: String,
+    pub draft_text_color: String,
     pub padding_mode: PaddingMode,
     
     
@@ -212,6 +213,7 @@ impl Default for Properties {
             draft_fixed_height: String::new(),
             draft_fill_portion_width: String::new(),
             draft_fill_portion_height: String::new(),
+            draft_text_color: String::new(),
             padding_mode: PaddingMode::Uniform,
             
             // Container defaults

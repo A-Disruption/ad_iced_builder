@@ -1,4 +1,3 @@
-use iced::advanced::graphics::text::cosmic_text::skrifa::attribute::Stretch;
 use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_editor, text_input, tooltip, Space, combo_box, overlay::menu};
 use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme, Padding, Task,};
 use std::collections::BTreeMap;
@@ -6,10 +5,9 @@ use std::sync::Arc;
 use widgets::{color_picker, collapsible::collapsible};
 use widgets::generic_overlay;
 use iced::clipboard;
-use crate::code_generator::{generate_container_style_tokens, build_code_view_with_height_generic, internal_overlay};
-use crate::code_gen_version_two::{generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code, generate_container_style_code};
+use crate::code_gen_version_two::{generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code, generate_container_style_code, helpers::internal_overlay};
 use crate::{icon, styles};
-use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition, evaluate_theme_expression};
+use crate::styles::style_enum::{SavedStyleDefinition, evaluate_theme_expression};
 use tree_sitter_highlighter::{TsSettings, TreeSitterIcedHighlighter, code_gen_text_editor_style};
 
 
@@ -1275,34 +1273,8 @@ impl CustomThemes {
                     (element, code_string)
                 }
                 _ => {
-                    // Other types still use token-based generation
-                    let tokens = generate_container_style_tokens(
-                        &self.style_name,
-                        self.text_color,
-                        &self.text_color_source,
-                        self.background_color,
-                        &self.background_color_source,
-                        self.border_color,
-                        &self.border_color_source,
-                        self.border_width,
-                        self.border_radius_top_left,
-                        self.border_radius_top_right,
-                        self.border_radius_bottom_right,
-                        self.border_radius_bottom_left,
-                        self.shadow_enabled,
-                        self.shadow_color,
-                        &self.shadow_color_source,
-                        self.shadow_offset_x,
-                        self.shadow_offset_y,
-                        self.shadow_blur_radius,
-                        self.snap,
-                    );
-                    let code_str: String = tokens.iter().map(|t| t.text.clone()).collect();
-                    let element: Element<'_, Message> = build_code_view_with_height_generic::<Message>(
-                        &tokens,
-                        0.0,
-                        self.theme.clone()
-                    );
+                    let element = container(text("Not Ready")).into();
+                    let code_str = "Code Generation not prepared".to_string();
                     (element, code_str)
                 }
             };

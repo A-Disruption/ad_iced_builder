@@ -1,6 +1,5 @@
-use iced::wgpu::naga::back;
 use iced::widget::{container, column, row, button, rule, space};
-use iced::{Element, Length, Padding, Theme};
+use iced::{Element, Length, Theme};
 
 use crate::icon;
 use crate::styles;

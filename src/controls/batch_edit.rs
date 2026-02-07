@@ -1,20 +1,13 @@
-use iced::{ Alignment, Color, Element, Length, Padding, Theme, mouse::Interaction };
-use iced::widget::{ container, button, checkbox, column, pick_list, radio, row, rule, scrollable, slider, space, text, text_editor, text_input, Space, toggler, tooltip};
-use crate::code_generator::CodeGenerator;
-use crate::code_generator::build_code_view_with_height;
-use crate::enum_builder::TypeSystem;
+use iced::{ Alignment, Color, Element, Length, Padding, Theme };
+use iced::widget::{ container, button, column, pick_list, radio, row, rule, scrollable, slider, space, text, text_input};
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
-use crate::data_structures::types::types::*;
 use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::*;
 use crate::data_structures::properties::messages::*;
 use crate::styles::container::*;
-use crate::icon;
 use crate::views::add_widgets::Message;
 use super::control_styling::*;
 
-// Batch Editing
-/// Builds the complete batch property editor overlay
 pub fn batch_editor_controls<'a>(
     hierarchy: &'a WidgetHierarchy,
 ) -> Element<'a, Message> {

@@ -25,6 +25,7 @@ pub enum PropertyChange {
     DraftFixedHeight(String),
     DraftFillPortionWidth(String),
     DraftFillPortionHeight(String),
+    DraftTextColor(String),
 
     // Padding mode and convenience setters
     PaddingMode(PaddingMode),
@@ -252,7 +253,13 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
                 }
             }
         }
-
+        PropertyChange::DraftTextColor(text) => {
+            properties.draft_text_color = text.clone();
+            match parse_color_hex(&text) {
+                Some(color) => { properties.text_color = color;}
+                None => {}
+            }
+        }
         PropertyChange::PaddingMode(mode) => {
             let current = properties.padding;
             properties.padding_mode = mode;
@@ -565,5 +572,23 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         }
         
         _ => {} // Placeholder for properties not implemented
+    }
+}
+
+fn parse_color_hex(s: &str) -> Option<iced::Color> {
+    let t = s.trim().trim_start_matches('#');
+    let hex = |i: usize| u8::from_str_radix(&t[i..i+2], 16).ok();
+    match t.len() {
+        6 => {
+            if let (Some(r), Some(g), Some(b)) = (hex(0), hex(2), hex(4)) {
+                return Some(Color::from_rgba8(r, g, b, 255.0));
+            } else { None }
+        }
+        8 => {
+            if let (Some(r), Some(g), Some(b), Some(a)) = (hex(0), hex(2), hex(4), hex(6)) {
+                return Some(Color::from_rgba8(r, g, b, a.into()));
+            } else { None }
+        }
+        _ => None,
     }
 }
