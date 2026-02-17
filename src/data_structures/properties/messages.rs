@@ -169,6 +169,17 @@ pub enum PropertyChange {
     QRCodeData(String),
     QRCodeCellSize(f32),
     
+    // Table
+    TableReferencedStruct(Option<Uuid>),
+    TablePaddingX(f32),
+    TablePaddingY(f32),
+    TableSeparatorX(f32),
+    TableSeparatorY(f32),
+
+    // Pin
+    PinX(f32),
+    PinY(f32),
+
     // Themer
     ThemerTheme(Option<Theme>),
 
@@ -549,6 +560,15 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         },
         PropertyChange::QRCodeCellSize(v) => properties.qrcode_cell_size = v,
         
+        PropertyChange::TableReferencedStruct(v) => properties.table_referenced_struct = v,
+        PropertyChange::TablePaddingX(v) => properties.table_padding_x = v,
+        PropertyChange::TablePaddingY(v) => properties.table_padding_y = v,
+        PropertyChange::TableSeparatorX(v) => properties.table_separator_x = v,
+        PropertyChange::TableSeparatorY(v) => properties.table_separator_y = v,
+
+        PropertyChange::PinX(v) => properties.pin_point.x = v,
+        PropertyChange::PinY(v) => properties.pin_point.y = v,
+
         PropertyChange::ThemerTheme(v) => properties.themer_theme = v,
 
         PropertyChange::Noop => {},

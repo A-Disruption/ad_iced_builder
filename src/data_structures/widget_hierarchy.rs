@@ -106,6 +106,7 @@ impl WidgetHierarchy {
                 WidgetType::Container => parent.children.is_empty(),
                 WidgetType::Tooltip   => parent.children.len() < 2, // <= 2 children
                 WidgetType::MouseArea => parent.children.is_empty(),
+                WidgetType::Pin => parent.children.is_empty(),
                 _ => true,
             }
         } else { false }
@@ -304,6 +305,13 @@ impl WidgetHierarchy {
             let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
             if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
                 return Err("MouseArea can only contain one child".into());
+            }
+        }
+
+        if matches!(new_parent_ty, WidgetType::Pin) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("Pin can only contain one child".into());
             }
         }
 
@@ -757,8 +765,9 @@ impl WidgetHierarchy {
 fn can_have_children(widget_type: &WidgetType) -> bool {
     matches!(
         widget_type,
-        WidgetType::Container | WidgetType::Row | WidgetType::Column | 
-        WidgetType::Scrollable | WidgetType::Tooltip | 
-        WidgetType::Stack | WidgetType::Themer | WidgetType::MouseArea
+        WidgetType::Container | WidgetType::Row | WidgetType::Column |
+        WidgetType::Scrollable | WidgetType::Tooltip |
+        WidgetType::Stack | WidgetType::Themer | WidgetType::MouseArea |
+        WidgetType::Pin
     )
 }

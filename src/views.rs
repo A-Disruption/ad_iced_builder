@@ -1,6 +1,7 @@
 pub mod navigation_bar;
 pub mod widget_tree;
 pub mod enum_editor;
+pub mod struct_editor;
 pub mod add_widgets;
 pub mod preview;
 pub mod add_views;

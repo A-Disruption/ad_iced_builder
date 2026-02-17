@@ -5666,7 +5666,7 @@ dependencies = [
 [[package]]
 name = "widgets"
 version = "0.1.0"
-source = "git+https://github.com/A-Disruption/widgets.git#7b944d98007e0959d58eddb34946b47b69454c76"
+source = "git+https://github.com/A-Disruption/widgets.git#258c561d6b9b2e79e6f160f772a8bc50109e3014"
 dependencies = [
  "iced",
 ]

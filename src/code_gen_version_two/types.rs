@@ -1,5 +1,5 @@
 use super::builder::CodeBuilder;
-use crate::enum_builder::{EnumDef, TypeSystem};
+use crate::enum_builder::{EnumDef, StructDef, TypeSystem};
 
 pub fn generate_enum_definitions(b: &mut CodeBuilder, type_system: &TypeSystem) {
     for enum_def in type_system.enums.values() {
@@ -69,6 +69,32 @@ fn generate_enum_all_const(b: &mut CodeBuilder, enum_def: &EnumDef) {
 
     b.decrease_indent();
     b.line("];");
+
+    b.decrease_indent();
+    b.line("}");
+}
+
+pub fn generate_struct_definitions(b: &mut CodeBuilder, type_system: &TypeSystem) {
+    for struct_def in type_system.structs.values() {
+        generate_struct_code(b, struct_def, type_system);
+        b.newline();
+        b.newline();
+    }
+}
+
+fn generate_struct_code(b: &mut CodeBuilder, struct_def: &StructDef, type_system: &TypeSystem) {
+    b.line(&format!("// {} struct", struct_def.name));
+    b.line("#[derive(Debug, Clone)]");
+    b.line(&format!("pub struct {} {{", struct_def.name));
+    b.increase_indent();
+
+    for field in &struct_def.fields {
+        b.line(&format!(
+            "pub {}: {},",
+            field.name,
+            field.field_type.rust_type(type_system)
+        ));
+    }
 
     b.decrease_indent();
     b.line("}");

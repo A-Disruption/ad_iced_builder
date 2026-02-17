@@ -367,8 +367,9 @@ pub fn view<'a>(
     let mut tree = tree_handle(
         vec!(root)
     )
-//    .expand_icon(icon::collapsed())
-//    .collapse_icon(icon::expanded())
+    .expand_icon(icon::collapsed())
+    .collapse_icon(icon::expanded())
+    .quick()
     .on_drop(Message::TreeMove)
     .on_select(|selected_ids| Message::SelectWidgets(selected_ids));
 
@@ -461,7 +462,7 @@ fn build_tree_item<'a>(
     }
 
     let branch = match widget.widget_type {
-        WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable | WidgetType::Tooltip | WidgetType::MouseArea => {
+        WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable | WidgetType::Tooltip | WidgetType::MouseArea | WidgetType::Pin => {
 
             let content = row![
                     container(text(format!("{}", display_name))).padding(5),
@@ -500,19 +501,7 @@ fn build_tree_item<'a>(
 
                     swap_button,
 
-                    // Create overlay button with this widget's specific content
-                    overlay_button(
-                        icon::edit(),
-                        format!("Editing {}", display_name),
-                        overlay_content
-                    )
-                    .overlay_width(600.0)
-                    .overlay_height(750.0)
-                    .close_on_click_outside()
-                    .resizable(widgets::generic_overlay::ResizeMode::Always)
-                    .on_open(move |pos, size| Message::OverlayOpened(widget_id, pos, size))
-                    .on_close(move || Message::OverlayClosed(widget_id))
-                    .style(styles::button::edit),
+                    edit_button,
 
                     delete_button
             ].spacing(5);
@@ -577,6 +566,7 @@ fn build_editor_for_widget<'a>(
         WidgetType::Stack           => stack_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Themer          => themer_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Pin             => pin_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Table           => table_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::ViewReference   => view_reference_controls(&hierarchy, widget_id, theme, &type_system, views, custom_styles, preview_content),
         _ => column![text("Editor not implemented for this widget type")].into(),
     };

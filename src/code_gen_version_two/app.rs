@@ -48,7 +48,7 @@ pub fn generate_impl(
 
     events::generate_update(b, root, names);
     b.newline();
-    view::generate_view_method(b, root, names, custom_styles);
+    view::generate_view_method(b, root, names, custom_styles, type_system);
 
     b.newline();
     b.decrease_indent();
@@ -111,8 +111,22 @@ fn generate_state_fields(
                 to_snake_case(&name)
             ));
         }
+        WidgetType::Markdown => {
+            b.line(&format!("{}_items: Vec<markdown::Item>,", to_snake_case(&name)));
+        }
         WidgetType::QRCode => {
             b.line("qr_data: qr_code::Data,");
+        }
+        WidgetType::Table => {
+            if let Some(ref struct_id) = props.table_referenced_struct {
+                if let Some(struct_def) = type_system.get_struct(*struct_id) {
+                    b.line(&format!(
+                        "{}_rows: Vec<{}>,",
+                        to_snake_case(&name),
+                        struct_def.name
+                    ));
+                }
+            }
         }
         _ => {}
     }
@@ -232,11 +246,31 @@ fn generate_state_initializers(
                 options.join(", ")
             ));
         }
+        WidgetType::Markdown => {
+            let source_text = props.markdown_source.text();
+            let escaped = source_text.replace('\\', "\\\\").replace('"', "\\\"").replace('\n', "\\n");
+            b.line(&format!(
+                "{}_items: markdown::parse(\"{}\").collect(),",
+                to_snake_case(&name),
+                escaped
+            ));
+        }
         WidgetType::QRCode => {
             b.line(&format!(
                 "qr_data: qr_code::Data::new(\"{}\").unwrap(),",
                 props.qrcode_link
             ));
+        }
+        WidgetType::Table => {
+            if let Some(ref struct_id) = props.table_referenced_struct {
+                if let Some(struct_def) = type_system.get_struct(*struct_id) {
+                    b.line(&format!(
+                        "{}_rows: vec![],  // Add {} data here",
+                        to_snake_case(&name),
+                        struct_def.name
+                    ));
+                }
+            }
         }
         _ => {}
     }

@@ -106,7 +106,8 @@ pub fn view<'a>(
                             rule::horizontal(2),
                             row![
                                 widget_button(WidgetType::Row, "Row"),
-                                widget_button(WidgetType::Column, "Column")
+                                widget_button(WidgetType::Column, "Column"),
+                                widget_button(WidgetType::Table, "Table"),
                             ]
                             .spacing(10)
                             .padding(5),
@@ -216,7 +217,8 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
         } else {
             vec![]
         }
-    } else if parent.widget_type == WidgetType::Container {
+    } else if parent.widget_type == WidgetType::Container || 
+              parent.widget_type == WidgetType::Pin {
         if parent.children.is_empty() {
             vec![
                 WidgetType::Container,
@@ -242,6 +244,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Markdown,
                 WidgetType::MouseArea,
                 WidgetType::Pin,
+                WidgetType::Table,
                 WidgetType::QRCode,
                 WidgetType::ViewReference
             ]
@@ -273,6 +276,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::ComboBox,
                 WidgetType::Markdown,
                 WidgetType::Pin,
+                WidgetType::Table,
                 WidgetType::QRCode,
             ]
         } else {
@@ -301,6 +305,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Markdown,
                 WidgetType::MouseArea,
                 WidgetType::Pin,
+                WidgetType::Table,
                 WidgetType::QRCode,
             ]
         } else {
@@ -331,6 +336,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
             WidgetType::Markdown,
             WidgetType::MouseArea,
             WidgetType::Pin,
+            WidgetType::Table,
             WidgetType::QRCode,
             WidgetType::ViewReference
         ]

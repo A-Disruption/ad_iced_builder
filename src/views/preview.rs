@@ -1,6 +1,6 @@
 use iced::{Alignment, Border, Padding, Element, Length, Background, Theme, Color, Font, Shadow, Task};
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, themer, text, text_input, toggler, tooltip, vertical_slider};
+use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, themer, text, text_input, toggler, tooltip, vertical_slider, Pin};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 
@@ -194,14 +194,15 @@ pub fn update(
 }
 
 pub fn view<'a>(
-    hierarchy: &'a WidgetHierarchy, 
-    theme: &'a Theme, 
+    hierarchy: &'a WidgetHierarchy,
+    theme: &'a Theme,
     custom_themes: &'a CustomThemes,
     highlight_selected: bool,
     all_views: &'a BTreeMap<Uuid, AppView>,
     current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
-    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, custom_themes, highlight_selected, all_views, current_view_id);
+    let widget_preview = build_widget_preview(hierarchy, hierarchy.root(), theme, custom_themes, highlight_selected, all_views, current_view_id, type_system);
 
     widget_preview
 
@@ -267,13 +268,14 @@ pub fn view<'a>(
 }
 
 fn build_widget_preview<'a>(
-    hierarchy: &'a WidgetHierarchy, 
-    widget: &'a Widget, 
-    theme: &'a Theme, 
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
     custom_themes: &'a CustomThemes,
     highlight_selected: bool,
     all_views: &'a BTreeMap<Uuid, AppView>,
     current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let is_selected = hierarchy.selected_ids().contains(&widget.id);
     let props = &widget.properties;
@@ -284,7 +286,7 @@ fn build_widget_preview<'a>(
                 if widget.children.is_empty() {
                     text("Empty Container").into()
                 } else {
-                    build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id)
+                    build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system)
                 }
             );
             
@@ -385,7 +387,7 @@ fn build_widget_preview<'a>(
         WidgetType::Row => {
             let children: Vec<Element<'a, Message>> = widget.children
                 .iter()
-                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id))
+                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
                 .collect();
             
             if props.is_wrapping_row {
@@ -424,7 +426,7 @@ fn build_widget_preview<'a>(
                     content = content.push(text("Row Item 2"));
                 } else {
                     for child in &widget.children {
-                        content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
+                        content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system));
                     }
                 }
                 
@@ -453,7 +455,7 @@ fn build_widget_preview<'a>(
                 content = content.push(text("Column Item 2"));
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system));
                 }
             }
             
@@ -705,7 +707,7 @@ fn build_widget_preview<'a>(
                 }
             } else {
                 for child in &widget.children {
-                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
+                    content = content.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system));
                 }
             }
             
@@ -787,7 +789,7 @@ fn build_widget_preview<'a>(
             // child[0] = trigger (host), child[1] = popup content
             let host = {
                 let element = widget.children.get(0)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
                     .unwrap_or_else(|| text("Tooltip host").into());
 
                 container(element)
@@ -800,7 +802,7 @@ fn build_widget_preview<'a>(
 
             let popup = {
                 let element = widget.children.get(1)
-                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id))
+                    .map(|widget| build_widget_preview(hierarchy, widget, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
                     .unwrap_or_else(|| text(&props.tooltip_text).size(14).into());
 
                 container(element)
@@ -890,7 +892,7 @@ fn build_widget_preview<'a>(
                     })
                     .into()
             } else {
-                build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id)
+                build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system)
             };
             
             // Start building mouse_area with conditional handlers
@@ -994,7 +996,7 @@ fn build_widget_preview<'a>(
                 );
             } else {
                 for child in &widget.children {
-                    layers.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
+                    layers.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system));
                 }
             }
             
@@ -1012,7 +1014,7 @@ fn build_widget_preview<'a>(
             } else {
                 let mut col = column![];
                 for child in &widget.children {
-                    col = col.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id));
+                    col = col.push(build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system));
                 }
                 col.into()
             };
@@ -1021,6 +1023,133 @@ fn build_widget_preview<'a>(
                 themer(Some(theme.clone()), content).into()
             } else {
                 content
+            }
+        }
+
+        WidgetType::Pin => {
+            let content = if widget.children.is_empty() {
+                text("Pinned Content").into()
+            } else {
+                build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system)
+            };
+
+            let mut p = Pin::new(content)
+                .width(props.width)
+                .height(props.height);
+
+            if props.pin_point.x != 0.0 || props.pin_point.y != 0.0 {
+                p = p.position(props.pin_point);
+            }
+
+            p.into()
+        }
+
+        WidgetType::Table => {
+            let palette = theme.extended_palette();
+            let header_bg = palette.primary.weak.color;
+            let header_text_color = palette.primary.weak.text;
+            let border_color = palette.background.strong.color;
+            let alt_row_bg = palette.background.weak.color;
+
+            if let Some(struct_id) = props.table_referenced_struct {
+                if let Some(struct_def) = type_system.get_struct(struct_id) {
+                    let fields = &struct_def.fields;
+
+                    // Build header row with actual field names
+                    let header_cells: Vec<Element<'_, _>> = fields.iter().map(|field| {
+                        container(
+                            text(&field.name).size(13).color(header_text_color)
+                        )
+                        .padding(Padding::from([props.table_padding_y, props.table_padding_x]))
+                        .width(Length::FillPortion(1))
+                        .into()
+                    }).collect();
+
+                    let header_row = container(row(header_cells))
+                        .width(Length::Fill)
+                        .style(move |_theme: &Theme| container::Style {
+                            background: Some(Background::Color(header_bg)),
+                            ..Default::default()
+                        });
+
+                    // Build sample data rows
+                    let sample_count = 3;
+                    let mut data_rows = column![];
+                    for row_idx in 0..sample_count {
+                        let cells: Vec<Element<'_, _>> = fields.iter().map(|field| {
+                            let sample = sample_value_for_type(&field.field_type, type_system, row_idx);
+                            container(
+                                text(sample).size(12)
+                            )
+                            .padding(Padding::from([props.table_padding_y, props.table_padding_x]))
+                            .width(Length::FillPortion(1))
+                            .into()
+                        }).collect();
+
+                        let row_bg = if row_idx % 2 == 1 { Some(alt_row_bg) } else { None };
+                        let mut row_container = container(row(cells)).width(Length::Fill);
+                        if let Some(bg) = row_bg {
+                            row_container = row_container.style(move |_theme: &Theme| container::Style {
+                                background: Some(Background::Color(bg)),
+                                ..Default::default()
+                            });
+                        }
+                        data_rows = data_rows.push(row_container);
+                        if row_idx < sample_count - 1 {
+                            data_rows = data_rows.push(rule::horizontal(props.table_separator_y));
+                        }
+                    }
+
+                    container(
+                        column![
+                            header_row,
+                            rule::horizontal(props.table_separator_y),
+                            data_rows,
+                        ]
+                    )
+                    .width(props.width)
+                    .height(props.height)
+                    .style(move |_theme: &Theme| container::Style {
+                        border: Border {
+                            color: border_color,
+                            width: 1.0,
+                            radius: 2.0.into(),
+                        },
+                        ..Default::default()
+                    })
+                    .into()
+                } else {
+                    // Struct was deleted
+                    container(
+                        text("Table: struct not found")
+                            .size(14)
+                            .color(Color::from_rgb(0.8, 0.2, 0.2))
+                    )
+                    .width(props.width)
+                    .height(props.height)
+                    .center_x(Length::Fill)
+                    .center_y(Length::Fill)
+                    .style(move |_theme: &Theme| container::Style {
+                        border: Border { color: border_color, width: 1.0, radius: 2.0.into() },
+                        ..Default::default()
+                    })
+                    .into()
+                }
+            } else {
+                container(
+                    text("Table: No struct selected")
+                        .size(14)
+                        .color(Color::from_rgb(0.5, 0.5, 0.5))
+                )
+                .width(props.width)
+                .height(props.height)
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
+                .style(move |_theme: &Theme| container::Style {
+                    border: Border { color: border_color, width: 1.0, radius: 2.0.into() },
+                    ..Default::default()
+                })
+                .into()
             }
         }
 
@@ -1034,11 +1163,12 @@ fn build_widget_preview<'a>(
                             build_widget_preview(
                                 &referenced_view.hierarchy,
                                 referenced_view.hierarchy.root(),
-                                theme, 
+                                theme,
                                 custom_themes,
                                 highlight_selected,
-                                all_views, 
+                                all_views,
                                 Some(view_id),
+                                type_system,
                             )
                         }
                         None => {
@@ -1092,5 +1222,37 @@ fn build_widget_preview<'a>(
             .into()
     } else {
         content
+    }
+}
+
+/// Generate a sample value string for a given FieldType, for table preview
+fn sample_value_for_type(field_type: &crate::enum_builder::FieldType, type_system: &TypeSystem, row_idx: usize) -> String {
+    use crate::enum_builder::FieldType;
+    match field_type {
+        FieldType::String => {
+            let samples = ["Hello", "World", "Sample"];
+            samples[row_idx % samples.len()].to_string()
+        }
+        FieldType::F32 | FieldType::F64 => {
+            let samples = [1.5, 3.14, 42.0];
+            format!("{}", samples[row_idx % samples.len()])
+        }
+        FieldType::I32 | FieldType::I64 => {
+            let samples = [1, -7, 42];
+            format!("{}", samples[row_idx % samples.len()])
+        }
+        FieldType::U32 | FieldType::U64 | FieldType::Usize => {
+            let samples = [0, 5, 100];
+            format!("{}", samples[row_idx % samples.len()])
+        }
+        FieldType::Bool => {
+            if row_idx % 2 == 0 { "true".to_string() } else { "false".to_string() }
+        }
+        FieldType::CustomEnum(id) => {
+            type_system.get_enum(*id)
+                .and_then(|e| e.variants.get(row_idx % e.variants.len()))
+                .map(|v| v.name.clone())
+                .unwrap_or_else(|| "?".to_string())
+        }
     }
 }

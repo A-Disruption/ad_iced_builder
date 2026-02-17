@@ -1,9 +1,10 @@
 use super::builder::{CodeBuilder, to_pascal_case, to_snake_case, format_length};
 use crate::data_structures::types::types::{WidgetType, Widget, WidgetId};
 use crate::data_structures::types::type_implementations::*;
+use crate::enum_builder::TypeSystem;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use iced::widget::text::LineHeight;
-use iced::{Length, Padding, Alignment, Theme};
+use iced::{Length, Padding, Alignment, Point, Theme};
 use std::collections::HashMap;
 
 pub fn generate_widget_code(
@@ -12,33 +13,35 @@ pub fn generate_widget_code(
     names: &HashMap<WidgetId, String>,
     use_self: bool,
     custom_styles: &CustomThemes,
+    type_system: &TypeSystem,
 ) {
     match widget.widget_type {
         WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self),
         WidgetType::Checkbox => generate_checkbox(b, widget, names, use_self),
-        WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self),
+        WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::ComboBox => generate_combobox(b, widget, names, custom_styles, use_self),
-        WidgetType::Container => generate_container(b, widget, names, custom_styles, use_self),
+        WidgetType::Container => generate_container(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Image => generate_image(b, widget),
-        WidgetType::Markdown => {} // stub
-        WidgetType::MouseArea => generate_mousearea(b, widget, names, custom_styles, use_self),
+        WidgetType::Markdown => generate_markdown(b, widget, names, use_self),
+        WidgetType::MouseArea => generate_mousearea(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::PickList => generate_picklist(b, widget, names, use_self),
-        WidgetType::Pin => {} // stub
+        WidgetType::Pin => generate_pin(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::ProgressBar => generate_progressbar(b, widget),
         WidgetType::QRCode => generate_qrcode(b, widget),
         WidgetType::Radio => generate_radio(b, widget, names, use_self),
-        WidgetType::Row => generate_row(b, widget, names, custom_styles, use_self),
+        WidgetType::Row => generate_row(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Rule => generate_rule(b, widget),
-        WidgetType::Scrollable => generate_scrollable(b, widget, names, custom_styles, use_self),
+        WidgetType::Scrollable => generate_scrollable(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Slider => generate_slider(b, widget, names, use_self),
         WidgetType::Space => generate_space(b, widget),
-        WidgetType::Stack => generate_stack(b, widget, names, custom_styles, use_self),
+        WidgetType::Stack => generate_stack(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Svg => generate_svg(b, widget),
         WidgetType::Text => generate_text(b, widget),
         WidgetType::TextInput => generate_textinput(b, widget, names, use_self),
-        WidgetType::Themer => generate_themer(b, widget, names, custom_styles, use_self),
+        WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
+        WidgetType::Themer => generate_themer(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Toggler => generate_toggler(b, widget, names, use_self),
-        WidgetType::Tooltip => generate_tooltip(b, widget, names, custom_styles, use_self),
+        WidgetType::Tooltip => generate_tooltip(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::VerticalSlider => generate_verticalslider(b, widget, names, use_self),
         WidgetType::ViewReference => {}
     }
@@ -642,24 +645,31 @@ fn generate_column(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     b.indent();
     b.push("column![");
     b.newline();
 
     b.increase_indent();
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("text(\"Column Item\")");
-        b.newline();
-    } else {
-        for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(b, child, names, use_self, custom_styles);
-            if i < widget.children.len() - 1 {
-                b.push(",");
-            }
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("text(\"Column Item\")");
             b.newline();
+        } else {
+            for (i, child) in widget.children.iter().enumerate() {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                if i < widget.children.len() - 1 {
+                    b.push(",");
+                }
+                b.newline();
+            }
         }
+    } else {
+        b.indent();
+        b.push("// child widgets");
+        b.newline();
     }
     b.decrease_indent();
     b.indent();
@@ -700,6 +710,7 @@ fn generate_row(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
 
@@ -708,17 +719,24 @@ fn generate_row(
     b.newline();
     b.increase_indent();
 
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("text(\"Row Item\")");
-    } else {
-        for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(b, child, names, use_self, custom_styles);
-            if i < widget.children.len() - 1 {
-                b.push(",");
-            }
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("text(\"Row Item\")");
             b.newline();
+        } else {
+            for (i, child) in widget.children.iter().enumerate() {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                if i < widget.children.len() - 1 {
+                    b.push(",");
+                }
+                b.newline();
+            }
         }
+    } else {
+        b.indent();
+        b.push("// child widgets");
+        b.newline();
     }
 
     b.decrease_indent();
@@ -768,6 +786,7 @@ fn generate_container(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
 
@@ -776,13 +795,18 @@ fn generate_container(
     b.newline();
     b.increase_indent();
 
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("text(\"Container Content\")");
-    } else {
-        for child in &widget.children {
-            generate_widget_code(b, child, names, use_self, custom_styles);
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("text(\"Container Content\")");
+        } else {
+            for child in &widget.children {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+            }
         }
+    } else {
+        b.indent();
+        b.push("// child widgets");
     }
 
     b.newline();
@@ -846,6 +870,7 @@ fn generate_scrollable(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
 
@@ -854,26 +879,31 @@ fn generate_scrollable(
     b.newline();
     b.increase_indent();
 
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("column![");
-        b.newline();
-        b.increase_indent();
-        for i in 1..=10 {
+    if use_self {
+        if widget.children.is_empty() {
             b.indent();
-            b.push(&format!("text(\"Scrollable Item {}\")", i));
-            if i < 10 {
-                b.push(",");
-            }
+            b.push("column![");
             b.newline();
+            b.increase_indent();
+            for i in 1..=10 {
+                b.indent();
+                b.push(&format!("text(\"Scrollable Item {}\")", i));
+                if i < 10 {
+                    b.push(",");
+                }
+                b.newline();
+            }
+            b.decrease_indent();
+            b.indent();
+            b.push("]");
+        } else {
+            for child in &widget.children {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+            }
         }
-        b.decrease_indent();
-        b.indent();
-        b.push("]");
     } else {
-        for child in &widget.children {
-            generate_widget_code(b, child, names, use_self, custom_styles);
-        }
+        b.indent();
+        b.push("// child widgets");
     }
 
     b.newline();
@@ -919,6 +949,7 @@ fn generate_stack(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
 
@@ -927,22 +958,28 @@ fn generate_stack(
     b.newline();
     b.increase_indent();
 
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("text(\"Layer 1\").into(),");
-        b.newline();
-        b.indent();
-        b.push("text(\"Layer 2\").into(),");
-    } else {
-        for (i, child) in widget.children.iter().enumerate() {
-            generate_widget_code(b, child, names, use_self, custom_styles);
-            b.push(".into()");
-            if i < widget.children.len() - 1 {
-                b.push(",");
-            }
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("text(\"Layer 1\").into(),");
             b.newline();
+            b.indent();
+            b.push("text(\"Layer 2\").into(),");
+        } else {
+            for (i, child) in widget.children.iter().enumerate() {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                b.push(".into()");
+                if i < widget.children.len() - 1 {
+                    b.push(",");
+                }
+                b.newline();
+            }
         }
+    } else {
+        b.indent();
+        b.push("// child widgets");
     }
+    b.newline();
 
     b.decrease_indent();
     b.indent();
@@ -963,6 +1000,7 @@ fn generate_mousearea(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
@@ -972,8 +1010,14 @@ fn generate_mousearea(
     b.newline();
 
     b.increase_indent();
-    if !widget.children.is_empty() {
-        generate_widget_code(b, &widget.children[0], names, use_self, custom_styles);
+    if use_self {
+        if !widget.children.is_empty() {
+            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+        }
+    } else {
+        b.indent();
+        b.push("// child widgets");
+        b.newline();
     }
     b.decrease_indent();
 
@@ -1006,6 +1050,7 @@ fn generate_tooltip(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
 
@@ -1014,20 +1059,29 @@ fn generate_tooltip(
     b.newline();
     b.increase_indent();
 
-    if let Some(host) = widget.children.get(0) {
-        generate_widget_code(b, host, names, use_self, custom_styles);
-    } else {
-        b.indent();
-        b.push("text(\"Hover me\")");
-    }
-    b.push(",");
-    b.newline();
+    if use_self {
+        if let Some(host) = widget.children.get(0) {
+            generate_widget_code(b, host, names, use_self, custom_styles, type_system);
+        } else {
+            b.indent();
+            b.push("text(\"Hover me\")");
+        }
+        b.push(",");
+        b.newline();
 
-    if let Some(content) = widget.children.get(1) {
-        generate_widget_code(b, content, names, use_self, custom_styles);
+        if let Some(content) = widget.children.get(1) {
+            generate_widget_code(b, content, names, use_self, custom_styles, type_system);
+        } else {
+            b.indent();
+            b.push(&format!("text(\"{}\")", props.tooltip_text));
+        }
     } else {
         b.indent();
-        b.push(&format!("text(\"{}\")", props.tooltip_text));
+        b.push("// host widget");
+        b.push(",");
+        b.newline();
+        b.indent();
+        b.push("// tooltip content");
     }
     b.push(",");
     b.newline();
@@ -1054,6 +1108,7 @@ fn generate_themer(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
@@ -1094,13 +1149,18 @@ fn generate_themer(
     b.newline();
     b.increase_indent();
 
-    if widget.children.is_empty() {
-        b.indent();
-        b.push("container(text(\"Themed content\"))");
-    } else {
-        for child in &widget.children {
-            generate_widget_code(b, child, names, use_self, custom_styles);
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("container(text(\"Themed content\"))");
+        } else {
+            for child in &widget.children {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+            }
         }
+    } else {
+        b.indent();
+        b.push("// child widgets");
     }
 
     b.newline();
@@ -1114,5 +1174,178 @@ fn generate_themer(
 
     if !matches!(props.height, Length::Shrink) {
         b.add_height(props.height);
+    }
+}
+
+fn generate_pin(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+) {
+    let props = &widget.properties;
+
+    b.indent();
+    b.push("pin(");
+    b.newline();
+    b.increase_indent();
+
+    if use_self {
+        if !widget.children.is_empty() {
+            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+        } else {
+            b.indent();
+            b.push("text(\"Pinned Content\")");
+        }
+    } else {
+        b.indent();
+        b.push("// child widget");
+    }
+
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    if props.pin_point != Point::ORIGIN {
+        if props.pin_point.x != 0.0 && props.pin_point.y != 0.0 {
+            b.dot_method("position", &format!("Point::new({:.1}, {:.1})", props.pin_point.x, props.pin_point.y));
+        } else if props.pin_point.x != 0.0 {
+            b.dot_method("x", &format!("{:.1}", props.pin_point.x));
+        } else {
+            b.dot_method("y", &format!("{:.1}", props.pin_point.y));
+        }
+    }
+
+    if !matches!(props.width, Length::Fill) {
+        b.add_width(props.width);
+    }
+
+    if !matches!(props.height, Length::Fill) {
+        b.add_height(props.height);
+    }
+
+    b.decrease_indent();
+}
+
+fn generate_markdown(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    use_self: bool,
+) {
+    let props = &widget.properties;
+    let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
+
+    b.indent();
+    if use_self {
+        if props.markdown_text_size != 16.0 {
+            b.push(&format!(
+                "markdown::view(&self.{}_items, markdown::Settings::with_text_size({}, &self.theme))",
+                to_snake_case(&name),
+                props.markdown_text_size
+            ));
+        } else {
+            b.push(&format!(
+                "markdown::view(&self.{}_items, &self.theme)",
+                to_snake_case(&name)
+            ));
+        }
+        b.increase_indent();
+        b.dot_method("map", &format!("Message::{}LinkClicked", to_pascal_case(&name)));
+        b.decrease_indent();
+    } else {
+        if props.markdown_text_size != 16.0 {
+            b.push(&format!(
+                "markdown::view(&items, markdown::Settings::with_text_size({}, &self.theme))",
+                props.markdown_text_size
+            ));
+        } else {
+            b.push("markdown::view(&items, &self.theme)");
+        }
+        b.increase_indent();
+        b.dot_method("map", "Message::LinkClicked");
+        b.decrease_indent();
+    }
+}
+
+fn generate_table(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    use_self: bool,
+    type_system: &TypeSystem,
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+
+    let struct_def = props.table_referenced_struct
+        .and_then(|id| type_system.get_struct(id));
+
+    b.indent();
+    if let Some(sdef) = struct_def {
+        // Build column vec inline
+        b.push("table(");
+        b.newline();
+        b.increase_indent();
+
+        // Columns
+        b.indent();
+        b.push("vec![");
+        b.newline();
+        b.increase_indent();
+        for field in &sdef.fields {
+            b.indent();
+            b.push(&format!(
+                "table::column(\"{}\", |_index, row: &{}| text(&row.{}).into()),",
+                field.name,
+                sdef.name,
+                field.name,
+            ));
+            b.newline();
+        }
+        b.decrease_indent();
+        b.indent();
+        b.push("],");
+        b.newline();
+
+        // Rows
+        b.indent();
+        if use_self {
+            b.push(&format!("&self.{}_rows,", to_snake_case(&name)));
+        } else {
+            b.push("&rows,");
+        }
+        b.newline();
+
+        b.decrease_indent();
+        b.indent();
+        b.push(")");
+
+        b.increase_indent();
+        if props.table_padding_x != 10.0 {
+            b.dot_method("padding_x", &format!("{:.1}", props.table_padding_x));
+        }
+        if props.table_padding_y != 5.0 {
+            b.dot_method("padding_y", &format!("{:.1}", props.table_padding_y));
+        }
+        if props.table_separator_x != 1.0 {
+            b.dot_method("separator_x", &format!("{:.1}", props.table_separator_x));
+        }
+        if props.table_separator_y != 1.0 {
+            b.dot_method("separator_y", &format!("{:.1}", props.table_separator_y));
+        }
+        b.decrease_indent();
+    } else {
+        b.push("// table: no struct selected");
+        b.newline();
+        b.indent();
+        b.push("text(\"Table: Select a struct type\")");
     }
 }

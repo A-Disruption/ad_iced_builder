@@ -90,6 +90,7 @@ impl ImportTracker {
             WidgetType::Stack => { self.used_widgets.insert("stack"); }
             WidgetType::Themer => { self.used_widgets.insert("themer"); }
             WidgetType::Pin => { self.used_widgets.insert("pin"); }
+            WidgetType::Table => { self.used_widgets.insert("table"); }
             WidgetType::ViewReference => {}
         }
 
@@ -155,6 +156,12 @@ impl ImportTracker {
             }
             if props.text_input_alignment != ContainerAlignX::Left {
                 self.uses_alignment = true;
+            }
+        }
+
+        if widget.widget_type == WidgetType::Pin {
+            if props.pin_point != iced::Point::ORIGIN {
+                self.uses_point = true;
             }
         }
 
@@ -340,6 +347,9 @@ fn generate_message_variants(
             if props.combobox_use_on_close {
                 b.line(&format!("{}OnClose,", to_pascal_case(&name)));
             }
+        }
+        WidgetType::Markdown => {
+            b.line(&format!("{}LinkClicked(markdown::Uri),", to_pascal_case(&name)));
         }
         WidgetType::MouseArea => {
             if props.mousearea_on_press {
@@ -605,6 +615,17 @@ fn generate_match_arms(
                 b.decrease_indent();
                 b.line("}");
             }
+        }
+        WidgetType::Markdown => {
+            b.line(&format!(
+                "Message::{}LinkClicked(url) => {{",
+                to_pascal_case(&name)
+            ));
+            b.increase_indent();
+            b.line("// Handle markdown link click");
+            b.line("// url is a markdown::Uri containing the link target");
+            b.decrease_indent();
+            b.line("}");
         }
         WidgetType::MouseArea => {
             if props.mousearea_on_press {

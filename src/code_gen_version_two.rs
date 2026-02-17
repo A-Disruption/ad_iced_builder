@@ -110,7 +110,7 @@ impl<'a> CodeGeneratorV2<'a> {
         }
 
         let mut b = CodeBuilder::new();
-        widgets::generate_widget_code(&mut b, widget, &self.widget_names, false, custom_styles);
+        widgets::generate_widget_code(&mut b, widget, &self.widget_names, false, custom_styles, self.type_system);
         b.build()
     }
 
@@ -121,9 +121,10 @@ impl<'a> CodeGeneratorV2<'a> {
     ) -> HashMap<String, String> {
         let mut files = HashMap::new();
 
-        // 1. Generate types.rs (shared enums)
+        // 1. Generate types.rs (shared enums and structs)
         let mut b = CodeBuilder::new();
         types::generate_enum_definitions(&mut b, self.type_system);
+        types::generate_struct_definitions(&mut b, self.type_system);
         let types_code = b.build();
         if !types_code.is_empty() {
             files.insert("types.rs".to_string(), types_code);

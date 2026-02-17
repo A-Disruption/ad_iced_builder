@@ -2311,16 +2311,41 @@ pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
 
+    let x_str = if props.draft_pin_x.is_empty() {
+        format!("{}", props.pin_point.x)
+    } else {
+        props.draft_pin_x.clone()
+    };
+    let y_str = if props.draft_pin_y.is_empty() {
+        format!("{}", props.pin_point.y)
+    } else {
+        props.draft_pin_y.clone()
+    };
+
     let content = column![
         text("Pin Properties").size(TITLE_SIZE),
 
         widget_name(widget_id, &props.widget_name),
-        
+
+        text("Position").size(SECTION_SIZE),
         row![
-            text("Position").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            column![],
+            text("X").size(LABEL_SIZE).width(Length::Fixed(20.0)),
+            text_input("0", &x_str).on_input(move |s| {
+                let v = parse_f32(&s, props.pin_point.x);
+                Message::PropertyChanged(widget_id, PropertyChange::PinX(v))
+            }).width(120),
         ]
-        .spacing(SECTION_SPACING),
+        .spacing(SECTION_SPACING)
+        .align_y(Alignment::Center),
+        row![
+            text("Y").size(LABEL_SIZE).width(Length::Fixed(20.0)),
+            text_input("0", &y_str).on_input(move |s| {
+                let v = parse_f32(&s, props.pin_point.y);
+                Message::PropertyChanged(widget_id, PropertyChange::PinY(v))
+            }).width(120),
+        ]
+        .spacing(SECTION_SPACING)
+        .align_y(Alignment::Center),
 
         size_controls_scrollable_aware(
             props.width,
@@ -2334,7 +2359,177 @@ pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable( 
+    scrollable(
+        container(
+            add_code_preview(content, preview_content)
+        ).padding(padding::right(10.0))
+    ).into()
+}
+
+pub fn table_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    type_system: &'a TypeSystem,
+    custom_styles: &CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let w = h.get_widget_by_id(widget_id).unwrap();
+    let props = &w.properties;
+
+    let selected_struct_name = if let Some(struct_id) = props.table_referenced_struct {
+        type_system.get_struct(struct_id)
+            .map(|s| s.name.clone())
+            .unwrap_or_else(|| String::from("Choose a struct..."))
+    } else {
+        String::from("Choose a struct...")
+    };
+
+    let struct_names: Vec<String> = type_system.all_structs()
+        .iter()
+        .map(|s| s.name.clone())
+        .collect();
+
+    let content = column![
+        text("Table Properties").size(TITLE_SIZE),
+
+        widget_name(widget_id, &props.widget_name),
+
+        column![
+            text("Data Source (Struct)").size(SECTION_SIZE),
+
+            if struct_names.is_empty() {
+                column![
+                    text("No structs defined yet")
+                        .size(LABEL_SIZE)
+                        .style(text::warning),
+                ]
+                .spacing(LABEL_SPACING)
+            } else {
+                column![
+                    pick_list(
+                        struct_names,
+                        Some(selected_struct_name),
+                        move |struct_name| {
+                            let struct_id = type_system.get_struct_by_name(&struct_name)
+                                .expect("MissingStructDef").id;
+                            Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::TableReferencedStruct(Some(struct_id))
+                            )
+                        }
+                    )
+                    .placeholder("Choose a struct...")
+                    .width(200),
+                ]
+            },
+        ]
+        .spacing(LABEL_SPACING),
+
+        // Show struct fields if a struct is selected
+        if let Some(struct_id) = props.table_referenced_struct {
+            if let Some(struct_def) = type_system.get_struct(struct_id) {
+                column![
+                    text(format!("Columns ({})", struct_def.fields.len()))
+                        .size(LABEL_SIZE)
+                        .color(Color::from_rgb(0.5, 0.5, 0.5)),
+                    scrollable(
+                        column(
+                            struct_def.fields.iter().map(|field| {
+                                text(format!("  {} : {}", field.name, field.field_type.display_name()))
+                                    .size(LABEL_SIZE)
+                                    .into()
+                            }).collect::<Vec<Element<'a, Message>>>()
+                        )
+                        .spacing(LABEL_SPACING)
+                    )
+                    .width(Length::Fill)
+                    .height(Length::Fixed(120.0))
+                ]
+                .width(Length::Fill)
+                .spacing(LABEL_SPACING)
+            } else {
+                column![]
+            }
+        } else {
+            column![]
+        },
+
+        text("Table Settings").size(SECTION_SIZE),
+
+        column![
+            text("Padding X").size(LABEL_SIZE),
+            row![
+                slider(0.0..=30.0, props.table_padding_x, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TablePaddingX(v))
+                })
+                .step(1.0)
+                .width(200),
+                text(format!("{:.0}", props.table_padding_x)).size(LABEL_SIZE).width(30),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+
+        column![
+            text("Padding Y").size(LABEL_SIZE),
+            row![
+                slider(0.0..=30.0, props.table_padding_y, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TablePaddingY(v))
+                })
+                .step(1.0)
+                .width(200),
+                text(format!("{:.0}", props.table_padding_y)).size(LABEL_SIZE).width(30),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+
+        column![
+            text("Separator X").size(LABEL_SIZE),
+            row![
+                slider(0.0..=10.0, props.table_separator_x, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorX(v))
+                })
+                .step(0.5)
+                .width(200),
+                text(format!("{:.1}", props.table_separator_x)).size(LABEL_SIZE).width(30),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+
+        column![
+            text("Separator Y").size(LABEL_SIZE),
+            row![
+                slider(0.0..=10.0, props.table_separator_y, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorY(v))
+                })
+                .step(0.5)
+                .width(200),
+                text(format!("{:.1}", props.table_separator_y)).size(LABEL_SIZE).width(30),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(
         container(
             add_code_preview(content, preview_content)
         ).padding(padding::right(10.0))

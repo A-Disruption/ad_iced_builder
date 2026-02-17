@@ -521,6 +521,7 @@ pub fn view<'a>(
                 .height(Length::Fill)
             )
         ]
+        .padding( iced::Padding { top: 0.0, bottom: 10.0, left: 0.0, right: 0.0 })
         .spacing(10)
         .width(400)
         .into()

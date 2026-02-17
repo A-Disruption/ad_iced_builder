@@ -151,10 +151,236 @@ pub fn validate_enum_name(name: &str) -> Result<(), String> {
     Ok(())
 }
 
+// ==================== STRUCT DEFINITIONS ====================
+
+/// Supported field types for struct fields
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum FieldType {
+    String,
+    F32,
+    F64,
+    I32,
+    I64,
+    U32,
+    U64,
+    Usize,
+    Bool,
+    CustomEnum(Uuid),
+}
+
+impl FieldType {
+    pub fn display_name(&self) -> String {
+        match self {
+            FieldType::String => "String".to_string(),
+            FieldType::F32 => "f32".to_string(),
+            FieldType::F64 => "f64".to_string(),
+            FieldType::I32 => "i32".to_string(),
+            FieldType::I64 => "i64".to_string(),
+            FieldType::U32 => "u32".to_string(),
+            FieldType::U64 => "u64".to_string(),
+            FieldType::Usize => "usize".to_string(),
+            FieldType::Bool => "bool".to_string(),
+            FieldType::CustomEnum(_) => "Enum".to_string(),
+        }
+    }
+
+    pub fn rust_type(&self, type_system: &TypeSystem) -> String {
+        match self {
+            FieldType::String => "String".to_string(),
+            FieldType::F32 => "f32".to_string(),
+            FieldType::F64 => "f64".to_string(),
+            FieldType::I32 => "i32".to_string(),
+            FieldType::I64 => "i64".to_string(),
+            FieldType::U32 => "u32".to_string(),
+            FieldType::U64 => "u64".to_string(),
+            FieldType::Usize => "usize".to_string(),
+            FieldType::Bool => "bool".to_string(),
+            FieldType::CustomEnum(id) => {
+                type_system.get_enum(*id)
+                    .map(|e| e.name.clone())
+                    .unwrap_or_else(|| "UnknownEnum".to_string())
+            }
+        }
+    }
+
+    pub fn default_value(&self, type_system: &TypeSystem) -> String {
+        match self {
+            FieldType::String => "String::new()".to_string(),
+            FieldType::F32 => "0.0".to_string(),
+            FieldType::F64 => "0.0".to_string(),
+            FieldType::I32 | FieldType::I64 => "0".to_string(),
+            FieldType::U32 | FieldType::U64 | FieldType::Usize => "0".to_string(),
+            FieldType::Bool => "false".to_string(),
+            FieldType::CustomEnum(id) => {
+                type_system.get_enum(*id)
+                    .and_then(|e| e.variants.first())
+                    .map(|v| {
+                        let enum_name = type_system.get_enum(*id).unwrap().name.clone();
+                        format!("{}::{}", enum_name, v.name)
+                    })
+                    .unwrap_or_else(|| "Default::default()".to_string())
+            }
+        }
+    }
+
+    /// All primitive field types (for UI pick lists)
+    pub fn primitives() -> Vec<FieldType> {
+        vec![
+            FieldType::String,
+            FieldType::F32,
+            FieldType::F64,
+            FieldType::I32,
+            FieldType::I64,
+            FieldType::U32,
+            FieldType::U64,
+            FieldType::Usize,
+            FieldType::Bool,
+        ]
+    }
+}
+
+impl std::fmt::Display for FieldType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.display_name())
+    }
+}
+
+/// A single field within a struct definition
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StructFieldDef {
+    pub id: Uuid,
+    pub name: String,
+    pub field_type: FieldType,
+}
+
+impl StructFieldDef {
+    pub fn new(name: String, field_type: FieldType) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            field_type,
+        }
+    }
+}
+
+/// User-defined struct for use with table widget and data binding
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StructDef {
+    pub id: Uuid,
+    pub name: String,
+    pub fields: Vec<StructFieldDef>,
+}
+
+impl StructDef {
+    pub fn new(name: String) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            fields: Vec::new(),
+        }
+    }
+
+    pub fn add_field(&mut self, name: String, field_type: FieldType) -> Result<Uuid, String> {
+        validate_field_name(&name)?;
+
+        if self.fields.iter().any(|f| f.name == name) {
+            return Err(format!("Field '{}' already exists in struct '{}'", name, self.name));
+        }
+
+        let field = StructFieldDef::new(name, field_type);
+        let id = field.id;
+        self.fields.push(field);
+        Ok(id)
+    }
+
+    pub fn remove_field(&mut self, field_id: Uuid) -> Result<(), String> {
+        let initial_len = self.fields.len();
+        self.fields.retain(|f| f.id != field_id);
+
+        if self.fields.len() == initial_len {
+            return Err("Field not found".to_string());
+        }
+
+        Ok(())
+    }
+
+    pub fn update_field_name(&mut self, field_id: Uuid, new_name: String) -> Result<(), String> {
+        validate_field_name(&new_name)?;
+
+        if self.fields.iter().any(|f| f.id != field_id && f.name == new_name) {
+            return Err(format!("Field '{}' already exists in struct '{}'", new_name, self.name));
+        }
+
+        if let Some(field) = self.fields.iter_mut().find(|f| f.id == field_id) {
+            field.name = new_name;
+            Ok(())
+        } else {
+            Err("Field not found".to_string())
+        }
+    }
+
+    pub fn update_field_type(&mut self, field_id: Uuid, new_type: FieldType) -> Result<(), String> {
+        if let Some(field) = self.fields.iter_mut().find(|f| f.id == field_id) {
+            field.field_type = new_type;
+            Ok(())
+        } else {
+            Err("Field not found".to_string())
+        }
+    }
+
+    pub fn get_field(&self, field_id: Uuid) -> Option<&StructFieldDef> {
+        self.fields.iter().find(|f| f.id == field_id)
+    }
+
+    pub fn get_field_by_name(&self, name: &str) -> Option<&StructFieldDef> {
+        self.fields.iter().find(|f| f.name == name)
+    }
+}
+
+pub fn validate_field_name(name: &str) -> Result<(), String> {
+    if name.is_empty() {
+        return Err("Field name cannot be empty".to_string());
+    }
+
+    let first_char = name.chars().next().unwrap();
+    if !first_char.is_alphabetic() && first_char != '_' {
+        return Err(format!("Field name '{}' must start with a letter or underscore", name));
+    }
+
+    if !name.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return Err(format!("Field name '{}' can only contain letters, numbers, and underscores", name));
+    }
+
+    // Should be snake_case
+    if name.chars().any(|c| c.is_uppercase()) {
+        return Err(format!("Field name '{}' should be snake_case (lowercase with underscores)", name));
+    }
+
+    Ok(())
+}
+
+pub fn validate_struct_name(name: &str) -> Result<(), String> {
+    if name.is_empty() {
+        return Err("Struct name cannot be empty".to_string());
+    }
+
+    let first_char = name.chars().next().unwrap();
+    if !first_char.is_alphabetic() && first_char != '_' {
+        return Err("Struct name must start with a letter or underscore".to_string());
+    }
+
+    if !name.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return Err("Struct name can only contain letters, numbers, and underscores".to_string());
+    }
+
+    Ok(())
+}
+
 /// A snapshot of the TypeSystem state for undo/redo
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct TypeSystemSnapshot {
     enums: HashMap<Uuid, EnumDef>,
+    structs: HashMap<Uuid, StructDef>,
     dependencies: HashMap<Uuid, HashSet<String>>,
 }
 
@@ -174,16 +400,19 @@ pub enum TypeSystemAction {
 pub struct TypeSystem {
     /// All enum definitions, keyed by stable UUID
     pub enums: HashMap<Uuid, EnumDef>,
-    
+
+    /// All struct definitions, keyed by stable UUID
+    pub structs: HashMap<Uuid, StructDef>,
+
     /// Dependency tracking: enum_id -> set of widget_ids that use this enum
     pub dependencies: HashMap<Uuid, HashSet<String>>,
-    
+
     /// Undo/redo history
     pub history: Vec<TypeSystemSnapshot>,
-    
+
     /// Current position in history
     pub current_index: usize,
-    
+
     /// Maximum history size (to prevent unbounded growth)
     pub max_history_size: usize,
 }
@@ -198,11 +427,13 @@ impl TypeSystem {
     pub fn new() -> Self {
         let initial_snapshot = TypeSystemSnapshot {
             enums: HashMap::new(),
+            structs: HashMap::new(),
             dependencies: HashMap::new(),
         };
-        
+
         Self {
             enums: HashMap::new(),
+            structs: HashMap::new(),
             dependencies: HashMap::new(),
             history: vec![initial_snapshot],
             current_index: 0,
@@ -214,6 +445,7 @@ impl TypeSystem {
     fn create_snapshot(&self) -> TypeSystemSnapshot {
         TypeSystemSnapshot {
             enums: self.enums.clone(),
+            structs: self.structs.clone(),
             dependencies: self.dependencies.clone(),
         }
     }
@@ -238,6 +470,7 @@ impl TypeSystem {
     /// Restore from a snapshot
     fn restore_snapshot(&mut self, snapshot: &TypeSystemSnapshot) {
         self.enums = snapshot.enums.clone();
+        self.structs = snapshot.structs.clone();
         self.dependencies = snapshot.dependencies.clone();
     }
     
@@ -370,8 +603,109 @@ impl TypeSystem {
         }
     }
     
+    // ==================== STRUCT OPERATIONS ====================
+
+    pub fn add_struct(&mut self, name: String) -> Result<Uuid, String> {
+        validate_struct_name(&name)?;
+
+        if self.structs.values().any(|s| s.name == name) {
+            return Err(format!("Struct '{}' already exists", name));
+        }
+
+        let struct_def = StructDef::new(name);
+        let struct_id = struct_def.id;
+
+        self.structs.insert(struct_id, struct_def);
+        self.save_to_history();
+
+        Ok(struct_id)
+    }
+
+    pub fn remove_struct(&mut self, struct_id: Uuid) -> Result<(), String> {
+        if self.structs.remove(&struct_id).is_some() {
+            self.save_to_history();
+            Ok(())
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn update_struct_name(&mut self, struct_id: Uuid, new_name: String) -> Result<(), String> {
+        validate_struct_name(&new_name)?;
+
+        if self.structs.values().any(|s| s.id != struct_id && s.name == new_name) {
+            return Err(format!("Struct '{}' already exists", new_name));
+        }
+
+        if let Some(struct_def) = self.structs.get_mut(&struct_id) {
+            struct_def.name = new_name;
+            self.save_to_history();
+            Ok(())
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn add_struct_field(&mut self, struct_id: Uuid, name: String, field_type: FieldType) -> Result<Uuid, String> {
+        if let Some(struct_def) = self.structs.get_mut(&struct_id) {
+            let field_id = struct_def.add_field(name, field_type)?;
+            self.save_to_history();
+            Ok(field_id)
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn remove_struct_field(&mut self, struct_id: Uuid, field_id: Uuid) -> Result<(), String> {
+        if let Some(struct_def) = self.structs.get_mut(&struct_id) {
+            struct_def.remove_field(field_id)?;
+            self.save_to_history();
+            Ok(())
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn update_struct_field_name(&mut self, struct_id: Uuid, field_id: Uuid, new_name: String) -> Result<(), String> {
+        if let Some(struct_def) = self.structs.get_mut(&struct_id) {
+            struct_def.update_field_name(field_id, new_name)?;
+            self.save_to_history();
+            Ok(())
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn update_struct_field_type(&mut self, struct_id: Uuid, field_id: Uuid, new_type: FieldType) -> Result<(), String> {
+        if let Some(struct_def) = self.structs.get_mut(&struct_id) {
+            struct_def.update_field_type(field_id, new_type)?;
+            self.save_to_history();
+            Ok(())
+        } else {
+            Err("Struct not found".to_string())
+        }
+    }
+
+    pub fn get_struct(&self, struct_id: Uuid) -> Option<&StructDef> {
+        self.structs.get(&struct_id)
+    }
+
+    pub fn get_struct_by_name(&self, name: &str) -> Option<&StructDef> {
+        self.structs.values().find(|s| s.name == name)
+    }
+
+    pub fn all_structs(&self) -> Vec<&StructDef> {
+        let mut structs: Vec<_> = self.structs.values().collect();
+        structs.sort_by(|a, b| a.name.cmp(&b.name));
+        structs
+    }
+
+    pub fn struct_count(&self) -> usize {
+        self.structs.len()
+    }
+
     // ==================== QUERY OPERATIONS ====================
-    
+
     pub fn get_enum(&self, enum_id: Uuid) -> Option<&EnumDef> {
         self.enums.get(&enum_id)
     }

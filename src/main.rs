@@ -1,5 +1,5 @@
 use iced::{event, window, Element, Subscription, Task, Theme, Length};
-use iced::widget::{column, row, container, text, text_editor};
+use iced::widget::{button, column, row, container, text, text_editor};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 
@@ -13,6 +13,7 @@ mod views;
 
 use views::*;
 use views::enum_editor::EnumEditorView;
+use views::struct_editor::StructEditorView;
 use views::theme_and_stylefn_builder::CustomThemes;
 use data_structures::types::types::{AppView, WindowConfig, WidgetId};
 use views::theme_and_stylefn_builder;
@@ -26,6 +27,12 @@ fn main() {
         .font(icon::FONT)
         .run()
         .unwrap()
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TypeEditorTab {
+    Enums,
+    Structs,
 }
 
 struct AdUiBuilder {
@@ -42,6 +49,8 @@ struct AdUiBuilder {
     custom_styles: CustomThemes,
     type_system: enum_builder::TypeSystem,
     type_editor: EnumEditorView,
+    struct_editor: StructEditorView,
+    type_editor_tab: TypeEditorTab,
 
     codegen2: code_gen_version_two::CodeView,
 
@@ -70,6 +79,8 @@ enum ViewMessage {
     NavigationBar(navigation_bar::Message),
     WidgetTree(widget_tree::Message),
     EnumEditor(enum_editor::Message),
+    StructEditor(struct_editor::Message),
+    SwitchTypeEditorTab(TypeEditorTab),
     ThemeBuilder(theme_and_stylefn_builder::Message),
     AddWidgets(add_widgets::Message),
     AddViews(add_views::Message),
@@ -98,6 +109,8 @@ impl AdUiBuilder {
             custom_styles: CustomThemes::new(&Theme::Dark),
             type_system: enum_builder::TypeSystem::new(),
             type_editor: EnumEditorView::new(),
+            struct_editor: StructEditorView::new(),
+            type_editor_tab: TypeEditorTab::Enums,
 
             codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
 
@@ -171,15 +184,7 @@ impl AdUiBuilder {
                             }
                             return Task::none()
                         }
-                        if let widget_tree::Message::OverlayOpened(widget_id, _, _) = msg {
-                            self.open_editor_widget_id = Some(widget_id);
-                            self.update_widget_preview_content_for(widget_id);
-                            return Task::none()
-                        }
-                        if let widget_tree::Message::OverlayClosed(_) = msg {
-                            self.open_editor_widget_id = None;
-                            return Task::none()
-                        }
+
                         let should_regenerate = matches!(msg,
                             widget_tree::Message::TreeMove(_) |
                             widget_tree::Message::DeleteWidget(_) |
@@ -209,6 +214,19 @@ impl AdUiBuilder {
 
                         self.regenerate_code();
                         return result.map(|m| Message::ViewMessages(ViewMessage::EnumEditor(m)));
+                    }
+                    ViewMessage::StructEditor(msg) => {
+                        let result = struct_editor::update(
+                            msg,
+                            &mut self.type_system,
+                            &mut self.struct_editor
+                        );
+
+                        self.regenerate_code();
+                        return result.map(|m| Message::ViewMessages(ViewMessage::StructEditor(m)));
+                    }
+                    ViewMessage::SwitchTypeEditorTab(tab) => {
+                        self.type_editor_tab = tab;
                     }
                     ViewMessage::ThemeBuilder(msg) => {
                     
@@ -385,14 +403,46 @@ impl AdUiBuilder {
             }
 //            navigation_bar::ViewSelection::WidgetStyleBuilder => {}
             navigation_bar::ViewSelection::EnumBuilder => {
-                row![
-                    // Left Side
-                    enum_editor::view(&self.type_system, &self.type_editor).map(|msg| Message::ViewMessages( ViewMessage::EnumEditor(msg))),
+                let enum_tab_style = if self.type_editor_tab == TypeEditorTab::Enums {
+                    button::primary
+                } else {
+                    button::secondary
+                };
+                let struct_tab_style = if self.type_editor_tab == TypeEditorTab::Structs {
+                    button::primary
+                } else {
+                    button::secondary
+                };
 
-                    // Right side
+                let tab_bar = row![
+                    button("Enums")
+                        .style(enum_tab_style)
+                        .on_press(Message::ViewMessages(ViewMessage::SwitchTypeEditorTab(TypeEditorTab::Enums))),
+                    button("Structs")
+                        .style(struct_tab_style)
+                        .on_press(Message::ViewMessages(ViewMessage::SwitchTypeEditorTab(TypeEditorTab::Structs))),
+                ]
+                .spacing(5)
+                .padding(5);
+
+                let editor_content: Element<'_, Message> = match self.type_editor_tab {
+                    TypeEditorTab::Enums => {
+                        enum_editor::view(&self.type_system, &self.type_editor)
+                            .map(|msg| Message::ViewMessages(ViewMessage::EnumEditor(msg)))
+                    }
+                    TypeEditorTab::Structs => {
+                        struct_editor::view(&self.type_system, &self.struct_editor)
+                            .map(|msg| Message::ViewMessages(ViewMessage::StructEditor(msg)))
+                    }
+                };
+
+                row![
+                    column![
+                        tab_bar,
+                        editor_content,
+                    ],
                     code_view
                 ].into()
-                
             }
             navigation_bar::ViewSelection::Settings => {
                 row![
@@ -422,7 +472,7 @@ impl AdUiBuilder {
                     let view_to_render = self.views.get(&view_id)
                         .expect("View assigned to window must exist");
 
-                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_styles, selected_view.show_widget_bounds, &self.views, Some(view_to_render.id))
+                    preview::view(&view_to_render.hierarchy, &self.theme, &self.custom_styles, selected_view.show_widget_bounds, &self.views, Some(view_to_render.id), &self.type_system)
                             .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))                    
                 }
             }

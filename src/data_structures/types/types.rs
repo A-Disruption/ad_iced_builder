@@ -54,6 +54,7 @@ pub enum WidgetType {
     Stack,
     Themer,
     Pin,
+    Table,
     ViewReference,
 }
 

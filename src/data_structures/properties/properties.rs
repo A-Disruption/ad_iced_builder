@@ -171,8 +171,17 @@ pub struct Properties {
     // Themer properties
     pub themer_theme: Option<Theme>,
 
+    // Table properties
+    pub table_referenced_struct: Option<Uuid>,
+    pub table_padding_x: f32,
+    pub table_padding_y: f32,
+    pub table_separator_x: f32,
+    pub table_separator_y: f32,
+
     // Pin properties
     pub pin_point: Point,
+    pub draft_pin_x: String,
+    pub draft_pin_y: String,
     
     //Mouse_Area properties
     pub mousearea_on_press: bool,
@@ -377,8 +386,17 @@ impl Default for Properties {
             // Themer defaults
             themer_theme: None,
 
+            // Table defaults
+            table_referenced_struct: None,
+            table_padding_x: 10.0,
+            table_padding_y: 5.0,
+            table_separator_x: 1.0,
+            table_separator_y: 1.0,
+
             // Pin defaults
             pin_point: Point::ORIGIN,
+            draft_pin_x: String::new(),
+            draft_pin_y: String::new(),
 
             // Mouse_area defaults
             mousearea_on_press: false,
@@ -485,6 +503,10 @@ impl Properties {
             }
             WidgetType::ComboBox => {
                 props.combobox_state = combo_box::State::new(props.combobox_options.clone());
+            }
+            WidgetType::Table => {
+                props.width = Length::Fill;
+                props.height = Length::Fill;
             }
             _ => {} // Use defaults for other types
         }
