@@ -1,6 +1,6 @@
-use iced::{Alignment, Border, Padding, Element, Length, Background, Theme, Color, Font, Shadow, Task};
+use iced::{Alignment, Border, Element, Length, Background, Theme, Color, Font, Shadow, Task, font};
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, themer, text, text_input, toggler, tooltip, vertical_slider, Pin};
+use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, table, themer, text, text_input, toggler, tooltip, vertical_slider, Pin};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 
@@ -10,7 +10,6 @@ use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::enum_builder::TypeSystem;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
-use crate::styles::style_enum::{WidgetStyle, SavedStyleDefinition};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -18,7 +17,6 @@ pub enum Message {
     PropertyChanged(WidgetId, PropertyChange, Option<Uuid>),
 
     // Interactive widget messages
-    ButtonPressed(WidgetId, Option<Uuid>),
     TextInputChanged(WidgetId, String, Option<Uuid>),
     Submitted(WidgetId, Option<Uuid>),
     TextPasted(WidgetId, String, Option<Uuid>),
@@ -28,7 +26,6 @@ pub enum Message {
     TogglerToggled(WidgetId, bool, Option<Uuid>),
     PickListSelected(WidgetId, String, Option<Uuid>),
     ComboBoxOnInput(WidgetId, String, Option<Uuid>),
-    ComboBoxSelected(WidgetId, String, Option<Uuid>),
     ComboBoxOnOptionHovered(WidgetId, String, Option<Uuid>),
     ComboBoxOnClose(WidgetId, Option<Uuid>),
     ComboBoxOnOpen(WidgetId, Option<Uuid>),
@@ -67,11 +64,6 @@ pub fn update(
                 }
             }
         }
-
-        // Interactive widget messages
-        Message::ButtonPressed(id, view_id) => {
-            println!("{:?}, button pressed", id);
-        }
         
         Message::TextInputChanged(id, value, view_id) => {
             if let Some(view_id) = view_id {
@@ -85,7 +77,7 @@ pub fn update(
             }
         }
 
-        Message::Submitted(id, view_id) => { println!("{:?}, text_input submitted.", id); }
+        Message::Submitted(id, _view_id) => { println!("{:?}, text_input submitted.", id); }
 
         Message::TextPasted(id, value, view_id) => {
             println!("{:?}, text pasted.", id);
@@ -143,14 +135,6 @@ pub fn update(
                     if props.combobox_use_on_input {
                         println!("combobox {:?} input text: {}", id, value);
                     }
-                }
-            }
-        }
-        Message::ComboBoxSelected(id, value, view_id) => {
-            println!("combobox selected: {:?}", value);
-            if let Some(view_id) = view_id {
-                if let Some(view) = all_views.get_mut(&view_id) {
-                    view.hierarchy.apply_property_change(id, PropertyChange::ComboBoxSelected(Some(value)), type_system);
                 }
             }
         }
@@ -387,7 +371,7 @@ fn build_widget_preview<'a>(
         WidgetType::Row => {
             let children: Vec<Element<'a, Message>> = widget.children
                 .iter()
-                .map(|child| build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
+                .map(|_child| build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
                 .collect();
             
             if props.is_wrapping_row {
@@ -1045,79 +1029,65 @@ fn build_widget_preview<'a>(
         }
 
         WidgetType::Table => {
-            let palette = theme.extended_palette();
-            let header_bg = palette.primary.weak.color;
-            let header_text_color = palette.primary.weak.text;
-            let border_color = palette.background.strong.color;
-            let alt_row_bg = palette.background.weak.color;
+            let border_color = theme.extended_palette().background.strong.color;
 
             if let Some(struct_id) = props.table_referenced_struct {
                 if let Some(struct_def) = type_system.get_struct(struct_id) {
                     let fields = &struct_def.fields;
+                    let bold_headers = props.table_bold_headers;
 
-                    // Build header row with actual field names
-                    let header_cells: Vec<Element<'_, _>> = fields.iter().map(|field| {
-                        container(
-                            text(&field.name).size(13).color(header_text_color)
-                        )
-                        .padding(Padding::from([props.table_padding_y, props.table_padding_x]))
-                        .width(Length::FillPortion(1))
+                    // Pre-build per-column sample values so each closure can
+                    // capture owned data — this avoids lifetime issues with
+                    // local row data vs the 'a lifetime on the returned Element.
+                    let sample_data: Vec<Vec<String>> = (0..3)
+                        .map(|row_idx| {
+                            fields
+                                .iter()
+                                .map(|f| sample_value_for_type(&f.field_type, type_system, row_idx))
+                                .collect()
+                        })
+                        .collect();
+
+                    let bold = |header: String| {
+                        text(header).font(Font {
+                            weight: font::Weight::Bold,
+                            ..Font::DEFAULT
+                        })
+                    };
+
+                    // T = usize (row index). Each column closure captures its
+                    // values by move — no references to locals escape.
+                    let columns: Vec<_> = fields
+                        .iter()
+                        .enumerate()
+                        .map(|(col_idx, field)| {
+                            let header_text = field.name.clone();
+                            let header = if bold_headers {
+                                bold(header_text)
+                            } else {
+                                text(header_text)
+                            };
+                            let col_values: Vec<String> = sample_data
+                                .iter()
+                                .map(|row| row.get(col_idx).cloned().unwrap_or_default())
+                                .collect();
+                            table::column(header, move |row_idx: usize| {
+                                text(col_values.get(row_idx).cloned().unwrap_or_default())
+                            })
+                        })
+                        .collect();
+
+                    let tbl = table(columns, 0..3_usize)
+                        .padding_x(props.table_padding_x)
+                        .padding_y(props.table_padding_y)
+                        .separator_x(props.table_separator_x)
+                        .separator_y(props.table_separator_y)
+                        .width(props.width);
+
+                    container(tbl)
+                        .width(props.width)
+                        .height(props.height)
                         .into()
-                    }).collect();
-
-                    let header_row = container(row(header_cells))
-                        .width(Length::Fill)
-                        .style(move |_theme: &Theme| container::Style {
-                            background: Some(Background::Color(header_bg)),
-                            ..Default::default()
-                        });
-
-                    // Build sample data rows
-                    let sample_count = 3;
-                    let mut data_rows = column![];
-                    for row_idx in 0..sample_count {
-                        let cells: Vec<Element<'_, _>> = fields.iter().map(|field| {
-                            let sample = sample_value_for_type(&field.field_type, type_system, row_idx);
-                            container(
-                                text(sample).size(12)
-                            )
-                            .padding(Padding::from([props.table_padding_y, props.table_padding_x]))
-                            .width(Length::FillPortion(1))
-                            .into()
-                        }).collect();
-
-                        let row_bg = if row_idx % 2 == 1 { Some(alt_row_bg) } else { None };
-                        let mut row_container = container(row(cells)).width(Length::Fill);
-                        if let Some(bg) = row_bg {
-                            row_container = row_container.style(move |_theme: &Theme| container::Style {
-                                background: Some(Background::Color(bg)),
-                                ..Default::default()
-                            });
-                        }
-                        data_rows = data_rows.push(row_container);
-                        if row_idx < sample_count - 1 {
-                            data_rows = data_rows.push(rule::horizontal(props.table_separator_y));
-                        }
-                    }
-
-                    container(
-                        column![
-                            header_row,
-                            rule::horizontal(props.table_separator_y),
-                            data_rows,
-                        ]
-                    )
-                    .width(props.width)
-                    .height(props.height)
-                    .style(move |_theme: &Theme| container::Style {
-                        border: Border {
-                            color: border_color,
-                            width: 1.0,
-                            radius: 2.0.into(),
-                        },
-                        ..Default::default()
-                    })
-                    .into()
                 } else {
                     // Struct was deleted
                     container(
@@ -1210,10 +1180,6 @@ fn build_widget_preview<'a>(
                     .into()
                 }
             }
-        }
-
-        _ => {
-            text(format!("{:?} preview", widget.widget_type)).into()
         }
     };
 

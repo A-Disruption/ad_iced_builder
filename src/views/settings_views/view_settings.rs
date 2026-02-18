@@ -1,5 +1,5 @@
-use iced::{Alignment, Element, Point, Length, Task, padding};
-use iced::widget::{button, text, text_input, checkbox, row, column, space, pick_list, scrollable, container};
+use iced::{Element, Length, padding};
+use iced::widget::{button, text, text_input, checkbox, column, container};
 use crate::data_structures::types::types::AppView;
 use crate::views::add_views::Message;
 use widgets::generic_overlay::overlay_button;

@@ -40,15 +40,6 @@ pub enum PropertyChange {
     // Container properties
     AlignX(ContainerAlignX),
     AlignY(ContainerAlignY),
-    BorderWidth(f32),
-    BorderRadius(f32),
-    BorderColor(Color),
-    BackgroundColor(Color),
-    HasShadow(bool),
-    ShadowOffsetX(f32),
-    ShadowOffsetY(f32),
-    ShadowBlur(f32),
-    ShadowColor(Color),
     ContainerSizingMode(ContainerSizingMode),
     ContainerCenterLength(Length),
 
@@ -65,7 +56,6 @@ pub enum PropertyChange {
     // Text properties
     TextContent(String),
     TextSize(f32),
-    TextColor(Color),
     Font(FontType),
     TextLineHeight(text::LineHeight),
     TextWrap(TextWrapping),
@@ -74,7 +64,6 @@ pub enum PropertyChange {
     TextAlignY(AlignmentYOption),
     
     // Button properties
-//    ButtonStyle(ButtonStyleType),
     ButtonPressHandler(OnHandler),
 
     // TextInput properties
@@ -86,7 +75,6 @@ pub enum PropertyChange {
     TextInputOnSubmit(bool),
     TextInputOnPaste(bool),
     TextInputFont(FontType),
-    TextInputLineHeight(text::LineHeight),
     TextInputAlignment(ContainerAlignX),
     
     // Checkbox properties
@@ -147,7 +135,6 @@ pub enum PropertyChange {
     // Tooltip
     TooltipText(String),
     TooltipPosition(TooltipPosition),
-    TooltipGap(f32),
 
     // ComboBox
     ComboBoxPlaceholder(String),
@@ -158,7 +145,6 @@ pub enum PropertyChange {
     ComboBoxUseOnOpen(bool),
     ComboBoxUseOnClose(bool),
     ComboBoxSize(f32),
-    ComboBoxPadding(f32),
     ComboBoxEnumId(Option<Uuid>),
     
     // Markdown
@@ -175,6 +161,7 @@ pub enum PropertyChange {
     TablePaddingY(f32),
     TableSeparatorX(f32),
     TableSeparatorY(f32),
+    TableBoldHeaders(bool),
 
     // Pin
     PinX(f32),
@@ -364,9 +351,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
 
         PropertyChange::WidgetName(value) => properties.widget_name = value,
 
-        PropertyChange::BorderWidth(value)  => properties.border_width = value,
-        PropertyChange::BorderRadius(value) => properties.border_radius = value,
-        PropertyChange::BorderColor(value)  => properties.border_color = value,
         PropertyChange::ContainerSizingMode(v) => {
             properties.container_sizing_mode = v;
             // When switching to center modes, copy current width/height as starting point
@@ -384,11 +368,8 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::AlignX(v) => properties.align_x = v,
         PropertyChange::AlignY(v) => properties.align_y = v,
 
-        PropertyChange::BackgroundColor(value) => properties.background_color = value,
-
         PropertyChange::TextContent(value)          => properties.text_content = value,
         PropertyChange::TextSize(value)             => properties.text_size = value,
-        PropertyChange::TextColor(value)            => properties.text_color = value,
         PropertyChange::Font(value)                 => properties.font = value,        
         PropertyChange::TextLineHeight(line_height) => properties.line_height = line_height,
         PropertyChange::TextWrap(wrapping)          => properties.wrap = wrapping.to_wrap(),
@@ -396,7 +377,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::TextAlignX(alignment)       => properties.text_align_x = alignment.to_alignment().into(),
         PropertyChange::TextAlignY(alignment)       => properties.text_align_y = alignment.to_alignment(),
 
-//        PropertyChange::ButtonStyle(value) => properties.button_style = value,
         PropertyChange::ButtonPressHandler(handler) => {
             // Reset all to false first
             properties.button_on_press_enabled = false;
@@ -421,7 +401,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::TextInputOnSubmit(b) => properties.text_input_on_submit = b,
         PropertyChange::TextInputOnPaste(b) => properties.text_input_on_paste = b,
         PropertyChange::TextInputFont(font) => properties.text_input_font = font,
-        PropertyChange::TextInputLineHeight(line_height) => properties.text_input_line_height = line_height,
         PropertyChange::TextInputAlignment(align_x) => properties.text_input_alignment = align_x,
         
         // Checkbox properties
@@ -510,7 +489,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         // Tooltip properties
         PropertyChange::TooltipText(v)      => properties.tooltip_text = v,
         PropertyChange::TooltipPosition(v)  => properties.tooltip_position = v,
-        PropertyChange::TooltipGap(v)       => properties.tooltip_gap = v,
 
         PropertyChange::ComboBoxSelected(v) => properties.combobox_selected = v,
         PropertyChange::ComboBoxPlaceholder(v) => properties.combobox_placeholder = v,
@@ -524,7 +502,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::ComboBoxUseOnOpen(v) => properties.combobox_use_on_open = v,
         PropertyChange::ComboBoxUseOnClose(v) => properties.combobox_use_on_close = v,
         PropertyChange::ComboBoxSize(v) => properties.combobox_size = v,
-        PropertyChange::ComboBoxPadding(v) => properties.combobox_padding = v,
         PropertyChange::ComboBoxEnumId(id) => {
             //Set referenced_enum Id
             properties.referenced_enum = id;
@@ -565,6 +542,7 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::TablePaddingY(v) => properties.table_padding_y = v,
         PropertyChange::TableSeparatorX(v) => properties.table_separator_x = v,
         PropertyChange::TableSeparatorY(v) => properties.table_separator_y = v,
+        PropertyChange::TableBoldHeaders(v) => properties.table_bold_headers = v,
 
         PropertyChange::PinX(v) => properties.pin_point.x = v,
         PropertyChange::PinY(v) => properties.pin_point.y = v,
@@ -590,8 +568,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
             properties.referenced_view_id = view_id;
             properties.widget_name = name;
         }
-        
-        _ => {} // Placeholder for properties not implemented
     }
 }
 

@@ -27,6 +27,7 @@ pub struct ImportTracker {
 
     pub uses_point: bool,
     pub uses_font: bool,
+    pub uses_font_module: bool,
     pub uses_border: bool,
     pub uses_shadow: bool,
     pub uses_background: bool,
@@ -50,6 +51,7 @@ impl ImportTracker {
             uses_mouse_scroll_delta: false,
             uses_point: false,
             uses_font: false,
+            uses_font_module: false,
             uses_border: false,
             uses_shadow: false,
             uses_background: false,
@@ -90,7 +92,14 @@ impl ImportTracker {
             WidgetType::Stack => { self.used_widgets.insert("stack"); }
             WidgetType::Themer => { self.used_widgets.insert("themer"); }
             WidgetType::Pin => { self.used_widgets.insert("pin"); }
-            WidgetType::Table => { self.used_widgets.insert("table"); }
+            WidgetType::Table => {
+                self.used_widgets.insert("table");
+                self.used_widgets.insert("text"); // table columns always use text
+                if widget.properties.table_bold_headers {
+                    self.uses_font = true;
+                    self.uses_font_module = true;
+                }
+            }
             WidgetType::ViewReference => {}
         }
 
@@ -197,6 +206,7 @@ pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) {
     if tracker.uses_color { core_imports.push("Color"); }
     if tracker.uses_padding { core_imports.push("Padding"); }
     if tracker.uses_font { core_imports.push("Font"); }
+    if tracker.uses_font_module { core_imports.push("font"); }
     if tracker.uses_border { core_imports.push("Border"); }
     if tracker.uses_shadow { core_imports.push("Shadow"); }
     if tracker.uses_background { core_imports.push("Background"); }

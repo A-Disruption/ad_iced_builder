@@ -104,7 +104,6 @@ pub enum ViewSelection {
     Main,
     Code,
     ThemeBuilder,
-    WidgetStyleBuilder,
     EnumBuilder,
     Settings,
 }

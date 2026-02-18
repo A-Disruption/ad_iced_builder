@@ -46,11 +46,11 @@ pub fn plus<'a>() -> Text<'a> {
     icon("\u{2B}")
 }
 
-pub fn preview<'a>() -> Text<'a> {
+pub fn _preview<'a>() -> Text<'a> {
     icon("\u{1F304}")
 }
 
-pub fn save<'a>() -> Text<'a> {
+pub fn _save<'a>() -> Text<'a> {
     icon("\u{1F4BE}")
 }
 

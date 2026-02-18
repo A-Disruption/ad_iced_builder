@@ -1,18 +1,16 @@
-use iced::{Element, Settings, Theme, Length, Task,
-    widget::{ button, column, container, row, rule, scrollable, space, text },
+use iced::{Element, Length, Task,
+    widget::{ button, column, row, rule, scrollable, text },
 };
 use crate::data_structures::types::types::{WidgetId, WidgetType};
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::enum_builder::TypeSystem;
 use widgets::generic_overlay::overlay_button;
-use crate::widget_tree::debug_print_widget;
 use crate::controls::batch_edit::batch_editor_controls;
 
 // Application messages
 #[derive(Debug, Clone)]
 pub enum Message {
-    //SelectWidgetType(WidgetType),
     AddChild(WidgetId, WidgetType),
 
     // Wrapping operations
@@ -24,12 +22,8 @@ pub enum Message {
 
 pub fn update<'a>(hierarchy: &'a mut WidgetHierarchy, type_system: &'a mut TypeSystem, message: Message) -> Task<Message>{
     match message {
-        //Message::SelectWidgetType(widget_type) => {}
-
         Message::AddChild(parent_id, widget_type) => {
-            if let Ok(new_id) = hierarchy.add_child(parent_id, widget_type) {
-                // Debug print the tree
-//                debug_print_widget(&hierarchy.root(), 0);
+            if let Ok(_) = hierarchy.add_child(parent_id, widget_type) {
             } else {
                 println!("Failed to add child");
             }
@@ -37,13 +31,10 @@ pub fn update<'a>(hierarchy: &'a mut WidgetHierarchy, type_system: &'a mut TypeS
 
         Message::WrapSelectedInContainer(container_type) => {
             match hierarchy.wrap_selected_in_container(container_type) {
-                Ok(wrapper_id) => {
-//                    println!("Successfully wrapped widgets in {:?} with id {:?}", 
-//                                container_type, wrapper_id);
+                Ok(_) => {
+
                 }
-                Err(e) => {
-//                    println!("Failed to wrap widgets: {}", e);
-                    // TODO: Show error to user (could add a status message field)
+                Err(_) => {
                 }
             }
         }
@@ -58,7 +49,6 @@ pub fn update<'a>(hierarchy: &'a mut WidgetHierarchy, type_system: &'a mut TypeS
 pub fn view<'a>(
     hierarchy: &'a WidgetHierarchy,
     parent_id: &'a WidgetId,
-//    available_types: &[WidgetType],
 ) -> Element<'a, Message> {
     let available_types = get_available_types(hierarchy, parent_id);
     let selected_count = hierarchy.selected_ids().len();
@@ -180,16 +170,6 @@ pub fn view<'a>(
                     ].spacing(10)
                 }
             }
-
- 
-            
-/*             if available_types.is_empty() && selected_count > 1 {
-                multi_selection_menu
-            } 
-            else {
-                Option::<Element<'_, _>>::None
-            } */
-        
     )
     .width(Length::Fill)
     .height(Length::Fill)

@@ -52,8 +52,6 @@ struct AdUiBuilder {
     struct_editor: StructEditorView,
     type_editor_tab: TypeEditorTab,
 
-    codegen2: code_gen_version_two::CodeView,
-
     generated_files: std::collections::HashMap<String, String>,
     code_view_content: text_editor::Content,
     widget_preview_content: text_editor::Content,
@@ -63,8 +61,6 @@ struct AdUiBuilder {
 
 #[derive(Clone, Debug)]
 enum Message {
-    ChooseTheme(Theme),
-
     // View Messages
     ViewMessages(ViewMessage),
 
@@ -86,7 +82,6 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
-    CodeGen2(code_gen_version_two::Message)
 }
 
 impl AdUiBuilder {
@@ -111,8 +106,6 @@ impl AdUiBuilder {
             type_editor: EnumEditorView::new(),
             struct_editor: StructEditorView::new(),
             type_editor_tab: TypeEditorTab::Enums,
-
-            codegen2: code_gen_version_two::CodeView::new(iced::widget::text_editor::Content::new(), iced::theme::Theme::Dark),
 
             generated_files: std::collections::HashMap::new(),
             code_view_content: text_editor::Content::new(),
@@ -141,9 +134,6 @@ impl AdUiBuilder {
     fn update(&mut self, message: Message) -> Task<Message> {
         println!("Message: {:?}", message);
         match message {
-            Message::ChooseTheme(theme) => {
-                self.theme = theme;
-            }
 
             Message::ViewMessages(view) => {
                 match view {
@@ -306,14 +296,6 @@ impl AdUiBuilder {
                         self.regenerate_code();
                         return result                      
                     }
-                     ViewMessage::CodeGen2(msg) => {
-                        let result = code_gen_version_two::CodeView::update(
-                            &mut self.codegen2, 
-                            msg
-                        )
-                        .map(|m| Message::ViewMessages(ViewMessage::CodeGen2(m)));
-                        return result
-                    }
                 }
             }
 
@@ -369,7 +351,7 @@ impl AdUiBuilder {
     fn view<'a>(&'a self, window_id: window::Id) -> Element<'a, Message> {
         let preview_view = self.views.get(&self.selected_view_id).expect("Selected view must exist");
         let selected_widget = preview_view.hierarchy.get_single_selected().unwrap_or(preview_view.hierarchy.root());
-        let selected_window = match self.selected_window {
+        let _selected_window = match self.selected_window {
             Some(selected_window) => self.windows.get(&selected_window),
             None => None
         };
@@ -395,9 +377,7 @@ impl AdUiBuilder {
                 ].into()
                 
             }
-             navigation_bar::ViewSelection::Code => {
-                code_gen_version_two::CodeView::view(&self.codegen2).map(|msg| Message::ViewMessages( ViewMessage::CodeGen2(msg)))
-            } 
+//             navigation_bar::ViewSelection::Code => {} 
             navigation_bar::ViewSelection::ThemeBuilder => {
                 self.custom_styles.view(&self.theme).map(|msg| Message::ViewMessages( ViewMessage::ThemeBuilder(msg)))
             }

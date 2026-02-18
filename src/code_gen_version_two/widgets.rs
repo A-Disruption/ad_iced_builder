@@ -1,4 +1,4 @@
-use super::builder::{CodeBuilder, to_pascal_case, to_snake_case, format_length};
+use super::builder::{CodeBuilder, to_pascal_case, to_snake_case};
 use crate::data_structures::types::types::{WidgetType, Widget, WidgetId};
 use crate::data_structures::types::type_implementations::*;
 use crate::enum_builder::TypeSystem;
@@ -1300,14 +1300,27 @@ fn generate_table(
         b.push("vec![");
         b.newline();
         b.increase_indent();
+
         for field in &sdef.fields {
             b.indent();
-            b.push(&format!(
-                "table::column(\"{}\", |_index, row: &{}| text(&row.{}).into()),",
-                field.name,
-                sdef.name,
-                field.name,
-            ));
+            // Enums don't implement IntoFragment, so call .to_string() on them
+            let cell_expr = match &field.field_type {
+                crate::enum_builder::FieldType::CustomEnum(_) => {
+                    format!("text(row.{}.to_string())", field.name)
+                }
+                _ => format!("text(&row.{})", field.name),
+            };
+            if props.table_bold_headers {
+                b.push(&format!(
+                    "table::column(text(\"{}\").font(Font {{ weight: font::Weight::Bold, ..Font::DEFAULT }}), |row: &{}| {}),",
+                    field.name, sdef.name, cell_expr,
+                ));
+            } else {
+                b.push(&format!(
+                    "table::column(\"{}\", |row: &{}| {}),",
+                    field.name, sdef.name, cell_expr,
+                ));
+            }
             b.newline();
         }
         b.decrease_indent();

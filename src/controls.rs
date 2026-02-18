@@ -2,9 +2,8 @@ pub mod batch_edit;
 pub mod single_edit;
 pub mod control_styling;
 
-// controls.rs
-use iced::{ Alignment, Color, Element, Length, Padding, Theme, mouse::Interaction, padding };
-use iced::widget::{ Space, button, checkbox, column, combo_box, container, pick_list, radio, row, rule, scrollable, slider, space, text, text_editor, text_input, toggler, tooltip};
+use iced::{ Alignment, Color, Element, Length, Padding, Theme, padding };
+use iced::widget::{ Space, button, checkbox, column, container, pick_list, radio, row, rule, scrollable, slider, space, text, text_editor, text_input, toggler, tooltip};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 use crate::enum_builder::TypeSystem;
@@ -13,7 +12,6 @@ use crate::data_structures::types::types::*;
 use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::*;
 use crate::data_structures::properties::messages::*;
-use crate::styles::container::*;
 use crate::icon;
 
 use crate::views::widget_tree::Message;
@@ -26,7 +24,7 @@ pub fn container_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
     theme: &Theme,
-    type_system: &'a TypeSystem,
+    _type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
     preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
@@ -193,7 +191,7 @@ pub fn container_controls<'a>(
     ).into()
 }
 
-pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -356,7 +354,7 @@ pub fn row_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     ).into()
 }
 
-pub fn column_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn column_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -426,7 +424,7 @@ pub fn button_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
     theme: &Theme,
-    type_system: &'a TypeSystem,
+    _type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
     preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
@@ -562,7 +560,7 @@ pub fn button_controls<'a>(
 }
 
 
-pub fn text_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn text_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -688,7 +686,7 @@ pub fn text_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Th
     ).into()
 }
 
-pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -809,7 +807,7 @@ pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, them
     ).into()
 }
 
-pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -879,7 +877,7 @@ pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     ).into()
 }
 
-pub fn toggler_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn toggler_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -949,7 +947,7 @@ pub fn toggler_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: 
     ).into()
 }
 
-pub fn radio_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn radio_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1080,7 +1078,7 @@ pub fn radio_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, t
     ).into()
 }
 
-pub fn picklist_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn picklist_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -1178,7 +1176,7 @@ pub fn picklist_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     ).into()
 }
 
-pub fn slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1266,7 +1264,7 @@ pub fn slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, 
     ).into()
 }
 
-pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1354,7 +1352,7 @@ pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: W
     ).into()
 }
 
-pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).unwrap();
     let p = &widget.properties;
 
@@ -1408,7 +1406,7 @@ pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Th
     ).into()
 }
 
-pub fn scrollable_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn scrollable_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1471,7 +1469,7 @@ pub fn scrollable_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: Widget
     ).into()
 }
 
-pub fn space_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn space_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId,_theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1511,7 +1509,7 @@ pub fn space_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: WidgetId, t
     ).into()
 }
 
-pub fn progress_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn progress_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let p = &w.properties;
     let girth_str = format!("{:.0}", p.progress_girth);
@@ -1628,7 +1626,7 @@ pub fn progress_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     ).into()
 }
 
-pub fn image_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn image_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
 
@@ -1680,7 +1678,7 @@ pub fn image_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &T
     ).into()
 }
 
-pub fn svg_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn svg_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
@@ -1732,7 +1730,7 @@ pub fn svg_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
     ).into()
 }
 
-pub fn tooltip_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn tooltip_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let p = &w.properties;
 
@@ -1785,7 +1783,7 @@ pub fn tooltip_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: 
 pub fn combobox_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
-    theme: &Theme,
+    _theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
     preview_content: &'a text_editor::Content,
@@ -2032,7 +2030,7 @@ pub fn combobox_controls<'a>(
     ).into()
 }
 
-pub fn markdown_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn markdown_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -2085,7 +2083,7 @@ pub fn markdown_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme:
     ).into()
 }
 
-pub fn qrcode_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn qrcode_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -2127,7 +2125,7 @@ pub fn qrcode_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
     ).into()
 }
 
-pub fn stack_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn stack_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -2163,7 +2161,7 @@ pub fn stack_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &T
     ).into()
 }
 
-pub fn mousearea_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn mousearea_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -2264,7 +2262,7 @@ pub fn mousearea_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme
     ).into()
 }
 
-pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -2307,7 +2305,7 @@ pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &
     ).into()
 }
 
-pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &Theme, type_system: &'a TypeSystem, custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
 
@@ -2369,9 +2367,9 @@ pub fn pin_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, theme: &The
 pub fn table_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
-    theme: &Theme,
+    _theme: &Theme,
     type_system: &'a TypeSystem,
-    custom_styles: &CustomThemes,
+    _custom_styles: &CustomThemes,
     preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
@@ -2517,6 +2515,10 @@ pub fn table_controls<'a>(
         ]
         .spacing(LABEL_SPACING),
 
+        checkbox(props.table_bold_headers)
+            .label("Bold Headers")
+            .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::TableBoldHeaders(v))),
+
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -2540,9 +2542,9 @@ pub fn view_reference_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
     theme: &Theme,
-    type_system: &'a TypeSystem,
+    _type_system: &'a TypeSystem,
     views: &'a BTreeMap<Uuid, AppView>,
-    custom_styles: &CustomThemes,
+    _custom_styles: &CustomThemes,
     preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
@@ -2636,37 +2638,6 @@ pub fn view_reference_controls<'a>(
 
 fn parse_f32(s: &str, default: f32) -> f32 {
     s.trim().parse::<f32>().unwrap_or(default)
-}
-
-pub fn parse_color_hex(s: &str, default: Color) -> Color {
-    let t = s.trim().trim_start_matches('#');
-    let hex = |i: usize| u8::from_str_radix(&t[i..i+2], 16).ok();
-    match t.len() {
-        6 => {
-            if let (Some(r), Some(g), Some(b)) = (hex(0), hex(2), hex(4)) {
-                return Color::from_rgba8(r, g, b, 255.0);
-            }
-            default
-        }
-        8 => {
-            if let (Some(r), Some(g), Some(b), Some(a)) = (hex(0), hex(2), hex(4), hex(6)) {
-                return Color::from_rgba8(r, g, b, a.into());
-            }
-            default
-        }
-        _ => default,
-    }
-}
-
-fn color_to_hex(c: Color) -> String {
-    let [r,g,b,a] = [
-        (c.r * 255.0).round().clamp(0.0,255.0) as u8,
-        (c.g * 255.0).round().clamp(0.0,255.0) as u8,
-        (c.b * 255.0).round().clamp(0.0,255.0) as u8,
-        (c.a * 255.0).round().clamp(0.0,255.0) as u8,
-    ];
-    if a == 255 { format!("#{:02X}{:02X}{:02X}", r,g,b) }
-    else { format!("#{:02X}{:02X}{:02X}{:02X}", r,g,b,a) }
 }
 
 fn color_hex_input<'a, F>(label: &'a str, current: &'a str, on_change: F) -> Element<'a, Message>

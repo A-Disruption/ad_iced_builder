@@ -143,7 +143,6 @@ pub struct Properties {
     // Tooltip properties
     pub tooltip_text: String,
     pub tooltip_position: TooltipPosition,
-    pub tooltip_gap: f32,
 
     // ComboBox properties
     pub combobox_state: combo_box::State<String>,
@@ -151,7 +150,6 @@ pub struct Properties {
     pub combobox_selected: Option<String>,
     pub combobox_options: Vec<String>,
     pub combobox_size: f32,
-    pub combobox_padding: f32,
     pub combobox_use_on_input: bool,
     pub combobox_use_on_option_hovered: bool,
     pub combobox_use_on_open: bool,
@@ -177,6 +175,7 @@ pub struct Properties {
     pub table_padding_y: f32,
     pub table_separator_x: f32,
     pub table_separator_y: f32,
+    pub table_bold_headers: bool,
 
     // Pin properties
     pub pin_point: Point,
@@ -349,7 +348,6 @@ impl Default for Properties {
             // Tooltip defaults
             tooltip_text: "Tooltip".to_string(),
             tooltip_position: TooltipPosition::Top,
-            tooltip_gap: 0.0,
 
             // ComboBox defaults
             combobox_state: combo_box::State::new(vec![
@@ -370,7 +368,6 @@ impl Default for Properties {
             combobox_use_on_open: false,
             combobox_use_on_close: false,
             combobox_size: 16.0,
-            combobox_padding: 5.0,
             referenced_enum: None,
 
             // Markdown defaults
@@ -392,6 +389,7 @@ impl Default for Properties {
             table_padding_y: 5.0,
             table_separator_x: 1.0,
             table_separator_y: 1.0,
+            table_bold_headers: false,
 
             // Pin defaults
             pin_point: Point::ORIGIN,

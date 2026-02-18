@@ -1,4 +1,4 @@
-use super::builder::{CodeBuilder, to_pascal_case, to_snake_case};
+use super::builder::{CodeBuilder, to_snake_case};
 use super::{events, view};
 use super::window_settings::{generate_window_settings, window_settings_are_default};
 use crate::data_structures::types::types::{Widget, WidgetType, WidgetId, WindowConfig};

@@ -3,14 +3,6 @@ use iced::{Background, Border, Color, Shadow, Theme};
 
 use crate::views::theme_and_stylefn_builder::ThemePaneEnum;
 
-#[derive(Debug, Clone, Copy)]
-pub enum WidgetStyle {
-    Container(container::Style),
-    Button(button::Style),
-    Checkbox(checkbox::Style),
-    ComboBoxInput(text_input::Style),
-}
-
 #[derive(Debug, Clone)]
 pub struct SavedStyleDefinition  {
     pub name: String,

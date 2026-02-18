@@ -1,5 +1,5 @@
 pub use iced::widget::checkbox::*;
-use iced::{border::{radius, Radius}, Border, Theme, Color, Background, Vector, Shadow};
+use iced::{Border, Theme, Background};
 
 pub fn checkbox_style(theme: &Theme, status: Status) -> Style {
     let extended = theme.extended_palette();

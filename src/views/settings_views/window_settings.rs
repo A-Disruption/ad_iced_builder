@@ -1,11 +1,8 @@
 use crate::Window;
-use crate::WindowEnum;
 use std::collections::BTreeMap;
-use iced::widget::button::secondary;
 use iced::{Alignment, Element, Point, Length, Task, window::{self, Position, Level}};
 use iced::widget::{button, text, text_input, checkbox, row, column, space, pick_list, scrollable, container};
-use widgets::collapsible::Collapsible;
-use crate::data_structures::types::types::{AppView, WindowConfig};
+use crate::data_structures::types::types::AppView;
 use widgets::collapsible::{collapsible, CollapsibleGroup};
 use uuid::Uuid;
 use crate::icon;
@@ -59,7 +56,7 @@ pub fn update(
 ) -> Task<Message> {
     match message {
         // Updated in main
-        Message::UpdateTheme(theme) => {}
+        Message::UpdateTheme(_theme) => {}
 
         // Basic Settings
         Message::Title(id, title) => {

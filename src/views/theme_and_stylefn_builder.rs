@@ -67,16 +67,6 @@ fn container_stylefn_builder(text_color: Color, background: iced::Background, bo
     }
 }
 
-fn button_stylefn_builder(text_color: Color, background: iced::Background, border: iced::Border, shadow: iced::Shadow, snap: bool) -> iced::widget::button::Style {
-    iced::widget::button::Style {
-        text_color: text_color,
-        background: Some(background),
-        border: border,
-        shadow: shadow,
-        snap
-    }
-}
-
 pub struct CustomThemes {
     pub theme: Theme,
     selected_view: ThemePaneEnum,
@@ -1108,7 +1098,7 @@ impl CustomThemes {
                         },
                     }
                 )
-                .menu_style( move |theme| menu::Style {
+                .menu_style( move |_theme| menu::Style {
                     background: Background::Color(self.background_color),
                     border: Border {
                         color: self.border_color,
@@ -1175,7 +1165,7 @@ impl CustomThemes {
                 checkbox(true)
                     .label("Checkbox Style Preview")
                     .on_toggle(|_| Message::Noop)
-                    .style(|theme, status| {
+                    .style(|_theme, status| {
                         let base = checkbox::Style {
                             background: Background::Color(self.background_color),
                             icon_color: self.icon_color, 
@@ -1393,7 +1383,7 @@ impl CustomThemes {
         )
     }
 
-    fn create_current_combobox_input_style(&self, theme: &Theme) -> text_input::Style {
+    fn _create_current_combobox_input_style(&self, theme: &Theme) -> text_input::Style {
         let background_color = if let Some(ref source) = self.background_color_source {
             evaluate_theme_expression(theme, source).unwrap_or(self.background_color)
         } else {

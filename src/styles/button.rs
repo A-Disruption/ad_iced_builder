@@ -1,5 +1,5 @@
 pub use iced::widget::button::*;
-use iced::{border::{radius, Radius}, Border, Theme, Color, Background, Vector, Shadow};
+use iced::{border::radius, Border, Theme};
 
 
 pub fn cancel(theme: &Theme, status: Status) -> Style {
@@ -8,11 +8,6 @@ pub fn cancel(theme: &Theme, status: Status) -> Style {
 
     let base = Style {
         text_color: palette.danger.strong.color,
-/*         border: Border {
-            color: palette.secondary.base.color,
-            width: 1.0,
-            radius: radius(4.0)
-        }, */
         ..Style::default()
     };
 

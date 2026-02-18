@@ -19,7 +19,7 @@ impl CodeBuilder {
         self.code
     }
 
-    pub fn as_str(&self) -> &str {
+    pub fn _as_str(&self) -> &str {
         &self.code
     }
 
@@ -57,7 +57,7 @@ impl CodeBuilder {
         self.code.push('\n');
     }
 
-    pub fn blank_line(&mut self) {
+    pub fn _blank_line(&mut self) {
         self.code.push('\n');
     }
 
@@ -314,7 +314,6 @@ pub fn format_length(length: Length) -> String {
         Length::Shrink => "Length::Shrink".to_string(),
         Length::Fixed(px) => format!("Length::Fixed({:.1})", px),
         Length::FillPortion(p) => format!("Length::FillPortion({})", p),
-        _ => "Length::Shrink".to_string(),
     }
 }
 

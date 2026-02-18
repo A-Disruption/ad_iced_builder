@@ -1,14 +1,13 @@
 use iced::{
     widget::{button, column, container, row, text, text_input, scrollable, space},
-    Alignment, Element, Length, Task, Theme, Background, Border, Color, padding, Padding
+    Alignment, Element, Length, Task, Theme, padding, Padding
 };
 use uuid::Uuid;
 
 use crate::icon;
 use crate::enum_builder::*;
 use crate::styles;
-use crate::styles::container::*;
-use widgets::collapsible::{Collapsible, CollapsibleGroup, collapsible};
+use widgets::collapsible::{CollapsibleGroup, collapsible};
 
 // ==================== STATE ====================
 

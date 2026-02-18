@@ -7,7 +7,7 @@ use uuid::Uuid;
 use crate::icon;
 use crate::enum_builder::*;
 use crate::styles;
-use widgets::collapsible::{Collapsible, CollapsibleGroup, collapsible};
+use widgets::collapsible::{CollapsibleGroup, collapsible};
 
 // Wrapper for FieldType that carries a display label for pick_list rendering
 #[derive(Debug, Clone)]

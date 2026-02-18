@@ -1,4 +1,4 @@
-use iced::widget::{button, column, container, row, space, text, text_editor};
+use iced::widget::{button, container, row, space, text, text_editor};
 use iced::{Element, Length, Task, Theme};
 use widgets::tree::{tree_handle, branch, DropInfo, DropPosition, Branch};
 use std::collections::{HashSet, BTreeMap};
@@ -14,7 +14,7 @@ use crate::data_structures::types::types::{WidgetId, WidgetType, Widget, AppView
 use crate::data_structures::types::type_implementations::Orientation;
 use widgets::generic_overlay::overlay_button;
 use crate::enum_builder::TypeSystem;
-use crate::views::enum_editor::{self, EnumEditorView};
+use crate::views::enum_editor::EnumEditorView;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
 
 #[derive(Debug, Clone)]
@@ -25,35 +25,11 @@ pub enum Message {
     // Widget Operations
     SelectWidgets(HashSet<usize>),
     DeleteWidget(WidgetId),
-    AddChild(WidgetId, WidgetType),
     PropertyChanged(WidgetId, PropertyChange),
     SwapKind(WidgetId),
 
-    // Interactive widget messages
-    ButtonPressed(WidgetId),
-    TextInputChanged(WidgetId, String),
-    Submitted(WidgetId),
-    TextPasted(WidgetId, String),
-    CheckboxToggled(WidgetId, bool),
-    RadioSelected(WidgetId, usize),
-    SliderChanged(WidgetId, f32),
-    TogglerToggled(WidgetId, bool),
-    PickListSelected(WidgetId, String),
-    ComboBoxOnInput(WidgetId, String),
-    ComboBoxSelected(WidgetId, String),
-    ComboBoxOnOptionHovered(WidgetId, String),
-    ComboBoxOnClose(WidgetId),
-    ComboBoxOnOpen(WidgetId),
-    Noop,
-
     OpenEnumEditor,
-    EnumEditor(enum_editor::Message),
-
-    // Wrapping operations
-    WrapSelectedInContainer(WidgetType),  // Wraps selection in Row/Column/MouseArea/Tooltip
-    
-    // Batch editing operations  
-    BatchPropertyChanged(PropertyChange), // Applies property to all selected widgets
+//    EnumEditor(enum_editor::Message),
 
     OverlayOpened(WidgetId, iced::Point, iced::Size),
     OverlayClosed(WidgetId),
@@ -72,7 +48,7 @@ pub fn update(
     message: Message,
     hierarchy: &mut WidgetHierarchy,
     type_system: &mut TypeSystem,
-    enum_editor: &mut EnumEditorView,
+    _enum_editor: &mut EnumEditorView,
 ) -> Task<Message> {
     match message {
         Message::TreeMove(drop_info) => {
@@ -142,17 +118,6 @@ pub fn update(
             let _ = hierarchy.delete_widget(id);
         }
         
-        Message::AddChild(parent_id, widget_type) => {
-            println!("Adding {:?} to parent {:?}", widget_type, parent_id);
-            if let Ok(new_id) = hierarchy.add_child(parent_id, widget_type) {
-                println!("Successfully added with id {:?}", new_id);
-                // Debug print the tree
-                debug_print_widget(&hierarchy.root(), 0);
-            } else {
-                println!("Failed to add child");
-            }
-        }
-        
         Message::PropertyChanged(id, change) => {
             hierarchy.apply_property_change(id, change.clone(), type_system);
 
@@ -179,104 +144,11 @@ pub fn update(
         Message::SwapKind(id) => {
             hierarchy.swap_kind(id);
         }
-
-        // Interactive widget messages
-        Message::ButtonPressed(id) => {
-            println!("{:?}, button pressed", id);
-        }
-        
-        Message::TextInputChanged(id, value) => {
-            hierarchy.apply_property_change(id, PropertyChange::TextInputValue(value), type_system);
-        }
-
-        Message::Submitted(id) => { println!("{:?}, text_input submitted.", id); }
-
-        Message::TextPasted(id, value) => {
-            println!("{:?}, text pasted.", id);
-            hierarchy.apply_property_change(id, PropertyChange::TextInputValue(value), type_system)
-        }
-        
-        Message::CheckboxToggled(id, checked) => {
-            hierarchy.apply_property_change(id, PropertyChange::CheckboxChecked(checked), type_system);
-        }
-        
-        Message::RadioSelected(id, index) => {
-            hierarchy.apply_property_change(id, PropertyChange::RadioSelectedIndex(index), type_system);
-        }
-        
-        Message::SliderChanged(id, value) => {
-            hierarchy.apply_property_change(id, PropertyChange::SliderValue(value), type_system);
-        }
-        
-        Message::TogglerToggled(id, active) => {
-            hierarchy.apply_property_change(id, PropertyChange::TogglerActive(active), type_system);
-        }
-        
-        Message::PickListSelected(id, index) => {
-            hierarchy.apply_property_change(id, PropertyChange::PickListSelected(Some(index)), type_system);
-        }
-
-        Message::ComboBoxOnInput(id, value) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_input {
-                println!("combobox {:?} input text: {}", id, value);
-            }
-        }
-        Message::ComboBoxSelected(id, value) => {
-            println!("combobox selected: {:?}", value);
-            hierarchy.apply_property_change(id, PropertyChange::ComboBoxSelected(Some(value)), type_system);
-        }
-        Message::ComboBoxOnOpen(id) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_open {
-                println!("combobox {:?} opened!", id);
-            }
-        }
-        Message::ComboBoxOnClose(id) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_close {
-                println!("combobox {:?} closed!", id);
-            }
-        }
-        Message::ComboBoxOnOptionHovered(id, options) => {
-            let props = &hierarchy.get_widget_by_id(id).unwrap().properties;
-            if props.combobox_use_on_option_hovered {
-                println!("combobox option hovered: {:?}", options);
-            }
-        }
-        Message::Noop => {
-            // Do nothing - for preview-only interactions
-        }
-
         Message::OpenEnumEditor => {
             // open the enum editor view
         }
-
-        Message::EnumEditor(msg) => {
-            let task = enum_editor::update(msg, type_system, enum_editor)
-                .map(Message::EnumEditor);
-
-            return task
-        }
-
-        Message::WrapSelectedInContainer(container_type) => {
-            match hierarchy.wrap_selected_in_container(container_type) {
-                Ok(wrapper_id) => {
-                    println!("Successfully wrapped widgets in {:?} with id {:?}", 
-                                container_type, wrapper_id);
-                }
-                Err(e) => {
-                    println!("Failed to wrap widgets: {}", e);
-                    // TODO: Show error to user (could add a status message field)
-                }
-            }
-        }
-        
-        Message::BatchPropertyChanged(change) => {
-            hierarchy.apply_property_to_all_selected(change, type_system);
-        }
-        Message::OverlayOpened(_, _, _) => {} // Handled in main.rs
-        Message::OverlayClosed(_) => {}       // Handled in main.rs
+        Message::OverlayOpened(_id, _point, _size) => {} // Handled in main.rs
+        Message::OverlayClosed(_id) => {}       // Handled in main.rs
         Message::CopyCode(code) => {
             return clipboard::write(code)
         }
@@ -403,8 +275,6 @@ fn build_tree_item<'a>(
     .map(|c| c.id == widget.id)
     .unwrap_or(false);
 
-    // Create the overlay content for this specific widget
-    let overlay_content = build_editor_for_widget(hierarchy, type_system, theme, widget, widget.id, views, custom_themes, widget_preview_content, open_editor_widget_id);
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> = match widget.widget_type {
         WidgetType::Row        => Some(icon::swap()), 
@@ -471,7 +341,6 @@ fn build_tree_item<'a>(
 
                     swap_button,
 
-                    // Create overlay button with this widget's specific content
                     edit_button,
 
                     delete_button
@@ -568,20 +437,7 @@ fn build_editor_for_widget<'a>(
         WidgetType::Pin             => pin_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Table           => table_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::ViewReference   => view_reference_controls(&hierarchy, widget_id, theme, &type_system, views, custom_styles, preview_content),
-        _ => column![text("Editor not implemented for this widget type")].into(),
     };
 
     controls_view.into()
-}
-
-pub fn debug_print_widget(widget: &Widget, depth: usize) {
-    println!("{}- {:?} (id: {:?}, children: {})", 
-        "  ".repeat(depth), 
-        widget.widget_type, 
-        widget.id,
-        widget.children.len()
-    );
-    for child in &widget.children {
-        debug_print_widget(child, depth + 1);
-    }
 }
