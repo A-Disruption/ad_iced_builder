@@ -293,6 +293,8 @@ fn build_widget_preview<'a>(
                     container.center(props.container_center_length)
                 }
             };
+
+            container = container.padding(props.padding);
             
             // NEW: Apply max_width
             if let Some(max_w) = props.max_width {

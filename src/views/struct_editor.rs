@@ -360,8 +360,7 @@ pub fn view<'a>(
                                 field_id,
                                 new_name,
                             }
-                        })
-                        .width(140),
+                        }),
                         pick_list(
                             type_opts_inner,
                             Some(field_type_option),
@@ -373,12 +372,12 @@ pub fn view<'a>(
                                 }
                             }
                         )
-                        .width(100),
+                        .width(150),
                         button(icon::trash())
                             .style(styles::button::cancel)
                             .on_press(Message::RemoveField { struct_id, field_id })
                     ]
-                    .spacing(5)
+                    .spacing(10)
                     .padding(5)
                     .align_y(Alignment::Center)
                     .into()
@@ -392,11 +391,17 @@ pub fn view<'a>(
                 column![
                     column![
                         text("Struct Name"),
-                        text_input("Struct Name", &struct_name)
-                            .on_input(move |name| Message::RenameStruct {
-                                struct_id,
-                                new_name: name,
-                            })
+                        row![
+                            text_input("Struct Name", &struct_name)
+                                .on_input(move |name| Message::RenameStruct {
+                                    struct_id,
+                                    new_name: name,
+                                }),
+                            space().width(150),
+                            button(icon::trash()).style(styles::button::invisible)
+                        ]
+                        .spacing(10)
+                        .padding(5)
                     ]
                     .spacing(5)
                     .padding([5, 10]),
@@ -405,7 +410,7 @@ pub fn view<'a>(
                         text("Fields"),
                     ).padding(Padding { top: 10.0, right: 10.0, bottom: 0.0, left: 10.0 }),
 
-                    column(field_rows).padding(5),
+                    column(field_rows).padding([5, 10]),
 
                     // Add new field row
                     container(
@@ -414,8 +419,7 @@ pub fn view<'a>(
                                 .on_input(move |v| Message::NewFieldNameInputChanged {
                                     struct_id,
                                     value: v,
-                                })
-                                .width(140),
+                                }),
                             pick_list(
                                 type_opts_add,
                                 Some(new_field_type_option),
@@ -424,7 +428,7 @@ pub fn view<'a>(
                                     field_type: selected.field_type,
                                 }
                             )
-                            .width(100),
+                            .width(150),
                             button(icon::plus().center())
                                 .style(button::text)
                                 .on_press(Message::AddField {
@@ -433,13 +437,16 @@ pub fn view<'a>(
                                     field_type: new_field_type.clone(),
                                 })
                         ]
-                        .spacing(5)
+                        .spacing(10)
+                        .padding(5)
                         .align_y(Alignment::Center)
-                    ).padding(5),
+                    ).padding([5, 10]),
                 ],
             )
             .expand_icon(icon::collapsed())
             .collapse_icon(icon::expanded())
+            .action_icon(button(icon::trash()).style(styles::button::cancel).on_press(Message::DeleteStruct(struct_id)).padding(padding::right(10.0)))
+            .title_alignment(Alignment::Center)
             .into()
         })
         .collect();

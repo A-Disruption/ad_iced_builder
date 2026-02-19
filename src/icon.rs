@@ -1,8 +1,8 @@
 // Generated automatically by iced_fontello at build time.
 // Do not edit manually. Source: ../fonts/fonts.toml
 // 85ba5fa665b9e3a7ab38cf88812d3f19fcadcc899d3840f1401b5d289b62acbf
-use iced::widget::{text, Text};
 use iced::Font;
+use iced::widget::{Text, text};
 
 pub const FONT: &[u8] = include_bytes!("../fonts/fonts.ttf");
 
@@ -46,11 +46,11 @@ pub fn plus<'a>() -> Text<'a> {
     icon("\u{2B}")
 }
 
-pub fn _preview<'a>() -> Text<'a> {
+pub fn preview<'a>() -> Text<'a> {
     icon("\u{1F304}")
 }
 
-pub fn _save<'a>() -> Text<'a> {
+pub fn save<'a>() -> Text<'a> {
     icon("\u{1F4BE}")
 }
 

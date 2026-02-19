@@ -622,7 +622,7 @@ impl CommonProperties {
         if widgets.iter().all(|w| getter(w) == first_value) {
             Some(first_value)
         } else {
-            None  // Values differ across widgets
+            None
         }
     }
 }

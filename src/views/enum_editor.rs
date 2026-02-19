@@ -309,11 +309,16 @@ pub fn view<'a>(
                 column![
                     column![
                         text("Enum Name"),
-                        text_input("Enum Name", &enum_name)
-                            .on_input(move |name| Message::RenameEnum {
-                                enum_id: enum_id,
-                                new_name: name
-                            })
+                        row![
+                            text_input("Enum Name", &enum_name)
+                                .on_input(move |name| Message::RenameEnum {
+                                    enum_id: enum_id,
+                                    new_name: name
+                                }),
+                            button(icon::trash()).style(styles::button::invisible)
+                        ]
+                        .spacing(10)
+                        .padding(5)
                     ]
                     .spacing(5)
                     .padding([5, 10]),
@@ -323,7 +328,7 @@ pub fn view<'a>(
                     ).padding(Padding { top: 10.0, right: 10.0, bottom: 0.0, left: 10.0}),
 
                     // Spread all the variant rows here
-                    column(variant_rows).padding(5),
+                    column(variant_rows).padding([5, 10]),
                     container(
                         button(icon::plus().center()).style(button::text).on_press(Message::AddVariant { enum_id, name: "Variant".to_string() })
                     ).padding(5)
@@ -331,6 +336,8 @@ pub fn view<'a>(
             )
             .expand_icon(icon::collapsed())
             .collapse_icon(icon::expanded())
+            .action_icon(button(icon::trash()).style(styles::button::cancel).on_press(Message::DeleteEnum(enum_id)).padding(padding::right(10.0)))
+            .title_alignment(Alignment::Center)
             .into()
         })
         .collect();

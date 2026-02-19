@@ -2,7 +2,6 @@ use crate::data_structures::{properties::properties::Properties, widget_hierarch
 use iced::window::Settings;
 use uuid::Uuid;
 
-// #[derive(Debug, Clone)]
 pub struct Widget {
     pub id: WidgetId,
     pub widget_type: WidgetType,
@@ -67,7 +66,7 @@ pub struct AppView {
     pub hierarchy: WidgetHierarchy,
     pub order: usize,
     pub is_main: bool,
-    pub is_component: bool,
+    pub _is_component: bool,
 }
 
 impl AppView {
@@ -79,7 +78,7 @@ impl AppView {
             hierarchy: WidgetHierarchy::new(WidgetType::Container),
             order: order,
             is_main: order == 0,
-            is_component: false,
+            _is_component: false,
         }
     }
 
@@ -91,7 +90,7 @@ impl AppView {
             hierarchy: WidgetHierarchy::new(WidgetType::Container),
             order,
             is_main: order == 0,
-            is_component: false,
+            _is_component: false,
         }
     }
 }
@@ -157,11 +156,6 @@ impl WindowConfig {
         Self::new(
             "Visualizer".to_string(),
             Settings::default()
-/*             Settings {
-                size: iced::Size::new(1920.0, 1080.0),
-                min_size: Some(iced::Size::new(700.0, 975.0)),
-                ..Settings::default()
-            } */
         )
     }
 }

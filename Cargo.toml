@@ -18,15 +18,13 @@ iced = { version = "0.14.0", features = [
 iced_runtime = { version = "0.14.0" }
 widgets = { git = "https://github.com/A-Disruption/widgets.git" , features = ["tree", "collapsible", "generic_overlay", "color_picker"] }
 #widgets = { path = "C:/Rust Projects/widgets", features = ["collapsible", "tree", "color_picker", "generic_overlay"]}
-uuid = { version = "1.6", features = ["v4", "serde"] }
+uuid = { version = "1.21.0", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-#iced_custom_highlighter = { version = "0.1.0" }
-#testing_rust_knowledge = { path = "C:/Rust Projects/testing_rust_knowledge" }
-tree_sitter_highlighter = { path = "C:/Rust Projects/tree_sitter_highlighter"}
+serde_json = "1.0.149"
+tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master"}
 
 [build-dependencies]
-iced_fontello = "0.13"
+iced_fontello = "0.14.1"
 
 [patch.crates-io]
 #iced = { git = "https://github.com/iced-rs/iced", branch = "master" }

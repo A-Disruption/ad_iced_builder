@@ -21,30 +21,6 @@ pub fn cancel(theme: &Theme, status: Status) -> Style {
     }
 }
 
-pub fn save(theme: &Theme, status: Status) -> Style {
-
-    let palette = theme.extended_palette();
-
-    let base = Style {
-        text_color: palette.primary.strong.color,
-        border: Border {
-            color: palette.secondary.base.color,
-            width: 1.0,
-            radius: radius(4.0)
-        },
-        ..Style::default()
-    };
-
-    match status {
-        Status::Active | Status::Pressed => base,
-        Status::Hovered => Style {
-            text_color: palette.primary.strong.color.scale_alpha(0.8),
-            ..base
-        },
-        Status::Disabled => disabled(base),
-    }
-}
-
 pub fn edit(theme: &Theme, status: Status) -> Style {
 
     let palette = theme.extended_palette();
@@ -94,5 +70,33 @@ fn disabled(style: Style) -> Style {
             .map(|background| background.scale_alpha(0.5)),
         text_color: style.text_color.scale_alpha(0.5),
         ..style
+    }
+}
+
+pub fn invisible(theme: &Theme, status: Status) -> Style {
+    let palette = theme.extended_palette();
+
+    let base = Style {
+        text_color: palette.background.neutral.color.scale_alpha(0.000),
+        background: Some(iced::Background::Color(palette.background.neutral.color.scale_alpha(0.000))),
+        border: Border {
+            color: palette.primary.strong.color,
+            width: 0.0,
+            radius: 0.0.into(),
+        },
+        ..Style::default()
+    };
+
+    match status {
+        Status::Active | Status::Pressed => base,
+        Status::Hovered => Style {
+            text_color: base.text_color.scale_alpha(0.8),
+            ..base
+        },
+        Status::Disabled => Style {
+            background: base.background.map(|bg| bg.scale_alpha(0.5)),
+            text_color: base.text_color.scale_alpha(0.5),
+            ..base
+        },
     }
 }

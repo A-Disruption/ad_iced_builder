@@ -23,12 +23,6 @@ impl std::fmt::Display for ContainerAlignY {
     }
 }
 
-impl std::fmt::Display for RowColumnAlign {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 impl std::fmt::Display for ButtonStyleType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
@@ -399,9 +393,6 @@ pub enum ContainerAlignX { Left, Center, Right }
 
 #[derive(Debug, Clone, Copy, PartialEq,)]
 pub enum ContainerAlignY { Top, Center, Bottom }
-
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum RowColumnAlign { Start, Center, End }
 
 #[derive(Debug, Clone, Copy, PartialEq,)]
 pub enum ButtonStyleType { Primary, Secondary, Success, Danger, Text, Background, Subtle }
