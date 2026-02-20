@@ -332,7 +332,7 @@ fn build_tree_item<'a>(
     }
 
     let branch = match widget.widget_type {
-        WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable | WidgetType::Tooltip | WidgetType::MouseArea | WidgetType::Pin => {
+        WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable | WidgetType::Tooltip | WidgetType::MouseArea | WidgetType::Pin | WidgetType::Button | WidgetType::Stack | WidgetType::Themer | WidgetType::Grid => {
 
             let content = row![
                     container(text(format!("{}", display_name))).padding(5),
@@ -434,9 +434,11 @@ fn build_editor_for_widget<'a>(
         WidgetType::QRCode          => qrcode_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Stack           => stack_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Themer          => themer_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
+        WidgetType::Grid            => grid_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Pin             => pin_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::Table           => table_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
         WidgetType::ViewReference   => view_reference_controls(&hierarchy, widget_id, theme, &type_system, views, custom_styles, preview_content),
+        WidgetType::Icon            => icon_controls(&hierarchy, widget_id, theme, &type_system, custom_styles, preview_content),
     };
 
     controls_view.into()

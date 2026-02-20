@@ -22,9 +22,11 @@ uuid = { version = "1.21.0", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.149"
 tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master"}
+iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
 
 [build-dependencies]
 iced_fontello = "0.14.1"
+iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
 
 [patch.crates-io]
 #iced = { git = "https://github.com/iced-rs/iced", branch = "master" }

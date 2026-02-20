@@ -1,6 +1,6 @@
 use iced::{Alignment, Border, Element, Length, Background, Theme, Color, Font, Shadow, Task, font};
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{button, checkbox, column, combo_box, container, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, table, themer, text, text_input, toggler, tooltip, vertical_slider, Pin};
+use iced::widget::{button, checkbox, column, combo_box, container, grid, image, pick_list, progress_bar, markdown, mouse_area, radio, row, rule, scrollable, space, slider, stack, svg, table, themer, text, text_input, toggler, tooltip, vertical_slider, Pin};
 use uuid::Uuid;
 use std::collections::BTreeMap;
 
@@ -277,11 +277,14 @@ fn build_widget_preview<'a>(
             // Apply all container properties
             container = match props.container_sizing_mode {
                 ContainerSizingMode::Manual => {
-                    container
-                        .width(props.width)
-                        .height(props.height)
-                        .align_x(props.align_x)
-                        .align_y(props.align_y)
+                    // Match codegen: skip Shrink so iced uses its fluid (child-based) default.
+                    // Shrink = "let iced decide"; Fill and Fixed are emitted explicitly.
+                    let mut c = container;
+                    if !matches!(props.width, Length::Shrink) { c = c.width(props.width); }
+                    if !matches!(props.height, Length::Shrink) { c = c.height(props.height); }
+                    if !matches!(props.align_x, ContainerAlignX::Left) { c = c.align_x(props.align_x); }
+                    if !matches!(props.align_y, ContainerAlignY::Top) { c = c.align_y(props.align_y); }
+                    c
                 }
                 ContainerSizingMode::CenterX => {
                     container.center_x(props.container_center_length)
@@ -319,52 +322,32 @@ fn build_widget_preview<'a>(
             }
 
             container = container.style(move |theme: &Theme| {
-                // Check for a style name
                 if let Some(style_name) = &props.custom_style_name {
+                    // Custom style file takes priority
                     if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Container) {
-                        if let Some(style_definition) = style_map.get(style_name) { // check if it's a custom style
-                            let style = style_definition.to_container_style(theme);
-                            return style;
-                        } else if ContainerStyleType::all().contains(style_name) { // check if it's a built-in style
-                            let style = ContainerStyleType::get(style_name).unwrap();
-                            return match style {
-                                ContainerStyleType::Transparent => container::transparent(theme),
-                                ContainerStyleType::Background => container::background(theme.extended_palette().background.base.color), 
-                                ContainerStyleType::RoundedBox => container::rounded_box(theme), 
-                                ContainerStyleType::BorderedBox => container::bordered_box(theme), 
-                                ContainerStyleType::Dark => container::dark(theme), 
-                                ContainerStyleType::Primary => container::primary(theme), 
-                                ContainerStyleType::Secondary => container::secondary(theme), 
-                                ContainerStyleType::Success => container::success(theme), 
-                                ContainerStyleType::Danger => container::danger(theme), 
-                                ContainerStyleType::Warning => container::warning(theme),
-                            }
+                        if let Some(style_definition) = style_map.get(style_name) {
+                            return style_definition.to_container_style(theme);
                         }
                     }
+                    // Fall back to built-in iced container styles
+                    if ContainerStyleType::all().contains(style_name) {
+                        let style = ContainerStyleType::get(style_name).unwrap();
+                        return match style {
+                            ContainerStyleType::Transparent => container::transparent(theme),
+                            ContainerStyleType::Background => container::background(theme.extended_palette().background.base.color),
+                            ContainerStyleType::RoundedBox => container::rounded_box(theme),
+                            ContainerStyleType::BorderedBox => container::bordered_box(theme),
+                            ContainerStyleType::Dark => container::dark(theme),
+                            ContainerStyleType::Primary => container::primary(theme),
+                            ContainerStyleType::Secondary => container::secondary(theme),
+                            ContainerStyleType::Success => container::success(theme),
+                            ContainerStyleType::Danger => container::danger(theme),
+                            ContainerStyleType::Warning => container::warning(theme),
+                        };
+                    }
                 }
-
-                // Fallback to individual properties if no custom style is found
-                let mut st = container::Style::default();
-
-                if props.background_color.a > 0.0 {
-                    st.background = Some(Background::Color(props.background_color));
-                }
-
-                st.border = Border {
-                    color: props.border_color,
-                    width: props.border_width,
-                    radius: props.border_radius.into(),
-                };
-
-                if props.has_shadow {
-                    st.shadow = Shadow {
-                        color: props.shadow_color,
-                        offset: props.shadow_offset,
-                        blur_radius: props.shadow_blur,
-                    };
-                }
-
-                st
+                // No style assigned — return default (no border, no background)
+                container::Style::default()
             });
 
             container.into()
@@ -458,9 +441,16 @@ fn build_widget_preview<'a>(
         
         WidgetType::Button => {
             let props = &widget.properties;
-            
-            // Create button with text content
-            let mut btn = button(text(&props.text_content));
+
+            // Use child element as button content when one is present,
+            // otherwise fall back to the text_content property.
+            let button_content: Element<_> = if widget.children.is_empty() {
+                text(&props.text_content).into()
+            } else {
+                build_widget_preview(hierarchy, &widget.children[0], theme, custom_themes, highlight_selected, all_views, current_view_id, type_system)
+            };
+
+            let mut btn = button(button_content);
             
             if props.button_on_press_enabled {
                 btn = btn.on_press(Message::Noop);
@@ -598,7 +588,24 @@ fn build_widget_preview<'a>(
             if props.text_input_alignment != ContainerAlignX::Left {
                 input = input.align_x(props.text_input_alignment);
             }
-            
+
+            // Apply icon if enabled
+            if props.text_input_icon_enabled {
+                let cp = char::from_u32(props.text_input_icon_codepoint).unwrap_or('\u{FFFD}');
+                let size = if props.text_input_icon_size > 0.0 {
+                    Some(iced::Pixels(props.text_input_icon_size))
+                } else {
+                    None
+                };
+                input = input.icon(text_input::Icon {
+                    font: Font::with_name("lucide"),
+                    code_point: cp,
+                    size,
+                    spacing: props.text_input_icon_spacing,
+                    side: props.text_input_icon_side.into(),
+                });
+            }
+
             input.into()
         }
 
@@ -844,6 +851,23 @@ fn build_widget_preview<'a>(
                 }
             }
 
+            // Apply icon if enabled
+            if props.combobox_icon_enabled {
+                let cp = char::from_u32(props.combobox_icon_codepoint).unwrap_or('\u{FFFD}');
+                let size = if props.combobox_icon_size > 0.0 {
+                    Some(iced::Pixels(props.combobox_icon_size))
+                } else {
+                    None
+                };
+                cb = cb.icon(text_input::Icon {
+                    font: Font::with_name("lucide"),
+                    code_point: cp,
+                    size,
+                    spacing: props.combobox_icon_spacing,
+                    side: props.combobox_icon_side.into(),
+                });
+            }
+
             cb.into()
         }
         
@@ -986,12 +1010,42 @@ fn build_widget_preview<'a>(
                 }
             }
             
-            stack(layers)
-                .width(props.width)
-                .height(props.height)
-                .into()
+            // Stack defaults to Shrink in iced — only set width/height when NOT Fill,
+            // matching codegen which skips Fill so the exported Stack is Shrink.
+            let s = stack(layers);
+            let s = if !matches!(props.width, Length::Fill) { s.width(props.width) } else { s };
+            let s = if !matches!(props.height, Length::Fill) { s.height(props.height) } else { s };
+            s.into()
         }
-        
+
+        WidgetType::Grid => {
+            let children: Vec<Element<'a, Message>> = if widget.children.is_empty() {
+                (1..=6).map(|i| {
+                    container(text(format!("Cell {i}")))
+                        .center(Length::Fill)
+                        .style(|th: &Theme| container::Style {
+                            border: Border { color: th.extended_palette().background.strong.color, width: 1.0, radius: 2.0.into() },
+                            ..Default::default()
+                        })
+                        .into()
+                }).collect()
+            } else {
+                widget.children.iter()
+                    .map(|child| build_widget_preview(hierarchy, child, theme, custom_themes, highlight_selected, all_views, current_view_id, type_system))
+                    .collect()
+            };
+
+            let g = grid(children);
+            let g = if props.grid_use_fluid {
+                g.fluid(props.grid_fluid_max_width)
+            } else {
+                g.columns(props.grid_columns)
+            };
+            let g = g.spacing(props.grid_spacing);
+            let g = if let Some(w) = props.grid_fixed_width { g.width(w) } else { g };
+            g.into()
+        }
+
         WidgetType::Themer => {
             let content = if widget.children.is_empty() {
                 container(text("Themed Content"))
@@ -1123,6 +1177,16 @@ fn build_widget_preview<'a>(
                 })
                 .into()
             }
+        }
+
+        WidgetType::Icon => {
+            let codepoint_char = char::from_u32(props.icon_codepoint).unwrap_or('\u{FFFD}');
+            text(codepoint_char.to_string())
+                .font(Font::with_name("lucide"))
+                .size(props.icon_size)
+                .width(props.width)
+                .height(props.height)
+                .into()
         }
 
         WidgetType::ViewReference => {

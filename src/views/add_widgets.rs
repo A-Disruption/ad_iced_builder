@@ -101,6 +101,13 @@ pub fn view<'a>(
                             ]
                             .spacing(10)
                             .padding(5),
+                            row![
+                                widget_button(WidgetType::Grid, "Grid"),
+                                widget_button(WidgetType::Stack, "Stack"),
+                                widget_button(WidgetType::Themer, "Themer"),
+                            ]
+                            .spacing(10)
+                            .padding(5),
                         ],
 
                         column![
@@ -158,6 +165,7 @@ pub fn view<'a>(
                             row![
                                 widget_button(WidgetType::Pin, "Pin"),
                                 widget_button(WidgetType::QRCode, "QRCode"),
+                                widget_button(WidgetType::Icon, "Icon"),
                             ]
                             .spacing(10)
                             .padding(5),
@@ -187,24 +195,28 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
     
     let available_types = if *parent_id == hierarchy.root().id {
         if hierarchy.root().children.is_empty() {
-            vec![WidgetType::Column, WidgetType::Row]
+            vec![WidgetType::Column, WidgetType::Row, WidgetType::Stack]
         } else {
             vec![]
         }
     } else if parent.widget_type == WidgetType::Scrollable {
         if parent.children.is_empty() {
-            vec![WidgetType::Container, WidgetType::Column, WidgetType::Row, WidgetType::ViewReference]
+            vec![WidgetType::Container, WidgetType::Column, WidgetType::Row, WidgetType::Stack, WidgetType::Themer, WidgetType::Grid, WidgetType::ViewReference]
         } else {
             vec![]
         }
-    } else if parent.widget_type == WidgetType::Container || 
-              parent.widget_type == WidgetType::Pin {
+    } else if parent.widget_type == WidgetType::Container ||
+              parent.widget_type == WidgetType::Pin ||
+              parent.widget_type == WidgetType::Button {
         if parent.children.is_empty() {
             vec![
                 WidgetType::Container,
                 WidgetType::Scrollable,
                 WidgetType::Row,
                 WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Themer,
+                WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
                 WidgetType::TextInput,
@@ -226,6 +238,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Pin,
                 WidgetType::Table,
                 WidgetType::QRCode,
+                WidgetType::Icon,
                 WidgetType::ViewReference
             ]
         } else {
@@ -238,6 +251,9 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Scrollable,
                 WidgetType::Row,
                 WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Themer,
+                WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
                 WidgetType::TextInput,
@@ -258,6 +274,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Pin,
                 WidgetType::Table,
                 WidgetType::QRCode,
+                WidgetType::Icon,
             ]
         } else {
             vec![]
@@ -269,6 +286,9 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Scrollable,
                 WidgetType::Row,
                 WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Themer,
+                WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
                 WidgetType::TextInput,
@@ -287,16 +307,22 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
                 WidgetType::Pin,
                 WidgetType::Table,
                 WidgetType::QRCode,
+                WidgetType::Icon,
             ]
         } else {
             vec![]
         }
-    } else if parent.widget_type == WidgetType::Row || parent.widget_type == WidgetType::Column {
+    } else if parent.widget_type == WidgetType::Row || parent.widget_type == WidgetType::Column
+           || parent.widget_type == WidgetType::Stack || parent.widget_type == WidgetType::Themer
+           || parent.widget_type == WidgetType::Grid {
         vec![
             WidgetType::Container,
             WidgetType::Scrollable,
             WidgetType::Row,
             WidgetType::Column,
+            WidgetType::Stack,
+            WidgetType::Themer,
+            WidgetType::Grid,
             WidgetType::Button,
             WidgetType::Text,
             WidgetType::TextInput,
@@ -318,6 +344,7 @@ pub fn get_available_types<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a Wi
             WidgetType::Pin,
             WidgetType::Table,
             WidgetType::QRCode,
+            WidgetType::Icon,
             WidgetType::ViewReference
         ]
     } else {

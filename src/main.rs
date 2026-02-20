@@ -8,6 +8,7 @@ mod controls;
 mod data_structures;
 mod enum_builder;
 mod icon;
+mod icon_lucide;
 mod styles;
 mod views;
 
@@ -25,6 +26,7 @@ fn main() {
         .theme(AdUiBuilder::theme)
         .subscription(AdUiBuilder::subscription)
         .font(icon::FONT)
+        .font(iced_lucide::FONT_BYTES)
         .run()
         .unwrap()
 }

@@ -91,6 +91,7 @@ impl ImportTracker {
             WidgetType::QRCode => { self.used_widgets.insert("qr_code"); }
             WidgetType::Stack => { self.used_widgets.insert("stack"); }
             WidgetType::Themer => { self.used_widgets.insert("themer"); }
+            WidgetType::Grid => { self.used_widgets.insert("grid"); }
             WidgetType::Pin => { self.used_widgets.insert("pin"); }
             WidgetType::Table => {
                 self.used_widgets.insert("table");
@@ -99,6 +100,10 @@ impl ImportTracker {
                     self.uses_font = true;
                     self.uses_font_module = true;
                 }
+            }
+            WidgetType::Icon => {
+                self.used_widgets.insert("text");
+                self.uses_font = true;
             }
             WidgetType::ViewReference => {}
         }

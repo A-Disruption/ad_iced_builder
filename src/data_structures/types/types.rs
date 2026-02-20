@@ -52,9 +52,11 @@ pub enum WidgetType {
     QRCode,
     Stack,
     Themer,
+    Grid,
     Pin,
     Table,
     ViewReference,
+    Icon,
 }
 
 

@@ -95,7 +95,7 @@ impl WidgetHierarchy {
 
             if parent_id == self.root.id {
                 return parent.children.is_empty()
-                    && matches!(widget_type, WidgetType::Column | WidgetType::Row);
+                    && matches!(widget_type, WidgetType::Column | WidgetType::Row | WidgetType::Stack);
             }
 
             match parent.widget_type {
@@ -104,6 +104,7 @@ impl WidgetHierarchy {
                     matches!(widget_type, WidgetType::Column | WidgetType::Row | WidgetType::Container)
                 }
                 WidgetType::Container => parent.children.is_empty(),
+                WidgetType::Button    => parent.children.is_empty(),
                 WidgetType::Tooltip   => parent.children.len() < 2, // <= 2 children
                 WidgetType::MouseArea => parent.children.is_empty(),
                 WidgetType::Pin => parent.children.is_empty(),
@@ -116,7 +117,7 @@ impl WidgetHierarchy {
         if !self.can_add_child(parent_id, widget_type) {
             if parent_id == self.root.id {
                 if self.root.children.is_empty() {
-                    return Err("Root container can only have Column or Row as its first child".to_string());
+                    return Err("Root container can only have Column, Row, or Stack as its first child".to_string());
                 } else {
                     return Err("Root container can only have one child".to_string());
                 }
@@ -767,7 +768,7 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
         widget_type,
         WidgetType::Container | WidgetType::Row | WidgetType::Column |
         WidgetType::Scrollable | WidgetType::Tooltip |
-        WidgetType::Stack | WidgetType::Themer | WidgetType::MouseArea |
-        WidgetType::Pin
+        WidgetType::Stack | WidgetType::Themer | WidgetType::Grid |
+        WidgetType::MouseArea | WidgetType::Pin | WidgetType::Button
     )
 }

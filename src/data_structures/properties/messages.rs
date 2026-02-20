@@ -76,6 +76,12 @@ pub enum PropertyChange {
     TextInputOnPaste(bool),
     TextInputFont(FontType),
     TextInputAlignment(ContainerAlignX),
+    TextInputIconEnabled(bool),
+    TextInputIconSelected(String, u32),
+    TextInputIconSize(f32),
+    TextInputIconSpacing(f32),
+    TextInputIconSide(TextInputIconSide),
+    TextInputIconPickerFilter(String),
     
     // Checkbox properties
     CheckboxChecked(bool),
@@ -146,7 +152,13 @@ pub enum PropertyChange {
     ComboBoxUseOnClose(bool),
     ComboBoxSize(f32),
     ComboBoxEnumId(Option<Uuid>),
-    
+    ComboBoxIconEnabled(bool),
+    ComboBoxIconSelected(String, u32),
+    ComboBoxIconSize(f32),
+    ComboBoxIconSpacing(f32),
+    ComboBoxIconSide(TextInputIconSide),
+    ComboBoxIconPickerFilter(String),
+
     // Markdown
     MarkdownContent(text_editor::Action),
     MarkdownTextSize(f32),
@@ -186,6 +198,20 @@ pub enum PropertyChange {
 
     // View references
     ViewReferenceId(Option<Uuid>, String),
+
+    // Icon (Lucide) properties
+    IconName(String),
+    IconCodepoint(u32),
+    IconSize(f32),
+    IconSelected(String, u32), // Sets both name and codepoint atomically
+    IconPickerFilter(String),
+
+    // Grid properties
+    GridColumns(usize),
+    GridSpacing(f32),
+    GridFixedWidth(Option<f32>),
+    GridUseFluid(bool),
+    GridFluidMaxWidth(f32),
 
     //Do Nothing
     Noop
@@ -402,7 +428,16 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::TextInputOnPaste(b) => properties.text_input_on_paste = b,
         PropertyChange::TextInputFont(font) => properties.text_input_font = font,
         PropertyChange::TextInputAlignment(align_x) => properties.text_input_alignment = align_x,
-        
+        PropertyChange::TextInputIconEnabled(v) => properties.text_input_icon_enabled = v,
+        PropertyChange::TextInputIconSelected(name, cp) => {
+            properties.text_input_icon_name = name;
+            properties.text_input_icon_codepoint = cp;
+        }
+        PropertyChange::TextInputIconSize(v) => properties.text_input_icon_size = v,
+        PropertyChange::TextInputIconSpacing(v) => properties.text_input_icon_spacing = v,
+        PropertyChange::TextInputIconSide(v) => properties.text_input_icon_side = v,
+        PropertyChange::TextInputIconPickerFilter(v) => properties.text_input_icon_picker_filter = v,
+
         // Checkbox properties
         PropertyChange::CheckboxChecked(value)  => properties.checkbox_checked = value,
         PropertyChange::CheckboxLabel(value)    => properties.checkbox_label = value,
@@ -502,6 +537,15 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::ComboBoxUseOnOpen(v) => properties.combobox_use_on_open = v,
         PropertyChange::ComboBoxUseOnClose(v) => properties.combobox_use_on_close = v,
         PropertyChange::ComboBoxSize(v) => properties.combobox_size = v,
+        PropertyChange::ComboBoxIconEnabled(v) => properties.combobox_icon_enabled = v,
+        PropertyChange::ComboBoxIconSelected(name, cp) => {
+            properties.combobox_icon_name = name;
+            properties.combobox_icon_codepoint = cp;
+        }
+        PropertyChange::ComboBoxIconSize(v) => properties.combobox_icon_size = v,
+        PropertyChange::ComboBoxIconSpacing(v) => properties.combobox_icon_spacing = v,
+        PropertyChange::ComboBoxIconSide(v) => properties.combobox_icon_side = v,
+        PropertyChange::ComboBoxIconPickerFilter(v) => properties.combobox_icon_picker_filter = v,
         PropertyChange::ComboBoxEnumId(id) => {
             //Set referenced_enum Id
             properties.referenced_enum = id;
@@ -564,10 +608,28 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::MouseAreaOnExit(b) => properties.mousearea_on_exit = b,
         PropertyChange::MouseAreaInteraction(interaction) => properties.mousearea_interaction = interaction,
 
-        PropertyChange::ViewReferenceId(view_id, name) => { 
+        PropertyChange::ViewReferenceId(view_id, name) => {
             properties.referenced_view_id = view_id;
             properties.widget_name = name;
         }
+
+        // Icon properties
+        PropertyChange::IconName(v)       => properties.icon_name = v,
+        PropertyChange::IconCodepoint(v)  => properties.icon_codepoint = v,
+        PropertyChange::IconSize(v)       => properties.icon_size = v,
+        PropertyChange::IconSelected(name, codepoint) => {
+            properties.icon_name = name;
+            properties.icon_codepoint = codepoint;
+            properties.icon_picker_filter.clear();
+        }
+        PropertyChange::IconPickerFilter(v) => properties.icon_picker_filter = v,
+
+        // Grid properties
+        PropertyChange::GridColumns(v) => properties.grid_columns = v,
+        PropertyChange::GridSpacing(v) => properties.grid_spacing = v,
+        PropertyChange::GridFixedWidth(v) => properties.grid_fixed_width = v,
+        PropertyChange::GridUseFluid(v) => properties.grid_use_fluid = v,
+        PropertyChange::GridFluidMaxWidth(v) => properties.grid_fluid_max_width = v,
     }
 }
 

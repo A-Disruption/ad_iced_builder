@@ -79,8 +79,15 @@ pub struct Properties {
     pub text_input_font: FontType,
     pub text_input_line_height: text::LineHeight,
     pub text_input_alignment: ContainerAlignX,
-//    pub text_input_icon: Option<Icon>,
-    
+    // TextInput icon (Lucide)
+    pub text_input_icon_enabled: bool,
+    pub text_input_icon_name: String,
+    pub text_input_icon_codepoint: u32,
+    pub text_input_icon_size: f32,     // 0.0 = use font default (None in iced)
+    pub text_input_icon_spacing: f32,
+    pub text_input_icon_side: TextInputIconSide,
+    pub text_input_icon_picker_filter: String,
+
     // Checkbox properties
     pub checkbox_checked: bool,
     pub checkbox_label: String,
@@ -155,7 +162,15 @@ pub struct Properties {
     pub combobox_use_on_open: bool,
     pub combobox_use_on_close: bool,
     pub referenced_enum: Option<Uuid>,
-    
+    // ComboBox icon (Lucide)
+    pub combobox_icon_enabled: bool,
+    pub combobox_icon_name: String,
+    pub combobox_icon_codepoint: u32,
+    pub combobox_icon_size: f32,
+    pub combobox_icon_spacing: f32,
+    pub combobox_icon_side: TextInputIconSide,
+    pub combobox_icon_picker_filter: String,
+
     // Markdown properties
     pub markdown_content: Vec<markdown::Item>,
     pub markdown_source: text_editor::Content,
@@ -201,6 +216,19 @@ pub struct Properties {
     pub saved_height_before_scrollable: Option<Length>,
     pub saved_width_before_scrollable: Option<Length>,
     pub referenced_view_id: Option<Uuid>,
+
+    // Icon (Lucide) properties
+    pub icon_name: String,          // Human-readable name, e.g. "house"
+    pub icon_codepoint: u32,        // Unicode codepoint for rendering
+    pub icon_size: f32,
+    pub icon_picker_filter: String, // Live search filter for the icon picker
+
+    // Grid properties
+    pub grid_columns: usize,        // Number of columns (default 3)
+    pub grid_spacing: f32,          // Spacing between cells (default 0.0)
+    pub grid_fixed_width: Option<f32>, // Fixed pixel width for the grid (None = not set)
+    pub grid_use_fluid: bool,       // Use fluid (auto-column) mode instead of fixed columns
+    pub grid_fluid_max_width: f32,  // Max column width in fluid mode (default 200.0)
 }
 
 impl Default for Properties {
@@ -276,7 +304,14 @@ impl Default for Properties {
             text_input_font: FontType::Default,
             text_input_line_height: text::LineHeight::default(),
             text_input_alignment: ContainerAlignX::Left,
-            
+            text_input_icon_enabled: false,
+            text_input_icon_name: "house".to_string(),
+            text_input_icon_codepoint: 0xE1D7,
+            text_input_icon_size: 0.0,     // 0.0 = use font default
+            text_input_icon_spacing: 5.0,
+            text_input_icon_side: TextInputIconSide::Left,
+            text_input_icon_picker_filter: String::new(),
+
             // Checkbox defaults
             checkbox_checked: false,
             checkbox_label: "Check me".to_string(),
@@ -369,6 +404,13 @@ impl Default for Properties {
             combobox_use_on_close: false,
             combobox_size: 16.0,
             referenced_enum: None,
+            combobox_icon_enabled: false,
+            combobox_icon_name: "house".to_string(),
+            combobox_icon_codepoint: 0xE1D7,
+            combobox_icon_size: 0.0,
+            combobox_icon_spacing: 5.0,
+            combobox_icon_side: TextInputIconSide::Left,
+            combobox_icon_picker_filter: String::new(),
 
             // Markdown defaults
             markdown_content: Vec::new(),
@@ -415,6 +457,19 @@ impl Default for Properties {
             saved_height_before_scrollable: None,
             saved_width_before_scrollable: None,
             referenced_view_id: None,
+
+            // Icon defaults — "house" icon from Lucide
+            icon_name: "house".to_string(),
+            icon_codepoint: 0xE1D7,
+            icon_size: 24.0,
+            icon_picker_filter: String::new(),
+
+            // Grid defaults
+            grid_columns: 3,
+            grid_spacing: 0.0,
+            grid_fixed_width: None,
+            grid_use_fluid: false,
+            grid_fluid_max_width: 200.0,
         }
     }
 }
@@ -426,6 +481,10 @@ impl Properties {
         // Customize defaults based on widget type [ Match actual iced defaults ]
         match widget_type {
             WidgetType::Container => {
+                // Shrink = "let iced decide" (fluid/child-based default).
+                // Explicit Fill can be set by the user when needed.
+                props.width = Length::Shrink;
+                props.height = Length::Shrink;
             }
             WidgetType::Scrollable => {
                 props.width = Length::Shrink;
@@ -506,9 +565,18 @@ impl Properties {
                 props.width = Length::Fill;
                 props.height = Length::Fill;
             }
+            WidgetType::Icon => {
+                props.width = Length::Shrink;
+                props.height = Length::Shrink;
+            }
+            WidgetType::Stack => {
+                // iced Stack defaults to Shrink (NOT Fill like most widgets)
+                props.width = Length::Shrink;
+                props.height = Length::Shrink;
+            }
             _ => {} // Use defaults for other types
         }
-        
+
         props
     }
 }

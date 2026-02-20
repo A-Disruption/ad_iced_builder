@@ -870,6 +870,31 @@ impl std::fmt::Display for PaddingMode {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TextInputIconSide {
+    #[default]
+    Left,
+    Right,
+}
+
+impl std::fmt::Display for TextInputIconSide {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TextInputIconSide::Left => write!(f, "Left"),
+            TextInputIconSide::Right => write!(f, "Right"),
+        }
+    }
+}
+
+impl From<TextInputIconSide> for iced::widget::text_input::Side {
+    fn from(side: TextInputIconSide) -> Self {
+        match side {
+            TextInputIconSide::Left => iced::widget::text_input::Side::Left,
+            TextInputIconSide::Right => iced::widget::text_input::Side::Right,
+        }
+    }
+}
+
 pub fn length_to_string(length: Length) -> String {
     match length {
         Length::Fill => "Fill".to_string(),

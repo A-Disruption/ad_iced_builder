@@ -16,7 +16,7 @@ pub fn generate_widget_code(
     type_system: &TypeSystem,
 ) {
     match widget.widget_type {
-        WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self),
+        WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Checkbox => generate_checkbox(b, widget, names, use_self),
         WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::ComboBox => generate_combobox(b, widget, names, custom_styles, use_self),
@@ -40,9 +40,11 @@ pub fn generate_widget_code(
         WidgetType::TextInput => generate_textinput(b, widget, names, use_self),
         WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
         WidgetType::Themer => generate_themer(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Grid => generate_grid(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::Toggler => generate_toggler(b, widget, names, use_self),
         WidgetType::Tooltip => generate_tooltip(b, widget, names, custom_styles, use_self, type_system),
         WidgetType::VerticalSlider => generate_verticalslider(b, widget, names, use_self),
+        WidgetType::Icon => generate_icon(b, widget),
         WidgetType::ViewReference => {}
     }
 }
@@ -176,17 +178,59 @@ fn generate_svg(b: &mut CodeBuilder, widget: &Widget) {
     }
 }
 
+fn generate_icon(b: &mut CodeBuilder, widget: &Widget) {
+    let props = &widget.properties;
+
+    b.indent();
+    b.push(&format!("text(\"\\u{{{:04X}}}\")", props.icon_codepoint));
+    b.increase_indent();
+
+    // Font is always required for Lucide icons
+    b.dot_method("font", "Font::with_name(\"lucide\")");
+
+    if props.icon_size != 24.0 {
+        b.add_size(props.icon_size);
+    }
+
+    if !matches!(props.width, Length::Shrink) {
+        b.add_width(props.width);
+    }
+
+    if !matches!(props.height, Length::Shrink) {
+        b.add_height(props.height);
+    }
+
+    b.decrease_indent();
+}
+
 fn generate_button(
     b: &mut CodeBuilder,
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
-    _use_self: bool,
+    use_self: bool,
+    type_system: &TypeSystem,
 ) {
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
     b.indent();
-    b.push(&format!("button(\"{}\")", widget.properties.text_content));
+    b.push("button(");
+    b.newline();
+    b.increase_indent();
+
+    if widget.children.is_empty() {
+        // No child widget — use the text_content property
+        b.indent();
+        b.push(&format!("text(\"{}\")", widget.properties.text_content));
+    } else {
+        // Recurse into the single child element
+        generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+    }
+
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
 
     b.increase_indent();
     if widget.properties.button_on_press_enabled {
@@ -536,6 +580,22 @@ fn generate_textinput(
         b.add_align_x(props.text_input_alignment.into());
     }
 
+    if props.text_input_icon_enabled {
+        let side = match props.text_input_icon_side {
+            TextInputIconSide::Left => "text_input::Side::Left",
+            TextInputIconSide::Right => "text_input::Side::Right",
+        };
+        let size_arg = if props.text_input_icon_size > 0.0 {
+            format!("Some({:.1}.into())", props.text_input_icon_size)
+        } else {
+            "None".to_string()
+        };
+        b.dot_method("icon", &format!(
+            "text_input::Icon {{ font: Font::with_name(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
+            props.text_input_icon_codepoint, size_arg, props.text_input_icon_spacing, side
+        ));
+    }
+
     if !matches!(props.width, Length::Fill) {
         b.add_width(props.width);
     }
@@ -616,6 +676,22 @@ fn generate_combobox(
 
     if !matches!(props.width, Length::Fill) {
         b.add_width(props.width);
+    }
+
+    if props.combobox_icon_enabled {
+        let side = match props.combobox_icon_side {
+            TextInputIconSide::Left => "text_input::Side::Left",
+            TextInputIconSide::Right => "text_input::Side::Right",
+        };
+        let size_arg = if props.combobox_icon_size > 0.0 {
+            format!("Some({:.1}.into())", props.combobox_icon_size)
+        } else {
+            "None".to_string()
+        };
+        b.dot_method("icon", &format!(
+            "text_input::Icon {{ font: Font::with_name(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
+            props.combobox_icon_codepoint, size_arg, props.combobox_icon_spacing, side
+        ));
     }
 
     if let Some(ref style) = props.custom_style_name {
@@ -823,10 +899,12 @@ fn generate_container(
     // Sizing
     match props.container_sizing_mode {
         ContainerSizingMode::Manual => {
-            if !matches!(props.width, Length::Fill) {
+            // Shrink = "use iced's fluid default" → skip emission.
+            // Any other value (Fill, Fixed, FillPortion) is explicit → always emit.
+            if !matches!(props.width, Length::Shrink) {
                 b.add_width(props.width);
             }
-            if !matches!(props.height, Length::Fill) {
+            if !matches!(props.height, Length::Shrink) {
                 b.add_height(props.height);
             }
             if !matches!(props.align_x, ContainerAlignX::Left) {
@@ -861,6 +939,17 @@ fn generate_container(
 
     if props.clip {
         b.add_clip();
+    }
+
+    // Style generation — only when a named style has been explicitly assigned
+    if let Some(ref style_name) = props.custom_style_name {
+        let snake = to_snake_case(style_name);
+        if custom_styles.styles().get(&ThemePaneEnum::Container).is_some() {
+            b.add_style("styles::container", &snake);
+        } else {
+            // Built-in iced container style (e.g. bordered_box, rounded_box)
+            b.add_style("container", &snake);
+        }
     }
 }
 
@@ -954,21 +1043,20 @@ fn generate_stack(
     let props = &widget.properties;
 
     b.indent();
-    b.push("stack(vec![");
+    b.push("stack![");
     b.newline();
     b.increase_indent();
 
     if use_self {
         if widget.children.is_empty() {
             b.indent();
-            b.push("text(\"Layer 1\").into(),");
+            b.push("text(\"Layer 1\"),");
             b.newline();
             b.indent();
-            b.push("text(\"Layer 2\").into(),");
+            b.push("text(\"Layer 2\"),");
         } else {
             for (i, child) in widget.children.iter().enumerate() {
                 generate_widget_code(b, child, names, use_self, custom_styles, type_system);
-                b.push(".into()");
                 if i < widget.children.len() - 1 {
                     b.push(",");
                 }
@@ -983,15 +1071,15 @@ fn generate_stack(
 
     b.decrease_indent();
     b.indent();
-    b.push("])");
+    b.push("]");
 
     if !matches!(props.width, Length::Fill) {
         b.add_width(props.width);
     }
-
     if !matches!(props.height, Length::Fill) {
         b.add_height(props.height);
     }
+
 }
 
 fn generate_mousearea(
@@ -1102,6 +1190,60 @@ fn generate_tooltip(
     b.push(")");
 }
 
+fn generate_grid(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+) {
+    let props = &widget.properties;
+
+    b.indent();
+    b.push("grid(vec![");
+    b.newline();
+    b.increase_indent();
+
+    if use_self {
+        if widget.children.is_empty() {
+            b.indent();
+            b.push("text(\"Grid Cell\").into(),");
+        } else {
+            for (i, child) in widget.children.iter().enumerate() {
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                b.push(".into()");
+                if i < widget.children.len() - 1 {
+                    b.push(",");
+                }
+                b.newline();
+            }
+        }
+    } else {
+        b.indent();
+        b.push("// child widgets");
+    }
+    b.newline();
+
+    b.decrease_indent();
+    b.indent();
+    b.push("])");
+
+    b.increase_indent();
+    if props.grid_use_fluid {
+        b.dot_method("fluid", &format!("{:.1}", props.grid_fluid_max_width));
+    } else if props.grid_columns != 3 {
+        b.dot_method("columns", &format!("{}", props.grid_columns));
+    }
+    if props.grid_spacing != 0.0 {
+        b.add_spacing(props.grid_spacing);
+    }
+    if let Some(w) = props.grid_fixed_width {
+        b.dot_method("width", &format!("{:.1}", w));
+    }
+    b.decrease_indent();
+}
+
 fn generate_themer(
     b: &mut CodeBuilder,
     widget: &Widget,
@@ -1167,14 +1309,6 @@ fn generate_themer(
     b.decrease_indent();
     b.indent();
     b.push(")");
-
-    if !matches!(props.width, Length::Shrink) {
-        b.add_width(props.width);
-    }
-
-    if !matches!(props.height, Length::Shrink) {
-        b.add_height(props.height);
-    }
 }
 
 fn generate_pin(

@@ -3,7 +3,8 @@ pub mod single_edit;
 pub mod control_styling;
 
 use iced::{ Alignment, Color, Element, Length, Padding, Theme, padding };
-use iced::widget::{ Space, button, checkbox, column, container, pick_list, radio, row, rule, scrollable, slider, space, text, text_editor, text_input, toggler, tooltip};
+use iced::widget::{ Space, Row, button, checkbox, column, container, pick_list, radio, row, rule, scrollable, slider, space, text, text_editor, text_input, toggler, tooltip};
+use widgets::generic_overlay::overlay_button;
 use uuid::Uuid;
 use std::collections::BTreeMap;
 use crate::enum_builder::TypeSystem;
@@ -13,6 +14,7 @@ use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::*;
 use crate::data_structures::properties::messages::*;
 use crate::icon;
+use crate::icon_lucide;
 
 use crate::views::widget_tree::Message;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
@@ -443,6 +445,8 @@ pub fn button_controls<'a>(
         3 // None selected
     };
 
+    let has_child = !widget.children.is_empty();
+
     let content = column![
         text("Button Properties").size(TITLE_SIZE),
 
@@ -453,6 +457,13 @@ pub fn button_controls<'a>(
             text_input("Text", &props.text_content)
                 .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::TextContent(v)))
                 .width(250),
+            if has_child {
+                text("Ignored — button is using its child widget as content.")
+                    .size(LABEL_SIZE - 2.0)
+                    .color(palette.primary.base.color)
+            } else {
+                text("")
+            },
         ]
         .spacing(LABEL_SPACING),
 
@@ -782,11 +793,122 @@ pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _the
             checkbox(props.text_input_on_paste)
                 .label("on_paste - Fires when text is pasted")
                 .on_toggle(move |v| Message::PropertyChanged(
-                    widget_id, 
+                    widget_id,
                     PropertyChange::TextInputOnPaste(v)
                 )),
         ]
         .spacing(SECTION_SPACING),
+
+        {
+            // Icon section
+            let filter = props.text_input_icon_picker_filter.to_lowercase();
+            let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
+                .iter()
+                .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
+                .map(|(name, codepoint)| {
+                    let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+                    let name_clone = name.to_string();
+                    tooltip(
+                        button(icon_lucide::render(codepoint))
+                            .on_press(Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::TextInputIconSelected(name_clone, cp_u32),
+                            ))
+                            .style(button::text),
+                        container(text(*name)).style(container::bordered_box).padding(5),
+                        tooltip::Position::Top,
+                    )
+                    .into()
+                })
+                .collect();
+
+            let search = text_input("Search icons…", &props.text_input_icon_picker_filter)
+                .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputIconPickerFilter(v)));
+
+            let picker_content = column![
+                container(search).padding(padding::horizontal(5.0)),
+                scrollable(
+                    Row::with_children(icon_buttons)
+                        .spacing(4)
+                        .padding(10)
+                        .wrap(),
+                ),
+            ]
+            .spacing(4);
+
+            let current_cp_str: &'static str = icon_lucide::ALL_ICONS
+                .iter()
+                .find(|(name, _)| *name == props.text_input_icon_name.as_str())
+                .map(|(_, cp)| *cp)
+                .unwrap_or("\u{FFFD}");
+
+            let trigger = row![
+                icon_lucide::render(current_cp_str).size(20),
+                text(&props.text_input_icon_name),
+            ]
+            .spacing(6)
+            .align_y(Alignment::Center);
+
+            let picker = overlay_button(trigger, "Select Icon", picker_content)
+                .overlay_width(650.0)
+                .overlay_height(450.0);
+
+            column![
+                text("Icon").size(SECTION_SIZE),
+                checkbox(props.text_input_icon_enabled)
+                    .label("Enable Icon")
+                    .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputIconEnabled(v))),
+                if props.text_input_icon_enabled {
+                    column![
+                        column![
+                            text("Icon").size(LABEL_SIZE),
+                            picker,
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Side").size(LABEL_SIZE),
+                            pick_list(
+                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
+                                Some(props.text_input_icon_side),
+                                move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputIconSide(v))
+                            ),
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Icon Size (0 = auto)").size(LABEL_SIZE),
+                            row![
+                                slider(0.0..=64.0, props.text_input_icon_size, move |v| {
+                                    Message::PropertyChanged(widget_id, PropertyChange::TextInputIconSize(v))
+                                })
+                                .step(1.0)
+                                .width(180),
+                                text(if props.text_input_icon_size > 0.0 {
+                                    format!("{:.0}px", props.text_input_icon_size)
+                                } else {
+                                    "auto".to_string()
+                                }).size(LABEL_SIZE).width(50),
+                            ]
+                            .spacing(SECTION_SPACING)
+                            .align_y(Alignment::Center),
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Spacing").size(LABEL_SIZE),
+                            row![
+                                slider(0.0..=30.0, props.text_input_icon_spacing, move |v| {
+                                    Message::PropertyChanged(widget_id, PropertyChange::TextInputIconSpacing(v))
+                                })
+                                .step(1.0)
+                                .width(180),
+                                text(format!("{:.0}px", props.text_input_icon_spacing)).size(LABEL_SIZE).width(50),
+                            ]
+                            .spacing(SECTION_SPACING)
+                            .align_y(Alignment::Center),
+                        ].spacing(LABEL_SPACING),
+                    ].spacing(SECTION_SPACING)
+                } else {
+                    column![]
+                },
+            ]
+            .spacing(SECTION_SPACING)
+        },
 
         size_controls_scrollable_aware(
             props.width,
@@ -1372,12 +1494,12 @@ pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &T
         column![
             text("Thickness").size(LABEL_SIZE),
             row![
-                slider(1.0..=20.0, p.rule_thickness as f32, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::RuleThickness(v.round()))
+                slider(0.5..=20.0, p.rule_thickness as f32, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::RuleThickness(v))
                 })
-                .step(1.0)
+                .step(0.5)
                 .width(200),
-                text(format!("{:.0}px", p.rule_thickness)).size(LABEL_SIZE).width(50),
+                text(format!("{:.1}px", p.rule_thickness)).size(LABEL_SIZE).width(50),
             ]
             .spacing(SECTION_SPACING)
             .align_y(Alignment::Center),
@@ -2003,13 +2125,124 @@ pub fn combobox_controls<'a>(
                 checkbox(props.combobox_use_on_close)
                     .label("on_close - Triggers when dropdown closes")
                     .on_toggle(move |v| Message::PropertyChanged(
-                        widget_id, 
+                        widget_id,
                         PropertyChange::ComboBoxUseOnClose(v)
                     )),
             ]
             .spacing(LABEL_SPACING)
         ]
         .spacing(SECTION_SPACING),
+
+        {
+            // ComboBox icon section
+            let filter = props.combobox_icon_picker_filter.to_lowercase();
+            let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
+                .iter()
+                .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
+                .map(|(name, codepoint)| {
+                    let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+                    let name_clone = name.to_string();
+                    tooltip(
+                        button(icon_lucide::render(codepoint))
+                            .on_press(Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::ComboBoxIconSelected(name_clone, cp_u32),
+                            ))
+                            .style(button::text),
+                        container(text(*name)).style(container::bordered_box).padding(5),
+                        tooltip::Position::Top,
+                    )
+                    .into()
+                })
+                .collect();
+
+            let search = text_input("Search icons…", &props.combobox_icon_picker_filter)
+                .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconPickerFilter(v)));
+
+            let picker_content = column![
+                container(search).padding(padding::horizontal(5.0)),
+                scrollable(
+                    Row::with_children(icon_buttons)
+                        .spacing(4)
+                        .padding(10)
+                        .wrap(),
+                ),
+            ]
+            .spacing(4);
+
+            let current_cp_str: &'static str = icon_lucide::ALL_ICONS
+                .iter()
+                .find(|(name, _)| *name == props.combobox_icon_name.as_str())
+                .map(|(_, cp)| *cp)
+                .unwrap_or("\u{FFFD}");
+
+            let trigger = row![
+                icon_lucide::render(current_cp_str).size(20),
+                text(&props.combobox_icon_name),
+            ]
+            .spacing(6)
+            .align_y(Alignment::Center);
+
+            let picker = overlay_button(trigger, "Select Icon", picker_content)
+                .overlay_width(650.0)
+                .overlay_height(450.0);
+
+            column![
+                text("Icon").size(SECTION_SIZE),
+                checkbox(props.combobox_icon_enabled)
+                    .label("Enable Icon")
+                    .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconEnabled(v))),
+                if props.combobox_icon_enabled {
+                    column![
+                        column![
+                            text("Icon").size(LABEL_SIZE),
+                            picker,
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Side").size(LABEL_SIZE),
+                            pick_list(
+                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
+                                Some(props.combobox_icon_side),
+                                move |v| Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconSide(v))
+                            ),
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Icon Size (0 = auto)").size(LABEL_SIZE),
+                            row![
+                                slider(0.0..=64.0, props.combobox_icon_size, move |v| {
+                                    Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconSize(v))
+                                })
+                                .step(1.0)
+                                .width(180),
+                                text(if props.combobox_icon_size > 0.0 {
+                                    format!("{:.0}px", props.combobox_icon_size)
+                                } else {
+                                    "auto".to_string()
+                                }).size(LABEL_SIZE).width(50),
+                            ]
+                            .spacing(SECTION_SPACING)
+                            .align_y(Alignment::Center),
+                        ].spacing(LABEL_SPACING),
+                        column![
+                            text("Spacing").size(LABEL_SIZE),
+                            row![
+                                slider(0.0..=30.0, props.combobox_icon_spacing, move |v| {
+                                    Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconSpacing(v))
+                                })
+                                .step(1.0)
+                                .width(180),
+                                text(format!("{:.0}px", props.combobox_icon_spacing)).size(LABEL_SIZE).width(50),
+                            ]
+                            .spacing(SECTION_SPACING)
+                            .align_y(Alignment::Center),
+                        ].spacing(LABEL_SPACING),
+                    ].spacing(SECTION_SPACING)
+                } else {
+                    column![]
+                },
+            ]
+            .spacing(SECTION_SPACING)
+        },
 
         size_controls_scrollable_aware(
             props.width,
@@ -2285,20 +2518,106 @@ pub fn themer_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: 
         text("Themer applies a theme to all its children.")
             .size(LABEL_SIZE)
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
-
-        size_controls_scrollable_aware(
-            props.width,
-            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
-            props.height,
-            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
-            h,
-            widget_id,
-        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable( 
+    scrollable(
+        container(
+            add_code_preview(content, preview_content)
+        ).padding(padding::right(10.0))
+    ).into()
+}
+
+pub fn grid_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let columns_str = props.grid_columns.to_string();
+    let spacing_str = format!("{}", props.grid_spacing);
+    let fixed_width_str = match props.grid_fixed_width {
+        Some(w) => format!("{}", w),
+        None => String::new(),
+    };
+    let fluid_max_str = format!("{}", props.grid_fluid_max_width);
+
+    let layout_section: Element<Message> = if props.grid_use_fluid {
+        column![
+            text("Fluid Max Column Width").size(LABEL_SIZE),
+            text_input("200", &fluid_max_str)
+                .on_input(move |s| {
+                    let v = parse_f32(&s, props.grid_fluid_max_width);
+                    Message::PropertyChanged(widget_id, PropertyChange::GridFluidMaxWidth(v))
+                })
+                .width(100),
+            text("Columns fill available space up to this width.").size(LABEL_SIZE - 1.0)
+                .color(Color::from_rgb(0.5, 0.5, 0.5)),
+        ]
+        .spacing(LABEL_SPACING)
+        .into()
+    } else {
+        column![
+            text("Columns").size(LABEL_SIZE),
+            text_input("3", &columns_str)
+                .on_input(move |s| {
+                    let v = s.trim().parse::<usize>().unwrap_or(props.grid_columns).max(1);
+                    Message::PropertyChanged(widget_id, PropertyChange::GridColumns(v))
+                })
+                .width(100),
+        ]
+        .spacing(LABEL_SPACING)
+        .into()
+    };
+
+    let content = column![
+        text("Grid Properties").size(TITLE_SIZE),
+
+        widget_name(widget_id, &props.widget_name),
+
+        text("Grid distributes children in a uniform column layout.")
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+
+        column![
+            text("Layout Mode").size(LABEL_SIZE),
+            toggler(props.grid_use_fluid)
+                .label("Fluid (auto-column) mode")
+                .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::GridUseFluid(v))),
+        ].spacing(LABEL_SPACING),
+
+        layout_section,
+
+        column![
+            text("Spacing").size(LABEL_SIZE),
+            text_input("0", &spacing_str)
+                .on_input(move |s| {
+                    let v = parse_f32(&s, props.grid_spacing);
+                    Message::PropertyChanged(widget_id, PropertyChange::GridSpacing(v))
+                })
+                .width(100),
+        ].spacing(LABEL_SPACING),
+
+        column![
+            text("Fixed Width (px)").size(LABEL_SIZE),
+            text_input("none", &fixed_width_str)
+                .on_input(move |s| {
+                    let v = if s.trim().is_empty() {
+                        None
+                    } else {
+                        parse_f32(&s, props.grid_fixed_width.unwrap_or(0.0)).into()
+                    };
+                    Message::PropertyChanged(widget_id, PropertyChange::GridFixedWidth(v))
+                })
+                .width(100),
+            text("Pixel width for the entire grid widget. Leave empty for Fill.")
+                .size(LABEL_SIZE - 1.0)
+                .color(Color::from_rgb(0.5, 0.5, 0.5)),
+        ].spacing(LABEL_SPACING),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(
         container(
             add_code_preview(content, preview_content)
         ).padding(padding::right(10.0))
@@ -2630,6 +2949,109 @@ pub fn view_reference_controls<'a>(
     .into();
 
     scrollable( 
+        container(
+            add_code_preview(content, preview_content)
+        ).padding(padding::right(10.0))
+    ).into()
+}
+
+pub fn icon_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    // Filter the full icon list for the picker grid
+    let filter = props.icon_picker_filter.to_lowercase();
+    let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
+        .iter()
+        .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
+        .map(|(name, codepoint)| {
+            let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+            let name_clone = name.to_string();
+            tooltip(
+                button(icon_lucide::render(codepoint))
+                    .on_press(Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::IconSelected(name_clone, cp_u32),
+                    ))
+                    .style(button::text),
+                container(text(*name)).style(container::bordered_box).padding(5),
+                tooltip::Position::Top,
+            )
+            .into()
+        })
+        .collect();
+
+    let search = text_input("Search icons\u{2026}", &props.icon_picker_filter)
+        .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::IconPickerFilter(v)));
+
+    let picker_content = column![
+        container(search).padding(padding::horizontal(5.0)),
+        scrollable(
+            Row::with_children(icon_buttons)
+                .spacing(4)
+                .padding(10)
+                .wrap(),
+        ),
+    ]
+    .spacing(4);
+
+    // Trigger button shows the current icon + its name
+    let current_cp_str: &'static str = icon_lucide::ALL_ICONS
+        .iter()
+        .find(|(name, _)| *name == props.icon_name.as_str())
+        .map(|(_, cp)| *cp)
+        .unwrap_or("\u{FFFD}");
+
+    let trigger = row![
+        icon_lucide::render(current_cp_str).size(20),
+        text(&props.icon_name),
+    ]
+    .spacing(6)
+    .align_y(Alignment::Center);
+
+    let picker = overlay_button(trigger, "Select Icon", picker_content)
+        .overlay_width(650.0)
+        .overlay_height(450.0);
+
+    let content = column![
+        text("Icon Properties").size(TITLE_SIZE),
+
+        widget_name(widget_id, &props.widget_name),
+
+        column![
+            text("Icon").size(LABEL_SIZE),
+            picker,
+        ]
+        .spacing(LABEL_SPACING),
+
+        column![
+            text("Icon Size").size(LABEL_SIZE),
+            row![
+                slider(8.0..=128.0, props.icon_size, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::IconSize(v))
+                })
+                .step(1.0)
+                .width(200),
+                text(format!("{:.0}px", props.icon_size)).size(LABEL_SIZE).width(50),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(
         container(
             add_code_preview(content, preview_content)
         ).padding(padding::right(10.0))
