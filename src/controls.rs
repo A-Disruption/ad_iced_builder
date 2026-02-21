@@ -935,7 +935,7 @@ pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _the
     ).into()
 }
 
-pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, custom_styles: &'a CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
@@ -943,6 +943,8 @@ pub fn checkbox_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme
         text("Checkbox Properties").size(TITLE_SIZE),
 
         widget_name(widget_id, &props.widget_name),
+
+        custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Checkbox),
 
         column![
             text("Label Text").size(LABEL_SIZE),

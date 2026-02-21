@@ -19,7 +19,7 @@ pub fn generate_widget_code(
 ) {
     match widget.widget_type {
         WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self, type_system, view_refs),
-        WidgetType::Checkbox => generate_checkbox(b, widget, names, use_self),
+        WidgetType::Checkbox => generate_checkbox(b, widget, names, custom_styles, use_self),
         WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::ComboBox => generate_combobox(b, widget, names, custom_styles, use_self),
         WidgetType::Container => generate_container(b, widget, names, custom_styles, use_self, type_system, view_refs),
@@ -110,7 +110,11 @@ fn generate_rule(b: &mut CodeBuilder, widget: &Widget, custom_styles: &CustomThe
     b.push(&format!("({})", props.rule_thickness));
 
     if let Some(ref style_name) = props.custom_style_name {
-        if custom_styles.styles().get(&ThemePaneEnum::Rule).is_some() {
+        let is_custom = custom_styles.styles()
+            .get(&ThemePaneEnum::Rule)
+            .map(|m| m.contains_key(style_name.as_str()))
+            .unwrap_or(false);
+        if is_custom {
             b.increase_indent();
             b.add_style("styles::rule", &style_name.to_lowercase());
             b.decrease_indent();
@@ -299,6 +303,7 @@ fn generate_checkbox(
     b: &mut CodeBuilder,
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
     use_self: bool,
 ) {
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
@@ -325,6 +330,17 @@ fn generate_checkbox(
     if widget.properties.width != Length::Shrink {
         b.add_width(widget.properties.width);
     }
+
+    if let Some(ref style_name) = widget.properties.custom_style_name {
+        let is_custom = custom_styles.styles()
+            .get(&ThemePaneEnum::Checkbox)
+            .map(|m| m.contains_key(style_name.as_str()))
+            .unwrap_or(false);
+        if is_custom {
+            b.add_style("styles::checkbox", &style_name.to_lowercase());
+        }
+    }
+
     b.decrease_indent();
 }
 
@@ -707,7 +723,11 @@ fn generate_combobox(
     }
 
     if let Some(ref style) = props.custom_style_name {
-        if custom_styles.styles().get(&ThemePaneEnum::Combobox).is_some() {
+        let is_custom = custom_styles.styles()
+            .get(&ThemePaneEnum::Combobox)
+            .map(|m| m.contains_key(style.as_str()))
+            .unwrap_or(false);
+        if is_custom {
             b.add_input_style("styles::combo_box", &format!("{}_input_style", style.to_lowercase()));
             b.add_menu_style("styles::combo_box", &format!("{}_menu_style", style.to_lowercase()));
         }

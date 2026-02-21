@@ -610,13 +610,23 @@ fn build_widget_preview<'a>(
         }
 
         WidgetType::Checkbox => {
-            checkbox(props.checkbox_checked)
+            let mut cb = checkbox(props.checkbox_checked)
                 .label(&props.checkbox_label)
                 .size(props.checkbox_size)
                 .spacing(props.checkbox_spacing)
                 .width(props.width)
-                .on_toggle(move |_| Message::CheckboxToggled(widget.id, !props.checkbox_checked, current_view_id))
-                .into()
+                .on_toggle(move |_| Message::CheckboxToggled(widget.id, !props.checkbox_checked, current_view_id));
+
+            if let Some(style_name) = &props.custom_style_name {
+                if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Checkbox) {
+                    if let Some(style_definition) = style_map.get(style_name) {
+                        let def = style_definition.clone();
+                        cb = cb.style(move |theme: &Theme, status| def.to_checkbox_style(theme, status));
+                    }
+                }
+            }
+
+            cb.into()
         }
 
         WidgetType::Radio => {
