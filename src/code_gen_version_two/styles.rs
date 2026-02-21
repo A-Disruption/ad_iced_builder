@@ -1,6 +1,7 @@
 use iced::Color;
 use super::helpers::{format_color_with_source, format_radius, format_shadow};
 use crate::styles::style_enum::RuleFillMode;
+use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 
 /// Generate button style function code as a String (tree_sitter handles highlighting)
 pub fn generate_button_style_code(
@@ -434,4 +435,184 @@ pub fn generate_combo_box_style_code(
     code.push_str("}");
 
     code
+}
+
+/// Generate a complete `styles.rs` file containing all custom styles, organized as:
+///   pub mod button { ... }
+///   pub mod container { ... }
+///   pub mod rule { ... }
+/// Returns `None` if there are no custom styles to generate.
+pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> {
+    let styles = custom_styles.styles();
+
+    let has_button    = styles.get(&ThemePaneEnum::Button).map(|m| !m.is_empty()).unwrap_or(false);
+    let has_container = styles.get(&ThemePaneEnum::Container).map(|m| !m.is_empty()).unwrap_or(false);
+    let has_checkbox  = styles.get(&ThemePaneEnum::Checkbox).map(|m| !m.is_empty()).unwrap_or(false);
+    let has_combobox  = styles.get(&ThemePaneEnum::Combobox).map(|m| !m.is_empty()).unwrap_or(false);
+    let has_rule      = styles.get(&ThemePaneEnum::Rule).map(|m| !m.is_empty()).unwrap_or(false);
+
+    if !has_button && !has_container && !has_checkbox && !has_combobox && !has_rule {
+        return None;
+    }
+
+    let mut out = String::new();
+
+    // Top-level imports
+    out.push_str("use iced::{Background, Border, Color, Shadow, Theme, Vector};\n");
+    if has_combobox {
+        out.push_str("use iced::widget::{combo_box::menu, text_input};\n");
+    }
+    out.push_str("\n");
+
+    // Button module
+    if has_button {
+        out.push_str("pub mod button {\n");
+        out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::button::{Status, Style};\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::Button) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_button_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.text_color, &def.text_color_source,
+                    def.background_color, &def.background_color_source,
+                    def.border_color, &def.border_color_source,
+                    def.border_width,
+                    def.border_radius_top_left, def.border_radius_top_right,
+                    def.border_radius_bottom_right, def.border_radius_bottom_left,
+                    def.shadow_enabled,
+                    def.shadow_color, &def.shadow_color_source,
+                    def.shadow_offset_x, def.shadow_offset_y, def.shadow_blur_radius,
+                    def.snap,
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n\n");
+    }
+
+    // Container module
+    if has_container {
+        out.push_str("pub mod container {\n");
+        out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::container::Style;\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::Container) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_container_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.text_color, &def.text_color_source,
+                    def.background_color, &def.background_color_source,
+                    def.border_color, &def.border_color_source,
+                    def.border_width,
+                    def.border_radius_top_left, def.border_radius_top_right,
+                    def.border_radius_bottom_right, def.border_radius_bottom_left,
+                    def.shadow_enabled,
+                    def.shadow_color, &def.shadow_color_source,
+                    def.shadow_offset_x, def.shadow_offset_y, def.shadow_blur_radius,
+                    def.snap,
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n\n");
+    }
+
+    // Checkbox module
+    if has_checkbox {
+        out.push_str("pub mod checkbox {\n");
+        out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::checkbox::{Status, Style};\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::Checkbox) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_checkbox_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.text_color, &def.text_color_source,
+                    def.background_color, &def.background_color_source,
+                    def.icon_color, &def.icon_color_source,
+                    def.border_color, &def.border_color_source,
+                    def.border_width,
+                    def.border_radius_top_left, def.border_radius_top_right,
+                    def.border_radius_bottom_right, def.border_radius_bottom_left,
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n\n");
+    }
+
+    // ComboBox module
+    if has_combobox {
+        out.push_str("pub mod combo_box {\n");
+        out.push_str("    use super::*;\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::Combobox) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_combo_box_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.background_color, &def.background_color_source,
+                    def.border_color, &def.border_color_source,
+                    def.border_width,
+                    def.border_radius_top_left, def.border_radius_top_right,
+                    def.border_radius_bottom_right, def.border_radius_bottom_left,
+                    def.icon_color, &def.icon_color_source,
+                    def.placeholder_color, &def.placeholder_color_source,
+                    def.text_color, &def.text_color_source,
+                    def.selection_color, &def.selection_color_source,
+                    def.selected_text_color, &def.selected_text_color_source,
+                    def.selected_background_color, &def.selected_background_color_source,
+                    def.shadow_enabled,
+                    def.shadow_color, &def.shadow_color_source,
+                    def.shadow_offset_x, def.shadow_offset_y, def.shadow_blur_radius,
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n\n");
+    }
+
+    // Rule module
+    if has_rule {
+        out.push_str("pub mod rule {\n");
+        out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::rule::{FillMode, Style};\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::Rule) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_rule_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.border_color, &def.border_color_source,
+                    def.border_radius_top_left, def.border_radius_top_right,
+                    def.border_radius_bottom_right, def.border_radius_bottom_left,
+                    &def.rule_fill_mode,
+                    def.snap,
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n");
+    }
+
+    Some(out)
 }

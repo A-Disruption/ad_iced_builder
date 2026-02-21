@@ -27,6 +27,7 @@ pub use styles::{
     generate_checkbox_style_code,
     generate_combo_box_style_code,
     generate_rule_style_code,
+    generate_all_styles_file,
 };
 
 pub struct CodeGeneratorV2<'a> {
@@ -162,6 +163,14 @@ impl<'a> CodeGeneratorV2<'a> {
             needs_qr_code,
         ));
 
+        // 3b. Generate styles.rs if any custom styles are defined
+        let has_styles = if let Some(styles_code) = styles::generate_all_styles_file(custom_styles) {
+            files.insert("styles.rs".to_string(), styles_code);
+            true
+        } else {
+            false
+        };
+
         // 4. Pre-scan all views to find which modules are actually referenced by ViewReference widgets
         let mut all_referenced_modules: std::collections::HashSet<String> = std::collections::HashSet::new();
         for view_entry in views.values() {
@@ -198,6 +207,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 view_entry,
                 &struct_name,
                 files.contains_key("types.rs"),
+                has_styles,
                 &all_non_main_modules,
                 &all_referenced_modules,
                 custom_styles,
@@ -240,6 +250,7 @@ impl<'a> CodeGeneratorV2<'a> {
         view_entry: &AppView,
         struct_name: &str,
         has_types: bool,
+        has_styles: bool,
         modules_to_mod: &[String],
         all_referenced_modules: &std::collections::HashSet<String>,
         custom_styles: &CustomThemes,
@@ -278,6 +289,14 @@ impl<'a> CodeGeneratorV2<'a> {
                 b.line("use types::*;");
             } else {
                 b.line("use crate::types::*;");
+            }
+        }
+
+        if has_styles {
+            if view_entry.is_main {
+                b.line("mod styles;");
+            } else {
+                b.line("use crate::styles;");
             }
         }
 
