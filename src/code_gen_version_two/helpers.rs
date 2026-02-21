@@ -10,8 +10,7 @@ pub fn format_color_with_source(color: Color, source: &Option<String>) -> String
         let path = src
             .strip_prefix("theme.extended_palette().")
             .unwrap_or(src);
-        //format!("extended.{}", path)
-        path.to_string()
+        format!("palette.{}", path)
     } else {
         format!(
             "Color {{ r: {:.3}, g: {:.3}, b: {:.3}, a: {:.3} }}",
