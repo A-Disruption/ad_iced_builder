@@ -620,7 +620,6 @@ pub fn apply_property_change(properties: &mut Properties, change: PropertyChange
         PropertyChange::IconSelected(name, codepoint) => {
             properties.icon_name = name;
             properties.icon_codepoint = codepoint;
-            properties.icon_picker_filter.clear();
         }
         PropertyChange::IconPickerFilter(v) => properties.icon_picker_filter = v,
 

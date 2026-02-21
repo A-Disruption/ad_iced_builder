@@ -1,4 +1,5 @@
 use super::builder::CodeBuilder;
+use super::events::ViewRefInfo;
 use super::widgets::generate_widget_code;
 use crate::data_structures::types::types::{Widget, WidgetId};
 use crate::views::theme_and_stylefn_builder::CustomThemes;
@@ -11,6 +12,7 @@ pub fn generate_view_method(
     names: &HashMap<WidgetId, String>,
     custom_styles: &CustomThemes,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     b.line("pub fn view<'a>(&'a self) -> Element<'a, Message> {");
     b.increase_indent();
@@ -25,7 +27,7 @@ pub fn generate_view_method(
         b.increase_indent();
 
         root.children.iter().for_each(|widget|
-            generate_widget_code(b, widget, names, true, custom_styles, type_system)
+            generate_widget_code(b, widget, names, true, custom_styles, type_system, view_refs)
         );
 
         b.decrease_indent();

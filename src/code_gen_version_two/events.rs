@@ -1,12 +1,55 @@
 use super::builder::{CodeBuilder, to_pascal_case, to_snake_case, handle_whitespace};
-use crate::data_structures::types::types::{Widget, WidgetType, WidgetId};
+use crate::data_structures::types::types::{AppView, Widget, WidgetType, WidgetId};
 use crate::data_structures::types::type_implementations::{
     ContainerAlignX, ContainerAlignY, FontType, PaddingMode,
 };
 use crate::enum_builder::TypeSystem;
 use iced::advanced::text;
 use iced::Alignment;
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use uuid::Uuid;
+
+/// Metadata about a ViewReference widget resolved against the views map.
+#[derive(Debug, Clone)]
+pub struct ViewRefInfo {
+    pub widget_id: WidgetId,
+    /// snake_case field name used in the App struct (from widget_name or view name)
+    pub field_name: String,
+    /// snake_case module name (same as generated file stem)
+    pub module_name: String,
+    /// PascalCase struct name
+    pub struct_name: String,
+}
+
+/// Collect all ViewReference widgets from a widget tree, resolving each against the views map.
+pub fn collect_view_refs(root: &Widget, views: &BTreeMap<Uuid, AppView>) -> Vec<ViewRefInfo> {
+    let mut refs = Vec::new();
+    collect_view_refs_recursive(root, views, &mut refs);
+    refs
+}
+
+fn collect_view_refs_recursive(widget: &Widget, views: &BTreeMap<Uuid, AppView>, refs: &mut Vec<ViewRefInfo>) {
+    if widget.widget_type == WidgetType::ViewReference {
+        if let Some(view_id) = widget.properties.referenced_view_id {
+            if let Some(view) = views.get(&view_id) {
+                let field_name = if !widget.properties.widget_name.trim().is_empty() {
+                    to_snake_case(&widget.properties.widget_name)
+                } else {
+                    to_snake_case(&view.name)
+                };
+                refs.push(ViewRefInfo {
+                    widget_id: widget.id,
+                    field_name,
+                    module_name: to_snake_case(&view.name),
+                    struct_name: handle_whitespace(&to_pascal_case(&view.name)),
+                });
+            }
+        }
+    }
+    for child in &widget.children {
+        collect_view_refs_recursive(child, views, refs);
+    }
+}
 
 pub struct ImportTracker {
     pub used_widgets: HashSet<&'static str>,
@@ -32,6 +75,8 @@ pub struct ImportTracker {
     pub uses_shadow: bool,
     pub uses_background: bool,
     pub uses_vector: bool,
+    /// True if any icon widget, or text_input/combo_box with icon enabled, is present.
+    pub uses_icon: bool,
 }
 
 impl ImportTracker {
@@ -56,6 +101,7 @@ impl ImportTracker {
             uses_shadow: false,
             uses_background: false,
             uses_vector: false,
+            uses_icon: false,
         }
     }
 
@@ -63,10 +109,23 @@ impl ImportTracker {
         let props = &widget.properties;
 
         match widget.widget_type {
-            WidgetType::Container => { self.used_widgets.insert("container"); }
-            WidgetType::Row => { self.used_widgets.insert("row"); }
-            WidgetType::Column => { self.used_widgets.insert("column"); }
-            WidgetType::Button => { self.used_widgets.insert("button"); }
+            WidgetType::Container => {
+                self.used_widgets.insert("container");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
+            WidgetType::Row => {
+                self.used_widgets.insert("row");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
+            WidgetType::Column => {
+                self.used_widgets.insert("column");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
+            WidgetType::Button => {
+                self.used_widgets.insert("button");
+                // button always generates text(...) for content, either as placeholder or through child scan
+                self.used_widgets.insert("text");
+            }
             WidgetType::Text => { self.used_widgets.insert("text"); }
             WidgetType::TextInput => { self.used_widgets.insert("text_input"); }
             WidgetType::Checkbox => { self.used_widgets.insert("checkbox"); }
@@ -76,12 +135,19 @@ impl ImportTracker {
             WidgetType::ProgressBar => { self.used_widgets.insert("progress_bar"); }
             WidgetType::Toggler => { self.used_widgets.insert("toggler"); }
             WidgetType::PickList => { self.used_widgets.insert("pick_list"); }
-            WidgetType::Scrollable => { self.used_widgets.insert("scrollable"); }
+            WidgetType::Scrollable => {
+                self.used_widgets.insert("scrollable");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
             WidgetType::Space => { self.used_widgets.insert("space"); }
             WidgetType::Rule => { self.used_widgets.insert("rule"); }
             WidgetType::Image => { self.used_widgets.insert("image"); }
             WidgetType::Svg => { self.used_widgets.insert("svg"); }
-            WidgetType::Tooltip => { self.used_widgets.insert("tooltip"); }
+            WidgetType::Tooltip => {
+                self.used_widgets.insert("tooltip");
+                // tooltip always generates text(...) fallbacks for host and/or content
+                self.used_widgets.insert("text");
+            }
             WidgetType::ComboBox => { self.used_widgets.insert("combo_box"); }
             WidgetType::Markdown => { self.used_widgets.insert("markdown"); }
             WidgetType::MouseArea => {
@@ -89,10 +155,25 @@ impl ImportTracker {
                 self.uses_mouse = true;
             }
             WidgetType::QRCode => { self.used_widgets.insert("qr_code"); }
-            WidgetType::Stack => { self.used_widgets.insert("stack"); }
-            WidgetType::Themer => { self.used_widgets.insert("themer"); }
-            WidgetType::Grid => { self.used_widgets.insert("grid"); }
-            WidgetType::Pin => { self.used_widgets.insert("pin"); }
+            WidgetType::Stack => {
+                self.used_widgets.insert("stack");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
+            WidgetType::Themer => {
+                self.used_widgets.insert("themer");
+                if widget.children.is_empty() {
+                    self.used_widgets.insert("container");
+                    self.used_widgets.insert("text");
+                }
+            }
+            WidgetType::Grid => {
+                self.used_widgets.insert("grid");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
+            WidgetType::Pin => {
+                self.used_widgets.insert("pin");
+                if widget.children.is_empty() { self.used_widgets.insert("text"); }
+            }
             WidgetType::Table => {
                 self.used_widgets.insert("table");
                 self.used_widgets.insert("text"); // table columns always use text
@@ -102,8 +183,8 @@ impl ImportTracker {
                 }
             }
             WidgetType::Icon => {
-                self.used_widgets.insert("text");
-                self.uses_font = true;
+                // Icons use icon::name() — no text/Font imports needed at call site
+                self.uses_icon = true;
             }
             WidgetType::ViewReference => {}
         }
@@ -171,6 +252,18 @@ impl ImportTracker {
             if props.text_input_alignment != ContainerAlignX::Left {
                 self.uses_alignment = true;
             }
+            if props.text_input_icon_enabled {
+                self.uses_font = true;
+                self.uses_icon = true;
+            }
+        }
+
+        if widget.widget_type == WidgetType::ComboBox {
+            if props.combobox_icon_enabled {
+                self.uses_font = true;
+                self.uses_icon = true;
+                self.used_widgets.insert("text_input"); // combo_box icon uses text_input::Icon/Side
+            }
         }
 
         if widget.widget_type == WidgetType::Pin {
@@ -197,7 +290,7 @@ impl ImportTracker {
     }
 }
 
-pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) {
+pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) -> ImportTracker {
     let mut tracker = ImportTracker::new();
     tracker.scan_widget(root);
 
@@ -271,6 +364,35 @@ pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) {
 
     b.decrease_indent();
     b.line("};");
+
+    if tracker.uses_icon {
+        b.line("mod icon;");
+    }
+
+    tracker
+}
+
+/// Collect all icon names used in this widget tree (icon widgets + text_input/combo_box icons).
+pub fn collect_all_icon_names(root: &Widget) -> BTreeSet<String> {
+    let mut names = BTreeSet::new();
+    collect_icon_names_recursive(root, &mut names);
+    names
+}
+
+fn collect_icon_names_recursive(widget: &Widget, names: &mut BTreeSet<String>) {
+    let props = &widget.properties;
+    if widget.widget_type == WidgetType::Icon {
+        names.insert(props.icon_name.clone());
+    }
+    if widget.widget_type == WidgetType::TextInput && props.text_input_icon_enabled {
+        names.insert(props.text_input_icon_name.clone());
+    }
+    if widget.widget_type == WidgetType::ComboBox && props.combobox_icon_enabled {
+        names.insert(props.combobox_icon_name.clone());
+    }
+    for child in &widget.children {
+        collect_icon_names_recursive(child, names);
+    }
 }
 
 pub fn generate_message_enum(
@@ -278,6 +400,7 @@ pub fn generate_message_enum(
     root: &Widget,
     names: &HashMap<WidgetId, String>,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     b.newline();
     b.line("#[derive(Debug, Clone)]");
@@ -286,10 +409,26 @@ pub fn generate_message_enum(
 
     generate_message_variants(b, root, names, type_system);
 
+    if !view_refs.is_empty() {
+        b.line("ViewMessages(ViewMessages),");
+    }
     b.line("Noop,");
 
     b.decrease_indent();
     b.line("}");
+
+    // Generate the ViewMessages sub-enum if there are view references
+    if !view_refs.is_empty() {
+        b.newline();
+        b.line("#[derive(Debug, Clone)]");
+        b.line("pub enum ViewMessages {");
+        b.increase_indent();
+        for vr in view_refs {
+            b.line(&format!("{}({}::Message),", to_pascal_case(&vr.field_name), vr.module_name));
+        }
+        b.decrease_indent();
+        b.line("}");
+    }
 }
 
 fn generate_message_variants(
@@ -416,18 +555,38 @@ pub fn generate_update(
     b: &mut CodeBuilder,
     root: &Widget,
     names: &HashMap<WidgetId, String>,
+    view_refs: &[ViewRefInfo],
 ) {
-    b.line("pub fn update(&mut self, message: Message) {");
+    b.line("pub fn update(&mut self, message: Message) -> Task<Message> {");
     b.increase_indent();
     b.line("match message {");
     b.increase_indent();
 
     generate_match_arms(b, root, names);
 
+    if !view_refs.is_empty() {
+        b.line("Message::ViewMessages(view_msg) => match view_msg {");
+        b.increase_indent();
+        for vr in view_refs {
+            let pascal = to_pascal_case(&vr.field_name);
+            b.line(&format!("ViewMessages::{}(msg) => {{", pascal));
+            b.increase_indent();
+            b.line(&format!(
+                "return self.{}.update(msg).map(|m| Message::ViewMessages(ViewMessages::{}(m)));",
+                vr.field_name, pascal
+            ));
+            b.decrease_indent();
+            b.line("},");
+        }
+        b.decrease_indent();
+        b.line("},");
+    }
+
     b.line("Message::Noop => {}");
 
     b.decrease_indent();
     b.line("}");
+    b.line("Task::none()");
     b.decrease_indent();
     b.line("}");
 }

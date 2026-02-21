@@ -1,5 +1,6 @@
 use iced::Color;
 use super::helpers::{format_color_with_source, format_radius, format_shadow};
+use crate::styles::style_enum::RuleFillMode;
 
 /// Generate button style function code as a String (tree_sitter handles highlighting)
 pub fn generate_button_style_code(
@@ -226,6 +227,52 @@ pub fn generate_checkbox_style_code(
     code.push_str("            text_color: base.text_color.map(|c| c.scale_alpha(0.5)),\n");
     code.push_str("            ..base\n");
     code.push_str("        },\n");
+    code.push_str("    }\n");
+    code.push_str("}");
+
+    code
+}
+
+pub fn generate_rule_style_code(
+    style_name: &str,
+    border_color: Color,
+    border_color_source: &Option<String>,
+    border_radius_top_left: f32,
+    border_radius_top_right: f32,
+    border_radius_bottom_right: f32,
+    border_radius_bottom_left: f32,
+    fill_mode: &RuleFillMode,
+    snap: bool,
+) -> String {
+    let mut code = String::new();
+
+    code.push_str(&format!("pub fn {}(theme: &Theme) -> Style {{\n", style_name));
+    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    Style {\n");
+
+    code.push_str("        color: ");
+    code.push_str(&format_color_with_source(border_color, border_color_source));
+    code.push_str(",\n");
+
+    code.push_str("        radius: ");
+    code.push_str(&format_radius(
+        border_radius_top_left,
+        border_radius_top_right,
+        border_radius_bottom_right,
+        border_radius_bottom_left,
+        "        ",
+    ));
+    code.push_str(",\n");
+
+    let fill_mode_str = match fill_mode {
+        RuleFillMode::Full => "FillMode::Full".to_string(),
+        RuleFillMode::Percent(p) => format!("FillMode::Percent({:.1})", p),
+        RuleFillMode::Padded(p) => format!("FillMode::Padded({})", p),
+        RuleFillMode::AsymmetricPadding(a, b) => format!("FillMode::AsymmetricPadding({}, {})", a, b),
+    };
+    code.push_str(&format!("        fill_mode: {},\n", fill_mode_str));
+    code.push_str(&format!("        snap: {},\n", snap));
+
     code.push_str("    }\n");
     code.push_str("}");
 

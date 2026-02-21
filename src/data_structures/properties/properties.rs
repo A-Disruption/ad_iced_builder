@@ -63,7 +63,6 @@ pub struct Properties {
     pub text_align_y: iced::alignment::Vertical,
     
     // Button properties
-//    pub button_style: ButtonStyleType,
     pub button_on_press_maybe_enabled: bool,
     pub button_on_press_with_enabled: bool,
     pub button_on_press_enabled: bool,
@@ -287,7 +286,6 @@ impl Default for Properties {
             text_align_y: iced::alignment::Vertical::Top,
             
             // Button defaults
-//            button_style: ButtonStyleType::Primary,
             button_on_press_maybe_enabled: false,
             button_on_press_with_enabled: false,
             button_on_press_enabled: true,
@@ -460,8 +458,8 @@ impl Default for Properties {
 
             // Icon defaults — "house" icon from Lucide
             icon_name: "house".to_string(),
-            icon_codepoint: 0xE1D7,
-            icon_size: 24.0,
+            icon_codepoint: 0xE0F5,
+            icon_size: 16.0,
             icon_picker_filter: String::new(),
 
             // Grid defaults

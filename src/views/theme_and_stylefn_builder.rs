@@ -1,13 +1,13 @@
-use iced::widget::{button, checkbox, column, container, slider, row, scrollable, text, text_editor, text_input, tooltip, Space, combo_box, overlay::menu};
+use iced::widget::{button, checkbox, column, container, rule, slider, row, scrollable, text, text_editor, text_input, tooltip, Space, combo_box, overlay::menu};
 use iced::{Alignment, Background, Border, Color, Element, Length, Shadow, Theme, Padding, Task,};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use widgets::{color_picker, collapsible::collapsible};
 use widgets::generic_overlay;
 use iced::clipboard;
-use crate::code_gen_version_two::{generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code, generate_container_style_code, helpers::internal_overlay};
+use crate::code_gen_version_two::{generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code, generate_container_style_code, generate_rule_style_code, helpers::internal_overlay};
 use crate::{icon, styles};
-use crate::styles::style_enum::{SavedStyleDefinition, evaluate_theme_expression};
+use crate::styles::style_enum::{RuleFillMode, SavedStyleDefinition, evaluate_theme_expression};
 use tree_sitter_highlighter::{TsSettings, TreeSitterIcedHighlighter, code_gen_text_editor_style};
 
 
@@ -86,6 +86,7 @@ pub struct CustomThemes {
     shadow_offset_y: f32,
     shadow_blur_radius: f32,
     snap: bool,
+    rule_fill_mode: RuleFillMode,
 
     // source tracking for palette reference in color_picker
     text_color_source: Option<String>,
@@ -122,6 +123,7 @@ impl CustomThemes {
         styles.insert(ThemePaneEnum::Button, BTreeMap::new());
         styles.insert(ThemePaneEnum::Checkbox, BTreeMap::new());
         styles.insert(ThemePaneEnum::Combobox, BTreeMap::new());
+        styles.insert(ThemePaneEnum::Rule, BTreeMap::new());
 
         let mut new_instance = Self {
             theme: theme.clone(),
@@ -142,6 +144,7 @@ impl CustomThemes {
             shadow_offset_y: 0.0,
             shadow_blur_radius: 0.0,
             snap: true,
+            rule_fill_mode: RuleFillMode::Full,
             text_color_source: None,
             border_color_source: None,
             background_color_source: None,
@@ -255,6 +258,7 @@ impl CustomThemes {
             Message::UpdateShadowOffsetY(y) => self.shadow_offset_y = y,
             Message::UpdateShadowBlurRadius(blur_radius) => self.shadow_blur_radius = blur_radius,
             Message::UpdateSnap(enabled) => self.snap = enabled,
+            Message::UpdateRuleFillMode(mode) => self.rule_fill_mode = mode,
             Message::UpdateIconColor { color, source } => {
                 self.icon_color = color;
                 self.icon_color_source = source;
@@ -299,6 +303,7 @@ impl CustomThemes {
                         shadow_offset_y: self.shadow_offset_y,
                         shadow_blur_radius: self.shadow_blur_radius,
                         snap: self.snap,
+                        rule_fill_mode: self.rule_fill_mode.clone(),
                         icon_color: self.icon_color,
                         icon_color_source: self.icon_color_source.clone(),
                         placeholder_color: self.placeholder_color,
@@ -335,6 +340,7 @@ impl CustomThemes {
                         self.shadow_offset_y = definition.shadow_offset_y;
                         self.shadow_blur_radius = definition.shadow_blur_radius;
                         self.snap = definition.snap;
+                        self.rule_fill_mode = definition.rule_fill_mode.clone();
 
                         match &definition.text_color_source {
                             Some(expression) => {
@@ -465,6 +471,9 @@ impl CustomThemes {
             ThemePaneEnum::Combobox => {
                 self.regenerate_combo_box_code();
             }
+            ThemePaneEnum::Rule => {
+                self.regenerate_rule_code();
+            }
             _ => {}
         }
 
@@ -575,6 +584,21 @@ impl CustomThemes {
         self.style_code_content = text_editor::Content::with_text(&code);
     }
 
+    fn regenerate_rule_code(&mut self) {
+        let code = generate_rule_style_code(
+            &self.style_name,
+            self.border_color,
+            &self.border_color_source,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
+            &self.rule_fill_mode,
+            self.snap,
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
+    }
+
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, Message> {
         let content = match self.selected_view {
             ThemePaneEnum::ExtendedPalette => self.show_theme_colors(theme),
@@ -665,7 +689,7 @@ impl CustomThemes {
                             styles::button::selected_text
                         } else { button::text }
                     )
-                    , //.on_press(Message::ChangeView(ThemePaneEnum::Rule)),
+                    .on_press(Message::ChangeView(ThemePaneEnum::Rule)),
                 button("Slider")
                     .style(
                         if self.selected_view == ThemePaneEnum::Slider {
@@ -712,29 +736,33 @@ impl CustomThemes {
 
         let content = column![
             container(text(format!("{} Style", self.selected_view)).size(20)).center_x(Length::Fill),
-            row![
-                column![
-                    container(text("text_color").size(16)).center_x(Length::Fill),
-                    color_picker::ColorButton::new(self.text_color)
-                        .on_change_with_source(|color, source| Message::UpdateTextColor { color, source })
-                        .title("text_color")
-                        .width(Length::Fill)
-                        .height(Length::Fixed(50.0))
-                        .show_hex(),
-                ]
-                .width(Length::FillPortion(1)),
+            if self.selected_view != ThemePaneEnum::Rule {
+                row![
+                    column![
+                        container(text("text_color").size(16)).center_x(Length::Fill),
+                        color_picker::ColorButton::new(self.text_color)
+                            .on_change_with_source(|color, source| Message::UpdateTextColor { color, source })
+                            .title("text_color")
+                            .width(Length::Fill)
+                            .height(Length::Fixed(50.0))
+                            .show_hex(),
+                    ]
+                    .width(Length::FillPortion(1)),
 
-                column![
-                    container(text("background color").size(16)).center_x(Length::Fill),
-                    color_picker::ColorButton::new(self.background_color)
-                        .on_change_with_source(|color, source| Message::UpdateBackgroundColor { color, source })
-                        .title("background color")
-                        .width(Length::Fill)
-                        .height(Length::Fixed(50.0))
-                        .show_hex(),
-                ]
-                .width(Length::FillPortion(1)),
-            ].spacing(10),
+                    column![
+                        container(text("background color").size(16)).center_x(Length::Fill),
+                        color_picker::ColorButton::new(self.background_color)
+                            .on_change_with_source(|color, source| Message::UpdateBackgroundColor { color, source })
+                            .title("background color")
+                            .width(Length::Fill)
+                            .height(Length::Fixed(50.0))
+                            .show_hex(),
+                    ]
+                    .width(Length::FillPortion(1)),
+                ].spacing(10)
+            } else {
+                row![]
+            },
 
             if self.selected_view == ThemePaneEnum::Checkbox || self.selected_view == ThemePaneEnum::Combobox {
                 row![
@@ -809,6 +837,53 @@ impl CustomThemes {
                 column![]
             },
 
+            if self.selected_view == ThemePaneEnum::Rule {
+                column![
+                    container(text("Fill Mode").size(20)).center_x(Length::Fill),
+                    row![
+                        button("Full")
+                            .style(if matches!(self.rule_fill_mode, RuleFillMode::Full) { styles::button::selected_text } else { button::text })
+                            .on_press(Message::UpdateRuleFillMode(RuleFillMode::Full)),
+                        button("Percent")
+                            .style(if matches!(self.rule_fill_mode, RuleFillMode::Percent(_)) { styles::button::selected_text } else { button::text })
+                            .on_press(Message::UpdateRuleFillMode(RuleFillMode::Percent(80.0))),
+                        button("Padded")
+                            .style(if matches!(self.rule_fill_mode, RuleFillMode::Padded(_)) { styles::button::selected_text } else { button::text })
+                            .on_press(Message::UpdateRuleFillMode(RuleFillMode::Padded(10))),
+                        button("Asymmetric")
+                            .style(if matches!(self.rule_fill_mode, RuleFillMode::AsymmetricPadding(_, _)) { styles::button::selected_text } else { button::text })
+                            .on_press(Message::UpdateRuleFillMode(RuleFillMode::AsymmetricPadding(10, 20))),
+                    ].spacing(5).wrap(),
+                    match &self.rule_fill_mode {
+                        RuleFillMode::Percent(p) => {
+                            let p = *p;
+                            column![
+                                text(format!("Percent: {:.0}%", p)).size(14),
+                                slider(1.0..=100.0, p, |v| Message::UpdateRuleFillMode(RuleFillMode::Percent(v))).step(1.0),
+                            ].spacing(5)
+                        }
+                        RuleFillMode::Padded(pad) => {
+                            let pad = *pad;
+                            column![
+                                text(format!("Padding: {}", pad)).size(14),
+                                slider(0.0..=100.0, pad as f32, |v| Message::UpdateRuleFillMode(RuleFillMode::Padded(v as u16))).step(1.0),
+                            ].spacing(5)
+                        }
+                        RuleFillMode::AsymmetricPadding(a, b) => {
+                            let (a, b) = (*a, *b);
+                            column![
+                                text(format!("Left: {}  Right: {}", a, b)).size(14),
+                                slider(0.0..=100.0, a as f32, move |v| Message::UpdateRuleFillMode(RuleFillMode::AsymmetricPadding(v as u16, b))).step(1.0),
+                                slider(0.0..=100.0, b as f32, move |v| Message::UpdateRuleFillMode(RuleFillMode::AsymmetricPadding(a, v as u16))).step(1.0),
+                            ].spacing(5)
+                        }
+                        _ => column![],
+                    },
+                ].spacing(10)
+            } else {
+                column![]
+            },
+
             column![
                 container(text("Border").size(20)).center_x(Length::Fill),
 
@@ -872,73 +947,75 @@ impl CustomThemes {
 
             ].spacing(10),
 
-            // Shadow
-            column![
-                container(text("Shadow").size(20)).center_x(Length::Fill),
-                
-                row![
-                    column![
-                        Space::new().width(Length::Fill).height(Length::Fixed(10.0)),
-                        checkbox(self.shadow_enabled)
-                            .on_toggle(Message::UpdateShadowEnabled)
-                            .label("Enable Shadow"),
-                    ].width(Length::FillPortion(1)).height(Length::Fixed(50.0)),
+            // Shadow (not applicable to Rule)
+            if self.selected_view != ThemePaneEnum::Rule {
+                column![
+                    container(text("Shadow").size(20)).center_x(Length::Fill),
+
+                    row![
+                        column![
+                            Space::new().width(Length::Fill).height(Length::Fixed(10.0)),
+                            checkbox(self.shadow_enabled)
+                                .on_toggle(Message::UpdateShadowEnabled)
+                                .label("Enable Shadow"),
+                        ].width(Length::FillPortion(1)).height(Length::Fixed(50.0)),
+
+                        if self.shadow_enabled {
+                            column![
+                                container(text("shadow color").size(16)).center_x(Length::Fill),
+
+                                color_picker::ColorButton::new(self.shadow_color)
+                                    .on_change_with_source(|color, source| Message::UpdateShadowColor { color, source })
+                                    .title("shadow color")
+                                    .width(Length::Fill)
+                                    .height(Length::Fixed(50.0))
+                                    .show_hex()
+                            ]
+                            .width(Length::FillPortion(1))
+                        } else { column![].width(Length::FillPortion(1)) }
+                    ].align_y(Alignment::Start),
 
                     if self.shadow_enabled {
                         column![
-                            container(text("shadow color").size(16)).center_x(Length::Fill),
-
-                            color_picker::ColorButton::new(self.shadow_color)
-                                .on_change_with_source(|color, source| Message::UpdateShadowColor { color, source })
-                                .title("shadow color")
-                                .width(Length::Fill)
-                                .height(Length::Fixed(50.0))
-                                .show_hex()
+                            row![
+                                column![
+                                    text("Offset X").size(12),
+                                    slider(-20.0..=20.0, self.shadow_offset_x, Message::UpdateShadowOffsetX)
+                                    .step(1.0),
+                                    text(format!("{:.0}", self.shadow_offset_x)).size(12).center(),
+                                ],
+                                column![
+                                    text("Offset Y").size(12),
+                                    slider(-20.0..=20.0, self.shadow_offset_y, Message::UpdateShadowOffsetY)
+                                    .step(1.0),
+                                    text(format!("{:.0}", self.shadow_offset_y)).size(12).center(),
+                                ],
+                            ]
+                            .spacing(15),
+                            column![
+                                text("Blur Radius").size(12),
+                                slider(0.0..=50.0, self.shadow_blur_radius, Message::UpdateShadowBlurRadius)
+                                .step(1.0),
+                                text(format!("{:.0}", self.shadow_blur_radius)).size(12).center(),
+                            ],
                         ]
-                        .width(Length::FillPortion(1))
-                    } else { column![].width(Length::FillPortion(1)) }
-                ].align_y(Alignment::Start),
+                        .spacing(10)
+                    } else {
+                        column![]
+                    },
 
-
-
-                if self.shadow_enabled {
+                    // Snap
                     column![
-                        row![
-                            column![
-                                text("Offset X").size(12),
-                                slider(-20.0..=20.0, self.shadow_offset_x, Message::UpdateShadowOffsetX)
-                                .step(1.0),
-                                text(format!("{:.0}", self.shadow_offset_x)).size(12).center(),
-                            ],
-                            column![
-                                text("Offset Y").size(12),
-                                slider(-20.0..=20.0, self.shadow_offset_y, Message::UpdateShadowOffsetY)
-                                .step(1.0),
-                                text(format!("{:.0}", self.shadow_offset_y)).size(12).center(),
-                            ],
-                        ]
-                        .spacing(15),
-                        column![
-                            text("Blur Radius").size(12),
-                            slider(0.0..=50.0, self.shadow_blur_radius, Message::UpdateShadowBlurRadius)
-                            .step(1.0),
-                            text(format!("{:.0}", self.shadow_blur_radius)).size(12).center(),
-                        ],
-                    ]
-                    .spacing(10)
-                } else {
-                    column![]
-                },
-
-                // Snap
-                column![
-                    container(text("Snap").size(20)).center_x(Length::Fill),
-                    checkbox(self.snap)
-                        .label("Enable Snap")
-                        .on_toggle(Message::UpdateSnap),
-                ].spacing(10),
-            ]
-            .spacing(10),
+                        container(text("Snap").size(20)).center_x(Length::Fill),
+                        checkbox(self.snap)
+                            .label("Enable Snap")
+                            .on_toggle(Message::UpdateSnap),
+                    ].spacing(10),
+                ]
+                .spacing(10)
+            } else {
+                column![]
+            },
         ]
         .spacing(15)
         .padding(15);
@@ -994,6 +1071,20 @@ impl CustomThemes {
                                         border: input_style.border,
                                         shadow: Shadow::default(),
                                         snap: false,
+                                    }
+                                }
+                                ThemePaneEnum::Rule => {
+                                    let rule_style = definition.to_rule_style(&theme);
+                                    container::Style {
+                                        text_color: None,
+                                        background: Some(Background::Color(rule_style.color)),
+                                        border: Border {
+                                            color: rule_style.color,
+                                            width: 1.0,
+                                            radius: rule_style.radius,
+                                        },
+                                        shadow: Shadow::default(),
+                                        snap: rule_style.snap,
                                     }
                                 }
                                 _ => container::Style::default(),
@@ -1197,6 +1288,34 @@ impl CustomThemes {
                     })
                     .into()
             }
+            ThemePaneEnum::Rule => {
+                let fill_mode = match &self.rule_fill_mode {
+                    RuleFillMode::Full => rule::FillMode::Full,
+                    RuleFillMode::Percent(p) => rule::FillMode::Percent(*p),
+                    RuleFillMode::Padded(p) => rule::FillMode::Padded(*p),
+                    RuleFillMode::AsymmetricPadding(a, b) => rule::FillMode::AsymmetricPadding(*a, *b),
+                };
+                let border_color = self.border_color;
+                let border_radius = iced::border::Radius {
+                    top_left: self.border_radius_top_left,
+                    top_right: self.border_radius_top_right,
+                    bottom_right: self.border_radius_bottom_right,
+                    bottom_left: self.border_radius_bottom_left,
+                };
+                let snap = self.snap;
+                column![
+                    text("Rule Preview").size(16),
+                    rule::horizontal(2)
+                        .style(move |_theme| rule::Style {
+                            color: border_color,
+                            radius: border_radius,
+                            fill_mode: fill_mode.clone(),
+                            snap,
+                        }),
+                ]
+                .spacing(10)
+                .into()
+            }
             ThemePaneEnum::Container => {
                 let preview_style = self.create_current_preview_style(theme);
                 container(
@@ -1244,7 +1363,7 @@ impl CustomThemes {
         let code_view = {
             // Generate code based on selected widget type
             let (code_element, code_string): (Element<'_, Message>, String) = match self.selected_view {
-                ThemePaneEnum::Button | ThemePaneEnum::Container | ThemePaneEnum::Checkbox | ThemePaneEnum::Combobox => {
+                ThemePaneEnum::Button | ThemePaneEnum::Container | ThemePaneEnum::Checkbox | ThemePaneEnum::Combobox | ThemePaneEnum::Rule => {
                     let code_string = self.style_code_content.text();
                     let settings = TsSettings {
                         text: Arc::<str>::from(code_string.as_str()),
@@ -1537,6 +1656,17 @@ impl CustomThemes {
                 self.shadow_offset_y = 2.0;
                 self.shadow_blur_radius = 8.0;
                 self.snap = false;
+            }
+            ThemePaneEnum::Rule => {
+                self.border_color = palette.background.strong.color;
+                self.border_color_source = Some("palette.background.strong.color".to_string());
+                self.border_width = 1.0;
+                self.border_radius_top_left = 0.0;
+                self.border_radius_top_right = 0.0;
+                self.border_radius_bottom_right = 0.0;
+                self.border_radius_bottom_left = 0.0;
+                self.rule_fill_mode = RuleFillMode::Full;
+                self.snap = true;
             }
             // For other views, just reset to the base theme defaults for now
             _ => {
@@ -2055,6 +2185,7 @@ pub enum Message {
     UpdateShadowOffsetY(f32),
     UpdateShadowBlurRadius(f32),
     UpdateSnap(bool),
+    UpdateRuleFillMode(RuleFillMode),
     UpdateIconColor { color: Color, source: Option<String> },
     UpdatePlaceholderColor { color: Color, source: Option<String> },
     UpdateSelectionColor { color: Color, source: Option<String> },

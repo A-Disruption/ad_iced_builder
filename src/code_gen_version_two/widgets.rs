@@ -1,4 +1,5 @@
 use super::builder::{CodeBuilder, to_pascal_case, to_snake_case};
+use super::events::ViewRefInfo;
 use crate::data_structures::types::types::{WidgetType, Widget, WidgetId};
 use crate::data_structures::types::type_implementations::*;
 use crate::enum_builder::TypeSystem;
@@ -14,38 +15,39 @@ pub fn generate_widget_code(
     use_self: bool,
     custom_styles: &CustomThemes,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     match widget.widget_type {
-        WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Button => generate_button(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::Checkbox => generate_checkbox(b, widget, names, use_self),
-        WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Column => generate_column(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::ComboBox => generate_combobox(b, widget, names, custom_styles, use_self),
-        WidgetType::Container => generate_container(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Container => generate_container(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::Image => generate_image(b, widget),
         WidgetType::Markdown => generate_markdown(b, widget, names, use_self),
-        WidgetType::MouseArea => generate_mousearea(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::MouseArea => generate_mousearea(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::PickList => generate_picklist(b, widget, names, use_self),
-        WidgetType::Pin => generate_pin(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Pin => generate_pin(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::ProgressBar => generate_progressbar(b, widget),
         WidgetType::QRCode => generate_qrcode(b, widget),
         WidgetType::Radio => generate_radio(b, widget, names, use_self),
-        WidgetType::Row => generate_row(b, widget, names, custom_styles, use_self, type_system),
-        WidgetType::Rule => generate_rule(b, widget),
-        WidgetType::Scrollable => generate_scrollable(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Row => generate_row(b, widget, names, custom_styles, use_self, type_system, view_refs),
+        WidgetType::Rule => generate_rule(b, widget, custom_styles),
+        WidgetType::Scrollable => generate_scrollable(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::Slider => generate_slider(b, widget, names, use_self),
         WidgetType::Space => generate_space(b, widget),
-        WidgetType::Stack => generate_stack(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Stack => generate_stack(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::Svg => generate_svg(b, widget),
         WidgetType::Text => generate_text(b, widget),
         WidgetType::TextInput => generate_textinput(b, widget, names, use_self),
         WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
-        WidgetType::Themer => generate_themer(b, widget, names, custom_styles, use_self, type_system),
-        WidgetType::Grid => generate_grid(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Themer => generate_themer(b, widget, names, custom_styles, use_self, type_system, view_refs),
+        WidgetType::Grid => generate_grid(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::Toggler => generate_toggler(b, widget, names, use_self),
-        WidgetType::Tooltip => generate_tooltip(b, widget, names, custom_styles, use_self, type_system),
+        WidgetType::Tooltip => generate_tooltip(b, widget, names, custom_styles, use_self, type_system, view_refs),
         WidgetType::VerticalSlider => generate_verticalslider(b, widget, names, use_self),
         WidgetType::Icon => generate_icon(b, widget),
-        WidgetType::ViewReference => {}
+        WidgetType::ViewReference => generate_view_reference(b, widget, view_refs),
     }
 }
 
@@ -97,7 +99,7 @@ fn generate_space(b: &mut CodeBuilder, widget: &Widget) {
     }
 }
 
-fn generate_rule(b: &mut CodeBuilder, widget: &Widget) {
+fn generate_rule(b: &mut CodeBuilder, widget: &Widget, custom_styles: &CustomThemes) {
     let props = &widget.properties;
 
     b.indent();
@@ -106,6 +108,14 @@ fn generate_rule(b: &mut CodeBuilder, widget: &Widget) {
         Orientation::Vertical => b.push("rule::vertical"),
     }
     b.push(&format!("({})", props.rule_thickness));
+
+    if let Some(ref style_name) = props.custom_style_name {
+        if custom_styles.styles().get(&ThemePaneEnum::Rule).is_some() {
+            b.increase_indent();
+            b.add_style("styles::rule", &style_name.to_lowercase());
+            b.decrease_indent();
+        }
+    }
 }
 
 fn generate_progressbar(b: &mut CodeBuilder, widget: &Widget) {
@@ -182,11 +192,8 @@ fn generate_icon(b: &mut CodeBuilder, widget: &Widget) {
     let props = &widget.properties;
 
     b.indent();
-    b.push(&format!("text(\"\\u{{{:04X}}}\")", props.icon_codepoint));
+    b.push(&format!("icon::{}()", props.icon_name));
     b.increase_indent();
-
-    // Font is always required for Lucide icons
-    b.dot_method("font", "Font::with_name(\"lucide\")");
 
     if props.icon_size != 24.0 {
         b.add_size(props.icon_size);
@@ -210,6 +217,7 @@ fn generate_button(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
 
@@ -224,7 +232,7 @@ fn generate_button(
         b.push(&format!("text(\"{}\")", widget.properties.text_content));
     } else {
         // Recurse into the single child element
-        generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+        generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system, view_refs);
     }
 
     b.newline();
@@ -722,6 +730,7 @@ fn generate_column(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     b.indent();
     b.push("column![");
@@ -735,7 +744,7 @@ fn generate_column(
             b.newline();
         } else {
             for (i, child) in widget.children.iter().enumerate() {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
                 if i < widget.children.len() - 1 {
                     b.push(",");
                 }
@@ -787,6 +796,7 @@ fn generate_row(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -802,7 +812,7 @@ fn generate_row(
             b.newline();
         } else {
             for (i, child) in widget.children.iter().enumerate() {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
                 if i < widget.children.len() - 1 {
                     b.push(",");
                 }
@@ -863,6 +873,7 @@ fn generate_container(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -877,7 +888,7 @@ fn generate_container(
             b.push("text(\"Container Content\")");
         } else {
             for child in &widget.children {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
             }
         }
     } else {
@@ -960,6 +971,7 @@ fn generate_scrollable(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -987,7 +999,7 @@ fn generate_scrollable(
             b.push("]");
         } else {
             for child in &widget.children {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
             }
         }
     } else {
@@ -1039,6 +1051,7 @@ fn generate_stack(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -1056,7 +1069,7 @@ fn generate_stack(
             b.push("text(\"Layer 2\"),");
         } else {
             for (i, child) in widget.children.iter().enumerate() {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
                 if i < widget.children.len() - 1 {
                     b.push(",");
                 }
@@ -1089,6 +1102,7 @@ fn generate_mousearea(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
@@ -1100,7 +1114,7 @@ fn generate_mousearea(
     b.increase_indent();
     if use_self {
         if !widget.children.is_empty() {
-            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system, view_refs);
         }
     } else {
         b.indent();
@@ -1139,6 +1153,7 @@ fn generate_tooltip(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -1149,7 +1164,7 @@ fn generate_tooltip(
 
     if use_self {
         if let Some(host) = widget.children.get(0) {
-            generate_widget_code(b, host, names, use_self, custom_styles, type_system);
+            generate_widget_code(b, host, names, use_self, custom_styles, type_system, view_refs);
         } else {
             b.indent();
             b.push("text(\"Hover me\")");
@@ -1158,7 +1173,7 @@ fn generate_tooltip(
         b.newline();
 
         if let Some(content) = widget.children.get(1) {
-            generate_widget_code(b, content, names, use_self, custom_styles, type_system);
+            generate_widget_code(b, content, names, use_self, custom_styles, type_system, view_refs);
         } else {
             b.indent();
             b.push(&format!("text(\"{}\")", props.tooltip_text));
@@ -1197,6 +1212,7 @@ fn generate_grid(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -1211,7 +1227,7 @@ fn generate_grid(
             b.push("text(\"Grid Cell\").into(),");
         } else {
             for (i, child) in widget.children.iter().enumerate() {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
                 b.push(".into()");
                 if i < widget.children.len() - 1 {
                     b.push(",");
@@ -1251,6 +1267,7 @@ fn generate_themer(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
     let name = names.get(&widget.id).unwrap_or(&"widget".to_string()).clone();
@@ -1297,7 +1314,7 @@ fn generate_themer(
             b.push("container(text(\"Themed content\"))");
         } else {
             for child in &widget.children {
-                generate_widget_code(b, child, names, use_self, custom_styles, type_system);
+                generate_widget_code(b, child, names, use_self, custom_styles, type_system, view_refs);
             }
         }
     } else {
@@ -1318,6 +1335,7 @@ fn generate_pin(
     custom_styles: &CustomThemes,
     use_self: bool,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
 
@@ -1328,7 +1346,7 @@ fn generate_pin(
 
     if use_self {
         if !widget.children.is_empty() {
-            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system);
+            generate_widget_code(b, &widget.children[0], names, use_self, custom_styles, type_system, view_refs);
         } else {
             b.indent();
             b.push("text(\"Pinned Content\")");
@@ -1494,5 +1512,23 @@ fn generate_table(
         b.newline();
         b.indent();
         b.push("text(\"Table: Select a struct type\")");
+    }
+}
+
+fn generate_view_reference(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    view_refs: &[ViewRefInfo],
+) {
+    if let Some(vr) = view_refs.iter().find(|vr| vr.widget_id == widget.id) {
+        let variant = to_pascal_case(&vr.field_name);
+        b.indent();
+        b.push(&format!(
+            "self.{}.view().map(|msg| Message::ViewMessages(ViewMessages::{}(msg)))",
+            vr.field_name, variant
+        ));
+    } else {
+        b.indent();
+        b.push("text(\"ViewReference: not resolved\")");
     }
 }

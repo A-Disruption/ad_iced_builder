@@ -1,5 +1,6 @@
-use super::builder::{CodeBuilder, to_snake_case};
+use super::builder::{CodeBuilder, to_snake_case, to_pascal_case};
 use super::{events, view};
+use super::events::ViewRefInfo;
 use super::window_settings::{generate_window_settings, window_settings_are_default};
 use crate::data_structures::types::types::{Widget, WidgetType, WidgetId, WindowConfig};
 use crate::views::theme_and_stylefn_builder::CustomThemes;
@@ -13,11 +14,17 @@ pub fn generate_app_struct(
     names: &HashMap<WidgetId, String>,
     struct_name: &str,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+    is_main: bool,
 ) {
     b.newline();
-    b.line(&format!("struct {} {{", struct_name));
+    if is_main {
+        b.line(&format!("struct {} {{", struct_name));
+    } else {
+        b.line(&format!("pub struct {} {{", struct_name));
+    }
     b.increase_indent();
-    generate_state_fields(b, root, names, type_system);
+    generate_state_fields(b, root, names, type_system, view_refs);
     b.decrease_indent();
     b.line("}");
 }
@@ -30,11 +37,12 @@ pub fn generate_impl(
     main_config: Option<(&WindowConfig, &Theme)>,
     type_system: &TypeSystem,
     custom_styles: &CustomThemes,
+    view_refs: &[ViewRefInfo],
 ) {
     b.line(&format!("impl {} {{", struct_name));
     b.increase_indent();
 
-    generate_new_method(b, root, names, type_system);
+    generate_new_method(b, root, names, type_system, view_refs);
     b.newline();
 
     // Only generate title, theme, and window settings if this is the Main App
@@ -46,9 +54,9 @@ pub fn generate_impl(
         generate_window_settings(b, window_config);
     }
 
-    events::generate_update(b, root, names);
+    events::generate_update(b, root, names, view_refs);
     b.newline();
-    view::generate_view_method(b, root, names, custom_styles, type_system);
+    view::generate_view_method(b, root, names, custom_styles, type_system, view_refs);
 
     b.newline();
     b.decrease_indent();
@@ -60,6 +68,7 @@ fn generate_state_fields(
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let name = names
         .get(&widget.id)
@@ -128,11 +137,16 @@ fn generate_state_fields(
                 }
             }
         }
+        WidgetType::ViewReference => {
+            if let Some(vr) = view_refs.iter().find(|vr| vr.widget_id == widget.id) {
+                b.line(&format!("{}: {},", vr.field_name, vr.struct_name));
+            }
+        }
         _ => {}
     }
 
     for child in &widget.children {
-        generate_state_fields(b, child, names, type_system);
+        generate_state_fields(b, child, names, type_system, view_refs);
     }
 }
 
@@ -141,6 +155,7 @@ fn generate_new_method(
     root: &Widget,
     names: &HashMap<WidgetId, String>,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     b.line("pub fn new() -> (Self, Task<Message>) {");
     b.increase_indent();
@@ -150,7 +165,7 @@ fn generate_new_method(
     b.line("Self {");
     b.increase_indent();
 
-    generate_state_initializers(b, root, names, type_system);
+    generate_state_initializers(b, root, names, type_system, view_refs);
 
     b.decrease_indent();
     b.line("},");
@@ -168,6 +183,7 @@ fn generate_state_initializers(
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
     type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
 ) {
     let props = &widget.properties;
     let name = names
@@ -272,11 +288,16 @@ fn generate_state_initializers(
                 }
             }
         }
+        WidgetType::ViewReference => {
+            if let Some(vr) = view_refs.iter().find(|vr| vr.widget_id == widget.id) {
+                b.line(&format!("{}: {}::new().0,", vr.field_name, vr.struct_name));
+            }
+        }
         _ => {}
     }
 
     for child in &widget.children {
-        generate_state_initializers(b, child, names, type_system);
+        generate_state_initializers(b, child, names, type_system, view_refs);
     }
 }
 
@@ -327,6 +348,7 @@ pub fn generate_main_function(
     b: &mut CodeBuilder,
     struct_name: &str,
     window_config: Option<&WindowConfig>,
+    uses_icon: bool,
 ) {
     b.line("pub fn main() -> iced::Result {");
     b.increase_indent();
@@ -354,6 +376,12 @@ pub fn generate_main_function(
     b.indent();
     b.push(&format!(".title({}::title)", struct_name));
     b.newline();
+
+    if uses_icon {
+        b.indent();
+        b.push(".font(icon::FONT)");
+        b.newline();
+    }
 
     b.indent();
     b.push(".run()");

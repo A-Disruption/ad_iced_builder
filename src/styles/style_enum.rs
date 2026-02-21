@@ -1,7 +1,16 @@
-use iced::widget::{button, checkbox, container, text_input, overlay::menu};
+use iced::widget::{button, checkbox, container, rule, text_input, overlay::menu};
 use iced::{Background, Border, Color, Shadow, Theme};
 
 use crate::views::theme_and_stylefn_builder::ThemePaneEnum;
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub enum RuleFillMode {
+    #[default]
+    Full,
+    Percent(f32),
+    Padded(u16),
+    AsymmetricPadding(u16, u16),
+}
 
 #[derive(Debug, Clone)]
 pub struct SavedStyleDefinition  {
@@ -26,6 +35,7 @@ pub struct SavedStyleDefinition  {
     pub shadow_offset_y: f32,
     pub shadow_blur_radius: f32,
     pub snap: bool,
+    pub rule_fill_mode: RuleFillMode,
     pub icon_color: Color,
     pub icon_color_source: Option<String>,
     pub placeholder_color: Color,
@@ -294,6 +304,33 @@ impl SavedStyleDefinition {
                 ..base
             },
         }        
+    }
+
+    pub fn to_rule_style(&self, theme: &Theme) -> rule::Style {
+        let color = if let Some(ref source) = self.border_color_source {
+            evaluate_theme_expression(theme, source).unwrap_or(self.border_color)
+        } else {
+            self.border_color
+        };
+
+        let fill_mode = match &self.rule_fill_mode {
+            RuleFillMode::Full => rule::FillMode::Full,
+            RuleFillMode::Percent(p) => rule::FillMode::Percent(*p),
+            RuleFillMode::Padded(p) => rule::FillMode::Padded(*p),
+            RuleFillMode::AsymmetricPadding(a, b) => rule::FillMode::AsymmetricPadding(*a, *b),
+        };
+
+        rule::Style {
+            color,
+            radius: iced::border::Radius {
+                top_left: self.border_radius_top_left,
+                top_right: self.border_radius_top_right,
+                bottom_right: self.border_radius_bottom_right,
+                bottom_left: self.border_radius_bottom_left,
+            },
+            fill_mode,
+            snap: self.snap,
+        }
     }
 
     pub fn to_combo_box_menu_style(&self, theme: &Theme) -> menu::Style {

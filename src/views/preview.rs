@@ -733,10 +733,19 @@ fn build_widget_preview<'a>(
         }
 
         WidgetType::Rule => {
-            match props.orientation {
-                Orientation::Horizontal => rule::horizontal(props.rule_thickness).into(),
-                Orientation::Vertical => rule::vertical(props.rule_thickness).into(),
+            let mut r = match props.orientation {
+                Orientation::Horizontal => rule::horizontal(props.rule_thickness),
+                Orientation::Vertical => rule::vertical(props.rule_thickness),
+            };
+            if let Some(style_name) = &props.custom_style_name {
+                if let Some(style_map) = custom_themes.styles().get(&ThemePaneEnum::Rule) {
+                    if let Some(style_definition) = style_map.get(style_name) {
+                        let style = style_definition.to_rule_style(theme);
+                        r = r.style(move |_theme| style);
+                    }
+                }
             }
+            r.into()
         }
 
         WidgetType::Image => {

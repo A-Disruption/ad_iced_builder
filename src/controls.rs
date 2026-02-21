@@ -851,7 +851,13 @@ pub fn text_input_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _the
 
             let picker = overlay_button(trigger, "Select Icon", picker_content)
                 .overlay_width(650.0)
-                .overlay_height(450.0);
+                .overlay_height(450.0)
+                .hide_header()
+                .close_on_click_outside()
+                .hover_positions_on_click()
+                .hover_position(widgets::generic_overlay::Position::Right)
+                .hover_gap(5.0)
+                .hover_alignment(Alignment::Start);
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -1474,12 +1480,14 @@ pub fn vertical_slider_controls<'a>(hierarchy: &'a WidgetHierarchy, widget_id: W
     ).into()
 }
 
-pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, _custom_styles: &CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
+pub fn rule_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &Theme, _type_system: &'a TypeSystem, custom_styles: &'a CustomThemes, preview_content: &'a text_editor::Content,) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).unwrap();
     let p = &widget.properties;
 
     let content = column![
         text("Rule Properties").size(TITLE_SIZE),
+
+        custom_style_picker(custom_styles, widget_id, p, ThemePaneEnum::Rule),
 
         column![
             text("Orientation").size(LABEL_SIZE),
@@ -2185,7 +2193,13 @@ pub fn combobox_controls<'a>(
 
             let picker = overlay_button(trigger, "Select Icon", picker_content)
                 .overlay_width(650.0)
-                .overlay_height(450.0);
+                .overlay_height(450.0)
+                .hide_header()
+                .close_on_click_outside()
+                .hover_positions_on_click()
+                .hover_position(widgets::generic_overlay::Position::Right)
+                .hover_gap(5.0)
+                .hover_alignment(Alignment::Start);
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -3011,7 +3025,13 @@ pub fn icon_controls<'a>(h: &'a WidgetHierarchy, widget_id: WidgetId, _theme: &T
 
     let picker = overlay_button(trigger, "Select Icon", picker_content)
         .overlay_width(650.0)
-        .overlay_height(450.0);
+        .overlay_height(450.0)
+        .hide_header()
+        .close_on_click_outside()
+        .hover_positions_on_click()
+        .hover_position(widgets::generic_overlay::Position::Right)
+        .hover_gap(5.0)
+        .hover_alignment(Alignment::Start);
 
     let content = column![
         text("Icon Properties").size(TITLE_SIZE),
