@@ -290,7 +290,7 @@ impl ImportTracker {
     }
 }
 
-pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) -> ImportTracker {
+pub fn generate_imports(b: &mut CodeBuilder, root: &Widget, is_main: bool) -> ImportTracker {
     let mut tracker = ImportTracker::new();
     tracker.scan_widget(root);
 
@@ -366,7 +366,11 @@ pub fn generate_imports(b: &mut CodeBuilder, root: &Widget) -> ImportTracker {
     b.line("};");
 
     if tracker.uses_icon {
-        b.line("mod icon;");
+        if is_main {
+            b.line("mod icon;");
+        } else {
+            b.line("use crate::icon;");
+        }
     }
 
     tracker

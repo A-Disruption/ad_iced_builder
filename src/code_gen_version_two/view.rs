@@ -17,24 +17,9 @@ pub fn generate_view_method(
     b.line("pub fn view<'a>(&'a self) -> Element<'a, Message> {");
     b.increase_indent();
 
-    if root.children.is_empty() {
-        b.indent();
-        b.push("container(text(\"Empty\"))");
-    } else {
-        b.indent();
-        b.push("container(");
-        b.newline();
-        b.increase_indent();
-
-        root.children.iter().for_each(|widget|
-            generate_widget_code(b, widget, names, true, custom_styles, type_system, view_refs)
-        );
-
-        b.decrease_indent();
-        b.newline();
-        b.indent();
-        b.push(")");
-    }
+    // The root is always a Container widget with user-configured properties (width, height, style, etc.)
+    // Generate it directly so all its properties are applied.
+    generate_widget_code(b, root, names, true, custom_styles, type_system, view_refs);
 
     b.push(".into()");
     b.newline();

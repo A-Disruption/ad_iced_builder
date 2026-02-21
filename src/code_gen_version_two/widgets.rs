@@ -255,11 +255,15 @@ fn generate_button(
 
     match widget.properties.custom_style_name.clone() {
         Some(style) => {
-            if let Some(_style_map) = custom_styles.styles().get(&ThemePaneEnum::Button) {
+            let is_custom = custom_styles.styles()
+                .get(&ThemePaneEnum::Button)
+                .map(|m| m.contains_key(style.as_str()))
+                .unwrap_or(false);
+            if is_custom {
                 b.add_style("styles::button", &style.to_lowercase());
             } else if ButtonStyleType::all().contains(&style) {
-                let style = ButtonStyleType::get(&style).unwrap();
-                match style {
+                let bst = ButtonStyleType::get(&style).unwrap();
+                match bst {
                     ButtonStyleType::Secondary => b.add_style("button", "secondary"),
                     ButtonStyleType::Success => b.add_style("button", "success"),
                     ButtonStyleType::Danger => b.add_style("button", "danger"),
@@ -955,7 +959,11 @@ fn generate_container(
     // Style generation — only when a named style has been explicitly assigned
     if let Some(ref style_name) = props.custom_style_name {
         let snake = to_snake_case(style_name);
-        if custom_styles.styles().get(&ThemePaneEnum::Container).is_some() {
+        let is_custom = custom_styles.styles()
+            .get(&ThemePaneEnum::Container)
+            .map(|m| m.contains_key(style_name.as_str()))
+            .unwrap_or(false);
+        if is_custom {
             b.add_style("styles::container", &snake);
         } else {
             // Built-in iced container style (e.g. bordered_box, rounded_box)

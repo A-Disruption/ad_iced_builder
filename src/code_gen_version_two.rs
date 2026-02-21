@@ -270,7 +270,7 @@ impl<'a> CodeGeneratorV2<'a> {
         };
 
         // -- Imports --
-        let tracker = events::generate_imports(&mut b, root);
+        let tracker = events::generate_imports(&mut b, root, view_entry.is_main);
 
         if has_types {
             if view_entry.is_main {
