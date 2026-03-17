@@ -8,6 +8,7 @@ pub const FONT: &[u8] = include_bytes!("../fonts/lucide.ttf");
 
 /// All icons as `(name, codepoint_str)` pairs.
 /// Use this to populate an icon-picker widget.
+#[allow(dead_code)]
 pub const ALL_ICONS: &[(&str, &str)] = &[
     ("a_arrow_down", "\u{E585}"),
     ("a_arrow_up", "\u{E586}"),
@@ -1699,570 +1700,571 @@ pub const ALL_ICONS: &[(&str, &str)] = &[
     ("zoom_out", "\u{E1B7}"),
 ];
 
+#[allow(dead_code)]
 pub fn a_arrow_down<'a>() -> Text<'a> {
     icon("\u{E585}")
 }
-
+#[allow(dead_code)]
 pub fn a_arrow_up<'a>() -> Text<'a> {
     icon("\u{E586}")
 }
-
+#[allow(dead_code)]
 pub fn a_large_small<'a>() -> Text<'a> {
     icon("\u{E587}")
 }
-
+#[allow(dead_code)]
 pub fn accessibility<'a>() -> Text<'a> {
     icon("\u{E297}")
 }
-
+#[allow(dead_code)]
 pub fn activity<'a>() -> Text<'a> {
     icon("\u{E038}")
 }
-
+#[allow(dead_code)]
 pub fn air_vent<'a>() -> Text<'a> {
     icon("\u{E34D}")
 }
-
+#[allow(dead_code)]
 pub fn airplay<'a>() -> Text<'a> {
     icon("\u{E039}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_clock<'a>() -> Text<'a> {
     icon("\u{E03A}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_clock_check<'a>() -> Text<'a> {
     icon("\u{E1EC}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_clock_minus<'a>() -> Text<'a> {
     icon("\u{E1ED}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_clock_off<'a>() -> Text<'a> {
     icon("\u{E23B}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_clock_plus<'a>() -> Text<'a> {
     icon("\u{E1EE}")
 }
-
+#[allow(dead_code)]
 pub fn alarm_smoke<'a>() -> Text<'a> {
     icon("\u{E57B}")
 }
-
+#[allow(dead_code)]
 pub fn album<'a>() -> Text<'a> {
     icon("\u{E03B}")
 }
-
+#[allow(dead_code)]
 pub fn align_center_horizontal<'a>() -> Text<'a> {
     icon("\u{E26C}")
 }
-
+#[allow(dead_code)]
 pub fn align_center_vertical<'a>() -> Text<'a> {
     icon("\u{E26D}")
 }
-
+#[allow(dead_code)]
 pub fn align_end_horizontal<'a>() -> Text<'a> {
     icon("\u{E26E}")
 }
-
+#[allow(dead_code)]
 pub fn align_end_vertical<'a>() -> Text<'a> {
     icon("\u{E26F}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_distribute_center<'a>() -> Text<'a> {
     icon("\u{E03C}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_distribute_end<'a>() -> Text<'a> {
     icon("\u{E03D}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_distribute_start<'a>() -> Text<'a> {
     icon("\u{E03E}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_justify_center<'a>() -> Text<'a> {
     icon("\u{E272}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_justify_end<'a>() -> Text<'a> {
     icon("\u{E273}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_justify_start<'a>() -> Text<'a> {
     icon("\u{E274}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_space_around<'a>() -> Text<'a> {
     icon("\u{E275}")
 }
-
+#[allow(dead_code)]
 pub fn align_horizontal_space_between<'a>() -> Text<'a> {
     icon("\u{E276}")
 }
-
+#[allow(dead_code)]
 pub fn align_start_horizontal<'a>() -> Text<'a> {
     icon("\u{E270}")
 }
-
+#[allow(dead_code)]
 pub fn align_start_vertical<'a>() -> Text<'a> {
     icon("\u{E271}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_distribute_center<'a>() -> Text<'a> {
     icon("\u{E27E}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_distribute_end<'a>() -> Text<'a> {
     icon("\u{E27F}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_distribute_start<'a>() -> Text<'a> {
     icon("\u{E280}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_justify_center<'a>() -> Text<'a> {
     icon("\u{E277}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_justify_end<'a>() -> Text<'a> {
     icon("\u{E278}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_justify_start<'a>() -> Text<'a> {
     icon("\u{E279}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_space_around<'a>() -> Text<'a> {
     icon("\u{E27A}")
 }
-
+#[allow(dead_code)]
 pub fn align_vertical_space_between<'a>() -> Text<'a> {
     icon("\u{E27B}")
 }
-
+#[allow(dead_code)]
 pub fn ambulance<'a>() -> Text<'a> {
     icon("\u{E5BB}")
 }
-
+#[allow(dead_code)]
 pub fn ampersand<'a>() -> Text<'a> {
     icon("\u{E49C}")
 }
-
+#[allow(dead_code)]
 pub fn ampersands<'a>() -> Text<'a> {
     icon("\u{E49D}")
 }
-
+#[allow(dead_code)]
 pub fn amphora<'a>() -> Text<'a> {
     icon("\u{E61B}")
 }
-
+#[allow(dead_code)]
 pub fn anchor<'a>() -> Text<'a> {
     icon("\u{E03F}")
 }
-
+#[allow(dead_code)]
 pub fn angry<'a>() -> Text<'a> {
     icon("\u{E2FC}")
 }
-
+#[allow(dead_code)]
 pub fn annoyed<'a>() -> Text<'a> {
     icon("\u{E2FD}")
 }
-
+#[allow(dead_code)]
 pub fn antenna<'a>() -> Text<'a> {
     icon("\u{E4E2}")
 }
-
+#[allow(dead_code)]
 pub fn anvil<'a>() -> Text<'a> {
     icon("\u{E580}")
 }
-
+#[allow(dead_code)]
 pub fn aperture<'a>() -> Text<'a> {
     icon("\u{E040}")
 }
-
+#[allow(dead_code)]
 pub fn app_window<'a>() -> Text<'a> {
     icon("\u{E426}")
 }
-
+#[allow(dead_code)]
 pub fn app_window_mac<'a>() -> Text<'a> {
     icon("\u{E5D2}")
 }
-
+#[allow(dead_code)]
 pub fn apple<'a>() -> Text<'a> {
     icon("\u{E34E}")
 }
-
+#[allow(dead_code)]
 pub fn archive<'a>() -> Text<'a> {
     icon("\u{E041}")
 }
-
+#[allow(dead_code)]
 pub fn archive_restore<'a>() -> Text<'a> {
     icon("\u{E2CD}")
 }
-
+#[allow(dead_code)]
 pub fn archive_x<'a>() -> Text<'a> {
     icon("\u{E50C}")
 }
-
+#[allow(dead_code)]
 pub fn armchair<'a>() -> Text<'a> {
     icon("\u{E2C0}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_down<'a>() -> Text<'a> {
     icon("\u{E1E1}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_down_dash<'a>() -> Text<'a> {
     icon("\u{E41D}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_left<'a>() -> Text<'a> {
     icon("\u{E1E2}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_left_dash<'a>() -> Text<'a> {
     icon("\u{E41E}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_right<'a>() -> Text<'a> {
     icon("\u{E1E3}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_right_dash<'a>() -> Text<'a> {
     icon("\u{E41F}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_up<'a>() -> Text<'a> {
     icon("\u{E1E4}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_big_up_dash<'a>() -> Text<'a> {
     icon("\u{E420}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down<'a>() -> Text<'a> {
     icon("\u{E042}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_0_1<'a>() -> Text<'a> {
     icon("\u{E413}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_1_0<'a>() -> Text<'a> {
     icon("\u{E414}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_a_z<'a>() -> Text<'a> {
     icon("\u{E415}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_from_line<'a>() -> Text<'a> {
     icon("\u{E454}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_left<'a>() -> Text<'a> {
     icon("\u{E043}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_narrow_wide<'a>() -> Text<'a> {
     icon("\u{E044}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_right<'a>() -> Text<'a> {
     icon("\u{E045}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_to_dot<'a>() -> Text<'a> {
     icon("\u{E44D}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_to_line<'a>() -> Text<'a> {
     icon("\u{E455}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_up<'a>() -> Text<'a> {
     icon("\u{E046}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_wide_narrow<'a>() -> Text<'a> {
     icon("\u{E047}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_down_z_a<'a>() -> Text<'a> {
     icon("\u{E416}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_left<'a>() -> Text<'a> {
     icon("\u{E048}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_left_from_line<'a>() -> Text<'a> {
     icon("\u{E456}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_left_right<'a>() -> Text<'a> {
     icon("\u{E24A}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_left_to_line<'a>() -> Text<'a> {
     icon("\u{E457}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_right<'a>() -> Text<'a> {
     icon("\u{E049}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_right_from_line<'a>() -> Text<'a> {
     icon("\u{E458}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_right_left<'a>() -> Text<'a> {
     icon("\u{E417}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_right_to_line<'a>() -> Text<'a> {
     icon("\u{E459}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up<'a>() -> Text<'a> {
     icon("\u{E04A}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_0_1<'a>() -> Text<'a> {
     icon("\u{E418}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_1_0<'a>() -> Text<'a> {
     icon("\u{E419}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_a_z<'a>() -> Text<'a> {
     icon("\u{E41A}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_down<'a>() -> Text<'a> {
     icon("\u{E37D}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_from_dot<'a>() -> Text<'a> {
     icon("\u{E44E}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_from_line<'a>() -> Text<'a> {
     icon("\u{E45A}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_left<'a>() -> Text<'a> {
     icon("\u{E04B}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_narrow_wide<'a>() -> Text<'a> {
     icon("\u{E04C}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_right<'a>() -> Text<'a> {
     icon("\u{E04D}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_to_line<'a>() -> Text<'a> {
     icon("\u{E45B}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_wide_narrow<'a>() -> Text<'a> {
     icon("\u{E41B}")
 }
-
+#[allow(dead_code)]
 pub fn arrow_up_z_a<'a>() -> Text<'a> {
     icon("\u{E41C}")
 }
-
+#[allow(dead_code)]
 pub fn arrows_up_from_line<'a>() -> Text<'a> {
     icon("\u{E4D4}")
 }
-
+#[allow(dead_code)]
 pub fn asterisk<'a>() -> Text<'a> {
     icon("\u{E1EF}")
 }
-
+#[allow(dead_code)]
 pub fn at_sign<'a>() -> Text<'a> {
     icon("\u{E04E}")
 }
-
+#[allow(dead_code)]
 pub fn atom<'a>() -> Text<'a> {
     icon("\u{E3D7}")
 }
-
+#[allow(dead_code)]
 pub fn audio_lines<'a>() -> Text<'a> {
     icon("\u{E55A}")
 }
-
+#[allow(dead_code)]
 pub fn audio_waveform<'a>() -> Text<'a> {
     icon("\u{E55B}")
 }
-
+#[allow(dead_code)]
 pub fn award<'a>() -> Text<'a> {
     icon("\u{E04F}")
 }
-
+#[allow(dead_code)]
 pub fn axe<'a>() -> Text<'a> {
     icon("\u{E050}")
 }
-
+#[allow(dead_code)]
 pub fn axis_3d<'a>() -> Text<'a> {
     icon("\u{E2FE}")
 }
-
+#[allow(dead_code)]
 pub fn baby<'a>() -> Text<'a> {
     icon("\u{E2CE}")
 }
-
+#[allow(dead_code)]
 pub fn backpack<'a>() -> Text<'a> {
     icon("\u{E2C8}")
 }
-
+#[allow(dead_code)]
 pub fn badge<'a>() -> Text<'a> {
     icon("\u{E474}")
 }
-
+#[allow(dead_code)]
 pub fn badge_alert<'a>() -> Text<'a> {
     icon("\u{E475}")
 }
-
+#[allow(dead_code)]
 pub fn badge_cent<'a>() -> Text<'a> {
     icon("\u{E50F}")
 }
-
+#[allow(dead_code)]
 pub fn badge_check<'a>() -> Text<'a> {
     icon("\u{E241}")
 }
-
+#[allow(dead_code)]
 pub fn badge_dollar_sign<'a>() -> Text<'a> {
     icon("\u{E476}")
 }
-
+#[allow(dead_code)]
 pub fn badge_euro<'a>() -> Text<'a> {
     icon("\u{E510}")
 }
-
+#[allow(dead_code)]
 pub fn badge_indian_rupee<'a>() -> Text<'a> {
     icon("\u{E511}")
 }
-
+#[allow(dead_code)]
 pub fn badge_info<'a>() -> Text<'a> {
     icon("\u{E477}")
 }
-
+#[allow(dead_code)]
 pub fn badge_japanese_yen<'a>() -> Text<'a> {
     icon("\u{E512}")
 }
-
+#[allow(dead_code)]
 pub fn badge_minus<'a>() -> Text<'a> {
     icon("\u{E478}")
 }
-
+#[allow(dead_code)]
 pub fn badge_percent<'a>() -> Text<'a> {
     icon("\u{E479}")
 }
-
+#[allow(dead_code)]
 pub fn badge_plus<'a>() -> Text<'a> {
     icon("\u{E47A}")
 }
-
+#[allow(dead_code)]
 pub fn badge_pound_sterling<'a>() -> Text<'a> {
     icon("\u{E513}")
 }
-
+#[allow(dead_code)]
 pub fn badge_question_mark<'a>() -> Text<'a> {
     icon("\u{E47B}")
 }
-
+#[allow(dead_code)]
 pub fn badge_russian_ruble<'a>() -> Text<'a> {
     icon("\u{E514}")
 }
-
+#[allow(dead_code)]
 pub fn badge_swiss_franc<'a>() -> Text<'a> {
     icon("\u{E515}")
 }
-
+#[allow(dead_code)]
 pub fn badge_turkish_lira<'a>() -> Text<'a> {
     icon("\u{E67E}")
 }
-
+#[allow(dead_code)]
 pub fn badge_x<'a>() -> Text<'a> {
     icon("\u{E47C}")
 }
-
+#[allow(dead_code)]
 pub fn baggage_claim<'a>() -> Text<'a> {
     icon("\u{E2C9}")
 }
-
+#[allow(dead_code)]
 pub fn balloon<'a>() -> Text<'a> {
     icon("\u{E6AF}")
 }
-
+#[allow(dead_code)]
 pub fn ban<'a>() -> Text<'a> {
     icon("\u{E051}")
 }
-
+#[allow(dead_code)]
 pub fn banana<'a>() -> Text<'a> {
     icon("\u{E34F}")
 }
-
+#[allow(dead_code)]
 pub fn bandage<'a>() -> Text<'a> {
     icon("\u{E61D}")
 }
-
+#[allow(dead_code)]
 pub fn banknote<'a>() -> Text<'a> {
     icon("\u{E052}")
 }
-
+#[allow(dead_code)]
 pub fn banknote_arrow_down<'a>() -> Text<'a> {
     icon("\u{E64C}")
 }
-
+#[allow(dead_code)]
 pub fn banknote_arrow_up<'a>() -> Text<'a> {
     icon("\u{E64D}")
 }
-
+#[allow(dead_code)]
 pub fn banknote_x<'a>() -> Text<'a> {
     icon("\u{E64E}")
 }
-
+#[allow(dead_code)]
 pub fn barcode<'a>() -> Text<'a> {
     icon("\u{E533}")
 }
-
+#[allow(dead_code)]
 pub fn barrel<'a>() -> Text<'a> {
     icon("\u{E675}")
 }
-
+#[allow(dead_code)]
 pub fn baseline<'a>() -> Text<'a> {
     icon("\u{E285}")
 }
-
+#[allow(dead_code)]
 pub fn bath<'a>() -> Text<'a> {
     icon("\u{E2AB}")
 }
-
+#[allow(dead_code)]
 pub fn battery<'a>() -> Text<'a> {
     icon("\u{E053}")
 }
-
+#[allow(dead_code)]
 pub fn battery_charging<'a>() -> Text<'a> {
     icon("\u{E054}")
 }
-
+#[allow(dead_code)]
 pub fn battery_full<'a>() -> Text<'a> {
     icon("\u{E055}")
 }
-
+#[allow(dead_code)]
 pub fn battery_low<'a>() -> Text<'a> {
     icon("\u{E056}")
 }
-
+#[allow(dead_code)]
 pub fn battery_medium<'a>() -> Text<'a> {
     icon("\u{E057}")
 }

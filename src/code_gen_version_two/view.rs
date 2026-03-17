@@ -2,8 +2,8 @@ use super::builder::CodeBuilder;
 use super::events::ViewRefInfo;
 use super::widgets::generate_widget_code;
 use crate::data_structures::types::types::{Widget, WidgetId};
-use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::enum_builder::TypeSystem;
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 use std::collections::HashMap;
 
 pub fn generate_view_method(

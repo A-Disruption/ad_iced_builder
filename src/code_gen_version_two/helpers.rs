@@ -1,15 +1,13 @@
-use iced::{Color, Element, Length};
 use iced::widget::button;
-use widgets::generic_overlay::OverlayButton;
+use iced::{Color, Element, Length};
 use widgets;
+use widgets::generic_overlay::OverlayButton;
 
 /// Format a color value as code, using theme source if available, otherwise RGBA.
 pub fn format_color_with_source(color: Color, source: &Option<String>) -> String {
     if let Some(src) = source {
         // Strip "theme.extended_palette()." prefix if present
-        let path = src
-            .strip_prefix("theme.extended_palette().")
-            .unwrap_or(src);
+        let path = src.strip_prefix("theme.extended_palette().").unwrap_or(src);
         format!("palette.{}", path)
     } else {
         format!(
@@ -60,7 +58,8 @@ pub fn format_shadow(
              {inner}blur_radius: {:.1},\n\
              {indent}}}",
             format_color_with_source(color, color_source),
-            offset_x, offset_y,
+            offset_x,
+            offset_y,
             blur_radius,
         )
     } else {
@@ -71,8 +70,8 @@ pub fn format_shadow(
 pub fn internal_overlay<'a, Message, Theme, Renderer>(
     hover_element: impl Into<Element<'a, Message, Theme, Renderer>>,
     copy_button: impl Into<Element<'a, Message, Theme, Renderer>>,
-) -> OverlayButton<'a, Message, Theme, Renderer> 
-where 
+) -> OverlayButton<'a, Message, Theme, Renderer>
+where
     Renderer: iced::advanced::Renderer + iced::advanced::text::Renderer,
     Theme: widgets::generic_overlay::Catalog + button::Catalog,
 {

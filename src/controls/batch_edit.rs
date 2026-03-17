@@ -1,89 +1,81 @@
-use iced::{ Alignment, Color, Element, Length, Padding, Theme };
-use iced::widget::{ container, button, column, pick_list, radio, row, rule, scrollable, slider, space, text, text_input};
-use crate::data_structures::widget_hierarchy::WidgetHierarchy;
-use crate::data_structures::types::type_implementations::*;
-use crate::data_structures::properties::properties::*;
+use super::control_styling::*;
 use crate::data_structures::properties::messages::*;
+use crate::data_structures::properties::properties::*;
+use crate::data_structures::types::type_implementations::*;
+use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::styles::container::*;
 use crate::views::add_widgets::Message;
-use super::control_styling::*;
+use iced::widget::{
+    button, column, container, pick_list, radio, row, rule, scrollable, slider, space, text,
+    text_input,
+};
+use iced::{Alignment, Color, Element, Length, Padding, Theme};
 
-pub fn batch_editor_controls<'a>(
-    hierarchy: &'a WidgetHierarchy,
-) -> Element<'a, Message> {
+pub fn batch_editor_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, Message> {
     let selected = hierarchy.get_selected_widgets();
     let selected_count = selected.len();
-    let common = hierarchy.common_properties.as_ref().expect("Should have Some() Common Properties");
-    
+    let common = hierarchy
+        .common_properties
+        .as_ref()
+        .expect("Should have Some() Common Properties");
 
     let mut content = column![
-        text(format!("Batch Editing {} Widgets", selected_count))
-            .size(20),
-        
+        text(format!("Batch Editing {} Widgets", selected_count)).size(20),
         text("Only common properties are shown. Changes apply to all selected widgets.")
             .size(12)
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        
         rule::horizontal(2),
     ]
     .spacing(10);
-    
+
     // Width and Height (all widgets have these)
     if common.has_width_height {
-        content = content.push(
-            batch_size_controls(common, hierarchy)
-        );
+        content = content.push(batch_size_controls(common, hierarchy));
     }
-    
+
     // Padding (only for widgets that support it)
     if common.has_padding {
-        content = content.push(
-            batch_padding_controls(common)
-        );
+        content = content.push(batch_padding_controls(common));
     }
-    
+
     // Spacing (only for Row/Column)
     if common.has_spacing {
-        content = content.push(
-            batch_spacing_controls(common)
-        );
+        content = content.push(batch_spacing_controls(common));
     }
-    
+
     // Text properties (for Text, Button, TextInput)
     if common.has_text_properties {
-        content = content.push(
-            batch_text_size_controls(common)
-        );
+        content = content.push(batch_text_size_controls(common));
     }
-    
+
     // List the widgets being edited (for clarity)
     content = content.push(rule::horizontal(2));
     content = content.push(text("Editing:").size(SECTION_SIZE));
-    
+
     for widget in selected.iter().take(10) {
         // Check if widget has a custom name
         let display_name = if !widget.properties.widget_name.is_empty() {
             // Custom name - show it prominently
-            format!("  • {} ({})", widget.properties.widget_name, widget.widget_type)
+            format!(
+                "  • {} ({})",
+                widget.properties.widget_name, widget.widget_type
+            )
         } else {
             // Default name - show the type and id
             format!("  • {} ({})", widget.widget_type, widget.name)
         };
-        
-        content = content.push(
-            text(display_name)
-                .size(LABEL_SIZE)
-        );
+
+        content = content.push(text(display_name).size(LABEL_SIZE));
     }
-    
+
     if selected.len() > 10 {
         content = content.push(
             text(format!("  ... and {} more", selected.len() - 10))
                 .size(LABEL_SIZE)
-                .color(Color::from_rgb(0.6, 0.6, 0.6))
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
         );
     }
-    
+
     scrollable(content.padding(15)).into()
 }
 
@@ -92,10 +84,8 @@ fn batch_size_controls<'a>(
     common: &'a CommonProperties,
     hierarchy: &'a WidgetHierarchy,
 ) -> Element<'a, Message> {
-
     column![
         text("Size").size(SECTION_SIZE),
-        
         // Show current values if uniform
         if let Some(width) = common.uniform_width {
             text(format!("Current width: {}", length_to_string(width)))
@@ -106,7 +96,6 @@ fn batch_size_controls<'a>(
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.8, 0.6, 0.3))
         },
-        
         if let Some(height) = common.uniform_height {
             text(format!("Current height: {}", length_to_string(height)))
                 .size(LABEL_SIZE)
@@ -116,24 +105,22 @@ fn batch_size_controls<'a>(
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.8, 0.6, 0.3))
         },
-        
         // Width picker with draft support
         batch_length_picker(
-            "Width", 
-            common.uniform_width, 
+            "Width",
+            common.uniform_width,
             &common.draft_fixed_width,
             &common.draft_fill_portion_width,
-            false, 
+            false,
             hierarchy
         ),
-        
         // Height picker with draft support
         batch_length_picker(
-            "Height", 
-            common.uniform_height, 
+            "Height",
+            common.uniform_height,
             &common.draft_fixed_height,
             &common.draft_fill_portion_height,
-            true, 
+            true,
             hierarchy
         ),
     ]
@@ -152,7 +139,7 @@ fn batch_length_picker<'a>(
 ) -> Element<'a, Message> {
     const DEFAULT_PX: f32 = 120.0;
     const DEFAULT_PORTION: u16 = 1;
-    
+
     // Static slices for pick_list (must outlive the function)
     const ALL_CHOICES: &[LengthChoice] = &[
         LengthChoice::Fill,
@@ -160,12 +147,9 @@ fn batch_length_picker<'a>(
         LengthChoice::Shrink,
         LengthChoice::Fixed,
     ];
-    
-    const CONSTRAINED_CHOICES: &[LengthChoice] = &[
-        LengthChoice::Shrink,
-        LengthChoice::Fixed,
-    ];
-    
+
+    const CONSTRAINED_CHOICES: &[LengthChoice] = &[LengthChoice::Shrink, LengthChoice::Fixed];
+
     // Check if ANY selected widget is under a scrollable
     // For batch editing, we need to check all selected widgets
     let selected_ids = hierarchy.get_selected_widgets();
@@ -180,63 +164,60 @@ fn batch_length_picker<'a>(
             false
         }
     });
-    
+
     // Determine current choice
-    let choice_now = current.map(|len| LengthChoice::from_length(len))
+    let choice_now = current
+        .map(|len| LengthChoice::from_length(len))
         .unwrap_or(LengthChoice::Fill);
-    
+
     // Select the appropriate static slice based on constraints
     let available_choices = if any_scrollable_conflicts {
         CONSTRAINED_CHOICES
     } else {
         ALL_CHOICES
     };
-    
+
     // Show warning if current choice is incompatible
-    let warning = if any_scrollable_conflicts && 
-                     (choice_now == LengthChoice::Fill || choice_now == LengthChoice::FillPortion) {
+    let warning = if any_scrollable_conflicts
+        && (choice_now == LengthChoice::Fill || choice_now == LengthChoice::FillPortion)
+    {
         Some(
             container(
                 text("⚠ Some widgets are in scrollables and cannot use Fill")
                     .size(11)
-                    .color(Color::from_rgb(0.9, 0.6, 0.2))
+                    .color(Color::from_rgb(0.9, 0.6, 0.2)),
             )
             .padding(Padding::from([2, 5]))
-            .style(error_box)
+            .style(error_box),
         )
     } else {
         None
     };
-    
+
     let picker = column![
         text(label).size(LABEL_SIZE),
-        pick_list(
-            available_choices,
-            Some(choice_now),
-            move |choice| {
-                // When changing choice, use default values
-                let new_len = match choice {
-                    LengthChoice::Fill => Length::Fill,
-                    LengthChoice::FillPortion => Length::FillPortion(DEFAULT_PORTION),
-                    LengthChoice::Shrink => Length::Shrink,
-                    LengthChoice::Fixed => Length::Fixed(DEFAULT_PX),
-                };
-                
-                if is_height {
-                    Message::BatchPropertyChanged(PropertyChange::Height(new_len))
-                } else {
-                    Message::BatchPropertyChanged(PropertyChange::Width(new_len))
-                }
+        pick_list(available_choices, Some(choice_now), move |choice| {
+            // When changing choice, use default values
+            let new_len = match choice {
+                LengthChoice::Fill => Length::Fill,
+                LengthChoice::FillPortion => Length::FillPortion(DEFAULT_PORTION),
+                LengthChoice::Shrink => Length::Shrink,
+                LengthChoice::Fixed => Length::Fixed(DEFAULT_PX),
+            };
+
+            if is_height {
+                Message::BatchPropertyChanged(PropertyChange::Height(new_len))
+            } else {
+                Message::BatchPropertyChanged(PropertyChange::Width(new_len))
             }
-        )
+        })
         .width(250)
     ]
     .spacing(LABEL_SPACING);
-    
+
     // Add extra input fields based on current choice
     let extra: Element<'a, Message> = match choice_now {
         LengthChoice::Fixed => {
-            
             column![
                 text("Pixels").size(LABEL_SIZE),
                 text_input::<Message, Theme, iced::Renderer>("e.g. 120", &draft_fixed)
@@ -254,16 +235,19 @@ fn batch_length_picker<'a>(
             .into()
         }
         LengthChoice::FillPortion => {
-            
             column![
                 text("Portion").size(LABEL_SIZE),
                 text_input::<Message, Theme, iced::Renderer>("e.g. 1", &draft_fill_portion)
                     .on_input(move |text| {
                         // Update draft field
                         if is_height {
-                            Message::BatchPropertyChanged(PropertyChange::DraftFillPortionHeight(text))
+                            Message::BatchPropertyChanged(PropertyChange::DraftFillPortionHeight(
+                                text,
+                            ))
                         } else {
-                            Message::BatchPropertyChanged(PropertyChange::DraftFillPortionWidth(text))
+                            Message::BatchPropertyChanged(PropertyChange::DraftFillPortionWidth(
+                                text,
+                            ))
                         }
                     })
                     .width(250)
@@ -273,9 +257,9 @@ fn batch_length_picker<'a>(
         }
         _ => space::horizontal().into(),
     };
-    
+
     let content = row![picker, extra].spacing(SECTION_SPACING);
-    
+
     // Add warning if present
     if let Some(warn) = warning {
         column![content, warn].spacing(5).into()
@@ -284,18 +268,13 @@ fn batch_length_picker<'a>(
     }
 }
 
-
 /// Batch padding controls - mirrors padding_controls
-fn batch_padding_controls<'a>(
-    common: &'a CommonProperties,
-) -> Element<'a, Message> {
+fn batch_padding_controls<'a>(common: &'a CommonProperties) -> Element<'a, Message> {
     let current_padding = common.uniform_padding.unwrap_or(Padding::new(10.0));
     let current_padding_mode = common.uniform_padding_mode.unwrap_or(PaddingMode::Uniform);
-    
+
     column![
         text("Padding").size(SECTION_SIZE),
-
-
         // Mode selection
         column![
             text("Padding Mode").size(LABEL_SIZE),
@@ -304,32 +283,24 @@ fn batch_padding_controls<'a>(
                     "Uniform - All sides equal",
                     PaddingMode::Uniform,
                     Some(current_padding_mode),
-                    move |mode| Message::BatchPropertyChanged(
-                        PropertyChange::PaddingMode(mode)
-                    )
+                    move |mode| Message::BatchPropertyChanged(PropertyChange::PaddingMode(mode))
                 ),
                 radio(
                     "Symmetric - Vertical/Horizontal pairs",
                     PaddingMode::Symmetric,
                     Some(current_padding_mode),
-                    move |mode| Message::BatchPropertyChanged(
-                        PropertyChange::PaddingMode(mode)
-                    )
+                    move |mode| Message::BatchPropertyChanged(PropertyChange::PaddingMode(mode))
                 ),
                 radio(
                     "Individual - Each side separate",
                     PaddingMode::Individual,
                     Some(current_padding_mode),
-                    move |mode| Message::BatchPropertyChanged(
-                        PropertyChange::PaddingMode(mode)
-                    )
+                    move |mode| Message::BatchPropertyChanged(PropertyChange::PaddingMode(mode))
                 ),
             ]
             .spacing(LABEL_SPACING)
         ]
         .spacing(LABEL_SPACING),
-
-
         // Controls based on mode
         match current_padding_mode {
             PaddingMode::Uniform => {
@@ -351,7 +322,7 @@ fn batch_padding_controls<'a>(
                 ]
                 .spacing(LABEL_SPACING)
             }
-            
+
             PaddingMode::Symmetric => {
                 // Two sliders: vertical and horizontal
                 column![
@@ -360,7 +331,9 @@ fn batch_padding_controls<'a>(
                             text("Vertical (Top/Bottom)").size(LABEL_SIZE),
                             row![
                                 slider(0.0..=50.0, current_padding.top, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingVertical(v))
+                                    Message::BatchPropertyChanged(PropertyChange::PaddingVertical(
+                                        v,
+                                    ))
                                 })
                                 .step(1.0)
                                 .width(200),
@@ -379,7 +352,9 @@ fn batch_padding_controls<'a>(
                             text("Horizontal (Left/Right)").size(LABEL_SIZE),
                             row![
                                 slider(0.0..=50.0, current_padding.left, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingHorizontal(v))
+                                    Message::BatchPropertyChanged(
+                                        PropertyChange::PaddingHorizontal(v),
+                                    )
                                 })
                                 .step(1.0)
                                 .width(200),
@@ -396,16 +371,16 @@ fn batch_padding_controls<'a>(
                 ]
                 .spacing(SECTION_SPACING)
             }
-            
+
             PaddingMode::Individual => {
                 // Four separate sliders in a 2x2 grid
                 column![
                     row![
                         column![
                             text("Top").size(LABEL_SIZE),
-                                slider(0.0..=50.0, current_padding.top, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingTop(v))
-                                })
+                            slider(0.0..=50.0, current_padding.top, |v| {
+                                Message::BatchPropertyChanged(PropertyChange::PaddingTop(v))
+                            })
                             .step(1.0),
                             text(format!("{:.0}px", current_padding.top))
                                 .size(LABEL_SIZE)
@@ -413,12 +388,11 @@ fn batch_padding_controls<'a>(
                         ]
                         .spacing(LABEL_SPACING)
                         .width(Length::Fill),
-                        
                         column![
                             text("Right").size(LABEL_SIZE),
-                                slider(0.0..=50.0, current_padding.right, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingRight(v))
-                                })
+                            slider(0.0..=50.0, current_padding.right, |v| {
+                                Message::BatchPropertyChanged(PropertyChange::PaddingRight(v))
+                            })
                             .step(1.0),
                             text(format!("{:.0}px", current_padding.right))
                                 .size(LABEL_SIZE)
@@ -428,13 +402,12 @@ fn batch_padding_controls<'a>(
                         .width(Length::Fill),
                     ]
                     .spacing(MAIN_SPACING),
-                    
                     row![
                         column![
                             text("Bottom").size(LABEL_SIZE),
-                                slider(0.0..=50.0, current_padding.bottom, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingBottom(v))
-                                })
+                            slider(0.0..=50.0, current_padding.bottom, |v| {
+                                Message::BatchPropertyChanged(PropertyChange::PaddingBottom(v))
+                            })
                             .step(1.0),
                             text(format!("{:.0}px", current_padding.bottom))
                                 .size(LABEL_SIZE)
@@ -442,12 +415,11 @@ fn batch_padding_controls<'a>(
                         ]
                         .spacing(LABEL_SPACING)
                         .width(Length::Fill),
-                        
                         column![
                             text("Left").size(LABEL_SIZE),
-                                slider(0.0..=50.0, current_padding.left, |v| {
-                                    Message::BatchPropertyChanged(PropertyChange::PaddingLeft(v))
-                                })
+                            slider(0.0..=50.0, current_padding.left, |v| {
+                                Message::BatchPropertyChanged(PropertyChange::PaddingLeft(v))
+                            })
                             .step(1.0),
                             text(format!("{:.0}px", current_padding.left))
                                 .size(LABEL_SIZE)
@@ -467,14 +439,11 @@ fn batch_padding_controls<'a>(
 }
 
 /// Batch spacing controls - mirrors spacing controls in row/column editors
-fn batch_spacing_controls<'a>(
-    common: &'a CommonProperties,
-) -> Element<'a, Message> {
+fn batch_spacing_controls<'a>(common: &'a CommonProperties) -> Element<'a, Message> {
     let current_spacing = common.uniform_spacing.unwrap_or(0.0);
-    
+
     column![
         text("Spacing").size(SECTION_SIZE),
-        
         if common.uniform_spacing.is_some() {
             text(format!("Current: {:.0}px", current_spacing))
                 .size(LABEL_SIZE)
@@ -484,7 +453,6 @@ fn batch_spacing_controls<'a>(
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.8, 0.6, 0.3))
         },
-        
         column![
             text("Element spacing:").size(LABEL_SIZE),
             row![
@@ -499,21 +467,20 @@ fn batch_spacing_controls<'a>(
             ]
             .spacing(SECTION_SPACING)
             .align_y(Alignment::Center),
-            
             // Quick preset buttons
             row![
-                button(text("0px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::Spacing(0.0))
-                ).padding(5),
-                button(text("5px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::Spacing(5.0))
-                ).padding(5),
-                button(text("10px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::Spacing(10.0))
-                ).padding(5),
-                button(text("20px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::Spacing(20.0))
-                ).padding(5),
+                button(text("0px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::Spacing(0.0)))
+                    .padding(5),
+                button(text("5px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::Spacing(5.0)))
+                    .padding(5),
+                button(text("10px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::Spacing(10.0)))
+                    .padding(5),
+                button(text("20px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::Spacing(20.0)))
+                    .padding(5),
             ]
             .spacing(5),
         ]
@@ -524,14 +491,11 @@ fn batch_spacing_controls<'a>(
 }
 
 /// Batch text size controls
-fn batch_text_size_controls<'a>(
-    common: &'a CommonProperties,
-) -> Element<'a, Message> {
+fn batch_text_size_controls<'a>(common: &'a CommonProperties) -> Element<'a, Message> {
     let current_size = common.uniform_text_size.unwrap_or(16.0);
-    
+
     column![
         text("Text Properties").size(SECTION_SIZE),
-        
         if common.uniform_text_size.is_some() {
             text(format!("Current size: {:.0}px", current_size))
                 .size(LABEL_SIZE)
@@ -541,7 +505,6 @@ fn batch_text_size_controls<'a>(
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.8, 0.6, 0.3))
         },
-        
         column![
             text("Font size:").size(LABEL_SIZE),
             row![
@@ -556,21 +519,28 @@ fn batch_text_size_controls<'a>(
             ]
             .spacing(SECTION_SPACING)
             .align_y(Alignment::Center),
-            
             // Quick preset buttons
             row![
-                button(text("12px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::TextSize(12.0))
-                ).padding(5),
-                button(text("16px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::TextSize(16.0))
-                ).padding(5),
-                button(text("20px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::TextSize(20.0))
-                ).padding(5),
-                button(text("24px")).on_press(
-                    Message::BatchPropertyChanged(PropertyChange::TextSize(24.0))
-                ).padding(5),
+                button(text("12px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::TextSize(
+                        12.0
+                    )))
+                    .padding(5),
+                button(text("16px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::TextSize(
+                        16.0
+                    )))
+                    .padding(5),
+                button(text("20px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::TextSize(
+                        20.0
+                    )))
+                    .padding(5),
+                button(text("24px"))
+                    .on_press(Message::BatchPropertyChanged(PropertyChange::TextSize(
+                        24.0
+                    )))
+                    .padding(5),
             ]
             .spacing(5),
         ]

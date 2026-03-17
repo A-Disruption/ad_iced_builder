@@ -1,5 +1,5 @@
-pub use iced::widget::rule::*;
 use iced::Theme;
+pub use iced::widget::rule::*;
 
 /// A [`Rule`] styling using the weak background color.
 pub fn rule_weak(theme: &Theme) -> Style {

@@ -1,6 +1,7 @@
-use iced::{Alignment, ContentFit, Font, Length};
 use iced::mouse::Interaction;
-use iced::widget::{text, tooltip, scrollable};
+use iced::widget::{scrollable, text, tooltip};
+use iced::{Alignment, ContentFit, Font, Length};
+use serde::{Deserialize, Serialize};
 
 use super::types::*;
 
@@ -20,6 +21,55 @@ impl std::fmt::Display for ContainerAlignX {
 impl std::fmt::Display for ContainerAlignY {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
+    }
+}
+
+impl std::fmt::Display for GenericOverlayPosition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GenericOverlayPosition::Top => write!(f, "Top"),
+            GenericOverlayPosition::Bottom => write!(f, "Bottom"),
+            GenericOverlayPosition::Left => write!(f, "Left"),
+            GenericOverlayPosition::Right => write!(f, "Right"),
+        }
+    }
+}
+
+impl std::fmt::Display for GenericOverlayPositionMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GenericOverlayPositionMode::Outside => write!(f, "Outside"),
+            GenericOverlayPositionMode::Inside => write!(f, "Inside"),
+        }
+    }
+}
+
+impl std::fmt::Display for GenericOverlayResizeMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GenericOverlayResizeMode::None => write!(f, "None"),
+            GenericOverlayResizeMode::Always => write!(f, "Always"),
+            GenericOverlayResizeMode::WithCtrl => write!(f, "With Ctrl"),
+        }
+    }
+}
+
+impl std::fmt::Display for GenericOverlayAnimationPreset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GenericOverlayAnimationPreset::Default => write!(f, "Default"),
+            GenericOverlayAnimationPreset::Quick => write!(f, "Quick"),
+            GenericOverlayAnimationPreset::Slow => write!(f, "Slow"),
+        }
+    }
+}
+
+impl std::fmt::Display for DatePickerSelectionMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DatePickerSelectionMode::Single => write!(f, "Single"),
+            DatePickerSelectionMode::Range => write!(f, "Range"),
+        }
     }
 }
 
@@ -96,8 +146,10 @@ impl std::fmt::Display for TextShaping {
 
 impl std::fmt::Display for Orientation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self { Orientation::Horizontal => write!(f, "Horizontal"),
-                     Orientation::Vertical   => write!(f, "Vertical"), }
+        match self {
+            Orientation::Horizontal => write!(f, "Horizontal"),
+            Orientation::Vertical => write!(f, "Vertical"),
+        }
     }
 }
 
@@ -113,7 +165,7 @@ impl std::fmt::Display for AlignText {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AlignmentXOption {
     Start,
     Center,
@@ -129,7 +181,7 @@ impl AlignmentXOption {
             AlignmentXOption::End => Alignment::End,
         }
     }
-    
+
     // Convert FROM Iced's Alignment to our wrapper
     pub fn from_alignment(alignment: Alignment) -> Self {
         match alignment {
@@ -158,7 +210,7 @@ impl From<AlignmentXOption> for Alignment {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AlignmentYOption {
     Top,
     Center,
@@ -174,7 +226,7 @@ impl AlignmentYOption {
             AlignmentYOption::Bottom => iced::alignment::Vertical::Bottom,
         }
     }
-    
+
     // Convert FROM Iced's Alignment to our wrapper
     pub fn from_alignment(alignment: iced::alignment::Vertical) -> Self {
         match alignment {
@@ -295,13 +347,12 @@ impl From<ContainerAlignY> for Alignment {
     }
 }
 
-
-#[derive(Debug, Clone, Copy, PartialEq,)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TextWrapping {
     None,
     Word,
     Glyph,
-    WordOrGlyph
+    WordOrGlyph,
 }
 
 impl TextWrapping {
@@ -313,7 +364,7 @@ impl TextWrapping {
             TextWrapping::WordOrGlyph => text::Wrapping::WordOrGlyph,
         }
     }
-    
+
     pub fn from_wrap(alignment: text::Wrapping) -> Self {
         match alignment {
             text::Wrapping::None => TextWrapping::None,
@@ -345,7 +396,7 @@ impl From<TextWrapping> for text::Wrapping {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TextShaping {
     Basic,
     Advanced,
@@ -360,7 +411,7 @@ impl TextShaping {
             TextShaping::Auto => text::Shaping::Auto,
         }
     }
-    
+
     pub fn from_shaping(alignment: text::Shaping) -> Self {
         match alignment {
             text::Shaping::Basic => TextShaping::Basic,
@@ -388,87 +439,223 @@ impl From<TextShaping> for text::Shaping {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum ContainerAlignX { Left, Center, Right }
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ContainerAlignX {
+    Left,
+    Center,
+    Right,
+}
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum ContainerAlignY { Top, Center, Bottom }
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum ContainerAlignY {
+    Top,
+    Center,
+    Bottom,
+}
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum ButtonStyleType { Primary, Secondary, Success, Danger, Text, Background, Subtle }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum GenericOverlayPosition {
+    Top,
+    Bottom,
+    Left,
+    #[default]
+    Right,
+}
 
-impl ButtonStyleType{
+impl From<GenericOverlayPosition> for widgets::generic_overlay::Position {
+    fn from(position: GenericOverlayPosition) -> Self {
+        match position {
+            GenericOverlayPosition::Top => Self::Top,
+            GenericOverlayPosition::Bottom => Self::Bottom,
+            GenericOverlayPosition::Left => Self::Left,
+            GenericOverlayPosition::Right => Self::Right,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum GenericOverlayPositionMode {
+    #[default]
+    Outside,
+    Inside,
+}
+
+impl From<GenericOverlayPositionMode> for widgets::generic_overlay::PositionMode {
+    fn from(mode: GenericOverlayPositionMode) -> Self {
+        match mode {
+            GenericOverlayPositionMode::Outside => Self::Outside,
+            GenericOverlayPositionMode::Inside => Self::Inside,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum GenericOverlayResizeMode {
+    #[default]
+    None,
+    Always,
+    WithCtrl,
+}
+
+impl From<GenericOverlayResizeMode> for widgets::generic_overlay::ResizeMode {
+    fn from(mode: GenericOverlayResizeMode) -> Self {
+        match mode {
+            GenericOverlayResizeMode::None => Self::None,
+            GenericOverlayResizeMode::Always => Self::Always,
+            GenericOverlayResizeMode::WithCtrl => Self::WithCtrl,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum GenericOverlayAnimationPreset {
+    #[default]
+    Default,
+    Quick,
+    Slow,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum DatePickerSelectionMode {
+    #[default]
+    Single,
+    Range,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GenericOverlayLengthChoice {
+    Fill,
+    FillPortion,
+    Shrink,
+    Fixed,
+    Dynamic,
+}
+
+impl std::fmt::Display for GenericOverlayLengthChoice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            GenericOverlayLengthChoice::Fill => write!(f, "Fill"),
+            GenericOverlayLengthChoice::FillPortion => write!(f, "FillPortion"),
+            GenericOverlayLengthChoice::Shrink => write!(f, "Shrink"),
+            GenericOverlayLengthChoice::Fixed => write!(f, "Fixed"),
+            GenericOverlayLengthChoice::Dynamic => write!(f, "Dynamic"),
+        }
+    }
+}
+
+impl GenericOverlayLengthChoice {
+    pub fn from_state(length: Length, is_dynamic: bool) -> Self {
+        if is_dynamic {
+            Self::Dynamic
+        } else {
+            match length {
+                Length::Fill => Self::Fill,
+                Length::FillPortion(_) => Self::FillPortion,
+                Length::Shrink => Self::Shrink,
+                Length::Fixed(_) => Self::Fixed,
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ButtonStyleType {
+    Primary,
+    Secondary,
+    Success,
+    Danger,
+    Text,
+    Background,
+    Subtle,
+}
+
+impl ButtonStyleType {
     pub fn all() -> Vec<String> {
         vec![
-        "Primary".to_string(), 
-        "Secondary".to_string(), 
-        "Success".to_string(), 
-        "Danger".to_string(), 
-        "Text".to_string(), 
-        "Background".to_string(), 
-        "Subtle".to_string()
+            "Primary".to_string(),
+            "Secondary".to_string(),
+            "Success".to_string(),
+            "Danger".to_string(),
+            "Text".to_string(),
+            "Background".to_string(),
+            "Subtle".to_string(),
         ]
     }
 
     pub fn get(name: &str) -> Option<ButtonStyleType> {
         match name {
-            "Primary" => Some(ButtonStyleType::Primary), 
+            "Primary" => Some(ButtonStyleType::Primary),
             "Secondary" => Some(ButtonStyleType::Secondary),
-            "Success" => Some(ButtonStyleType::Success), 
+            "Success" => Some(ButtonStyleType::Success),
             "Danger" => Some(ButtonStyleType::Danger),
             "Text" => Some(ButtonStyleType::Text),
             "Background" => Some(ButtonStyleType::Background),
             "Subtle" => Some(ButtonStyleType::Subtle),
-            _ => None           
+            _ => None,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum ContainerStyleType { Transparent, Background, RoundedBox, BorderedBox, Dark, Primary, Secondary, Success, Danger, Warning }
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ContainerStyleType {
+    Transparent,
+    Background,
+    RoundedBox,
+    BorderedBox,
+    Dark,
+    Primary,
+    Secondary,
+    Success,
+    Danger,
+    Warning,
+}
 
-impl ContainerStyleType{
+impl ContainerStyleType {
     pub fn all() -> Vec<String> {
         vec![
-        "Transparent".to_string(), 
-        "Background".to_string(), 
-        "Rounded Box".to_string(), 
-        "Bordered Box".to_string(), 
-        "Dark".to_string(), 
-        "Primary".to_string(), 
-        "Secondary".to_string(), 
-        "Success".to_string(), 
-        "Danger".to_string(), 
-        "Warning".to_string(), 
+            "Transparent".to_string(),
+            "Background".to_string(),
+            "Rounded Box".to_string(),
+            "Bordered Box".to_string(),
+            "Dark".to_string(),
+            "Primary".to_string(),
+            "Secondary".to_string(),
+            "Success".to_string(),
+            "Danger".to_string(),
+            "Warning".to_string(),
         ]
     }
 
     pub fn get(name: &str) -> Option<ContainerStyleType> {
         match name {
-            "Transparent" => Some(ContainerStyleType::Transparent), 
+            "Transparent" => Some(ContainerStyleType::Transparent),
             "Background" => Some(ContainerStyleType::Background),
-            "Rounded Box" => Some(ContainerStyleType::RoundedBox), 
+            "Rounded Box" => Some(ContainerStyleType::RoundedBox),
             "Bordered Box" => Some(ContainerStyleType::BorderedBox),
             "Dark" => Some(ContainerStyleType::Dark),
-            "Primary" => Some(ContainerStyleType::Primary), 
+            "Primary" => Some(ContainerStyleType::Primary),
             "Secondary" => Some(ContainerStyleType::Secondary),
-            "Success" => Some(ContainerStyleType::Success), 
+            "Success" => Some(ContainerStyleType::Success),
             "Danger" => Some(ContainerStyleType::Danger),
             "Warning" => Some(ContainerStyleType::Warning),
-            _ => None           
+            _ => None,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq,)]
-pub enum FontType { Default, Monospace }
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub enum FontType {
+    Default,
+    Monospace,
+}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
-pub enum Orientation { Horizontal, Vertical }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Orientation {
+    Horizontal,
+    Vertical,
+}
 
-
-
-#[derive(Debug, Clone, Copy, PartialEq,)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AlignText {
     Default,
     Left,
@@ -488,7 +675,7 @@ impl AlignText {
             AlignText::Justified => iced::advanced::text::Alignment::Justified,
         }
     }
-    
+
     // Convert FROM Iced's Alignment to our wrapper
     pub fn from_alignment(alignment: iced::advanced::text::Alignment) -> Self {
         match alignment {
@@ -523,11 +710,23 @@ impl From<AlignText> for iced::advanced::text::Alignment {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
-pub enum DirChoice { Vertical, Horizontal, Both }
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DirChoice {
+    Vertical,
+    Horizontal,
+    Both,
+}
 impl std::fmt::Display for DirChoice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self { DirChoice::Vertical => "Vertical", DirChoice::Horizontal => "Horizontal", DirChoice::Both => "Both" })
+        write!(
+            f,
+            "{}",
+            match self {
+                DirChoice::Vertical => "Vertical",
+                DirChoice::Horizontal => "Horizontal",
+                DirChoice::Both => "Both",
+            }
+        )
     }
 }
 impl DirChoice {
@@ -540,22 +739,35 @@ impl DirChoice {
     }
     pub fn from_choice(c: DirChoice) -> iced::widget::scrollable::Direction {
         match c {
-            DirChoice::Vertical   => iced::widget::scrollable::Direction::Vertical(scrollable::Scrollbar::default()),
-            DirChoice::Horizontal => iced::widget::scrollable::Direction::Horizontal(scrollable::Scrollbar::default()),
-            DirChoice::Both       => iced::widget::scrollable::Direction::Both { 
-                vertical: scrollable::Scrollbar::default(), 
-                horizontal: scrollable::Scrollbar::default() 
+            DirChoice::Vertical => {
+                iced::widget::scrollable::Direction::Vertical(scrollable::Scrollbar::default())
             }
+            DirChoice::Horizontal => {
+                iced::widget::scrollable::Direction::Horizontal(scrollable::Scrollbar::default())
+            }
+            DirChoice::Both => iced::widget::scrollable::Direction::Both {
+                vertical: scrollable::Scrollbar::default(),
+                horizontal: scrollable::Scrollbar::default(),
+            },
         }
     }
 }
 
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
-pub enum AnchorChoice { Start, End }
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AnchorChoice {
+    Start,
+    End,
+}
 impl std::fmt::Display for AnchorChoice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self { AnchorChoice::Start => "Start", AnchorChoice::End => "End" })
+        write!(
+            f,
+            "{}",
+            match self {
+                AnchorChoice::Start => "Start",
+                AnchorChoice::End => "End",
+            }
+        )
     }
 }
 impl AnchorChoice {
@@ -563,14 +775,12 @@ impl AnchorChoice {
         match d {
             iced::widget::scrollable::Anchor::Start => AnchorChoice::Start,
             iced::widget::scrollable::Anchor::End => AnchorChoice::End,
-
         }
     }
     pub fn from_anchor(c: AnchorChoice) -> iced::widget::scrollable::Anchor {
         match c {
-            AnchorChoice::Start   => iced::widget::scrollable::Anchor::Start,
+            AnchorChoice::Start => iced::widget::scrollable::Anchor::Start,
             AnchorChoice::End => iced::widget::scrollable::Anchor::End,
-
         }
     }
 }
@@ -579,7 +789,6 @@ impl From<iced::widget::scrollable::Anchor> for AnchorChoice {
         match a {
             iced::widget::scrollable::Anchor::Start => Self::Start,
             iced::widget::scrollable::Anchor::End => Self::End,
-
         }
     }
 }
@@ -588,53 +797,102 @@ impl From<AnchorChoice> for iced::widget::scrollable::Anchor {
         match c {
             AnchorChoice::Start => Self::Start,
             AnchorChoice::End => Self::End,
-
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
-pub enum ContentFitChoice { Contain, Cover, Fill, ScaleDown, None }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ContentFitChoice {
+    Contain,
+    Cover,
+    Fill,
+    ScaleDown,
+    None,
+}
 impl std::fmt::Display for ContentFitChoice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use ContentFitChoice::*;
-        write!(f, "{}", match self { Contain=>"Contain", Cover=>"Cover", Fill=>"Fill", ScaleDown=>"ScaleDown", None=>"None" })
+        write!(
+            f,
+            "{}",
+            match self {
+                Contain => "Contain",
+                Cover => "Cover",
+                Fill => "Fill",
+                ScaleDown => "ScaleDown",
+                None => "None",
+            }
+        )
     }
 }
 impl From<ContentFit> for ContentFitChoice {
     fn from(f: ContentFit) -> Self {
         use ContentFit::*;
-        match f { Contain=>Self::Contain, Cover=>Self::Cover, Fill=>Self::Fill, ScaleDown=>Self::ScaleDown, None=>Self::None }
+        match f {
+            Contain => Self::Contain,
+            Cover => Self::Cover,
+            Fill => Self::Fill,
+            ScaleDown => Self::ScaleDown,
+            None => Self::None,
+        }
     }
 }
 impl From<ContentFitChoice> for ContentFit {
     fn from(c: ContentFitChoice) -> Self {
         use ContentFitChoice::*;
-        match c { Contain=>ContentFit::Contain, Cover=>ContentFit::Cover, Fill=>ContentFit::Fill, ScaleDown=>ContentFit::ScaleDown, None=>ContentFit::None }
+        match c {
+            Contain => ContentFit::Contain,
+            Cover => ContentFit::Cover,
+            Fill => ContentFit::Fill,
+            ScaleDown => ContentFit::ScaleDown,
+            None => ContentFit::None,
+        }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
-pub enum TooltipPosition { Top, Bottom, Left, Right, FollowCursor }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum TooltipPosition {
+    Top,
+    Bottom,
+    Left,
+    Right,
+    FollowCursor,
+}
 impl std::fmt::Display for TooltipPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use TooltipPosition::*;
-        write!(f, "{}", match self { Top=>"Top", Bottom=>"Bottom", Left=>"Left", Right=>"Right", FollowCursor=>"Follow Cursor" })
+        write!(
+            f,
+            "{}",
+            match self {
+                Top => "Top",
+                Bottom => "Bottom",
+                Left => "Left",
+                Right => "Right",
+                FollowCursor => "Follow Cursor",
+            }
+        )
     }
 }
 impl From<TooltipPosition> for tooltip::Position {
     fn from(p: TooltipPosition) -> Self {
         use TooltipPosition::*;
-        match p { Top=>tooltip::Position::Top, Bottom=>tooltip::Position::Bottom, Left=>tooltip::Position::Left, Right=>tooltip::Position::Right, FollowCursor=>tooltip::Position::FollowCursor }
+        match p {
+            Top => tooltip::Position::Top,
+            Bottom => tooltip::Position::Bottom,
+            Left => tooltip::Position::Left,
+            Right => tooltip::Position::Right,
+            FollowCursor => tooltip::Position::FollowCursor,
+        }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ContainerSizingMode {
-    Manual,     // User sets width/height separately
-    CenterX,    // Use center_x(length)
-    CenterY,    // Use center_y(length)
-    Center,     // Use center(length)
+    Manual,  // User sets width/height separately
+    CenterX, // Use center_x(length)
+    CenterY, // Use center_y(length)
+    Center,  // Use center(length)
 }
 
 impl std::fmt::Display for ContainerSizingMode {
@@ -656,7 +914,7 @@ pub enum OnHandler {
     OnActionMaybe,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq,)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MouseInteraction {
     None,
     Hidden,
@@ -705,7 +963,7 @@ impl std::fmt::Display for MouseInteraction {
             MouseInteraction::Move => write!(f, "Move"),
             MouseInteraction::NoDrop => write!(f, "NoDrop"),
             MouseInteraction::NotAllowed => write!(f, "NotAllowed"),
-            MouseInteraction::Grab => write!(f, "Grab"),  
+            MouseInteraction::Grab => write!(f, "Grab"),
             MouseInteraction::Grabbing => write!(f, "Grabbing"),
             MouseInteraction::ResizingHorizontally => write!(f, "ResizingHorizontally"),
             MouseInteraction::ResizingVertically => write!(f, "ResizingVertically"),
@@ -749,7 +1007,6 @@ impl From<Interaction> for MouseInteraction {
             Interaction::AllScroll => Self::AllScroll,
             Interaction::ZoomIn => Self::ZoomIn,
             Interaction::ZoomOut => Self::ZoomOut,
-            
         }
     }
 }
@@ -789,33 +1046,33 @@ impl From<MouseInteraction> for Interaction {
 
 impl MouseInteraction {
     pub const ALL: &'static [Self] = &[
-            Self::None,
-            Self::Hidden,
-            Self::Idle,
-            Self::ContextMenu,
-            Self::Help,
-            Self::Pointer,
-            Self::Progress,
-            Self::Wait,
-            Self::Cell,
-            Self::Crosshair,
-            Self::Text,
-            Self::Alias,
-            Self::Copy,
-            Self::Move,
-            Self::NoDrop,
-            Self::NotAllowed,
-            Self::Grab,
-            Self::Grabbing,
-            Self::ResizingHorizontally,
-            Self::ResizingVertically,
-            Self::ResizingDiagonallyUp,
-            Self::ResizingDiagonallyDown,
-            Self::ResizingColumn,
-            Self::ResizingRow,
-            Self::AllScroll,
-            Self::ZoomIn,
-            Self::ZoomOut,
+        Self::None,
+        Self::Hidden,
+        Self::Idle,
+        Self::ContextMenu,
+        Self::Help,
+        Self::Pointer,
+        Self::Progress,
+        Self::Wait,
+        Self::Cell,
+        Self::Crosshair,
+        Self::Text,
+        Self::Alias,
+        Self::Copy,
+        Self::Move,
+        Self::NoDrop,
+        Self::NotAllowed,
+        Self::Grab,
+        Self::Grabbing,
+        Self::ResizingHorizontally,
+        Self::ResizingVertically,
+        Self::ResizingDiagonallyUp,
+        Self::ResizingDiagonallyDown,
+        Self::ResizingColumn,
+        Self::ResizingRow,
+        Self::AllScroll,
+        Self::ZoomIn,
+        Self::ZoomOut,
     ];
 }
 
@@ -850,7 +1107,7 @@ impl LengthChoice {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaddingMode {
     /// All four sides have the same value
     Uniform,
@@ -870,7 +1127,7 @@ impl std::fmt::Display for PaddingMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum TextInputIconSide {
     #[default]
     Left,
@@ -912,7 +1169,7 @@ pub fn parse_length(value: &str) -> Length {
             if let Ok(pixels) = value.parse::<f32>() {
                 Length::Fixed(pixels)
             } else if value.ends_with("px") {
-                if let Ok(pixels) = value[..value.len()-2].parse::<f32>() {
+                if let Ok(pixels) = value[..value.len() - 2].parse::<f32>() {
                     Length::Fixed(pixels)
                 } else {
                     Length::Shrink

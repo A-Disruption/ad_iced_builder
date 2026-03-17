@@ -1,18 +1,24 @@
-use std::collections::HashSet;
 use iced::{Length, Padding};
+use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 use crate::data_structures::properties::messages::*;
 use crate::data_structures::properties::properties::CommonProperties;
 use crate::data_structures::types::types::*;
 use crate::enum_builder::TypeSystem;
 
-
 /// Central widget hierarchy manager - Simplified to use only IDs
-// #[derive(Debug, Clone,)]
+#[derive(Serialize, Deserialize)]
 pub struct WidgetHierarchy {
     root: Widget,
+    /// Transient — not persisted; always reset to {root_id} on load.
+    #[serde(skip, default)]
     selected_ids: HashSet<WidgetId>,
+    /// Transient — recomputed from the widget tree via recompute_next_id() on load.
+    #[serde(skip, default)]
     next_id: usize,
+    /// Transient — UI editing cache.
+    #[serde(skip, default)]
     pub common_properties: Option<CommonProperties>,
 }
 
@@ -25,27 +31,44 @@ impl WidgetHierarchy {
             root: Widget::new(root_type, WidgetId(0)),
             selected_ids,
             next_id: 1,
-            common_properties: None
+            common_properties: None,
         }
     }
-    
+
+    /// Call after deserialization to recompute transient fields from the widget tree.
+    pub fn post_load(&mut self) {
+        self.next_id = self.max_id_recursive(&self.root) + 1;
+        let root_id = self.root.id;
+        self.selected_ids.clear();
+        self.selected_ids.insert(root_id);
+    }
+
+    fn max_id_recursive(&self, widget: &Widget) -> usize {
+        let mut max = widget.id.0;
+        for child in &widget.children {
+            max = max.max(self.max_id_recursive(child));
+        }
+        max
+    }
+
     pub fn root(&self) -> &Widget {
         &self.root
     }
-    
+
     pub fn selected_ids(&self) -> &HashSet<WidgetId> {
         &self.selected_ids
     }
 
     pub fn set_selected_ids(&mut self, ids: HashSet<WidgetId>) {
         // Filter to only valid IDs
-        self.selected_ids = ids.into_iter()
+        self.selected_ids = ids
+            .into_iter()
             .filter(|id| self.widget_exists(*id))
             .collect();
-        
+
         self.common_properties = Some(self.get_common_properties());
     }
-    
+
     pub fn get_single_selected(&self) -> Option<&Widget> {
         if self.selected_ids.len() == 1 {
             let id = self.selected_ids.iter().next()?;
@@ -54,7 +77,7 @@ impl WidgetHierarchy {
             None
         }
     }
-    
+
     pub fn get_widget_by_id(&self, id: WidgetId) -> Option<&Widget> {
         fn find_widget(widget: &Widget, target_id: WidgetId) -> Option<&Widget> {
             if widget.id == target_id {
@@ -69,7 +92,7 @@ impl WidgetHierarchy {
         }
         find_widget(&self.root, id)
     }
-    
+
     pub fn get_widget_by_id_mut(&mut self, id: WidgetId) -> Option<&mut Widget> {
         fn find_widget_mut(widget: &mut Widget, target_id: WidgetId) -> Option<&mut Widget> {
             if widget.id == target_id {
@@ -84,40 +107,67 @@ impl WidgetHierarchy {
         }
         find_widget_mut(&mut self.root, id)
     }
-    
+
     pub fn widget_exists(&self, id: WidgetId) -> bool {
         self.get_widget_by_id(id).is_some()
     }
 
     pub fn can_add_child(&self, parent_id: WidgetId, widget_type: WidgetType) -> bool {
         if let Some(parent) = self.get_widget_by_id(parent_id) {
-            if !can_have_children(&parent.widget_type) { return false; }
+            if !can_have_children(&parent.widget_type) {
+                return false;
+            }
 
             if parent_id == self.root.id {
                 return parent.children.is_empty()
-                    && matches!(widget_type, WidgetType::Column | WidgetType::Row | WidgetType::Stack);
+                    && matches!(
+                        widget_type,
+                        WidgetType::Column | WidgetType::Row | WidgetType::Stack
+                    );
             }
 
             match parent.widget_type {
                 WidgetType::Scrollable => {
-                    if !parent.children.is_empty() { return false; }
-                    matches!(widget_type, WidgetType::Column | WidgetType::Row | WidgetType::Container)
+                    if !parent.children.is_empty() {
+                        return false;
+                    }
+                    matches!(
+                        widget_type,
+                        WidgetType::Column
+                            | WidgetType::Row
+                            | WidgetType::Container
+                            | WidgetType::Collapsible
+                            | WidgetType::CollapsibleGroup
+                            | WidgetType::GenericOverlay
+                    )
                 }
                 WidgetType::Container => parent.children.is_empty(),
-                WidgetType::Button    => parent.children.is_empty(),
-                WidgetType::Tooltip   => parent.children.len() < 2, // <= 2 children
+                WidgetType::Button => parent.children.is_empty(),
+                WidgetType::Collapsible => parent.children.is_empty(),
+                WidgetType::CollapsibleGroup => matches!(widget_type, WidgetType::Collapsible),
+                WidgetType::GenericOverlay => parent.children.len() < 2,
+                WidgetType::Tooltip => parent.children.len() < 2, // <= 2 children
                 WidgetType::MouseArea => parent.children.is_empty(),
                 WidgetType::Pin => parent.children.is_empty(),
                 _ => true,
             }
-        } else { false }
+        } else {
+            false
+        }
     }
-    
-    pub fn add_child(&mut self, parent_id: WidgetId, widget_type: WidgetType) -> Result<WidgetId, String> {
+
+    pub fn add_child(
+        &mut self,
+        parent_id: WidgetId,
+        widget_type: WidgetType,
+    ) -> Result<WidgetId, String> {
         if !self.can_add_child(parent_id, widget_type) {
             if parent_id == self.root.id {
                 if self.root.children.is_empty() {
-                    return Err("Root container can only have Column, Row, or Stack as its first child".to_string());
+                    return Err(
+                        "Root container can only have Column, Row, or Stack as its first child"
+                            .to_string(),
+                    );
                 } else {
                     return Err("Root container can only have one child".to_string());
                 }
@@ -137,13 +187,13 @@ impl WidgetHierarchy {
                 iced::widget::scrollable::Direction::Both { .. } => true,
                 iced::widget::scrollable::Direction::Horizontal(_) => false,
             };
-            
+
             let should_block_width = match scroll_dir {
                 iced::widget::scrollable::Direction::Horizontal(_) => true,
                 iced::widget::scrollable::Direction::Both { .. } => true,
                 iced::widget::scrollable::Direction::Vertical(_) => false,
             };
-            
+
             if should_block_height {
                 let orig = child.properties.height;
                 if matches!(orig, Length::Fill | Length::FillPortion(_)) {
@@ -151,7 +201,7 @@ impl WidgetHierarchy {
                     child.properties.height = Length::Shrink;
                 }
             }
-            
+
             if should_block_width {
                 let orig = child.properties.width;
                 if matches!(orig, Length::Fill | Length::FillPortion(_)) {
@@ -168,24 +218,24 @@ impl WidgetHierarchy {
             Err("Parent widget not found".to_string())
         }
     }
-    
+
     pub fn delete_widget(&mut self, id: WidgetId) -> Result<(), String> {
         if id == self.root.id {
             return Err("Cannot delete root widget".to_string());
         }
-        
+
         if let Some(parent_id) = self.find_parent_id(id) {
             if let Some(parent) = self.get_widget_by_id_mut(parent_id) {
                 parent.children.retain(|child| child.id != id);
-                
+
                 // Remove from selection
                 self.selected_ids.remove(&id);
-                
+
                 // If nothing selected, select parent
                 if self.selected_ids.is_empty() {
                     self.selected_ids.insert(parent_id);
                 }
-                
+
                 Ok(())
             } else {
                 Err("Parent widget not found".to_string())
@@ -194,7 +244,7 @@ impl WidgetHierarchy {
             Err("Cannot find parent of widget".to_string())
         }
     }
-    
+
     pub fn find_parent_id(&self, child_id: WidgetId) -> Option<WidgetId> {
         fn find_parent(widget: &Widget, target_id: WidgetId) -> Option<WidgetId> {
             for child in &widget.children {
@@ -210,7 +260,12 @@ impl WidgetHierarchy {
         find_parent(&self.root, child_id)
     }
 
-    pub fn apply_property_change(&mut self, id: WidgetId, change: PropertyChange, type_system: &TypeSystem) {
+    pub fn apply_property_change(
+        &mut self,
+        id: WidgetId,
+        change: PropertyChange,
+        type_system: &TypeSystem,
+    ) {
         // Special handling for scrollable direction changes
         if let PropertyChange::ScrollableDirection(new_dir) = change.clone() {
             if let Some(widget) = self.get_widget_by_id_mut(id) {
@@ -220,7 +275,7 @@ impl WidgetHierarchy {
             self.sanitize_subtree_for_scrollable(id);
             return;
         }
-        
+
         // Handle height changes under scrollable
         if let PropertyChange::Height(h) = change.clone() {
             if let Some((_, scroll_dir)) = self.get_scrollable_ancestor_info(id) {
@@ -229,7 +284,7 @@ impl WidgetHierarchy {
                     iced::widget::scrollable::Direction::Both { .. } => true,
                     iced::widget::scrollable::Direction::Horizontal(_) => false,
                 };
-                
+
                 if should_block && matches!(h, Length::Fill | Length::FillPortion(_)) {
                     if let Some(w) = self.get_widget_by_id_mut(id) {
                         if w.properties.saved_height_before_scrollable.is_none() {
@@ -241,7 +296,7 @@ impl WidgetHierarchy {
                 }
             }
         }
-        
+
         // Handle width changes under scrollable
         if let PropertyChange::Width(w) = change.clone() {
             if let Some((_, scroll_dir)) = self.get_scrollable_ancestor_info(id) {
@@ -250,7 +305,7 @@ impl WidgetHierarchy {
                     iced::widget::scrollable::Direction::Both { .. } => true,
                     iced::widget::scrollable::Direction::Vertical(_) => false,
                 };
-                
+
                 if should_block && matches!(w, Length::Fill | Length::FillPortion(_)) {
                     if let Some(widget) = self.get_widget_by_id_mut(id) {
                         if widget.properties.saved_width_before_scrollable.is_none() {
@@ -262,7 +317,7 @@ impl WidgetHierarchy {
                 }
             }
         }
-        
+
         if let Some(widget) = self.get_widget_by_id_mut(id) {
             apply_property_change(&mut widget.properties, change, type_system);
         }
@@ -309,6 +364,27 @@ impl WidgetHierarchy {
             }
         }
 
+        if matches!(new_parent_ty, WidgetType::Collapsible) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("Collapsible can only contain one child".into());
+            }
+        }
+
+        if matches!(new_parent_ty, WidgetType::CollapsibleGroup) {
+            let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
+            if moving_ty != WidgetType::Collapsible {
+                return Err("CollapsibleGroup can only contain Collapsible widgets".into());
+            }
+        }
+
+        if matches!(new_parent_ty, WidgetType::GenericOverlay) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("GenericOverlay can only contain two children".into());
+            }
+        }
+
         if matches!(new_parent_ty, WidgetType::Pin) {
             let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
             if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
@@ -348,7 +424,9 @@ impl WidgetHierarchy {
         }
 
         // Insert into new parent
-        let parent = self.get_widget_by_id_mut(new_parent_id).ok_or("New parent not found")?;
+        let parent = self
+            .get_widget_by_id_mut(new_parent_id)
+            .ok_or("New parent not found")?;
         parent.children.insert(new_index, node);
 
         Ok(())
@@ -368,8 +446,12 @@ impl WidgetHierarchy {
         }
         fn contains(children: &[Widget], id: WidgetId) -> bool {
             for c in children {
-                if c.id == id { return true; }
-                if contains(&c.children, id) { return true; }
+                if c.id == id {
+                    return true;
+                }
+                if contains(&c.children, id) {
+                    return true;
+                }
             }
             false
         }
@@ -389,7 +471,9 @@ impl WidgetHierarchy {
             }
             None
         }
-        if id == self.root.id { return None; }
+        if id == self.root.id {
+            return None;
+        }
         take_from(&mut self.root, id)
     }
 
@@ -397,15 +481,18 @@ impl WidgetHierarchy {
     pub fn swap_kind(&mut self, id: WidgetId) {
         let old_type;
         {
-            let w = match self.get_widget_by_id(id) { Some(w) => w, None => return };
+            let w = match self.get_widget_by_id(id) {
+                Some(w) => w,
+                None => return,
+            };
             old_type = w.widget_type;
         }
 
         if let Some(w) = self.get_widget_by_id_mut(id) {
             let new_type = match w.widget_type {
-                WidgetType::Row        => WidgetType::Column,
-                WidgetType::Column     => WidgetType::Row,
-                WidgetType::Container  => WidgetType::Scrollable,
+                WidgetType::Row => WidgetType::Column,
+                WidgetType::Column => WidgetType::Row,
+                WidgetType::Container => WidgetType::Scrollable,
                 WidgetType::Scrollable => WidgetType::Container,
                 _ => w.widget_type,
             };
@@ -431,7 +518,10 @@ impl WidgetHierarchy {
     }
 
     // Get the scrollable direction of the nearest scrollable ancestor (if any)
-    pub fn get_scrollable_ancestor_info(&self, mut id: WidgetId) -> Option<(WidgetId, iced::widget::scrollable::Direction)> {
+    pub fn get_scrollable_ancestor_info(
+        &self,
+        mut id: WidgetId,
+    ) -> Option<(WidgetId, iced::widget::scrollable::Direction)> {
         while let Some(parent_id) = self.find_parent_id(id) {
             if let Some(parent) = self.get_widget_by_id(parent_id) {
                 if matches!(parent.widget_type, WidgetType::Scrollable) {
@@ -453,26 +543,27 @@ impl WidgetHierarchy {
         } else {
             return;
         };
-        
+
         fn clamp_descendants(widget: &mut Widget, scroll_dir: iced::widget::scrollable::Direction) {
             let should_block_height = match scroll_dir {
                 iced::widget::scrollable::Direction::Vertical(_) => true,
                 iced::widget::scrollable::Direction::Both { .. } => true,
                 iced::widget::scrollable::Direction::Horizontal(_) => false,
             };
-            
+
             let should_block_width = match scroll_dir {
                 iced::widget::scrollable::Direction::Horizontal(_) => true,
                 iced::widget::scrollable::Direction::Both { .. } => true,
                 iced::widget::scrollable::Direction::Vertical(_) => false,
             };
-            
+
             // Handle height
             if should_block_height {
                 match widget.properties.height {
                     Length::Fill | Length::FillPortion(_) => {
                         if widget.properties.saved_height_before_scrollable.is_none() {
-                            widget.properties.saved_height_before_scrollable = Some(widget.properties.height);
+                            widget.properties.saved_height_before_scrollable =
+                                Some(widget.properties.height);
                         }
                         widget.properties.height = Length::Shrink;
                     }
@@ -484,13 +575,14 @@ impl WidgetHierarchy {
                     widget.properties.height = h;
                 }
             }
-            
+
             // Handle width
             if should_block_width {
                 match widget.properties.width {
                     Length::Fill | Length::FillPortion(_) => {
                         if widget.properties.saved_width_before_scrollable.is_none() {
-                            widget.properties.saved_width_before_scrollable = Some(widget.properties.width);
+                            widget.properties.saved_width_before_scrollable =
+                                Some(widget.properties.width);
                         }
                         widget.properties.width = Length::Shrink;
                     }
@@ -502,13 +594,13 @@ impl WidgetHierarchy {
                     widget.properties.width = w;
                 }
             }
-            
+
             // Recurse to children
             for child in &mut widget.children {
                 clamp_descendants(child, scroll_dir);
             }
         }
-        
+
         if let Some(scrollable) = self.get_widget_by_id_mut(root_scrollable_id) {
             for child in &mut scrollable.children {
                 clamp_descendants(child, scroll_dir);
@@ -543,34 +635,35 @@ impl WidgetHierarchy {
         if self.selected_ids.is_empty() {
             return Err("No widgets selected".to_string());
         }
-        
+
         // Can't wrap root
         if self.selected_ids.contains(&self.root.id) {
             return Err("Cannot wrap root widget".to_string());
         }
-        
+
         // All selected widgets must share the same parent
-        let parent_ids: std::collections::HashSet<_> = self.selected_ids
+        let parent_ids: std::collections::HashSet<_> = self
+            .selected_ids
             .iter()
             .filter_map(|&id| self.find_parent_id(id))
             .collect();
-            
+
         if parent_ids.len() != 1 {
             return Err("Selected widgets must have the same parent".to_string());
         }
-        
+
         let parent_id = *parent_ids.iter().next().unwrap();
         Ok(parent_id)
     }
 
     /// Wraps selected widgets in a new container
     pub fn wrap_selected_in_container(
-        &mut self, 
-        container_type: WidgetType
+        &mut self,
+        container_type: WidgetType,
     ) -> Result<WidgetId, String> {
         // Validate before making any changes
         let parent_id = self.validate_wrapping()?;
-        
+
         // Validation for tooltip - takes 2 children
         if container_type == WidgetType::Tooltip && self.selected_ids.len() != 2 {
             return Err("Tooltip takes 2 widgets selected".to_string());
@@ -580,51 +673,53 @@ impl WidgetHierarchy {
         if container_type == WidgetType::MouseArea && self.selected_ids.len() != 1 {
             return Err("MouseArea takes 1 widget selected".to_string());
         }
-        
+
         // CRITICAL: Extract data from self before taking mutable borrow
         let selected_ids = self.selected_ids.clone();
         let wrapper_id = WidgetId(self.next_id);
         self.next_id += 1;
-        
-        let parent = self.get_widget_by_id_mut(parent_id)
+
+        let parent = self
+            .get_widget_by_id_mut(parent_id)
             .ok_or("Parent not found")?;
-        
+
         // Find indices of selected widgets in parent's children
-        let mut selected_indices: Vec<usize> = parent.children
+        let mut selected_indices: Vec<usize> = parent
+            .children
             .iter()
             .enumerate()
             .filter(|(_, child)| selected_ids.contains(&child.id)) // Use cloned set
             .map(|(i, _)| i)
             .collect();
-        
+
         if selected_indices.is_empty() {
             return Err("No valid widgets to wrap".to_string());
         }
-        
-        selected_indices.sort_unstable();  // Ensure consistent order
-        
+
+        selected_indices.sort_unstable(); // Ensure consistent order
+
         // Extract the selected widgets (in order)
         let first_index = selected_indices[0];
         let mut widgets_to_wrap = Vec::new();
-        
+
         // Remove in reverse order to maintain indices
         for &idx in selected_indices.iter().rev() {
             let widget = parent.children.remove(idx);
             widgets_to_wrap.push(widget);
         }
         widgets_to_wrap.reverse();
-        
+
         let mut wrapper = Widget::new(container_type, wrapper_id);
         wrapper.children = widgets_to_wrap;
-        
+
         parent.children.insert(first_index, wrapper);
-        
+
         self.selected_ids.clear();
         self.selected_ids.insert(wrapper_id);
-        
+
         Ok(wrapper_id)
     }
-    
+
     /// Gets all widgets that are currently selected
     pub fn get_selected_widgets(&self) -> Vec<&Widget> {
         self.selected_ids
@@ -632,29 +727,29 @@ impl WidgetHierarchy {
             .filter_map(|&id| self.get_widget_by_id(id))
             .collect()
     }
-    
+
     /// Finds properties that are common across all selected widgets
     pub fn get_common_properties(&self) -> CommonProperties {
         let selected = self.get_selected_widgets();
-        
+
         if selected.is_empty() {
             return CommonProperties::default();
         }
-        
+
         // Start with all possible properties as "common"
         // Then eliminate any that aren't shared by ALL selected widgets
         CommonProperties::from_widgets(&selected)
     }
-    
+
     /// Applies a property change to all currently selected widgets
     pub fn apply_property_to_all_selected(
-        &mut self, 
+        &mut self,
         change: PropertyChange,
-        type_system: &TypeSystem
+        type_system: &TypeSystem,
     ) {
         // Clone the selected IDs to avoid borrow checker issues
         let selected_ids: Vec<WidgetId> = self.selected_ids.iter().copied().collect();
-        
+
         for widget_id in selected_ids {
             self.apply_property_change(widget_id, change.clone(), type_system);
         }
@@ -671,7 +766,7 @@ impl WidgetHierarchy {
                     prop.uniform_width = Some(width);
                 }
             }
-            PropertyChange::DraftFixedHeight(height)=> {
+            PropertyChange::DraftFixedHeight(height) => {
                 if let Some(prop) = &mut self.common_properties {
                     prop.draft_fixed_height = height;
                 }
@@ -758,17 +853,25 @@ impl WidgetHierarchy {
             }
             _ => {}
         }
-
     }
-
 }
 
 fn can_have_children(widget_type: &WidgetType) -> bool {
     matches!(
         widget_type,
-        WidgetType::Container | WidgetType::Row | WidgetType::Column |
-        WidgetType::Scrollable | WidgetType::Tooltip |
-        WidgetType::Stack | WidgetType::Themer | WidgetType::Grid |
-        WidgetType::MouseArea | WidgetType::Pin | WidgetType::Button
+        WidgetType::Container
+            | WidgetType::Row
+            | WidgetType::Column
+            | WidgetType::Scrollable
+            | WidgetType::Collapsible
+            | WidgetType::CollapsibleGroup
+            | WidgetType::GenericOverlay
+            | WidgetType::Tooltip
+            | WidgetType::Stack
+            | WidgetType::Themer
+            | WidgetType::Grid
+            | WidgetType::MouseArea
+            | WidgetType::Pin
+            | WidgetType::Button
     )
 }

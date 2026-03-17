@@ -1,5 +1,5 @@
 use iced::widget::container::*;
-use iced::{Border, Theme, Background};
+use iced::{Background, Border, Theme};
 
 pub fn error_box(theme: &Theme) -> Style {
     let palette = theme.extended_palette();

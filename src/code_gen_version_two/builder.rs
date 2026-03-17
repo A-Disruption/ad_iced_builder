@@ -1,6 +1,8 @@
-use iced::{Alignment, Length, Padding};
+use crate::data_structures::types::type_implementations::{
+    ContentFitChoice, FontType, MouseInteraction, PaddingMode,
+};
 use iced::widget::text::LineHeight;
-use crate::data_structures::types::type_implementations::{ContentFitChoice, FontType, MouseInteraction, PaddingMode};
+use iced::{Alignment, Length, Padding};
 
 pub struct CodeBuilder {
     code: String,
@@ -76,7 +78,12 @@ impl CodeBuilder {
     fn dot_message(&mut self, method: &str, name: &str, suffix: &str) {
         self.newline();
         self.indent();
-        self.code.push_str(&format!(".{}(Message::{}{})", method, to_pascal_case(name), suffix));
+        self.code.push_str(&format!(
+            ".{}(Message::{}{})",
+            method,
+            to_pascal_case(name),
+            suffix
+        ));
     }
 
     fn dot_closure_message(&mut self, method: &str, name: &str, suffix: &str, param: &str) {
@@ -84,8 +91,22 @@ impl CodeBuilder {
         self.indent();
         self.code.push_str(&format!(
             ".{}(|{}| Message::{}{}({}))",
-            method, param, to_pascal_case(name), suffix, param
+            method,
+            param,
+            to_pascal_case(name),
+            suffix,
+            param
         ));
+    }
+
+    /// Returns `PascalCase(name) + suffix` normally, or just `PascalCase(name)` when the
+    /// widget has a user-supplied custom name (suffix is omitted in that case).
+    pub fn msg_variant(name: &str, suffix: &str, has_custom_name: bool) -> String {
+        if has_custom_name {
+            to_pascal_case(name).to_string()
+        } else {
+            format!("{}{}", to_pascal_case(name), suffix)
+        }
     }
 
     pub fn add_width(&mut self, length: Length) {
@@ -353,7 +374,13 @@ pub fn sanitize_name(name: &str) -> String {
 
     let sanitized = trimmed
         .chars()
-        .map(|c| if c.is_alphanumeric() || c == '_' { c } else { '_' })
+        .map(|c| {
+            if c.is_alphanumeric() || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
         .collect::<String>()
         .to_lowercase();
 

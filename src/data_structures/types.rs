@@ -1,2 +1,2 @@
-pub mod types;
 pub mod type_implementations;
+pub mod types;

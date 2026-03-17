@@ -1,9 +1,7 @@
 pub use iced::widget::button::*;
-use iced::{border::radius, Border, Theme};
-
+use iced::{Border, Theme, border::radius};
 
 pub fn cancel(theme: &Theme, status: Status) -> Style {
-
     let palette = theme.extended_palette();
 
     let base = Style {
@@ -22,7 +20,6 @@ pub fn cancel(theme: &Theme, status: Status) -> Style {
 }
 
 pub fn edit(theme: &Theme, status: Status) -> Style {
-
     let palette = theme.extended_palette();
 
     let base = Style {
@@ -78,7 +75,9 @@ pub fn invisible(theme: &Theme, status: Status) -> Style {
 
     let base = Style {
         text_color: palette.background.neutral.color.scale_alpha(0.000),
-        background: Some(iced::Background::Color(palette.background.neutral.color.scale_alpha(0.000))),
+        background: Some(iced::Background::Color(
+            palette.background.neutral.color.scale_alpha(0.000),
+        )),
         border: Border {
             color: palette.primary.strong.color,
             width: 0.0,
