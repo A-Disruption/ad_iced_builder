@@ -266,6 +266,30 @@ pub struct Properties {
     #[serde(default = "default_split_handle_width")]
     pub split_handle_width: f32,
 
+    // Float properties
+    #[serde(default = "default_float_scale")]
+    pub float_scale: f32,
+    #[serde(default)]
+    pub float_translate_x: f32,
+    #[serde(default)]
+    pub float_translate_y: f32,
+
+    // Responsive properties
+    #[serde(default = "default_responsive_breakpoint")]
+    pub responsive_breakpoint: f32,
+
+    // Sensor properties
+    #[serde(default)]
+    pub sensor_on_show: bool,
+    #[serde(default)]
+    pub sensor_on_resize: bool,
+    #[serde(default)]
+    pub sensor_on_hide: bool,
+    #[serde(default)]
+    pub sensor_anticipate: f32,
+    #[serde(default)]
+    pub sensor_delay_ms: u64,
+
     // PickList properties
     pub picklist_selected: Option<String>,
     pub picklist_placeholder: String,
@@ -458,6 +482,14 @@ fn default_split_handle_width() -> f32 {
     11.0
 }
 
+fn default_float_scale() -> f32 {
+    1.0
+}
+
+fn default_responsive_breakpoint() -> f32 {
+    720.0
+}
+
 impl Default for Properties {
     fn default() -> Self {
         Self {
@@ -639,6 +671,21 @@ impl Default for Properties {
             split_at: default_split_at(),
             split_strategy: SplitStrategy::default(),
             split_handle_width: default_split_handle_width(),
+
+            // Float defaults
+            float_scale: default_float_scale(),
+            float_translate_x: 0.0,
+            float_translate_y: 0.0,
+
+            // Responsive defaults
+            responsive_breakpoint: default_responsive_breakpoint(),
+
+            // Sensor defaults
+            sensor_on_show: false,
+            sensor_on_resize: false,
+            sensor_on_hide: false,
+            sensor_anticipate: 0.0,
+            sensor_delay_ms: 0,
 
             // PickList defaults
             picklist_selected: None,
@@ -872,6 +919,22 @@ impl Properties {
                 props.split_at = default_split_at();
                 props.split_strategy = SplitStrategy::default();
                 props.split_handle_width = default_split_handle_width();
+            }
+            WidgetType::Float => {
+                props.width = Length::Shrink;
+                props.height = Length::Shrink;
+                props.float_scale = default_float_scale();
+            }
+            WidgetType::Responsive => {
+                props.width = Length::Fill;
+                props.height = Length::Fill;
+                props.responsive_breakpoint = default_responsive_breakpoint();
+            }
+            WidgetType::Sensor => {
+                props.width = Length::Shrink;
+                props.height = Length::Shrink;
+                props.sensor_anticipate = 0.0;
+                props.sensor_delay_ms = 0;
             }
             WidgetType::PickList => {
                 props.padding_mode = PaddingMode::Symmetric;

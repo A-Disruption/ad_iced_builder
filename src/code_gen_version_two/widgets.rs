@@ -73,6 +73,33 @@ pub fn generate_widget_code(
             type_system,
             view_refs,
         ),
+        WidgetType::Float => generate_float(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
+        WidgetType::Responsive => generate_responsive(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
+        WidgetType::Sensor => generate_sensor(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
         WidgetType::Column => generate_column(
             b,
             widget,
@@ -1632,6 +1659,35 @@ fn split_strategy_code(strategy: SplitStrategy) -> &'static str {
     }
 }
 
+fn generate_child_or_placeholder(
+    b: &mut CodeBuilder,
+    child: Option<&Widget>,
+    placeholder: &str,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    if let Some(child) = child {
+        generate_widget_code(
+            b,
+            child,
+            names,
+            use_self,
+            custom_styles,
+            type_system,
+            view_refs,
+        );
+    } else {
+        b.indent();
+        b.push(&format!(
+            "container(text(\"{}\")).center(Length::Fill)",
+            placeholder
+        ));
+    }
+}
+
 fn generate_split(
     b: &mut CodeBuilder,
     widget: &Widget,
@@ -1725,6 +1781,249 @@ fn generate_split(
     b.dot_method("strategy", split_strategy_code(props.split_strategy));
     if (props.split_handle_width - 11.0).abs() > f32::EPSILON {
         b.dot_method("handle_width", &format!("{:.1}", props.split_handle_width));
+    }
+    b.decrease_indent();
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+
+    if !matches!(props.width, Length::Shrink) {
+        b.add_width(props.width);
+    }
+    if !matches!(props.height, Length::Shrink) {
+        b.add_height(props.height);
+    }
+    if let Some(max_width) = props.max_width {
+        b.add_max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        b.add_max_height(max_height);
+    }
+    if props.clip {
+        b.add_clip();
+    }
+}
+
+fn generate_float(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+
+    b.indent();
+    b.push("container(");
+    b.newline();
+    b.increase_indent();
+
+    b.indent();
+    b.push("float(");
+    b.newline();
+    b.increase_indent();
+    generate_child_or_placeholder(
+        b,
+        widget.children.first(),
+        "Float Content",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+    if (props.float_scale - 1.0).abs() > f32::EPSILON {
+        b.dot_method("scale", &format!("{:.2}", props.float_scale));
+    }
+    if props.float_translate_x != 0.0 || props.float_translate_y != 0.0 {
+        b.dot_method(
+            "translate",
+            &format!(
+                "move |_, _| Vector::new({:.1}, {:.1})",
+                props.float_translate_x, props.float_translate_y
+            ),
+        );
+    }
+    b.decrease_indent();
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+
+    if !matches!(props.width, Length::Shrink) {
+        b.add_width(props.width);
+    }
+    if !matches!(props.height, Length::Shrink) {
+        b.add_height(props.height);
+    }
+    if let Some(max_width) = props.max_width {
+        b.add_max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        b.add_max_height(max_height);
+    }
+    if props.clip {
+        b.add_clip();
+    }
+}
+
+fn generate_responsive(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let compact = widget.children.first();
+    let expanded = widget.children.get(1);
+    let breakpoint = props.responsive_breakpoint.max(0.0);
+
+    b.indent();
+    b.push("container(");
+    b.newline();
+    b.increase_indent();
+
+    b.line("responsive(move |size| {");
+    b.increase_indent();
+    b.line(&format!("if size.width <= {:.1} {{", breakpoint));
+    b.increase_indent();
+    generate_child_or_placeholder(
+        b,
+        compact.or(expanded),
+        "Compact View",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
+    b.newline();
+    b.decrease_indent();
+    b.line("} else {");
+    b.increase_indent();
+    generate_child_or_placeholder(
+        b,
+        expanded.or(compact),
+        "Expanded View",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
+    b.newline();
+    b.decrease_indent();
+    b.line("}");
+    b.decrease_indent();
+    b.indent();
+    b.push("})");
+    b.increase_indent();
+    if !matches!(props.width, Length::Fill) {
+        b.add_width(props.width);
+    }
+    if !matches!(props.height, Length::Fill) {
+        b.add_height(props.height);
+    }
+    b.decrease_indent();
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+
+    if let Some(max_width) = props.max_width {
+        b.add_max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        b.add_max_height(max_height);
+    }
+    if props.clip {
+        b.add_clip();
+    }
+}
+
+fn generate_sensor(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let pascal_name = to_pascal_case(&name);
+
+    b.indent();
+    b.push("container(");
+    b.newline();
+    b.increase_indent();
+
+    b.indent();
+    b.push("sensor(");
+    b.newline();
+    b.increase_indent();
+    generate_child_or_placeholder(
+        b,
+        widget.children.first(),
+        "Sensor Content",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+    if props.sensor_on_show {
+        b.dot_method(
+            "on_show",
+            &format!(
+                "|size| Message::{}Shown(size.width, size.height)",
+                pascal_name
+            ),
+        );
+    }
+    if props.sensor_on_resize {
+        b.dot_method(
+            "on_resize",
+            &format!(
+                "|size| Message::{}Resized(size.width, size.height)",
+                pascal_name
+            ),
+        );
+    }
+    if props.sensor_on_hide {
+        b.dot_method("on_hide", &format!("Message::{}Hidden", pascal_name));
+    }
+    if props.sensor_anticipate > 0.0 {
+        b.dot_method("anticipate", &format!("{:.1}", props.sensor_anticipate));
+    }
+    if props.sensor_delay_ms > 0 {
+        b.dot_method(
+            "delay",
+            &format!(
+                "std::time::Duration::from_millis({})",
+                props.sensor_delay_ms
+            ),
+        );
     }
     b.decrease_indent();
     b.newline();

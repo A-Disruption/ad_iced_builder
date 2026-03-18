@@ -3728,6 +3728,235 @@ pub fn split_controls<'a>(
         .into()
 }
 
+pub fn float_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    _type_system: &'a TypeSystem,
+    _custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let content = column![
+        text("Float Properties").size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        text("Float renders its child as an overlay when you scale or offset it.")
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        column![
+            text("Scale").size(LABEL_SIZE),
+            row![
+                slider(0.25..=3.0, props.float_scale, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::FloatScale(value))
+                })
+                .step(0.05)
+                .width(220),
+                text(format!("{:.2}x", props.float_scale))
+                    .size(LABEL_SIZE)
+                    .width(60),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Translate X").size(LABEL_SIZE),
+            row![
+                slider(-400.0..=400.0, props.float_translate_x, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::FloatTranslateX(value))
+                })
+                .step(1.0)
+                .width(220),
+                text(format!("{:.0}px", props.float_translate_x))
+                    .size(LABEL_SIZE)
+                    .width(70),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Translate Y").size(LABEL_SIZE),
+            row![
+                slider(-400.0..=400.0, props.float_translate_y, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::FloatTranslateY(value))
+                })
+                .step(1.0)
+                .width(220),
+                text(format!("{:.0}px", props.float_translate_y))
+                    .size(LABEL_SIZE)
+                    .width(70),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+        clip_control(widget_id, props.clip, theme),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
+        .into()
+}
+
+pub fn responsive_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    _type_system: &'a TypeSystem,
+    _custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let content = column![
+        text("Responsive Properties").size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        text("Child 1 is shown at or below the breakpoint width. Child 2 is shown above it.")
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        column![
+            text("Width Breakpoint").size(LABEL_SIZE),
+            row![
+                slider(240.0..=1600.0, props.responsive_breakpoint, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::ResponsiveBreakpoint(value))
+                })
+                .step(10.0)
+                .width(220),
+                text(format!("{:.0}px", props.responsive_breakpoint))
+                    .size(LABEL_SIZE)
+                    .width(70),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+        clip_control(widget_id, props.clip, theme),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
+        .into()
+}
+
+pub fn sensor_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    _type_system: &'a TypeSystem,
+    _custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let content = column![
+        text("Sensor Properties").size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        text("Sensor fires actions when its child appears, resizes while visible, or leaves view.")
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        column![
+            text("Events").size(SECTION_SIZE),
+            column![
+                event_checkbox_row(
+                    theme,
+                    props.sensor_on_show,
+                    "on_show",
+                    "Fires when the widget enters the viewport and provides width and height",
+                    move |value| Message::PropertyChanged(widget_id, PropertyChange::SensorOnShow(value)),
+                ),
+                event_checkbox_row(
+                    theme,
+                    props.sensor_on_resize,
+                    "on_resize",
+                    "Fires when the widget changes size while visible and provides width and height",
+                    move |value| Message::PropertyChanged(widget_id, PropertyChange::SensorOnResize(value)),
+                ),
+                event_checkbox_row(
+                    theme,
+                    props.sensor_on_hide,
+                    "on_hide",
+                    "Fires when the widget leaves the viewport",
+                    move |value| Message::PropertyChanged(widget_id, PropertyChange::SensorOnHide(value)),
+                ),
+            ]
+            .spacing(LABEL_SPACING),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Anticipate Distance").size(LABEL_SIZE),
+            row![
+                slider(0.0..=600.0, props.sensor_anticipate, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::SensorAnticipate(value))
+                })
+                .step(10.0)
+                .width(220),
+                text(format!("{:.0}px", props.sensor_anticipate))
+                    .size(LABEL_SIZE)
+                    .width(70),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Delay").size(LABEL_SIZE),
+            row![
+                slider(0.0..=5000.0, props.sensor_delay_ms as f32, move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SensorDelayMs(value.round() as u64)
+                    )
+                })
+                .step(50.0)
+                .width(220),
+                text(format!("{}ms", props.sensor_delay_ms))
+                    .size(LABEL_SIZE)
+                    .width(70),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+        clip_control(widget_id, props.clip, theme),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
+        .into()
+}
+
 pub fn mousearea_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,

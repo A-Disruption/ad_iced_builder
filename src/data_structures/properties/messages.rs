@@ -176,6 +176,21 @@ pub enum PropertyChange {
     SplitStrategy(SplitStrategy),
     SplitHandleWidth(f32),
 
+    // Float properties
+    FloatScale(f32),
+    FloatTranslateX(f32),
+    FloatTranslateY(f32),
+
+    // Responsive properties
+    ResponsiveBreakpoint(f32),
+
+    // Sensor properties
+    SensorOnShow(bool),
+    SensorOnResize(bool),
+    SensorOnHide(bool),
+    SensorAnticipate(f32),
+    SensorDelayMs(u64),
+
     // PickList properties
     PickListSelected(Option<String>),
     PickListPlaceholder(String),
@@ -803,6 +818,23 @@ pub fn apply_property_change(
         PropertyChange::SplitHandleWidth(value) => {
             properties.split_handle_width = value.clamp(1.0, 64.0)
         }
+
+        // Float properties
+        PropertyChange::FloatScale(value) => properties.float_scale = value.max(0.1),
+        PropertyChange::FloatTranslateX(value) => properties.float_translate_x = value,
+        PropertyChange::FloatTranslateY(value) => properties.float_translate_y = value,
+
+        // Responsive properties
+        PropertyChange::ResponsiveBreakpoint(value) => {
+            properties.responsive_breakpoint = value.max(0.0)
+        }
+
+        // Sensor properties
+        PropertyChange::SensorOnShow(value) => properties.sensor_on_show = value,
+        PropertyChange::SensorOnResize(value) => properties.sensor_on_resize = value,
+        PropertyChange::SensorOnHide(value) => properties.sensor_on_hide = value,
+        PropertyChange::SensorAnticipate(value) => properties.sensor_anticipate = value.max(0.0),
+        PropertyChange::SensorDelayMs(value) => properties.sensor_delay_ms = value,
 
         // PickList properties
         PropertyChange::PickListSelected(value) => properties.picklist_selected = value,

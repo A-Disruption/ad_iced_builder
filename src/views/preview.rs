@@ -1,8 +1,8 @@
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{
-    Pin, button, checkbox, column, combo_box, container, grid, image, markdown, mouse_area,
-    pick_list, progress_bar, radio, row, rule, scrollable, slider, space, stack, svg, table, text,
-    text_input, themer, toggler, tooltip, vertical_slider,
+    Pin, button, checkbox, column, combo_box, container, float, grid, image, markdown, mouse_area,
+    pick_list, progress_bar, radio, responsive, row, rule, scrollable, sensor, slider, space,
+    stack, svg, table, text, text_input, themer, toggler, tooltip, vertical_slider,
 };
 use iced::{Alignment, Background, Border, Color, Element, Font, Length, Task, Theme, font};
 use iced_split::{horizontal_split, vertical_split};
@@ -37,6 +37,9 @@ pub enum Message {
     RadioSelected(WidgetId, usize, Option<Uuid>),
     SliderChanged(WidgetId, f32, Option<Uuid>),
     SplitChanged(WidgetId, f32, Option<Uuid>),
+    SensorShown(WidgetId, f32, f32, Option<Uuid>),
+    SensorResized(WidgetId, f32, f32, Option<Uuid>),
+    SensorHidden(WidgetId, Option<Uuid>),
     TogglerToggled(WidgetId, bool, Option<Uuid>),
     PickListSelected(WidgetId, String, Option<Uuid>),
     GenericOverlayToggled(WidgetId, bool, Option<Uuid>),
@@ -734,6 +737,61 @@ pub fn update(
             }
         }
 
+        Message::SensorShown(id, width, height, view_id) => {
+            if let Some(view_id) = view_id {
+                let has_graph = has_action_graph(flows, view_id, id, "on_show");
+                if has_graph {
+                    let mut payload = HashMap::new();
+                    payload.insert("width".to_string(), ActionValue::Number(width as f64));
+                    payload.insert("height".to_string(), ActionValue::Number(height as f64));
+                    if let Some(nav) = interpreter::execute_event(
+                        flows, all_views, view_id, id, "on_show", payload,
+                    ) {
+                        return Task::done(Message::NavigatedToView(nav));
+                    }
+                }
+            }
+        }
+
+        Message::SensorResized(id, width, height, view_id) => {
+            if let Some(view_id) = view_id {
+                let has_graph = has_action_graph(flows, view_id, id, "on_resize");
+                if has_graph {
+                    let mut payload = HashMap::new();
+                    payload.insert("width".to_string(), ActionValue::Number(width as f64));
+                    payload.insert("height".to_string(), ActionValue::Number(height as f64));
+                    if let Some(nav) = interpreter::execute_event(
+                        flows,
+                        all_views,
+                        view_id,
+                        id,
+                        "on_resize",
+                        payload,
+                    ) {
+                        return Task::done(Message::NavigatedToView(nav));
+                    }
+                }
+            }
+        }
+
+        Message::SensorHidden(id, view_id) => {
+            if let Some(view_id) = view_id {
+                let has_graph = has_action_graph(flows, view_id, id, "on_hide");
+                if has_graph {
+                    if let Some(nav) = interpreter::execute_event(
+                        flows,
+                        all_views,
+                        view_id,
+                        id,
+                        "on_hide",
+                        HashMap::new(),
+                    ) {
+                        return Task::done(Message::NavigatedToView(nav));
+                    }
+                }
+            }
+        }
+
         Message::TogglerToggled(id, active, view_id) => {
             if let Some(view_id) = view_id {
                 let has_graph = has_action_graph(flows, view_id, id, "on_toggle");
@@ -1180,6 +1238,36 @@ fn build_widget_preview<'a>(
             type_system,
         ),
         WidgetType::Split => build_split_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Float => build_float_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Responsive => build_responsive_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Sensor => build_sensor_preview(
             hierarchy,
             widget,
             theme,
@@ -2869,6 +2957,190 @@ fn build_split_preview<'a>(
 
     let mut wrapper = container(split).width(props.width).height(props.height);
 
+    if let Some(max_width) = props.max_width {
+        wrapper = wrapper.max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        wrapper = wrapper.max_height(max_height);
+    }
+    if props.clip {
+        wrapper = wrapper.clip(true);
+    }
+
+    wrapper.into()
+}
+
+fn build_float_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+    let content = if let Some(child) = widget.children.first() {
+        build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        )
+    } else {
+        container(text("Float Content"))
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
+    };
+
+    let mut floating = float(content);
+    if (props.float_scale - 1.0).abs() > f32::EPSILON {
+        floating = floating.scale(props.float_scale);
+    }
+    if props.float_translate_x != 0.0 || props.float_translate_y != 0.0 {
+        let tx = props.float_translate_x;
+        let ty = props.float_translate_y;
+        floating = floating.translate(move |_, _| iced::Vector::new(tx, ty));
+    }
+
+    let mut wrapper = container(floating).width(props.width).height(props.height);
+    if let Some(max_width) = props.max_width {
+        wrapper = wrapper.max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        wrapper = wrapper.max_height(max_height);
+    }
+    if props.clip {
+        wrapper = wrapper.clip(true);
+    }
+
+    wrapper.into()
+}
+
+fn build_responsive_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+    let compact = widget.children.first();
+    let expanded = widget.children.get(1);
+    let breakpoint = props.responsive_breakpoint.max(0.0);
+
+    let content = responsive(move |size| {
+        let use_compact = size.width <= breakpoint;
+        let selected = if use_compact {
+            compact.or(expanded)
+        } else {
+            expanded.or(compact)
+        };
+
+        selected
+            .map(|child| {
+                build_widget_preview(
+                    hierarchy,
+                    child,
+                    theme,
+                    custom_themes,
+                    highlight_selected,
+                    all_views,
+                    current_view_id,
+                    type_system,
+                )
+            })
+            .unwrap_or_else(|| {
+                let label = if use_compact {
+                    "Compact View"
+                } else {
+                    "Expanded View"
+                };
+                container(text(label))
+                    .center(Length::Fill)
+                    .width(Length::Fill)
+                    .height(Length::Fill)
+                    .into()
+            })
+    })
+    .width(props.width)
+    .height(props.height);
+
+    let mut wrapper = container(content);
+    if let Some(max_width) = props.max_width {
+        wrapper = wrapper.max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        wrapper = wrapper.max_height(max_height);
+    }
+    if props.clip {
+        wrapper = wrapper.clip(true);
+    }
+
+    wrapper.into()
+}
+
+fn build_sensor_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+    let content = if let Some(child) = widget.children.first() {
+        build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        )
+    } else {
+        container(text("Sensor Content"))
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
+    };
+
+    let mut sensed = sensor(content).anticipate(props.sensor_anticipate.max(0.0));
+    if props.sensor_on_show {
+        let widget_id = widget.id;
+        sensed = sensed.on_show(move |size| {
+            Message::SensorShown(widget_id, size.width, size.height, current_view_id)
+        });
+    }
+    if props.sensor_on_resize {
+        let widget_id = widget.id;
+        sensed = sensed.on_resize(move |size| {
+            Message::SensorResized(widget_id, size.width, size.height, current_view_id)
+        });
+    }
+    if props.sensor_on_hide {
+        sensed = sensed.on_hide(Message::SensorHidden(widget.id, current_view_id));
+    }
+    if props.sensor_delay_ms > 0 {
+        sensed = sensed.delay(std::time::Duration::from_millis(props.sensor_delay_ms));
+    }
+
+    let mut wrapper = container(sensed).width(props.width).height(props.height);
     if let Some(max_width) = props.max_width {
         wrapper = wrapper.max_width(max_width);
     }

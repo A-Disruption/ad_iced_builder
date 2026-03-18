@@ -126,6 +126,7 @@ impl WidgetHierarchy {
                             | WidgetType::Row
                             | WidgetType::Stack
                             | WidgetType::Split
+                            | WidgetType::Responsive
                     );
             }
 
@@ -143,6 +144,9 @@ impl WidgetHierarchy {
                             | WidgetType::CollapsibleGroup
                             | WidgetType::GenericOverlay
                             | WidgetType::Split
+                            | WidgetType::Responsive
+                            | WidgetType::Float
+                            | WidgetType::Sensor
                     )
                 }
                 WidgetType::Container => parent.children.is_empty(),
@@ -151,7 +155,9 @@ impl WidgetHierarchy {
                 WidgetType::CollapsibleGroup => matches!(widget_type, WidgetType::Collapsible),
                 WidgetType::GenericOverlay => parent.children.len() < 2,
                 WidgetType::Split => parent.children.len() < 2,
+                WidgetType::Responsive => parent.children.len() < 2,
                 WidgetType::Tooltip => parent.children.len() < 2, // <= 2 children
+                WidgetType::Float | WidgetType::Sensor => parent.children.is_empty(),
                 WidgetType::MouseArea => parent.children.is_empty(),
                 WidgetType::Pin => parent.children.is_empty(),
                 _ => true,
@@ -170,7 +176,7 @@ impl WidgetHierarchy {
             if parent_id == self.root.id {
                 if self.root.children.is_empty() {
                     return Err(
-                        "Root container can only have Column, Row, Stack, or Split as its first child"
+                        "Root container can only have Column, Row, Stack, Split, or Responsive as its first child"
                             .to_string(),
                     );
                 } else {
@@ -397,6 +403,20 @@ impl WidgetHierarchy {
             }
         }
 
+        if matches!(new_parent_ty, WidgetType::Responsive) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("Responsive can only contain two children".into());
+            }
+        }
+
+        if matches!(new_parent_ty, WidgetType::Float | WidgetType::Sensor) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err(format!("{:?} can only contain one child", new_parent_ty));
+            }
+        }
+
         if matches!(new_parent_ty, WidgetType::Pin) {
             let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
             if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
@@ -410,9 +430,15 @@ impl WidgetHierarchy {
             let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
             if !matches!(
                 moving_ty,
-                WidgetType::Column | WidgetType::Row | WidgetType::Stack | WidgetType::Split
+                WidgetType::Column
+                    | WidgetType::Row
+                    | WidgetType::Stack
+                    | WidgetType::Split
+                    | WidgetType::Responsive
             ) {
-                return Err("Root can only contain Column, Row, Stack, or Split".into());
+                return Err(
+                    "Root can only contain Column, Row, Stack, Split, or Responsive".into(),
+                );
             }
             // Root can have only one child (unless we're reordering the same one)
             let root_children = &self.root.children;
@@ -882,10 +908,13 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
             | WidgetType::CollapsibleGroup
             | WidgetType::GenericOverlay
             | WidgetType::Split
+            | WidgetType::Responsive
             | WidgetType::Tooltip
             | WidgetType::Stack
             | WidgetType::Themer
             | WidgetType::Grid
+            | WidgetType::Float
+            | WidgetType::Sensor
             | WidgetType::MouseArea
             | WidgetType::Pin
             | WidgetType::Button

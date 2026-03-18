@@ -587,6 +587,12 @@ fn widget_event_variant_pattern(
             }
             _ => None,
         },
+        WidgetType::Sensor => match event_type {
+            "on_show" => Some(format!("{}Shown(_, _)", pascal)),
+            "on_resize" => Some(format!("{}Resized(_, _)", pascal)),
+            "on_hide" => Some(format!("{}Hidden", pascal)),
+            _ => None,
+        },
         WidgetType::Toggler => match event_type {
             "on_toggle" => {
                 if has_custom {
@@ -776,6 +782,27 @@ impl ImportTracker {
                     self.used_widgets.insert("text");
                 }
             }
+            WidgetType::Float => {
+                self.used_widgets.insert("container");
+                self.used_widgets.insert("float");
+                if widget.children.is_empty() {
+                    self.used_widgets.insert("text");
+                }
+            }
+            WidgetType::Responsive => {
+                self.used_widgets.insert("container");
+                self.used_widgets.insert("responsive");
+                if widget.children.is_empty() {
+                    self.used_widgets.insert("text");
+                }
+            }
+            WidgetType::Sensor => {
+                self.used_widgets.insert("container");
+                self.used_widgets.insert("sensor");
+                if widget.children.is_empty() {
+                    self.used_widgets.insert("text");
+                }
+            }
             WidgetType::Radio => {
                 self.used_widgets.insert("radio");
             }
@@ -962,6 +989,12 @@ impl ImportTracker {
         if widget.widget_type == WidgetType::Pin {
             if props.pin_point != iced::Point::ORIGIN {
                 self.uses_point = true;
+            }
+        }
+
+        if widget.widget_type == WidgetType::Float {
+            if props.float_translate_x != 0.0 || props.float_translate_y != 0.0 {
+                self.uses_vector = true;
             }
         }
 
@@ -1287,6 +1320,20 @@ fn generate_message_variants(
                 b.line(&format!("{}Changed(f32),", v));
             }
             emitted = true;
+        }
+        WidgetType::Sensor => {
+            if props.sensor_on_show {
+                b.line(&format!("{}Shown(f32, f32),", to_pascal_case(&name)));
+                emitted = true;
+            }
+            if props.sensor_on_resize {
+                b.line(&format!("{}Resized(f32, f32),", to_pascal_case(&name)));
+                emitted = true;
+            }
+            if props.sensor_on_hide {
+                b.line(&format!("{}Hidden,", to_pascal_case(&name)));
+                emitted = true;
+            }
         }
         WidgetType::Toggler => {
             if has_custom_name {
@@ -1671,6 +1718,9 @@ fn has_any_message_variants(widget: &Widget) -> bool {
                 || props.mousearea_on_move
                 || props.mousearea_on_exit
         }
+        WidgetType::Sensor => {
+            props.sensor_on_show || props.sensor_on_resize || props.sensor_on_hide
+        }
         _ => false,
     };
     if self_has {
@@ -1964,6 +2014,92 @@ fn generate_match_arms(
             }
             b.decrease_indent();
             b.line("}");
+        }
+        WidgetType::Sensor => {
+            let sensor_variant = to_pascal_case(&name);
+            if props.sensor_on_show {
+                b.line(&format!(
+                    "Message::{}Shown(width, height) => {{",
+                    sensor_variant
+                ));
+                b.increase_indent();
+                b.line("let _ = (width, height);");
+                let lowered = find_flow_graphs(
+                    all_flows,
+                    current_view_id,
+                    widget.id,
+                    "on_show",
+                    Some(&known_view_ids),
+                    view_reference_index,
+                );
+                emit_lowered_action_graphs(
+                    b,
+                    &lowered,
+                    current_view_id,
+                    view_names,
+                    all_names,
+                    view_field_names,
+                    view_reference_selection_index,
+                    is_main,
+                    callable_method_names,
+                );
+                b.decrease_indent();
+                b.line("}");
+            }
+            if props.sensor_on_resize {
+                b.line(&format!(
+                    "Message::{}Resized(width, height) => {{",
+                    sensor_variant
+                ));
+                b.increase_indent();
+                b.line("let _ = (width, height);");
+                let lowered = find_flow_graphs(
+                    all_flows,
+                    current_view_id,
+                    widget.id,
+                    "on_resize",
+                    Some(&known_view_ids),
+                    view_reference_index,
+                );
+                emit_lowered_action_graphs(
+                    b,
+                    &lowered,
+                    current_view_id,
+                    view_names,
+                    all_names,
+                    view_field_names,
+                    view_reference_selection_index,
+                    is_main,
+                    callable_method_names,
+                );
+                b.decrease_indent();
+                b.line("}");
+            }
+            if props.sensor_on_hide {
+                b.line(&format!("Message::{}Hidden => {{", sensor_variant));
+                b.increase_indent();
+                let lowered = find_flow_graphs(
+                    all_flows,
+                    current_view_id,
+                    widget.id,
+                    "on_hide",
+                    Some(&known_view_ids),
+                    view_reference_index,
+                );
+                emit_lowered_action_graphs(
+                    b,
+                    &lowered,
+                    current_view_id,
+                    view_names,
+                    all_names,
+                    view_field_names,
+                    view_reference_selection_index,
+                    is_main,
+                    callable_method_names,
+                );
+                b.decrease_indent();
+                b.line("}");
+            }
         }
         WidgetType::Toggler => {
             let arm = if has_custom_name {

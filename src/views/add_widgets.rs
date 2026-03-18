@@ -110,9 +110,13 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 ]
                 .spacing(10)
                 .padding(5),
-                row![widget_button(WidgetType::Themer, "Themer"),]
-                    .spacing(10)
-                    .padding(5),
+                row![
+                    widget_button(WidgetType::Responsive, "Responsive"),
+                    widget_button(WidgetType::Float, "Float"),
+                    widget_button(WidgetType::Themer, "Themer"),
+                ]
+                .spacing(10)
+                .padding(5),
             ],
             column![
                 text("Widgets").size(18),
@@ -160,12 +164,15 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 .spacing(10)
                 .padding(5),
                 row![
+                    widget_button(WidgetType::Sensor, "Sensor"),
                     widget_button(WidgetType::Pin, "Pin"),
                     widget_button(WidgetType::QRCode, "QRCode"),
-                    widget_button(WidgetType::Icon, "Icon"),
                 ]
                 .spacing(10)
                 .padding(5),
+                row![widget_button(WidgetType::Icon, "Icon"),]
+                    .spacing(10)
+                    .padding(5),
                 row![widget_button(WidgetType::DatePicker, "Date Picker"),]
                     .spacing(10)
                     .padding(5),
@@ -197,6 +204,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
             ]
         } else {
             vec![]
@@ -212,6 +220,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::ViewReference,
@@ -235,6 +246,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -277,6 +291,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -317,6 +334,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -357,6 +377,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -399,6 +422,99 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Stack,
                 WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
+                WidgetType::Themer,
+                WidgetType::Grid,
+                WidgetType::Button,
+                WidgetType::Text,
+                WidgetType::TextInput,
+                WidgetType::Checkbox,
+                WidgetType::Radio,
+                WidgetType::Slider,
+                WidgetType::VerticalSlider,
+                WidgetType::ProgressBar,
+                WidgetType::Toggler,
+                WidgetType::PickList,
+                WidgetType::DatePicker,
+                WidgetType::Space,
+                WidgetType::Rule,
+                WidgetType::Image,
+                WidgetType::Svg,
+                WidgetType::Tooltip,
+                WidgetType::ComboBox,
+                WidgetType::Markdown,
+                WidgetType::MouseArea,
+                WidgetType::Pin,
+                WidgetType::Table,
+                WidgetType::QRCode,
+                WidgetType::Icon,
+                WidgetType::ViewReference,
+            ]
+        } else {
+            vec![]
+        }
+    } else if parent.widget_type == WidgetType::Responsive {
+        if parent.children.len() < 2 {
+            vec![
+                WidgetType::Container,
+                WidgetType::Scrollable,
+                WidgetType::Collapsible,
+                WidgetType::CollapsibleGroup,
+                WidgetType::GenericOverlay,
+                WidgetType::Row,
+                WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
+                WidgetType::Themer,
+                WidgetType::Grid,
+                WidgetType::Button,
+                WidgetType::Text,
+                WidgetType::TextInput,
+                WidgetType::Checkbox,
+                WidgetType::Radio,
+                WidgetType::Slider,
+                WidgetType::VerticalSlider,
+                WidgetType::ProgressBar,
+                WidgetType::Toggler,
+                WidgetType::PickList,
+                WidgetType::DatePicker,
+                WidgetType::Space,
+                WidgetType::Rule,
+                WidgetType::Image,
+                WidgetType::Svg,
+                WidgetType::Tooltip,
+                WidgetType::ComboBox,
+                WidgetType::Markdown,
+                WidgetType::MouseArea,
+                WidgetType::Pin,
+                WidgetType::Table,
+                WidgetType::QRCode,
+                WidgetType::Icon,
+                WidgetType::ViewReference,
+            ]
+        } else {
+            vec![]
+        }
+    } else if parent.widget_type == WidgetType::Float || parent.widget_type == WidgetType::Sensor {
+        if parent.children.is_empty() {
+            vec![
+                WidgetType::Container,
+                WidgetType::Scrollable,
+                WidgetType::Collapsible,
+                WidgetType::CollapsibleGroup,
+                WidgetType::GenericOverlay,
+                WidgetType::Row,
+                WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Split,
+                WidgetType::Responsive,
+                WidgetType::Float,
+                WidgetType::Sensor,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -445,6 +561,9 @@ pub fn get_available_types<'a>(
             WidgetType::Column,
             WidgetType::Stack,
             WidgetType::Split,
+            WidgetType::Responsive,
+            WidgetType::Float,
+            WidgetType::Sensor,
             WidgetType::Themer,
             WidgetType::Grid,
             WidgetType::Button,

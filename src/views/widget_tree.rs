@@ -399,7 +399,10 @@ fn build_tree_item<'a>(
         | WidgetType::Container
         | WidgetType::Scrollable
         | WidgetType::Split
+        | WidgetType::Responsive
         | WidgetType::Tooltip
+        | WidgetType::Float
+        | WidgetType::Sensor
         | WidgetType::MouseArea
         | WidgetType::Pin
         | WidgetType::Button
@@ -583,6 +586,30 @@ fn build_editor_for_widget<'a>(
             view_id,
         ),
         WidgetType::Split => split_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
+        ),
+        WidgetType::Float => float_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
+        ),
+        WidgetType::Responsive => responsive_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
+        ),
+        WidgetType::Sensor => sensor_controls(
             &hierarchy,
             widget_id,
             theme,
