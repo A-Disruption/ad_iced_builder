@@ -93,6 +93,31 @@ pub struct Properties {
     pub button_on_press_with_enabled: bool,
     pub button_on_press_enabled: bool,
 
+    // TextEditor properties
+    #[serde(
+        default = "default_text_editor_content",
+        with = "serde_iced::text_editor_content"
+    )]
+    pub text_editor_content: text_editor::Content,
+    #[serde(default = "default_text_editor_placeholder")]
+    pub text_editor_placeholder: String,
+    #[serde(default = "default_text_editor_size")]
+    pub text_editor_size: f32,
+    #[serde(default = "default_text_editor_padding")]
+    pub text_editor_padding: f32,
+    #[serde(default = "default_text_editor_font")]
+    pub text_editor_font: FontType,
+    #[serde(
+        default = "default_text_editor_line_height",
+        with = "serde_iced::text_line_height"
+    )]
+    pub text_editor_line_height: text::LineHeight,
+    #[serde(
+        default = "default_text_editor_wrapping",
+        with = "serde_iced::text_wrapping"
+    )]
+    pub text_editor_wrapping: text::Wrapping,
+
     // TextInput properties
     pub text_input_value: String,
     pub text_input_placeholder: String,
@@ -490,6 +515,34 @@ fn default_responsive_breakpoint() -> f32 {
     720.0
 }
 
+fn default_text_editor_content() -> text_editor::Content {
+    text_editor::Content::new()
+}
+
+fn default_text_editor_placeholder() -> String {
+    "Start typing...".to_string()
+}
+
+fn default_text_editor_size() -> f32 {
+    16.0
+}
+
+fn default_text_editor_padding() -> f32 {
+    5.0
+}
+
+fn default_text_editor_font() -> FontType {
+    FontType::Default
+}
+
+fn default_text_editor_line_height() -> text::LineHeight {
+    text::LineHeight::default()
+}
+
+fn default_text_editor_wrapping() -> text::Wrapping {
+    text::Wrapping::default()
+}
+
 impl Default for Properties {
     fn default() -> Self {
         Self {
@@ -553,6 +606,15 @@ impl Default for Properties {
             button_on_press_maybe_enabled: false,
             button_on_press_with_enabled: false,
             button_on_press_enabled: true,
+
+            // TextEditor defaults
+            text_editor_content: default_text_editor_content(),
+            text_editor_placeholder: default_text_editor_placeholder(),
+            text_editor_size: default_text_editor_size(),
+            text_editor_padding: default_text_editor_padding(),
+            text_editor_font: default_text_editor_font(),
+            text_editor_line_height: default_text_editor_line_height(),
+            text_editor_wrapping: default_text_editor_wrapping(),
 
             // TextInput defaults
             text_content: "Sample Text".to_string(),
@@ -853,6 +915,16 @@ impl Properties {
                 props.text_content = "Sample Text".to_string();
                 props.width = Length::Shrink;
                 props.height = Length::Shrink;
+            }
+            WidgetType::TextEditor => {
+                props.width = Length::Fill;
+                props.height = Length::Fixed(180.0);
+                props.text_editor_placeholder = default_text_editor_placeholder();
+                props.text_editor_size = default_text_editor_size();
+                props.text_editor_padding = default_text_editor_padding();
+                props.text_editor_font = default_text_editor_font();
+                props.text_editor_line_height = default_text_editor_line_height();
+                props.text_editor_wrapping = default_text_editor_wrapping();
             }
             WidgetType::TextInput => {
                 props.text_input_placeholder = "Enter text...".to_string();

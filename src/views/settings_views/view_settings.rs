@@ -20,6 +20,7 @@ struct AutoStateRow<'a> {
 
 fn stateful_widget_type_label(widget_type: WidgetType) -> Option<&'static str> {
     match widget_type {
+        WidgetType::TextEditor => Some("String"),
         WidgetType::TextInput => Some("String"),
         WidgetType::Checkbox => Some("bool"),
         WidgetType::Slider | WidgetType::VerticalSlider => Some("f32"),
@@ -44,6 +45,7 @@ fn auto_state_base_name(widget: &Widget) -> Option<String> {
 
     Some(
         match widget.widget_type {
+            WidgetType::TextEditor => "text_editor",
             WidgetType::TextInput => "text_input",
             WidgetType::Checkbox => "checkbox",
             WidgetType::Slider => "slider",
@@ -286,6 +288,21 @@ mod tests {
         assert_eq!(rows.len(), 2);
         assert_eq!(rows[0].generated_name, "text_input");
         assert_eq!(rows[1].generated_name, "search_box");
+    }
+
+    #[test]
+    fn collect_stateful_widgets_includes_text_editor_text_state() {
+        let mut root = Widget::new(WidgetType::Column, WidgetId(1));
+        root.children
+            .push(Widget::new(WidgetType::TextEditor, WidgetId(2)));
+
+        let mut rows = Vec::new();
+        let mut widget_counts = HashMap::new();
+        collect_stateful_widgets(&root, &mut widget_counts, &mut rows);
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].generated_name, "text_editor");
+        assert_eq!(rows[0].type_label, "String");
     }
 
     #[test]

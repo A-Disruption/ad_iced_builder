@@ -410,24 +410,34 @@ fn collect_reachable_state_mutations(
                             }
                         };
                         let input_label = format!("value_{idx}");
-                        let assignment = if let Some(expr) =
-                            graph.expression_for_input_label(node.id, &input_label)
+                        if let Some(expr) = graph.expression_for_input_label(node.id, &input_label)
                         {
                             if let Some(rhs) = emit_assignment_expression(expr) {
-                                format!("self.{} = {};", field_name, rhs)
+                                result.push(format!("self.{} = {};", field_name, rhs));
+                                if let StateRefSource::Widget { field_suffix, .. } = &target.source
+                                {
+                                    if field_suffix == "_text" {
+                                        let content_field =
+                                            field_name.trim_end_matches("_text").to_string()
+                                                + "_content";
+                                        result.push(format!(
+                                            "self.{} = text_editor::Content::with_text(&self.{});",
+                                            content_field, field_name
+                                        ));
+                                    }
+                                }
                             } else {
-                                format!(
+                                result.push(format!(
                                     "// StateMutation({}): expression not emit-safe for cross-view intercept",
                                     field_name
-                                )
+                                ));
                             }
                         } else {
-                            format!(
+                            result.push(format!(
                                 "// StateMutation({}): missing lowered expression ({})",
                                 field_name, input_label
-                            )
-                        };
-                        result.push(assignment);
+                            ));
+                        }
                     }
                 }
             }
@@ -529,6 +539,16 @@ fn widget_event_variant_pattern(
                     }
                 } else {
                     None
+                }
+            }
+            _ => None,
+        },
+        WidgetType::TextEditor => match event_type {
+            "on_edit" => {
+                if has_custom {
+                    Some(format!("{}(_)", pascal))
+                } else {
+                    Some(format!("{}Edited(_)", pascal))
                 }
             }
             _ => None,
@@ -758,6 +778,10 @@ impl ImportTracker {
             WidgetType::Text => {
                 self.used_widgets.insert("text");
             }
+            WidgetType::TextEditor => {
+                self.used_widgets.insert("container");
+                self.used_widgets.insert("text_editor");
+            }
             WidgetType::TextInput => {
                 self.used_widgets.insert("text_input");
             }
@@ -947,6 +971,18 @@ impl ImportTracker {
             {
                 self.uses_text_alignment = true;
                 self.uses_alignment = true;
+            }
+        }
+
+        if widget.widget_type == WidgetType::TextEditor {
+            if props.text_editor_font != FontType::Default {
+                self.uses_font = true;
+            }
+            if props.text_editor_line_height != text::LineHeight::default() {
+                self.uses_text_line_height = true;
+            }
+            if props.text_editor_wrapping != text::Wrapping::default() {
+                self.uses_text_wrapping = true;
             }
         }
 
@@ -1274,6 +1310,14 @@ fn generate_message_variants(
                 }
                 emitted = true;
             }
+        }
+        WidgetType::TextEditor => {
+            if has_custom_name {
+                b.line(&format!("{}(text_editor::Action),", v));
+            } else {
+                b.line(&format!("{}Edited(text_editor::Action),", v));
+            }
+            emitted = true;
         }
         WidgetType::TextInput => {
             if has_custom_name {
@@ -1693,7 +1737,8 @@ fn has_any_message_variants(widget: &Widget) -> bool {
                 || props.button_on_press_maybe_enabled
                 || props.button_on_press_with_enabled
         }
-        WidgetType::TextInput
+        WidgetType::TextEditor
+        | WidgetType::TextInput
         | WidgetType::Checkbox
         | WidgetType::Radio
         | WidgetType::Slider
@@ -1794,6 +1839,49 @@ fn generate_match_arms(
                 b.decrease_indent();
                 b.line("}");
             }
+        }
+        WidgetType::TextEditor => {
+            let arm = if has_custom_name {
+                format!("{}(action)", v)
+            } else {
+                format!("{}Edited(action)", v)
+            };
+            b.line(&format!("Message::{} => {{", arm));
+            b.increase_indent();
+            b.line(&format!("self.{}_content.perform(action.clone());", sname));
+            b.line(&format!(
+                "self.{}_text = self.{}_content.text();",
+                sname, sname
+            ));
+            b.line("if action.is_edit() {");
+            b.increase_indent();
+            b.line(&format!("let text = self.{}_text.clone();", sname));
+            let lowered = find_flow_graphs(
+                all_flows,
+                current_view_id,
+                widget.id,
+                "on_edit",
+                Some(&known_view_ids),
+                view_reference_index,
+            );
+            let emitted_graph = emit_lowered_action_graphs(
+                b,
+                &lowered,
+                current_view_id,
+                view_names,
+                all_names,
+                view_field_names,
+                view_reference_selection_index,
+                is_main,
+                callable_method_names,
+            );
+            if !emitted_graph {
+                b.line("// Text editor content already synchronized above.");
+            }
+            b.decrease_indent();
+            b.line("}");
+            b.decrease_indent();
+            b.line("}");
         }
         WidgetType::TextInput => {
             let arm = if has_custom_name {

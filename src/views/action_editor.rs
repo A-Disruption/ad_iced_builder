@@ -3022,6 +3022,9 @@ fn collect_fields_from_widget(
     };
 
     match widget.widget_type {
+        WidgetType::TextEditor => {
+            out.push(make_widget_ref("_text", ActionValueType::String, "text"));
+        }
         WidgetType::TextInput => {
             out.push(make_widget_ref("_value", ActionValueType::String, "value"));
         }
@@ -3599,6 +3602,33 @@ mod tests {
         assert_eq!(
             overlay_field.map(|field| field.field_type.clone()),
             Some(ActionValueType::Bool)
+        );
+    }
+
+    #[test]
+    fn collect_state_fields_includes_text_editor_text_field() {
+        let (all_views, view_id, widget_id) =
+            single_view_with_widget(WidgetType::TextEditor, |_| {});
+
+        let fields = collect_state_fields(&all_views);
+        let text_editor_field = fields.iter().find(|field| {
+            field.view_id == view_id
+                && matches!(
+                    &field.source,
+                    StateRefSource::Widget {
+                        widget_id: source_widget_id,
+                        field_suffix,
+                    } if *source_widget_id == widget_id && field_suffix == "_text"
+                )
+        });
+
+        assert!(
+            text_editor_field.is_some(),
+            "expected text editor text state field"
+        );
+        assert_eq!(
+            text_editor_field.map(|field| field.field_type.clone()),
+            Some(ActionValueType::String)
         );
     }
 

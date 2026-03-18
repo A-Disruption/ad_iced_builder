@@ -481,6 +481,13 @@ fn generate_state_fields(
     let props = &widget.properties;
 
     match widget.widget_type {
+        WidgetType::TextEditor => {
+            b.line(&format!("pub {}_text: String,", to_snake_case(&name)));
+            b.line(&format!(
+                "{}_content: text_editor::Content,",
+                to_snake_case(&name)
+            ));
+        }
         WidgetType::TextInput => {
             b.line(&format!("pub {}_value: String,", to_snake_case(&name)));
         }
@@ -673,6 +680,20 @@ fn generate_state_initializers(
         .clone();
 
     match widget.widget_type {
+        WidgetType::TextEditor => {
+            let source_text = props.text_editor_content.text();
+            let escaped = escape_rust_string_literal(&source_text).replace('\n', "\\n");
+            b.line(&format!(
+                "{}_text: String::from(\"{}\"),",
+                to_snake_case(&name),
+                escaped
+            ));
+            b.line(&format!(
+                "{}_content: text_editor::Content::with_text(\"{}\"),",
+                to_snake_case(&name),
+                escaped
+            ));
+        }
         WidgetType::TextInput => {
             b.line(&format!("{}_value: String::new(),", to_snake_case(&name)));
         }
@@ -973,6 +994,30 @@ mod tests {
         );
 
         assert!(b.build().contains("login_overlay_open: true,"));
+    }
+
+    #[test]
+    fn generate_state_initializers_include_text_editor_text_and_content() {
+        let editor_id = WidgetId(6);
+        let mut editor = Widget::new(WidgetType::TextEditor, editor_id);
+        editor.properties.text_editor_content =
+            iced::widget::text_editor::Content::with_text("hello\nworld");
+
+        let mut b = CodeBuilder::new();
+        generate_state_initializers(
+            &mut b,
+            &editor,
+            &HashMap::from([(editor_id, "notes".to_string())]),
+            &TypeSystem::new(),
+            &[],
+        );
+
+        let generated = b.build();
+        assert!(generated.contains("notes_text: String::from(\"hello\\nworld\"),"));
+        assert!(
+            generated
+                .contains("notes_content: text_editor::Content::with_text(\"hello\\nworld\"),")
+        );
     }
 
     #[test]

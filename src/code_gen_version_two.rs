@@ -614,6 +614,7 @@ impl<'a> CodeGeneratorV2<'a> {
             match widget.widget_type {
                 WidgetType::Button => "button",
                 WidgetType::Text => "text",
+                WidgetType::TextEditor => "text_editor",
                 WidgetType::TextInput => "text_input",
                 WidgetType::Checkbox => "checkbox",
                 WidgetType::Radio => "radio",

@@ -17,6 +17,7 @@ pub fn actionable_events(widget_type: WidgetType, props: &Properties) -> Vec<&'s
                 vec![]
             }
         }
+        WidgetType::TextEditor => vec!["on_edit"],
         WidgetType::TextInput => {
             let mut events = vec!["on_input"];
             if props.text_input_on_submit {
@@ -105,6 +106,10 @@ pub fn actionable_events(widget_type: WidgetType, props: &Properties) -> Vec<&'s
 /// For example, `on_input` carries a `String` named `"text"`.
 pub fn trigger_ports_for_event(event_name: &str) -> Vec<TriggerPort> {
     match event_name {
+        "on_edit" => vec![TriggerPort {
+            name: "text".to_string(),
+            value_type: ActionValueType::String,
+        }],
         "on_input" => vec![TriggerPort {
             name: "text".to_string(),
             value_type: ActionValueType::String,
@@ -177,5 +182,16 @@ mod tests {
         assert_eq!(ports[0].value_type, ActionValueType::F32);
         assert_eq!(ports[1].name, "height");
         assert_eq!(ports[1].value_type, ActionValueType::F32);
+    }
+
+    #[test]
+    fn text_editor_edit_event_exposes_text_port() {
+        let events = actionable_events(WidgetType::TextEditor, &Properties::default());
+        let ports = trigger_ports_for_event("on_edit");
+
+        assert_eq!(events, vec!["on_edit"]);
+        assert_eq!(ports.len(), 1);
+        assert_eq!(ports[0].name, "text");
+        assert_eq!(ports[0].value_type, ActionValueType::String);
     }
 }

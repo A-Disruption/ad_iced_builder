@@ -41,6 +41,7 @@ pub enum WidgetType {
     Column,
     Button,
     Text,
+    TextEditor,
     TextInput,
     Checkbox,
     Radio,

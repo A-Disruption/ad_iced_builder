@@ -138,6 +138,21 @@ fn emit_node_statement(
                         let field_path =
                             target.rust_path(current_view_id, all_names, view_field_names);
                         b.line(&format!("{} = {};", field_path, value_expr));
+                        if matches!(
+                            &target.source,
+                            crate::action_system::state_ref::StateRefSource::Widget {
+                                field_suffix,
+                                ..
+                            } if field_suffix == "_text"
+                        ) {
+                            if let Some(base_path) = field_path.strip_suffix("_text") {
+                                let content_path = format!("{base_path}_content");
+                                b.line(&format!(
+                                    "{} = text_editor::Content::with_text(&{});",
+                                    content_path, field_path
+                                ));
+                            }
+                        }
                     }
                 }
             }
@@ -577,6 +592,23 @@ mod tests {
             },
             field_type: ActionValueType::String,
             display_name: field_name.to_string(),
+        }
+    }
+
+    fn widget_target(
+        view_id: Uuid,
+        widget_id: WidgetId,
+        field_suffix: &str,
+        field_type: ActionValueType,
+    ) -> StateFieldRef {
+        StateFieldRef {
+            view_id,
+            source: StateRefSource::Widget {
+                widget_id,
+                field_suffix: field_suffix.to_string(),
+            },
+            field_type,
+            display_name: field_suffix.to_string(),
         }
     }
 
@@ -1176,6 +1208,61 @@ mod tests {
         assert!(first_idx < second_idx);
         assert!(second_idx < from_state_idx);
         assert!(from_state_idx < from_port_idx);
+    }
+
+    #[test]
+    fn codegen_text_editor_state_mutation_syncs_content() {
+        let view_id = Uuid::new_v4();
+        let widget_id = WidgetId(9);
+        let mut graph = ActionGraph::new_with_trigger("on_press");
+        let mutate = ActionNodeData::new(
+            2,
+            ActionNodeKind::StateMutation {
+                assignments: vec![crate::action_system::node_kinds::StateAssignment {
+                    target: Some(widget_target(
+                        view_id,
+                        widget_id,
+                        "_text",
+                        ActionValueType::String,
+                    )),
+                    value_source: ValueSource::Literal(ActionValue::String("updated".to_string())),
+                }],
+            },
+            Point::new(260.0, 120.0),
+        );
+        let mutate_in = flow_in(&mutate);
+        graph.nodes.push(mutate);
+        graph.z_order.push(2);
+        graph.next_id = 3;
+
+        let trigger_flow_out = {
+            let trigger = graph.nodes.iter().find(|n| n.id == 1).expect("trigger");
+            flow_out(trigger)
+        };
+        assert!(graph.connect_ports(1, trigger_flow_out, 2, mutate_in));
+
+        let lowered = lower_graph_for_codegen(graph, std::collections::HashSet::new());
+        let mut b = CodeBuilder::new();
+        generate_action_graph_body(
+            &mut b,
+            &lowered,
+            view_id,
+            &HashMap::new(),
+            &HashMap::from([((view_id, widget_id), "notes".to_string())]),
+            &HashMap::new(),
+            &ViewReferenceSelectionIndex::new(),
+            true,
+            0,
+            &HashMap::new(),
+        );
+        let code = b.build();
+
+        assert!(code.contains("self.notes_text = String::from(\"updated\");"));
+        assert!(
+            code.contains(
+                "self.notes_content = text_editor::Content::with_text(&self.notes_text);"
+            )
+        );
     }
 
     #[test]

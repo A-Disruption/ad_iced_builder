@@ -123,8 +123,8 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 rule::horizontal(2),
                 row![
                     widget_button(WidgetType::Text, "Text"),
+                    widget_button(WidgetType::TextEditor, "Text Editor"),
                     widget_button(WidgetType::TextInput, "Text Input"),
-                    widget_button(WidgetType::Button, "Button")
                 ]
                 .spacing(10)
                 .padding(5),
@@ -144,7 +144,7 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 .padding(5),
                 row![
                     widget_button(WidgetType::PickList, "Pick List"),
-                    widget_button(WidgetType::Space, "Space"),
+                    widget_button(WidgetType::Button, "Button"),
                     widget_button(WidgetType::Rule, "Rule")
                 ]
                 .spacing(10)
@@ -170,12 +170,13 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 ]
                 .spacing(10)
                 .padding(5),
-                row![widget_button(WidgetType::Icon, "Icon"),]
-                    .spacing(10)
-                    .padding(5),
-                row![widget_button(WidgetType::DatePicker, "Date Picker"),]
-                    .spacing(10)
-                    .padding(5),
+                row![
+                    widget_button(WidgetType::Icon, "Icon"),
+                    widget_button(WidgetType::DatePicker, "Date Picker"),
+                    widget_button(WidgetType::Space, "Space"),
+                ]
+                .spacing(10)
+                .padding(5),
             ],
         ]
         .spacing(10),
@@ -253,6 +254,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -298,6 +300,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -341,6 +344,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -384,6 +388,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -429,6 +434,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -474,6 +480,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -519,6 +526,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Grid,
                 WidgetType::Button,
                 WidgetType::Text,
+                WidgetType::TextEditor,
                 WidgetType::TextInput,
                 WidgetType::Checkbox,
                 WidgetType::Radio,
@@ -568,6 +576,7 @@ pub fn get_available_types<'a>(
             WidgetType::Grid,
             WidgetType::Button,
             WidgetType::Text,
+            WidgetType::TextEditor,
             WidgetType::TextInput,
             WidgetType::Checkbox,
             WidgetType::Radio,

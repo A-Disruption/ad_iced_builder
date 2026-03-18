@@ -978,6 +978,171 @@ pub fn text_input_controls<'a>(
         .into()
 }
 
+pub fn text_editor_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    _type_system: &'a TypeSystem,
+    _custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+    _views: &'a BTreeMap<Uuid, AppView>,
+    _view_id: Uuid,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let mut editor = text_editor(&props.text_editor_content)
+        .placeholder(&props.text_editor_placeholder)
+        .on_action(move |action| {
+            Message::PropertyChanged(widget_id, PropertyChange::TextEditorContent(action))
+        })
+        .height(Length::Fixed(180.0))
+        .width(350.0)
+        .size(props.text_editor_size)
+        .padding(props.text_editor_padding)
+        .wrapping(props.text_editor_wrapping);
+
+    if props.text_editor_font != FontType::Default {
+        editor = editor.font(props.text_editor_font);
+    }
+
+    if props.text_editor_line_height != text::LineHeight::default() {
+        editor = editor.line_height(props.text_editor_line_height);
+    }
+
+    let content = column![
+        text("Text Editor Properties").size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        column![
+            text("Placeholder").size(LABEL_SIZE),
+            text_input("Placeholder", &props.text_editor_placeholder)
+                .on_input(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::TextEditorPlaceholder(value),
+                ))
+                .width(250),
+        ]
+        .spacing(LABEL_SPACING),
+        column![text("Content").size(LABEL_SIZE), editor].spacing(LABEL_SPACING),
+        column![
+            text("Font Size").size(LABEL_SIZE),
+            row![
+                slider(8.0..=32.0, props.text_editor_size, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TextEditorSize(value))
+                })
+                .step(1.0)
+                .width(200),
+                text(format!("{:.0}px", props.text_editor_size))
+                    .size(LABEL_SIZE)
+                    .width(50),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Internal Padding").size(LABEL_SIZE),
+            row![
+                slider(0.0..=30.0, props.text_editor_padding, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TextEditorPadding(value))
+                })
+                .step(1.0)
+                .width(200),
+                text(format!("{:.0}px", props.text_editor_padding))
+                    .size(LABEL_SIZE)
+                    .width(50),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Font").size(LABEL_SIZE),
+            pick_list(
+                vec![FontType::Default, FontType::Monospace],
+                Some(props.text_editor_font),
+                move |font| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::TextEditorFont(font),
+                )
+            ),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Wrapping").size(LABEL_SIZE),
+            pick_list(
+                vec![
+                    TextWrapping::None,
+                    TextWrapping::Word,
+                    TextWrapping::Glyph,
+                    TextWrapping::WordOrGlyph,
+                ],
+                Some(TextWrapping::from(props.text_editor_wrapping)),
+                move |wrapping| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::TextEditorWrapping(wrapping),
+                )
+            ),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Line Height").size(LABEL_SIZE),
+            row![
+                slider(
+                    0.8..=2.0,
+                    match props.text_editor_line_height {
+                        text::LineHeight::Relative(value) => value,
+                        _ => 1.0,
+                    },
+                    move |value| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TextEditorLineHeight(text::LineHeight::Relative(
+                                (value * 100.0).round() / 100.0,
+                            )),
+                        )
+                    }
+                )
+                .step(0.05)
+                .width(220),
+                text(match props.text_editor_line_height {
+                    text::LineHeight::Relative(value) => format!("{:.2}", value),
+                    _ => "1.00".into(),
+                })
+                .size(LABEL_SIZE)
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center)
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Events").size(SECTION_SIZE),
+            event_name_row(
+                theme,
+                "on_edit",
+                "Fires when the editor content changes and exposes the full text as `text`.",
+            ),
+        ]
+        .spacing(SECTION_SPACING),
+        size_controls_scrollable_aware(
+            props.width,
+            move |length| Message::PropertyChanged(widget_id, PropertyChange::Width(length)),
+            props.height,
+            move |length| Message::PropertyChanged(widget_id, PropertyChange::Height(length)),
+            h,
+            widget_id,
+        ),
+        max_width_control(widget_id, props.max_width),
+        max_height_control(widget_id, props.max_height),
+        clip_control(widget_id, props.clip, theme),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
+        .into()
+}
+
 pub fn checkbox_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,

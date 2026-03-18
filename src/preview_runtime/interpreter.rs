@@ -681,6 +681,9 @@ fn read_state(source: &StateFieldRef, all_views: &BTreeMap<Uuid, AppView>) -> Op
             }
             let props = &widget.properties;
             match (field_suffix.as_str(), &source.field_type) {
+                ("_text", ActionValueType::String) => {
+                    Some(ActionValue::String(props.text_editor_content.text()))
+                }
                 ("_value", ActionValueType::String) => {
                     Some(ActionValue::String(props.text_input_value.clone()))
                 }
@@ -746,6 +749,9 @@ fn apply_state_write(
             };
             let props = &mut widget.properties;
             match (field_suffix.as_str(), value) {
+                ("_text", ActionValue::String(s)) => {
+                    props.text_editor_content = iced::widget::text_editor::Content::with_text(&s)
+                }
                 ("_value", ActionValue::String(s)) => props.text_input_value = s,
                 ("_value", ActionValue::Number(n)) => props.slider_value = n as f32,
                 ("_split_at", ActionValue::Number(n)) => {
@@ -967,6 +973,45 @@ mod tests {
                 .get(&view_id)
                 .and_then(|view| view.custom_state_values.get(&key)),
             Some(&ActionValue::Bool(false))
+        );
+    }
+
+    #[test]
+    fn text_editor_widget_state_reads_and_writes_text() {
+        let view_id = Uuid::new_v4();
+        let mut all_views = one_view(view_id);
+        let widget_id = {
+            let view = all_views.get_mut(&view_id).expect("view");
+            let layout_id = view
+                .hierarchy
+                .add_child(WidgetId(0), WidgetType::Column)
+                .expect("add layout");
+            view.hierarchy
+                .add_child(layout_id, WidgetType::TextEditor)
+                .expect("add text editor")
+        };
+        all_views
+            .get_mut(&view_id)
+            .and_then(|view| view.hierarchy.get_widget_by_id_mut(widget_id))
+            .expect("text editor")
+            .properties
+            .text_editor_content = iced::widget::text_editor::Content::with_text("hello");
+        let field = widget_field(view_id, widget_id, "_text", ActionValueType::String);
+
+        assert_eq!(
+            read_state(&field, &all_views),
+            Some(ActionValue::String("hello".to_string()))
+        );
+
+        apply_state_write(
+            &field,
+            ActionValue::String("updated".to_string()),
+            &mut all_views,
+        );
+
+        assert_eq!(
+            read_state(&field, &all_views),
+            Some(ActionValue::String("updated".to_string()))
         );
     }
 

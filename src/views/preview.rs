@@ -2,7 +2,7 @@ use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{
     Pin, button, checkbox, column, combo_box, container, float, grid, image, markdown, mouse_area,
     pick_list, progress_bar, radio, responsive, row, rule, scrollable, sensor, slider, space,
-    stack, svg, table, text, text_input, themer, toggler, tooltip, vertical_slider,
+    stack, svg, table, text, text_editor, text_input, themer, toggler, tooltip, vertical_slider,
 };
 use iced::{Alignment, Background, Border, Color, Element, Font, Length, Task, Theme, font};
 use iced_split::{horizontal_split, vertical_split};
@@ -30,6 +30,7 @@ pub enum Message {
     PropertyChanged(WidgetId, PropertyChange, Option<Uuid>),
 
     // Interactive widget messages
+    TextEditorAction(WidgetId, text_editor::Action, Option<Uuid>),
     TextInputChanged(WidgetId, String, Option<Uuid>),
     Submitted(WidgetId, Option<Uuid>),
     TextPasted(WidgetId, String, Option<Uuid>),
@@ -566,6 +567,35 @@ pub fn update(
                             }
                         }
                         _ => {}
+                    }
+                }
+            }
+        }
+
+        Message::TextEditorAction(id, action, view_id) => {
+            if let Some(view_id) = view_id {
+                let has_graph = action.is_edit() && has_action_graph(flows, view_id, id, "on_edit");
+
+                if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(
+                        id,
+                        PropertyChange::TextEditorContent(action.clone()),
+                        type_system,
+                    );
+                }
+
+                if has_graph {
+                    let text = all_views
+                        .get(&view_id)
+                        .and_then(|view| view.hierarchy.get_widget_by_id(id))
+                        .map(|widget| widget.properties.text_editor_content.text())
+                        .unwrap_or_default();
+                    let mut payload = HashMap::new();
+                    payload.insert("text".to_string(), ActionValue::String(text));
+                    if let Some(nav) = interpreter::execute_event(
+                        flows, all_views, view_id, id, "on_edit", payload,
+                    ) {
+                        return Task::done(Message::NavigatedToView(nav));
                     }
                 }
             }
@@ -1138,6 +1168,16 @@ fn build_widget_preview<'a>(
             type_system,
         ),
         WidgetType::Text => build_text_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::TextEditor => build_text_editor_preview(
             hierarchy,
             widget,
             theme,
@@ -1848,6 +1888,51 @@ fn build_text_preview<'a>(
 
     let _ = theme; // used via closure capture above
     t.into()
+}
+
+fn build_text_editor_preview<'a>(
+    _hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    _theme: &'a Theme,
+    _custom_themes: &'a CustomThemes,
+    _highlight_selected: bool,
+    _all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    _type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+
+    let mut editor = text_editor(&props.text_editor_content)
+        .placeholder(&props.text_editor_placeholder)
+        .on_action(move |action| Message::TextEditorAction(widget.id, action, current_view_id))
+        .height(props.height)
+        .padding(props.text_editor_padding)
+        .wrapping(props.text_editor_wrapping)
+        .size(props.text_editor_size);
+
+    if props.text_editor_font != FontType::Default {
+        editor = editor.font(props.text_editor_font);
+    }
+
+    if props.text_editor_line_height != text::LineHeight::default() {
+        editor = editor.line_height(props.text_editor_line_height);
+    }
+
+    let mut wrapper = container(editor).width(props.width).height(props.height);
+
+    if let Some(max_width) = props.max_width {
+        wrapper = wrapper.max_width(max_width);
+    }
+
+    if let Some(max_height) = props.max_height {
+        wrapper = wrapper.max_height(max_height);
+    }
+
+    if props.clip {
+        wrapper = wrapper.clip(true);
+    }
+
+    wrapper.into()
 }
 
 fn build_text_input_preview<'a>(

@@ -175,6 +175,7 @@ pub fn generate_widget_code(
         ),
         WidgetType::Svg => generate_svg(b, widget),
         WidgetType::Text => generate_text(b, widget),
+        WidgetType::TextEditor => generate_text_editor(b, widget, names, use_self),
         WidgetType::TextInput => generate_textinput(b, widget, names, custom_styles, use_self),
         WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
         WidgetType::Themer => generate_themer(
@@ -577,7 +578,7 @@ fn generate_svg(b: &mut CodeBuilder, widget: &Widget) {
         b.add_content_fit(&props.svg_fit);
     }
 
-    if !matches!(props.width, Length::Fill) {
+    if !matches!(props.width, Length::Shrink) {
         b.add_width(props.width);
     }
 
@@ -1257,6 +1258,93 @@ fn generate_picklist(
             b.add_menu_style("styles::menu", &style_name.to_lowercase());
         }
     }
+}
+
+fn generate_text_editor(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    use_self: bool,
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let has_custom_name = !props.widget_name.trim().is_empty();
+    let sname = to_snake_case(&name);
+
+    b.indent();
+    b.push("container(");
+    b.newline();
+    b.increase_indent();
+    b.indent();
+    if use_self {
+        b.push(&format!("text_editor(&self.{}_content)", sname));
+    } else {
+        let source_text =
+            escape_string_literal(&props.text_editor_content.text()).replace('\n', "\\n");
+        b.push(&format!(
+            "text_editor(&text_editor::Content::with_text(\"{}\"))",
+            source_text
+        ));
+    }
+    b.increase_indent();
+    b.dot_method(
+        "placeholder",
+        &format!(
+            "\"{}\"",
+            escape_string_literal(&props.text_editor_placeholder)
+        ),
+    );
+    b.dot_method("height", &format_length(props.height));
+    if use_self {
+        let variant = CodeBuilder::msg_variant(&name, "Edited", has_custom_name);
+        b.dot_method("on_action", &format!("Message::{}", variant));
+    }
+    if props.text_editor_font != FontType::Default {
+        b.add_font(props.text_editor_font);
+    }
+    if props.text_editor_size != 16.0 {
+        b.add_size(props.text_editor_size);
+    }
+    if props.text_editor_line_height != LineHeight::default() {
+        b.add_lineheight(&props.text_editor_line_height);
+    }
+    if props.text_editor_padding != 5.0 {
+        b.dot_method("padding", &format!("{:.1}", props.text_editor_padding));
+    }
+    if props.text_editor_wrapping != iced::widget::text::Wrapping::default() {
+        let wrapping = match props.text_editor_wrapping {
+            iced::widget::text::Wrapping::None => "Wrapping::None",
+            iced::widget::text::Wrapping::Word => "Wrapping::Word",
+            iced::widget::text::Wrapping::Glyph => "Wrapping::Glyph",
+            iced::widget::text::Wrapping::WordOrGlyph => "Wrapping::WordOrGlyph",
+        };
+        b.dot_method("wrapping", wrapping);
+    }
+    b.decrease_indent();
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+    if !matches!(props.width, Length::Fill) {
+        b.add_width(props.width);
+    }
+    if !matches!(props.height, Length::Shrink) {
+        b.add_height(props.height);
+    }
+    if let Some(max_width) = props.max_width {
+        b.add_max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        b.add_max_height(max_height);
+    }
+    if props.clip {
+        b.add_clip();
+    }
+    b.decrease_indent();
 }
 
 fn generate_textinput(

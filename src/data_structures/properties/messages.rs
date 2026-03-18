@@ -70,6 +70,15 @@ pub enum PropertyChange {
     // Button properties
     ButtonPressHandler(OnHandler),
 
+    // TextEditor properties
+    TextEditorContent(text_editor::Action),
+    TextEditorPlaceholder(String),
+    TextEditorSize(f32),
+    TextEditorPadding(f32),
+    TextEditorFont(FontType),
+    TextEditorLineHeight(text::LineHeight),
+    TextEditorWrapping(TextWrapping),
+
     // TextInput properties
     TextInputValue(String),
     TextInputPlaceholder(String),
@@ -507,6 +516,21 @@ pub fn apply_property_change(
                 OnHandler::OnActionWith => properties.button_on_press_with_enabled = true,
                 OnHandler::OnActionMaybe => properties.button_on_press_maybe_enabled = true,
             }
+        }
+
+        // TextEditor properties
+        PropertyChange::TextEditorContent(action) => {
+            properties.text_editor_content.perform(action);
+        }
+        PropertyChange::TextEditorPlaceholder(value) => properties.text_editor_placeholder = value,
+        PropertyChange::TextEditorSize(value) => properties.text_editor_size = value,
+        PropertyChange::TextEditorPadding(value) => properties.text_editor_padding = value,
+        PropertyChange::TextEditorFont(font) => properties.text_editor_font = font,
+        PropertyChange::TextEditorLineHeight(line_height) => {
+            properties.text_editor_line_height = line_height
+        }
+        PropertyChange::TextEditorWrapping(wrapping) => {
+            properties.text_editor_wrapping = wrapping.to_wrap()
         }
 
         // TextInput properties

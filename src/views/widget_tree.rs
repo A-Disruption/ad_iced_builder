@@ -527,6 +527,16 @@ fn build_editor_for_widget<'a>(
             custom_styles,
             preview_content,
         ),
+        WidgetType::TextEditor => text_editor_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
+            views,
+            view_id,
+        ),
         WidgetType::TextInput => text_input_controls(
             &hierarchy,
             widget_id,
