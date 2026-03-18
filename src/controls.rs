@@ -3595,6 +3595,139 @@ pub fn date_picker_controls<'a>(
         .into()
 }
 
+pub fn split_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    _theme: &Theme,
+    _type_system: &'a TypeSystem,
+    _custom_styles: &'a CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+    let pane_hint = match props.orientation {
+        Orientation::Vertical => "Child 1 is the left pane and child 2 is the right pane.",
+        Orientation::Horizontal => "Child 1 is the top pane and child 2 is the bottom pane.",
+    };
+    let position_label = match props.split_strategy {
+        SplitStrategy::Relative => "Split Position",
+        SplitStrategy::Start => "Start Pane Size",
+        SplitStrategy::End => "End Pane Size",
+    };
+
+    let position_controls: Element<'a, Message> = match props.split_strategy {
+        SplitStrategy::Relative => column![
+            text(position_label).size(LABEL_SIZE),
+            row![
+                slider(0.0..=1.0, props.split_at, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value))
+                })
+                .step(0.01)
+                .width(220),
+                text(format!("{:.2}", props.split_at))
+                    .size(LABEL_SIZE)
+                    .width(60),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING)
+        .into(),
+        SplitStrategy::Start | SplitStrategy::End => {
+            let slider_max = props.split_at.max(800.0).ceil();
+            column![
+                text(position_label).size(LABEL_SIZE),
+                row![
+                    slider(0.0..=slider_max, props.split_at, move |value| {
+                        Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value))
+                    })
+                    .step(1.0)
+                    .width(220),
+                    text(format!("{:.0}px", props.split_at))
+                        .size(LABEL_SIZE)
+                        .width(60),
+                ]
+                .spacing(SECTION_SPACING)
+                .align_y(Alignment::Center),
+            ]
+            .spacing(LABEL_SPACING)
+            .into()
+        }
+    };
+
+    let content = column![
+        text("Split Properties").size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        text("Split lays out exactly two child panes with a draggable divider.")
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        text(pane_hint)
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        column![
+            text("Orientation").size(LABEL_SIZE),
+            pick_list(
+                vec![Orientation::Vertical, Orientation::Horizontal],
+                Some(props.orientation),
+                move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::Orientation(value)
+                ),
+            )
+            .width(180),
+        ]
+        .spacing(LABEL_SPACING),
+        column![
+            text("Sizing Strategy").size(LABEL_SIZE),
+            pick_list(
+                vec![
+                    SplitStrategy::Relative,
+                    SplitStrategy::Start,
+                    SplitStrategy::End,
+                ],
+                Some(props.split_strategy),
+                move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::SplitStrategy(value)
+                ),
+            )
+            .width(180),
+        ]
+        .spacing(LABEL_SPACING),
+        position_controls,
+        column![
+            text("Handle Width").size(LABEL_SIZE),
+            row![
+                slider(1.0..=32.0, props.split_handle_width, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::SplitHandleWidth(value))
+                })
+                .step(1.0)
+                .width(220),
+                text(format!("{:.0}px", props.split_handle_width))
+                    .size(LABEL_SIZE)
+                    .width(60),
+            ]
+            .spacing(SECTION_SPACING)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(LABEL_SPACING),
+        size_controls_scrollable_aware(
+            props.width,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+            props.height,
+            move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+            h,
+            widget_id,
+        ),
+        clip_control(widget_id, props.clip, _theme),
+    ]
+    .spacing(MAIN_SPACING)
+    .into();
+
+    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
+        .into()
+}
+
 pub fn mousearea_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,

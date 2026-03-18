@@ -171,6 +171,11 @@ pub enum PropertyChange {
     DatePickerInitialHour(u32),
     DatePickerInitialMinute(u32),
 
+    // Split properties
+    SplitAt(f32),
+    SplitStrategy(SplitStrategy),
+    SplitHandleWidth(f32),
+
     // PickList properties
     PickListSelected(Option<String>),
     PickListPlaceholder(String),
@@ -773,6 +778,30 @@ pub fn apply_property_change(
         }
         PropertyChange::DatePickerInitialMinute(value) => {
             properties.date_picker_initial_minute = value.min(59)
+        }
+
+        // Split properties
+        PropertyChange::SplitAt(value) => match properties.split_strategy {
+            SplitStrategy::Relative => properties.split_at = value.clamp(0.0, 1.0),
+            SplitStrategy::Start | SplitStrategy::End => properties.split_at = value.max(0.0),
+        },
+        PropertyChange::SplitStrategy(value) => {
+            properties.split_strategy = value;
+            match value {
+                SplitStrategy::Relative => {
+                    if !(0.0..=1.0).contains(&properties.split_at) {
+                        properties.split_at = 0.5;
+                    }
+                }
+                SplitStrategy::Start | SplitStrategy::End => {
+                    if properties.split_at <= 1.0 {
+                        properties.split_at = 240.0;
+                    }
+                }
+            }
+        }
+        PropertyChange::SplitHandleWidth(value) => {
+            properties.split_handle_width = value.clamp(1.0, 64.0)
         }
 
         // PickList properties

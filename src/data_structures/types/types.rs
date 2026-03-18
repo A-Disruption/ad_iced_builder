@@ -63,6 +63,7 @@ pub enum WidgetType {
     CollapsibleGroup,
     GenericOverlay,
     DatePicker,
+    Split,
     Themer,
     Grid,
     Pin,

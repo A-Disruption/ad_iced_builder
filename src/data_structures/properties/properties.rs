@@ -258,6 +258,14 @@ pub struct Properties {
     #[serde(default)]
     pub date_picker_initial_minute: u32,
 
+    // Split properties
+    #[serde(default = "default_split_at")]
+    pub split_at: f32,
+    #[serde(default)]
+    pub split_strategy: SplitStrategy,
+    #[serde(default = "default_split_handle_width")]
+    pub split_handle_width: f32,
+
     // PickList properties
     pub picklist_selected: Option<String>,
     pub picklist_placeholder: String,
@@ -442,6 +450,14 @@ fn default_generic_overlay_safe_triangle() -> bool {
     true
 }
 
+fn default_split_at() -> f32 {
+    0.5
+}
+
+fn default_split_handle_width() -> f32 {
+    11.0
+}
+
 impl Default for Properties {
     fn default() -> Self {
         Self {
@@ -618,6 +634,11 @@ impl Default for Properties {
             date_picker_initial_range_end: String::new(),
             date_picker_initial_hour: 0,
             date_picker_initial_minute: 0,
+
+            // Split defaults
+            split_at: default_split_at(),
+            split_strategy: SplitStrategy::default(),
+            split_handle_width: default_split_handle_width(),
 
             // PickList defaults
             picklist_selected: None,
@@ -843,6 +864,14 @@ impl Properties {
                     right: 10.0,
                     left: 10.0,
                 };
+            }
+            WidgetType::Split => {
+                props.width = Length::Fill;
+                props.height = Length::Fill;
+                props.orientation = Orientation::Vertical;
+                props.split_at = default_split_at();
+                props.split_strategy = SplitStrategy::default();
+                props.split_handle_width = default_split_handle_width();
             }
             WidgetType::PickList => {
                 props.padding_mode = PaddingMode::Symmetric;

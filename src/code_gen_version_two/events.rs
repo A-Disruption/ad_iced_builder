@@ -577,7 +577,7 @@ fn widget_event_variant_pattern(
             }
             _ => None,
         },
-        WidgetType::Slider | WidgetType::VerticalSlider => match event_type {
+        WidgetType::Slider | WidgetType::VerticalSlider | WidgetType::Split => match event_type {
             "on_change" => {
                 if has_custom {
                     Some(format!("{}(_)", pascal))
@@ -769,6 +769,12 @@ impl ImportTracker {
                 self.used_widgets.insert("button");
                 self.used_widgets.insert("stack");
                 self.used_widgets.insert("text");
+            }
+            WidgetType::Split => {
+                self.used_widgets.insert("container");
+                if widget.children.len() < 2 {
+                    self.used_widgets.insert("text");
+                }
             }
             WidgetType::Radio => {
                 self.used_widgets.insert("radio");
@@ -1274,6 +1280,14 @@ fn generate_message_variants(
             }
             emitted = true;
         }
+        WidgetType::Split => {
+            if has_custom_name {
+                b.line(&format!("{}(f32),", v));
+            } else {
+                b.line(&format!("{}Changed(f32),", v));
+            }
+            emitted = true;
+        }
         WidgetType::Toggler => {
             if has_custom_name {
                 b.line(&format!("{}(bool),", v));
@@ -1637,6 +1651,7 @@ fn has_any_message_variants(widget: &Widget) -> bool {
         | WidgetType::Radio
         | WidgetType::Slider
         | WidgetType::VerticalSlider
+        | WidgetType::Split
         | WidgetType::Toggler
         | WidgetType::GenericOverlay
         | WidgetType::DatePicker
@@ -1914,6 +1929,38 @@ fn generate_match_arms(
                 callable_method_names,
             ) {
                 b.line(&format!("self.{}_value = value;", sname));
+            }
+            b.decrease_indent();
+            b.line("}");
+        }
+        WidgetType::Split => {
+            let arm = if has_custom_name {
+                format!("{}(value)", v)
+            } else {
+                format!("{}Changed(value)", v)
+            };
+            b.line(&format!("Message::{} => {{", arm));
+            b.increase_indent();
+            let lowered = find_flow_graphs(
+                all_flows,
+                current_view_id,
+                widget.id,
+                "on_change",
+                Some(&known_view_ids),
+                view_reference_index,
+            );
+            if !emit_lowered_action_graphs(
+                b,
+                &lowered,
+                current_view_id,
+                view_names,
+                all_names,
+                view_field_names,
+                view_reference_selection_index,
+                is_main,
+                callable_method_names,
+            ) {
+                b.line(&format!("self.{}_split_at = value;", sname));
             }
             b.decrease_indent();
             b.line("}");

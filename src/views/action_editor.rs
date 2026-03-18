@@ -3028,6 +3028,13 @@ fn collect_fields_from_widget(
         WidgetType::Slider | WidgetType::VerticalSlider => {
             out.push(make_widget_ref("_value", ActionValueType::F32, "value"));
         }
+        WidgetType::Split => {
+            out.push(make_widget_ref(
+                "_split_at",
+                ActionValueType::F32,
+                "split position",
+            ));
+        }
         WidgetType::Checkbox => {
             out.push(make_widget_ref(
                 "_checked",
@@ -3619,6 +3626,29 @@ mod tests {
         assert_eq!(
             date_picker_field.map(|field| field.field_type.clone()),
             Some(ActionValueType::Bool)
+        );
+    }
+
+    #[test]
+    fn collect_state_fields_includes_split_position_field() {
+        let (all_views, view_id, widget_id) = single_view_with_widget(WidgetType::Split, |_| {});
+
+        let fields = collect_state_fields(&all_views);
+        let split_field = fields.iter().find(|field| {
+            field.view_id == view_id
+                && matches!(
+                    &field.source,
+                    StateRefSource::Widget {
+                        widget_id: source_widget_id,
+                        field_suffix,
+                    } if *source_widget_id == widget_id && field_suffix == "_split_at"
+                )
+        });
+
+        assert!(split_field.is_some(), "expected split position state field");
+        assert_eq!(
+            split_field.map(|field| field.field_type.clone()),
+            Some(ActionValueType::F32)
         );
     }
 

@@ -5,6 +5,7 @@ use iced::widget::{
     text_input, themer, toggler, tooltip, vertical_slider,
 };
 use iced::{Alignment, Background, Border, Color, Element, Font, Length, Task, Theme, font};
+use iced_split::{horizontal_split, vertical_split};
 use std::collections::{BTreeMap, HashMap};
 use uuid::Uuid;
 
@@ -35,6 +36,7 @@ pub enum Message {
     CheckboxToggled(WidgetId, bool, Option<Uuid>),
     RadioSelected(WidgetId, usize, Option<Uuid>),
     SliderChanged(WidgetId, f32, Option<Uuid>),
+    SplitChanged(WidgetId, f32, Option<Uuid>),
     TogglerToggled(WidgetId, bool, Option<Uuid>),
     PickListSelected(WidgetId, String, Option<Uuid>),
     GenericOverlayToggled(WidgetId, bool, Option<Uuid>),
@@ -706,6 +708,32 @@ pub fn update(
             }
         }
 
+        Message::SplitChanged(id, value, view_id) => {
+            if let Some(view_id) = view_id {
+                let has_graph = has_action_graph(flows, view_id, id, "on_change");
+                if has_graph {
+                    let mut payload = HashMap::new();
+                    payload.insert("value".to_string(), ActionValue::Number(value as f64));
+                    if let Some(nav) = interpreter::execute_event(
+                        flows,
+                        all_views,
+                        view_id,
+                        id,
+                        "on_change",
+                        payload,
+                    ) {
+                        return Task::done(Message::NavigatedToView(nav));
+                    }
+                } else if let Some(view) = all_views.get_mut(&view_id) {
+                    view.hierarchy.apply_property_change(
+                        id,
+                        PropertyChange::SplitAt(value),
+                        type_system,
+                    );
+                }
+            }
+        }
+
         Message::TogglerToggled(id, active, view_id) => {
             if let Some(view_id) = view_id {
                 let has_graph = has_action_graph(flows, view_id, id, "on_toggle");
@@ -1142,6 +1170,16 @@ fn build_widget_preview<'a>(
             type_system,
         ),
         WidgetType::DatePicker => build_date_picker_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Split => build_split_preview(
             hierarchy,
             widget,
             theme,
@@ -2766,6 +2804,82 @@ fn build_date_picker_preview<'a>(
     };
 
     stack![trigger, picker].into()
+}
+
+fn build_split_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+
+    let start: Element<'a, Message> = if let Some(child) = widget.children.get(0) {
+        build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        )
+    } else {
+        container(text("Start Pane"))
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
+    };
+
+    let end: Element<'a, Message> = if let Some(child) = widget.children.get(1) {
+        build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        )
+    } else {
+        container(text("End Pane"))
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
+    };
+
+    let split = match props.orientation {
+        Orientation::Vertical => vertical_split(start, end, props.split_at, move |value| {
+            Message::SplitChanged(widget.id, value, current_view_id)
+        }),
+        Orientation::Horizontal => horizontal_split(start, end, props.split_at, move |value| {
+            Message::SplitChanged(widget.id, value, current_view_id)
+        }),
+    }
+    .strategy(props.split_strategy.into())
+    .handle_width(props.split_handle_width);
+
+    let mut wrapper = container(split).width(props.width).height(props.height);
+
+    if let Some(max_width) = props.max_width {
+        wrapper = wrapper.max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        wrapper = wrapper.max_height(max_height);
+    }
+    if props.clip {
+        wrapper = wrapper.clip(true);
+    }
+
+    wrapper.into()
 }
 
 fn build_generic_overlay_preview<'a>(

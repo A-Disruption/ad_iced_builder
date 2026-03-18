@@ -687,6 +687,9 @@ fn read_state(source: &StateFieldRef, all_views: &BTreeMap<Uuid, AppView>) -> Op
                 ("_value", ActionValueType::F32) => {
                     Some(ActionValue::Number(props.slider_value as f64))
                 }
+                ("_split_at", ActionValueType::F32) => {
+                    Some(ActionValue::Number(props.split_at as f64))
+                }
                 ("_checked", _) => Some(ActionValue::Bool(props.checkbox_checked)),
                 ("_active", _) => Some(ActionValue::Bool(props.toggler_active)),
                 ("_selected", ActionValueType::String) => Some(ActionValue::String(
@@ -745,6 +748,18 @@ fn apply_state_write(
             match (field_suffix.as_str(), value) {
                 ("_value", ActionValue::String(s)) => props.text_input_value = s,
                 ("_value", ActionValue::Number(n)) => props.slider_value = n as f32,
+                ("_split_at", ActionValue::Number(n)) => {
+                    let value = n as f32;
+                    props.split_at = match props.split_strategy {
+                        crate::data_structures::types::type_implementations::SplitStrategy::Relative => {
+                            value.clamp(0.0, 1.0)
+                        }
+                        crate::data_structures::types::type_implementations::SplitStrategy::Start
+                        | crate::data_structures::types::type_implementations::SplitStrategy::End => {
+                            value.max(0.0)
+                        }
+                    };
+                }
                 ("_checked", ActionValue::Bool(b)) => props.checkbox_checked = b,
                 ("_active", ActionValue::Bool(b)) => props.toggler_active = b,
                 ("_selected", ActionValue::String(s)) => props.picklist_selected = Some(s),
@@ -994,6 +1009,42 @@ mod tests {
                 .get(&view_id)
                 .and_then(|view| view.custom_state_values.get(&key)),
             Some(&ActionValue::Bool(false))
+        );
+    }
+
+    #[test]
+    fn split_widget_state_reads_and_writes_position() {
+        let view_id = Uuid::new_v4();
+        let mut all_views = one_view(view_id);
+        let widget_id = {
+            let view = all_views.get_mut(&view_id).expect("view");
+            let layout_id = view
+                .hierarchy
+                .add_child(WidgetId(0), WidgetType::Column)
+                .expect("add layout");
+            view.hierarchy
+                .add_child(layout_id, WidgetType::Split)
+                .expect("add split")
+        };
+        all_views
+            .get_mut(&view_id)
+            .and_then(|view| view.hierarchy.get_widget_by_id_mut(widget_id))
+            .expect("split")
+            .properties
+            .split_at = 0.25;
+
+        let field = widget_field(view_id, widget_id, "_split_at", ActionValueType::F32);
+
+        assert_eq!(
+            read_state(&field, &all_views),
+            Some(ActionValue::Number(0.25))
+        );
+
+        apply_state_write(&field, ActionValue::Number(0.75), &mut all_views);
+
+        assert_eq!(
+            read_state(&field, &all_views),
+            Some(ActionValue::Number(0.75))
         );
     }
 

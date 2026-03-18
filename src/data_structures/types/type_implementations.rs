@@ -73,6 +73,16 @@ impl std::fmt::Display for DatePickerSelectionMode {
     }
 }
 
+impl std::fmt::Display for SplitStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SplitStrategy::Relative => write!(f, "Relative"),
+            SplitStrategy::Start => write!(f, "Start"),
+            SplitStrategy::End => write!(f, "End"),
+        }
+    }
+}
+
 impl std::fmt::Display for ButtonStyleType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
@@ -520,6 +530,24 @@ pub enum DatePickerSelectionMode {
     #[default]
     Single,
     Range,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum SplitStrategy {
+    #[default]
+    Relative,
+    Start,
+    End,
+}
+
+impl From<SplitStrategy> for iced_split::Strategy {
+    fn from(strategy: SplitStrategy) -> Self {
+        match strategy {
+            SplitStrategy::Relative => Self::Relative,
+            SplitStrategy::Start => Self::Start,
+            SplitStrategy::End => Self::End,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

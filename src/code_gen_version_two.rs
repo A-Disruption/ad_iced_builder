@@ -185,6 +185,7 @@ impl<'a> CodeGeneratorV2<'a> {
         let mut needs_svg = false;
         let mut needs_markdown = false;
         let mut needs_qr_code = false;
+        let mut needs_iced_split = false;
         let mut widget_features = BTreeSet::new();
 
         for view_entry in views.values() {
@@ -200,6 +201,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 &mut needs_svg,
                 &mut needs_markdown,
                 &mut needs_qr_code,
+                &mut needs_iced_split,
                 &mut widget_features,
             );
         }
@@ -221,6 +223,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 needs_svg,
                 needs_markdown,
                 needs_qr_code,
+                needs_iced_split,
                 &widget_features,
             ),
         );
@@ -312,6 +315,7 @@ impl<'a> CodeGeneratorV2<'a> {
         needs_svg: &mut bool,
         needs_markdown: &mut bool,
         needs_qr_code: &mut bool,
+        needs_iced_split: &mut bool,
         widget_features: &mut BTreeSet<&'static str>,
     ) {
         match widget.widget_type {
@@ -319,6 +323,7 @@ impl<'a> CodeGeneratorV2<'a> {
             WidgetType::Svg => *needs_svg = true,
             WidgetType::Markdown => *needs_markdown = true,
             WidgetType::QRCode => *needs_qr_code = true,
+            WidgetType::Split => *needs_iced_split = true,
             WidgetType::Collapsible | WidgetType::CollapsibleGroup => {
                 widget_features.insert("collapsible");
             }
@@ -337,6 +342,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 needs_svg,
                 needs_markdown,
                 needs_qr_code,
+                needs_iced_split,
                 widget_features,
             );
         }
@@ -613,6 +619,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 WidgetType::Radio => "radio",
                 WidgetType::Slider => "slider",
                 WidgetType::VerticalSlider => "vertical_slider",
+                WidgetType::Split => "split",
                 WidgetType::ProgressBar => "progress_bar",
                 WidgetType::Toggler => "toggler",
                 WidgetType::PickList => "pick_list",
@@ -682,6 +689,7 @@ fn generate_cargo_toml(
     needs_svg: bool,
     needs_markdown: bool,
     needs_qr_code: bool,
+    needs_iced_split: bool,
     widget_features: &BTreeSet<&'static str>,
 ) -> String {
     let mut features = vec!["\"tokio\"", "\"lazy\"", "\"advanced\"", "\"debug\""];
@@ -723,11 +731,17 @@ fn generate_cargo_toml(
             features
         )
     };
+    let iced_split_dep = if needs_iced_split {
+        "iced_split = \"0.1.0\"\n"
+    } else {
+        ""
+    };
 
     format!(
-        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.14.0\", features = [\n{}\n] }}\n{}{}",
+        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.14.0\", features = [\n{}\n] }}\n{}{}{}",
         to_snake_case(app_name),
         features_str,
+        iced_split_dep,
         widgets_dep,
         build_deps,
     )

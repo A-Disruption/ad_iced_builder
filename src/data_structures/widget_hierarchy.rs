@@ -122,7 +122,10 @@ impl WidgetHierarchy {
                 return parent.children.is_empty()
                     && matches!(
                         widget_type,
-                        WidgetType::Column | WidgetType::Row | WidgetType::Stack
+                        WidgetType::Column
+                            | WidgetType::Row
+                            | WidgetType::Stack
+                            | WidgetType::Split
                     );
             }
 
@@ -139,6 +142,7 @@ impl WidgetHierarchy {
                             | WidgetType::Collapsible
                             | WidgetType::CollapsibleGroup
                             | WidgetType::GenericOverlay
+                            | WidgetType::Split
                     )
                 }
                 WidgetType::Container => parent.children.is_empty(),
@@ -146,6 +150,7 @@ impl WidgetHierarchy {
                 WidgetType::Collapsible => parent.children.is_empty(),
                 WidgetType::CollapsibleGroup => matches!(widget_type, WidgetType::Collapsible),
                 WidgetType::GenericOverlay => parent.children.len() < 2,
+                WidgetType::Split => parent.children.len() < 2,
                 WidgetType::Tooltip => parent.children.len() < 2, // <= 2 children
                 WidgetType::MouseArea => parent.children.is_empty(),
                 WidgetType::Pin => parent.children.is_empty(),
@@ -165,7 +170,7 @@ impl WidgetHierarchy {
             if parent_id == self.root.id {
                 if self.root.children.is_empty() {
                     return Err(
-                        "Root container can only have Column, Row, or Stack as its first child"
+                        "Root container can only have Column, Row, Stack, or Split as its first child"
                             .to_string(),
                     );
                 } else {
@@ -385,6 +390,13 @@ impl WidgetHierarchy {
             }
         }
 
+        if matches!(new_parent_ty, WidgetType::Split) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("Split can only contain two children".into());
+            }
+        }
+
         if matches!(new_parent_ty, WidgetType::Pin) {
             let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
             if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
@@ -396,8 +408,11 @@ impl WidgetHierarchy {
         if new_parent_id == self.root.id {
             // Only Column/Row allowed under root
             let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
-            if !matches!(moving_ty, WidgetType::Column | WidgetType::Row) {
-                return Err("Root can only contain Column or Row".into());
+            if !matches!(
+                moving_ty,
+                WidgetType::Column | WidgetType::Row | WidgetType::Stack | WidgetType::Split
+            ) {
+                return Err("Root can only contain Column, Row, Stack, or Split".into());
             }
             // Root can have only one child (unless we're reordering the same one)
             let root_children = &self.root.children;
@@ -866,6 +881,7 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
             | WidgetType::Collapsible
             | WidgetType::CollapsibleGroup
             | WidgetType::GenericOverlay
+            | WidgetType::Split
             | WidgetType::Tooltip
             | WidgetType::Stack
             | WidgetType::Themer

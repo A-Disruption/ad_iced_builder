@@ -64,6 +64,15 @@ pub fn generate_widget_code(
             type_system,
             view_refs,
         ),
+        WidgetType::Split => generate_split(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
         WidgetType::Column => generate_column(
             b,
             widget,
@@ -1610,6 +1619,131 @@ fn generate_row(
         }
     }
 
+    if props.clip {
+        b.add_clip();
+    }
+}
+
+fn split_strategy_code(strategy: SplitStrategy) -> &'static str {
+    match strategy {
+        SplitStrategy::Relative => "iced_split::Strategy::Relative",
+        SplitStrategy::Start => "iced_split::Strategy::Start",
+        SplitStrategy::End => "iced_split::Strategy::End",
+    }
+}
+
+fn generate_split(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let has_custom_name = !props.widget_name.trim().is_empty();
+    let split_at = if use_self {
+        format!("self.{}_split_at", to_snake_case(&name))
+    } else {
+        format!("{:.4}", props.split_at)
+    };
+    let on_drag = if use_self {
+        format!(
+            "Message::{}",
+            CodeBuilder::msg_variant(&name, "Changed", has_custom_name)
+        )
+    } else {
+        "|_| Message::Noop".to_string()
+    };
+    let constructor = match props.orientation {
+        Orientation::Vertical => "iced_split::vertical_split",
+        Orientation::Horizontal => "iced_split::horizontal_split",
+    };
+
+    b.indent();
+    b.push("container(");
+    b.newline();
+    b.increase_indent();
+
+    b.indent();
+    b.push(&format!("{}(", constructor));
+    b.newline();
+    b.increase_indent();
+
+    if let Some(child) = widget.children.get(0) {
+        generate_widget_code(
+            b,
+            child,
+            names,
+            use_self,
+            custom_styles,
+            type_system,
+            view_refs,
+        );
+    } else {
+        b.indent();
+        b.push("container(text(\"Start Pane\")).center(Length::Fill)");
+    }
+    b.push(",");
+    b.newline();
+
+    if let Some(child) = widget.children.get(1) {
+        generate_widget_code(
+            b,
+            child,
+            names,
+            use_self,
+            custom_styles,
+            type_system,
+            view_refs,
+        );
+    } else {
+        b.indent();
+        b.push("container(text(\"End Pane\")).center(Length::Fill)");
+    }
+    b.push(",");
+    b.newline();
+
+    b.indent();
+    b.push(&split_at);
+    b.push(",");
+    b.newline();
+
+    b.indent();
+    b.push(&on_drag);
+    b.newline();
+
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+    b.dot_method("strategy", split_strategy_code(props.split_strategy));
+    if (props.split_handle_width - 11.0).abs() > f32::EPSILON {
+        b.dot_method("handle_width", &format!("{:.1}", props.split_handle_width));
+    }
+    b.decrease_indent();
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+
+    if !matches!(props.width, Length::Shrink) {
+        b.add_width(props.width);
+    }
+    if !matches!(props.height, Length::Shrink) {
+        b.add_height(props.height);
+    }
+    if let Some(max_width) = props.max_width {
+        b.add_max_width(max_width);
+    }
+    if let Some(max_height) = props.max_height {
+        b.add_max_height(max_height);
+    }
     if props.clip {
         b.add_clip();
     }

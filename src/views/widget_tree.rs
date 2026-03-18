@@ -398,6 +398,7 @@ fn build_tree_item<'a>(
         | WidgetType::Column
         | WidgetType::Container
         | WidgetType::Scrollable
+        | WidgetType::Split
         | WidgetType::Tooltip
         | WidgetType::MouseArea
         | WidgetType::Pin
@@ -580,6 +581,14 @@ fn build_editor_for_widget<'a>(
             preview_content,
             views,
             view_id,
+        ),
+        WidgetType::Split => split_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
         ),
         WidgetType::Slider => slider_controls(
             &hierarchy,

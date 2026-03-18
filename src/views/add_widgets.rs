@@ -106,10 +106,13 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 row![
                     widget_button(WidgetType::Grid, "Grid"),
                     widget_button(WidgetType::Stack, "Stack"),
-                    widget_button(WidgetType::Themer, "Themer"),
+                    widget_button(WidgetType::Split, "Split"),
                 ]
                 .spacing(10)
                 .padding(5),
+                row![widget_button(WidgetType::Themer, "Themer"),]
+                    .spacing(10)
+                    .padding(5),
             ],
             column![
                 text("Widgets").size(18),
@@ -163,11 +166,9 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 ]
                 .spacing(10)
                 .padding(5),
-                row![
-                    widget_button(WidgetType::DatePicker, "Date Picker"),
-                ]
-                .spacing(10)
-                .padding(5),
+                row![widget_button(WidgetType::DatePicker, "Date Picker"),]
+                    .spacing(10)
+                    .padding(5),
             ],
         ]
         .spacing(10),
@@ -191,7 +192,12 @@ pub fn get_available_types<'a>(
 
     let available_types = if *parent_id == hierarchy.root().id {
         if hierarchy.root().children.is_empty() {
-            vec![WidgetType::Column, WidgetType::Row, WidgetType::Stack]
+            vec![
+                WidgetType::Column,
+                WidgetType::Row,
+                WidgetType::Stack,
+                WidgetType::Split,
+            ]
         } else {
             vec![]
         }
@@ -205,6 +211,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Column,
                 WidgetType::Row,
                 WidgetType::Stack,
+                WidgetType::Split,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::ViewReference,
@@ -227,6 +234,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
+                WidgetType::Split,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -268,6 +276,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
+                WidgetType::Split,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -307,6 +316,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
+                WidgetType::Split,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -346,6 +356,49 @@ pub fn get_available_types<'a>(
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
+                WidgetType::Split,
+                WidgetType::Themer,
+                WidgetType::Grid,
+                WidgetType::Button,
+                WidgetType::Text,
+                WidgetType::TextInput,
+                WidgetType::Checkbox,
+                WidgetType::Radio,
+                WidgetType::Slider,
+                WidgetType::VerticalSlider,
+                WidgetType::ProgressBar,
+                WidgetType::Toggler,
+                WidgetType::PickList,
+                WidgetType::DatePicker,
+                WidgetType::Space,
+                WidgetType::Rule,
+                WidgetType::Image,
+                WidgetType::Svg,
+                WidgetType::Tooltip,
+                WidgetType::ComboBox,
+                WidgetType::Markdown,
+                WidgetType::MouseArea,
+                WidgetType::Pin,
+                WidgetType::Table,
+                WidgetType::QRCode,
+                WidgetType::Icon,
+                WidgetType::ViewReference,
+            ]
+        } else {
+            vec![]
+        }
+    } else if parent.widget_type == WidgetType::Split {
+        if parent.children.len() < 2 {
+            vec![
+                WidgetType::Container,
+                WidgetType::Scrollable,
+                WidgetType::Collapsible,
+                WidgetType::CollapsibleGroup,
+                WidgetType::GenericOverlay,
+                WidgetType::Row,
+                WidgetType::Column,
+                WidgetType::Stack,
+                WidgetType::Split,
                 WidgetType::Themer,
                 WidgetType::Grid,
                 WidgetType::Button,
@@ -391,6 +444,7 @@ pub fn get_available_types<'a>(
             WidgetType::Row,
             WidgetType::Column,
             WidgetType::Stack,
+            WidgetType::Split,
             WidgetType::Themer,
             WidgetType::Grid,
             WidgetType::Button,

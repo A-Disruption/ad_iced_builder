@@ -28,7 +28,7 @@ pub fn actionable_events(widget_type: WidgetType, props: &Properties) -> Vec<&'s
             events
         }
         WidgetType::Checkbox | WidgetType::Toggler => vec!["on_toggle"],
-        WidgetType::Slider | WidgetType::VerticalSlider => vec!["on_change"],
+        WidgetType::Slider | WidgetType::VerticalSlider | WidgetType::Split => vec!["on_change"],
         WidgetType::PickList => vec!["on_select"],
         WidgetType::ComboBox => {
             let mut events = vec![];

@@ -493,6 +493,9 @@ fn generate_state_fields(
         WidgetType::Slider | WidgetType::VerticalSlider => {
             b.line(&format!("pub {}_value: f32,", to_snake_case(&name)));
         }
+        WidgetType::Split => {
+            b.line(&format!("pub {}_split_at: f32,", to_snake_case(&name)));
+        }
         WidgetType::Toggler => {
             b.line(&format!("pub {}_active: bool,", to_snake_case(&name)));
         }
@@ -696,6 +699,13 @@ fn generate_state_initializers(
                 "{}_value: {:.1},",
                 to_snake_case(&name),
                 props.slider_value
+            ));
+        }
+        WidgetType::Split => {
+            b.line(&format!(
+                "{}_split_at: {:.4},",
+                to_snake_case(&name),
+                props.split_at
             ));
         }
         WidgetType::Toggler => {
@@ -986,6 +996,24 @@ mod tests {
         assert!(
             generated.contains("date_picker_time: widgets::date_picker::TimeSelection::new(0, 0),")
         );
+    }
+
+    #[test]
+    fn generate_state_initializers_include_split_position() {
+        let split_id = WidgetId(9);
+        let mut split = Widget::new(WidgetType::Split, split_id);
+        split.properties.split_at = 0.375;
+
+        let mut b = CodeBuilder::new();
+        generate_state_initializers(
+            &mut b,
+            &split,
+            &HashMap::from([(split_id, "main_split".to_string())]),
+            &TypeSystem::new(),
+            &[],
+        );
+
+        assert!(b.build().contains("main_split_split_at: 0.3750,"));
     }
 
     #[test]

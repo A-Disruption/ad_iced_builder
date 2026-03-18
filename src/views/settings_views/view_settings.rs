@@ -23,6 +23,7 @@ fn stateful_widget_type_label(widget_type: WidgetType) -> Option<&'static str> {
         WidgetType::TextInput => Some("String"),
         WidgetType::Checkbox => Some("bool"),
         WidgetType::Slider | WidgetType::VerticalSlider => Some("f32"),
+        WidgetType::Split => Some("f32"),
         WidgetType::Toggler => Some("bool"),
         WidgetType::GenericOverlay => Some("bool"),
         WidgetType::DatePicker => Some("bool"),
@@ -47,6 +48,7 @@ fn auto_state_base_name(widget: &Widget) -> Option<String> {
             WidgetType::Checkbox => "checkbox",
             WidgetType::Slider => "slider",
             WidgetType::VerticalSlider => "vertical_slider",
+            WidgetType::Split => "split",
             WidgetType::Toggler => "toggler",
             WidgetType::GenericOverlay => "genericoverlay",
             WidgetType::DatePicker => "date_picker",
@@ -314,5 +316,20 @@ mod tests {
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].generated_name, "date_picker");
         assert_eq!(rows[0].type_label, "bool");
+    }
+
+    #[test]
+    fn collect_stateful_widgets_includes_split_position_state() {
+        let mut root = Widget::new(WidgetType::Column, WidgetId(1));
+        root.children
+            .push(Widget::new(WidgetType::Split, WidgetId(2)));
+
+        let mut rows = Vec::new();
+        let mut widget_counts = HashMap::new();
+        collect_stateful_widgets(&root, &mut widget_counts, &mut rows);
+
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].generated_name, "split");
+        assert_eq!(rows[0].type_label, "f32");
     }
 }
