@@ -26,8 +26,8 @@ pub use styles::{
     generate_all_styles_file, generate_button_style_code, generate_checkbox_style_code,
     generate_combo_box_style_code, generate_container_style_code, generate_menu_style_code,
     generate_pick_list_style_code, generate_progress_bar_style_code, generate_radio_style_code,
-    generate_rule_style_code, generate_slider_style_code, generate_text_input_style_code,
-    generate_toggler_style_code,
+    generate_rule_style_code, generate_slider_style_code, generate_text_editor_style_code,
+    generate_text_input_style_code, generate_toggler_style_code,
 };
 
 fn generated_view_type_name(view_name: &str) -> String {

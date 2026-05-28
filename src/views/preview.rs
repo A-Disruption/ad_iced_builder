@@ -240,6 +240,16 @@ fn resolve_pick_list_style(
     }
 }
 
+fn resolve_text_editor_style(
+    custom_themes: &CustomThemes,
+    theme: &Theme,
+    status: text_editor::Status,
+    style_name: &str,
+) -> Option<text_editor::Style> {
+    custom_style_definition(custom_themes, ThemePaneEnum::TextEditor, style_name)
+        .map(|style_definition| style_definition.to_text_editor_style(theme, status))
+}
+
 fn resolve_collapsible_style(
     theme: &Theme,
     status: collapsible_widget::Status,
@@ -1894,7 +1904,7 @@ fn build_text_editor_preview<'a>(
     _hierarchy: &'a WidgetHierarchy,
     widget: &'a Widget,
     _theme: &'a Theme,
-    _custom_themes: &'a CustomThemes,
+    custom_themes: &'a CustomThemes,
     _highlight_selected: bool,
     _all_views: &'a BTreeMap<Uuid, AppView>,
     current_view_id: Option<Uuid>,
@@ -1916,6 +1926,14 @@ fn build_text_editor_preview<'a>(
 
     if props.text_editor_line_height != text::LineHeight::default() {
         editor = editor.line_height(props.text_editor_line_height);
+    }
+
+    if let Some(style_name) = props.custom_style_name.as_deref() {
+        let style_name = style_name.to_string();
+        editor = editor.style(move |theme, status| {
+            resolve_text_editor_style(custom_themes, theme, status, &style_name)
+                .unwrap_or_else(|| text_editor::default(theme, status))
+        });
     }
 
     let mut wrapper = container(editor).width(props.width).height(props.height);

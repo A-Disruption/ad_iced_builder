@@ -983,7 +983,7 @@ pub fn text_editor_controls<'a>(
     widget_id: WidgetId,
     theme: &Theme,
     _type_system: &'a TypeSystem,
-    _custom_styles: &'a CustomThemes,
+    custom_styles: &'a CustomThemes,
     preview_content: &'a text_editor::Content,
     _views: &'a BTreeMap<Uuid, AppView>,
     _view_id: Uuid,
@@ -1013,6 +1013,7 @@ pub fn text_editor_controls<'a>(
     let content = column![
         text("Text Editor Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
+        custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::TextEditor),
         column![
             text("Placeholder").size(LABEL_SIZE),
             text_input("Placeholder", &props.text_editor_placeholder)

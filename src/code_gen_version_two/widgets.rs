@@ -175,7 +175,7 @@ pub fn generate_widget_code(
         ),
         WidgetType::Svg => generate_svg(b, widget),
         WidgetType::Text => generate_text(b, widget),
-        WidgetType::TextEditor => generate_text_editor(b, widget, names, use_self),
+        WidgetType::TextEditor => generate_text_editor(b, widget, names, custom_styles, use_self),
         WidgetType::TextInput => generate_textinput(b, widget, names, custom_styles, use_self),
         WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
         WidgetType::Themer => generate_themer(
@@ -387,6 +387,15 @@ fn resolve_pick_list_style_fn(custom_styles: &CustomThemes, style_name: &str) ->
         "Default" => Some("pick_list::default".to_string()),
         _ => None,
     })
+}
+
+fn resolve_text_editor_style_fn(custom_styles: &CustomThemes, style_name: &str) -> Option<String> {
+    resolve_custom_style_fn(
+        custom_styles,
+        ThemePaneEnum::TextEditor,
+        "styles::text_editor",
+        style_name,
+    )
 }
 
 fn resolve_collapsible_style_fn(style_name: &str) -> Option<String> {
@@ -1264,6 +1273,7 @@ fn generate_text_editor(
     b: &mut CodeBuilder,
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
     use_self: bool,
 ) {
     let props = &widget.properties;
@@ -1322,6 +1332,11 @@ fn generate_text_editor(
             iced::widget::text::Wrapping::WordOrGlyph => "Wrapping::WordOrGlyph",
         };
         b.dot_method("wrapping", wrapping);
+    }
+    if let Some(style_name) = props.custom_style_name.as_deref() {
+        if let Some(style_fn) = resolve_text_editor_style_fn(custom_styles, style_name) {
+            b.dot_method("style", &style_fn);
+        }
     }
     b.decrease_indent();
     b.newline();

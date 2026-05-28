@@ -1,6 +1,6 @@
 use iced::widget::{
     button, checkbox, container, overlay::menu, pick_list, progress_bar, radio, rule, slider,
-    text_input, toggler,
+    text_editor, text_input, toggler,
 };
 use iced::{Background, Border, Color, Shadow, Theme};
 use serde::{Deserialize, Serialize};
@@ -383,6 +383,155 @@ impl SavedStyleDefinition {
                     text_input::Style {
                         background: Background::Color(background_color.scale_alpha(0.5)),
                         icon: base.icon.scale_alpha(0.5),
+                        value: base.placeholder,
+                        placeholder: base.placeholder.scale_alpha(0.5),
+                        ..base
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn to_text_editor_style(
+        &self,
+        theme: &Theme,
+        status: text_editor::Status,
+    ) -> text_editor::Style {
+        let background_color =
+            self.resolve_color(theme, self.background_color, &self.background_color_source);
+        let placeholder_color = self.resolve_color(
+            theme,
+            self.placeholder_color,
+            &self.placeholder_color_source,
+        );
+        let text_color = self.resolve_color(theme, self.text_color, &self.text_color_source);
+        let selection_color =
+            self.resolve_color(theme, self.selection_color, &self.selection_color_source);
+
+        let base = text_editor::Style {
+            background: Background::Color(background_color),
+            border: self.resolved_border(theme),
+            placeholder: placeholder_color,
+            value: text_color,
+            selection: selection_color,
+        };
+
+        match status {
+            text_editor::Status::Active => base,
+            text_editor::Status::Hovered => {
+                if let Some(ref ov) = self.status_hovered {
+                    text_editor::Style {
+                        value: ov
+                            .text_color
+                            .map(|c| {
+                                Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
+                            })
+                            .unwrap_or(base.value),
+                        background: ov
+                            .background_color
+                            .map(|c| {
+                                Background::Color(Self::resolve_ov(
+                                    Some(c),
+                                    &ov.background_color_source,
+                                    background_color,
+                                    theme,
+                                ))
+                            })
+                            .unwrap_or(base.background),
+                        border: Border {
+                            color: Self::resolve_ov(
+                                ov.border_color,
+                                &ov.border_color_source,
+                                base.border.color,
+                                theme,
+                            ),
+                            ..base.border
+                        },
+                        ..base
+                    }
+                } else {
+                    text_editor::Style {
+                        border: Border {
+                            color: base.border.color.scale_alpha(0.8),
+                            ..base.border
+                        },
+                        ..base
+                    }
+                }
+            }
+            text_editor::Status::Focused { .. } => {
+                if let Some(ref ov) = self.status_focused {
+                    text_editor::Style {
+                        value: ov
+                            .text_color
+                            .map(|c| {
+                                Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
+                            })
+                            .unwrap_or(base.value),
+                        background: ov
+                            .background_color
+                            .map(|c| {
+                                Background::Color(Self::resolve_ov(
+                                    Some(c),
+                                    &ov.background_color_source,
+                                    background_color,
+                                    theme,
+                                ))
+                            })
+                            .unwrap_or(base.background),
+                        border: Border {
+                            color: Self::resolve_ov(
+                                ov.border_color,
+                                &ov.border_color_source,
+                                base.border.color,
+                                theme,
+                            ),
+                            width: base.border.width.max(1.0),
+                            ..base.border
+                        },
+                        ..base
+                    }
+                } else {
+                    text_editor::Style {
+                        border: Border {
+                            color: base.border.color,
+                            width: base.border.width.max(1.0),
+                            ..base.border
+                        },
+                        ..base
+                    }
+                }
+            }
+            text_editor::Status::Disabled => {
+                if let Some(ref ov) = self.status_disabled {
+                    text_editor::Style {
+                        background: Background::Color(Self::resolve_ov(
+                            ov.background_color,
+                            &ov.background_color_source,
+                            background_color.scale_alpha(0.5),
+                            theme,
+                        )),
+                        value: Self::resolve_ov(
+                            ov.text_color,
+                            &ov.text_color_source,
+                            placeholder_color,
+                            theme,
+                        ),
+                        border: Border {
+                            color: Self::resolve_ov(
+                                ov.border_color,
+                                &ov.border_color_source,
+                                base.border.color.scale_alpha(0.5),
+                                theme,
+                            ),
+                            ..base.border
+                        },
+                        placeholder: base.placeholder.scale_alpha(0.5),
+                        ..base
+                    }
+                } else {
+                    text_editor::Style {
+                        background: base.background.scale_alpha(0.5),
                         value: base.placeholder,
                         placeholder: base.placeholder.scale_alpha(0.5),
                         ..base
@@ -1366,4 +1515,71 @@ pub fn evaluate_theme_expression(theme: &Theme, expression: &str) -> Option<Colo
             c
         }
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample_definition() -> SavedStyleDefinition {
+        SavedStyleDefinition {
+            name: "Editor Style".into(),
+            widget_type: ThemePaneEnum::TextEditor,
+            text_color: Color::from_rgb(0.1, 0.2, 0.3),
+            text_color_source: None,
+            background_color: Color::from_rgb(0.9, 0.8, 0.7),
+            background_color_source: None,
+            border_color: Color::from_rgb(0.4, 0.5, 0.6),
+            border_color_source: None,
+            border_width: 2.0,
+            border_radius_top_left: 4.0,
+            border_radius_top_right: 4.0,
+            border_radius_bottom_right: 4.0,
+            border_radius_bottom_left: 4.0,
+            shadow_enabled: false,
+            shadow_color: Color::TRANSPARENT,
+            shadow_color_source: None,
+            shadow_offset_x: 0.0,
+            shadow_offset_y: 0.0,
+            shadow_blur_radius: 0.0,
+            snap: false,
+            rule_fill_mode: RuleFillMode::Full,
+            icon_color: Color::BLACK,
+            icon_color_source: None,
+            placeholder_color: Color::from_rgb(0.6, 0.5, 0.4),
+            placeholder_color_source: None,
+            selection_color: Color::from_rgb(0.2, 0.3, 0.4),
+            selection_color_source: None,
+            selected_text_color: Color::BLACK,
+            selected_text_color_source: None,
+            selected_background_color: Color::WHITE,
+            selected_background_color_source: None,
+            status_hovered: Some(StatusColorOverride {
+                text_color: Some(Color::from_rgb(0.8, 0.1, 0.1)),
+                text_color_source: None,
+                background_color: Some(Color::from_rgb(0.7, 0.7, 0.2)),
+                background_color_source: None,
+                border_color: Some(Color::from_rgb(0.2, 0.7, 0.7)),
+                border_color_source: None,
+                icon_color: None,
+                icon_color_source: None,
+            }),
+            status_pressed: None,
+            status_disabled: None,
+            status_focused: None,
+        }
+    }
+
+    #[test]
+    fn text_editor_style_uses_status_overrides() {
+        let definition = sample_definition();
+        let style = definition.to_text_editor_style(&Theme::Light, text_editor::Status::Hovered);
+
+        assert_eq!(style.value, Color::from_rgb(0.8, 0.1, 0.1));
+        assert_eq!(
+            style.background,
+            Background::Color(Color::from_rgb(0.7, 0.7, 0.2))
+        );
+        assert_eq!(style.border.color, Color::from_rgb(0.2, 0.7, 0.7));
+    }
 }

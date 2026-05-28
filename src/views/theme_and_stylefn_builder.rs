@@ -2,8 +2,8 @@ use crate::code_gen_version_two::{
     generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code,
     generate_container_style_code, generate_menu_style_code, generate_pick_list_style_code,
     generate_progress_bar_style_code, generate_radio_style_code, generate_rule_style_code,
-    generate_slider_style_code, generate_text_input_style_code, generate_toggler_style_code,
-    helpers::internal_overlay,
+    generate_slider_style_code, generate_text_editor_style_code, generate_text_input_style_code,
+    generate_toggler_style_code, helpers::internal_overlay,
 };
 use crate::styles::style_enum::{
     RuleFillMode, SavedStyleDefinition, StatusColorOverride, evaluate_theme_expression,
@@ -141,6 +141,7 @@ pub struct CustomThemes {
 
     // tree_sitter text_editor content for style code preview (shared across widget types)
     style_code_content: text_editor::Content,
+    text_editor_preview_content: text_editor::Content,
 
     preview_value: String,
     combobox_state: combo_box::State<String>,
@@ -154,6 +155,7 @@ impl CustomThemes {
         styles.insert(ThemePaneEnum::Button, BTreeMap::new());
         styles.insert(ThemePaneEnum::Checkbox, BTreeMap::new());
         styles.insert(ThemePaneEnum::TextInput, BTreeMap::new());
+        styles.insert(ThemePaneEnum::TextEditor, BTreeMap::new());
         styles.insert(ThemePaneEnum::Menu, BTreeMap::new());
         styles.insert(ThemePaneEnum::Picklist, BTreeMap::new());
         styles.insert(ThemePaneEnum::Slider, BTreeMap::new());
@@ -203,6 +205,9 @@ impl CustomThemes {
             status_disabled_override: None,
             status_focused_override: None,
             style_code_content: text_editor::Content::new(),
+            text_editor_preview_content: text_editor::Content::with_text(
+                "Text editor preview\nSecond line of content",
+            ),
             preview_value: String::new(),
             combobox_state: combo_box::State::new(vec![
                 "Option 1".to_string(),
@@ -607,6 +612,9 @@ impl CustomThemes {
             ThemePaneEnum::TextInput => {
                 self.regenerate_text_input_code();
             }
+            ThemePaneEnum::TextEditor => {
+                self.regenerate_text_editor_code();
+            }
             ThemePaneEnum::Menu => {
                 self.regenerate_menu_code();
             }
@@ -726,6 +734,31 @@ impl CustomThemes {
             self.border_radius_bottom_left,
             self.icon_color,
             &self.icon_color_source,
+            self.placeholder_color,
+            &self.placeholder_color_source,
+            self.text_color,
+            &self.text_color_source,
+            self.selection_color,
+            &self.selection_color_source,
+            self.status_hovered_override.as_ref(),
+            self.status_focused_override.as_ref(),
+            self.status_disabled_override.as_ref(),
+        );
+        self.style_code_content = text_editor::Content::with_text(&code);
+    }
+
+    fn regenerate_text_editor_code(&mut self) {
+        let code = generate_text_editor_style_code(
+            &self.style_name,
+            self.background_color,
+            &self.background_color_source,
+            self.border_color,
+            &self.border_color_source,
+            self.border_width,
+            self.border_radius_top_left,
+            self.border_radius_top_right,
+            self.border_radius_bottom_right,
+            self.border_radius_bottom_left,
             self.placeholder_color,
             &self.placeholder_color_source,
             self.text_color,
@@ -1018,11 +1051,13 @@ impl CustomThemes {
                 } else {
                     button::text
                 }), //.on_press(Message::ChangeView(ThemePaneEnum::Table)),
-                button("Text Editor").style(if self.selected_view == ThemePaneEnum::TextEditor {
-                    styles::button::selected_text
-                } else {
-                    button::text
-                }), //.on_press(Message::ChangeView(ThemePaneEnum::TextEditor)),
+                button("Text Editor")
+                    .style(if self.selected_view == ThemePaneEnum::TextEditor {
+                        styles::button::selected_text
+                    } else {
+                        button::text
+                    })
+                    .on_press(Message::ChangeView(ThemePaneEnum::TextEditor)),
                 button("Text Input")
                     .style(if self.selected_view == ThemePaneEnum::TextInput {
                         styles::button::selected_text
@@ -1051,6 +1086,7 @@ impl CustomThemes {
             self.selected_view,
             ThemePaneEnum::Button
                 | ThemePaneEnum::Checkbox
+                | ThemePaneEnum::TextEditor
                 | ThemePaneEnum::TextInput
                 | ThemePaneEnum::Picklist
                 | ThemePaneEnum::Slider
@@ -1129,6 +1165,12 @@ impl CustomThemes {
                         ("Disabled", EditingStatus::Disabled),
                     ],
                     ThemePaneEnum::TextInput => &[
+                        ("Active", EditingStatus::Active),
+                        ("Hovered", EditingStatus::Hovered),
+                        ("Focused", EditingStatus::Focused),
+                        ("Disabled", EditingStatus::Disabled),
+                    ],
+                    ThemePaneEnum::TextEditor => &[
                         ("Active", EditingStatus::Active),
                         ("Hovered", EditingStatus::Hovered),
                         ("Focused", EditingStatus::Focused),
@@ -1293,6 +1335,7 @@ impl CustomThemes {
             if matches!(
                 self.selected_view,
                 ThemePaneEnum::TextInput
+                    | ThemePaneEnum::TextEditor
                     | ThemePaneEnum::Menu
                     | ThemePaneEnum::Picklist
                     | ThemePaneEnum::Combobox
@@ -1303,6 +1346,7 @@ impl CustomThemes {
                         if matches!(
                             self.selected_view,
                             ThemePaneEnum::TextInput
+                                | ThemePaneEnum::TextEditor
                                 | ThemePaneEnum::Picklist
                                 | ThemePaneEnum::Combobox
                         ) {
@@ -1326,7 +1370,9 @@ impl CustomThemes {
                         },
                         if matches!(
                             self.selected_view,
-                            ThemePaneEnum::TextInput | ThemePaneEnum::Combobox
+                            ThemePaneEnum::TextInput
+                                | ThemePaneEnum::TextEditor
+                                | ThemePaneEnum::Combobox
                         ) {
                             Element::from(
                                 column![
@@ -1795,6 +1841,16 @@ impl CustomThemes {
                     .style(move |theme, status| definition.to_text_input_style(theme, status))
                     .into()
             }
+            ThemePaneEnum::TextEditor => {
+                let definition = current_definition.clone();
+                text_editor(&self.text_editor_preview_content)
+                    .placeholder("Text editor style preview")
+                    .height(180.0)
+                    .width(260.0)
+                    .padding(10)
+                    .style(move |theme, status| definition.to_text_editor_style(theme, status))
+                    .into()
+            }
             ThemePaneEnum::Menu => {
                 let menu_style = current_definition.to_menu_style(theme);
                 let outer_style = container::Style {
@@ -1941,6 +1997,7 @@ impl CustomThemes {
                     ThemePaneEnum::Button
                     | ThemePaneEnum::Container
                     | ThemePaneEnum::Checkbox
+                    | ThemePaneEnum::TextEditor
                     | ThemePaneEnum::TextInput
                     | ThemePaneEnum::Menu
                     | ThemePaneEnum::Picklist
@@ -2090,6 +2147,16 @@ impl CustomThemes {
             }
             ThemePaneEnum::TextInput => {
                 let style = definition.to_text_input_style(theme, text_input::Status::Active);
+                container::Style {
+                    text_color: Some(style.value),
+                    background: Some(style.background),
+                    border: style.border,
+                    shadow: Shadow::default(),
+                    snap: false,
+                }
+            }
+            ThemePaneEnum::TextEditor => {
+                let style = definition.to_text_editor_style(theme, text_editor::Status::Active);
                 container::Style {
                     text_color: Some(style.value),
                     background: Some(style.background),
@@ -2354,6 +2421,25 @@ impl CustomThemes {
                 self.background_color_source = Some("palette.background.base.color".to_string());
                 self.icon_color = palette.background.weak.text;
                 self.icon_color_source = Some("palette.background.weak.text".to_string());
+                self.placeholder_color = palette.background.weak.text;
+                self.placeholder_color_source = Some("palette.background.weak.text".to_string());
+                self.selection_color = palette.primary.weak.color;
+                self.selection_color_source = Some("palette.primary.weak.color".to_string());
+                self.border_color = palette.background.strong.color;
+                self.border_color_source = Some("palette.background.strong.color".to_string());
+                self.border_width = 1.0;
+                let radius = 4.0;
+                self.border_radius_top_left = radius;
+                self.border_radius_top_right = radius;
+                self.border_radius_bottom_right = radius;
+                self.border_radius_bottom_left = radius;
+                self.snap = false;
+            }
+            ThemePaneEnum::TextEditor => {
+                self.text_color = palette.background.base.text;
+                self.text_color_source = Some("palette.background.base.text".to_string());
+                self.background_color = palette.background.base.color;
+                self.background_color_source = Some("palette.background.base.color".to_string());
                 self.placeholder_color = palette.background.weak.text;
                 self.placeholder_color_source = Some("palette.background.weak.text".to_string());
                 self.selection_color = palette.primary.weak.color;
@@ -2964,6 +3050,18 @@ impl CustomThemes {
 
     pub fn styles(&self) -> &BTreeMap<ThemePaneEnum, BTreeMap<String, SavedStyleDefinition>> {
         &self.styles
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn custom_themes_includes_text_editor_style_bucket() {
+        let themes = CustomThemes::new(&Theme::Light);
+
+        assert!(themes.styles().contains_key(&ThemePaneEnum::TextEditor));
     }
 }
 

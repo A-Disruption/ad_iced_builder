@@ -735,6 +735,205 @@ pub fn generate_text_input_style_code(
     code
 }
 
+pub fn generate_text_editor_style_code(
+    function_name: &str,
+    background_color: Color,
+    background_color_source: &Option<String>,
+    border_color: Color,
+    border_color_source: &Option<String>,
+    border_width: f32,
+    border_radius_top_left: f32,
+    border_radius_top_right: f32,
+    border_radius_bottom_right: f32,
+    border_radius_bottom_left: f32,
+    placeholder_color: Color,
+    placeholder_color_source: &Option<String>,
+    text_color: Color,
+    text_color_source: &Option<String>,
+    selection_color: Color,
+    selection_color_source: &Option<String>,
+    status_hovered: Option<&StatusColorOverride>,
+    status_focused: Option<&StatusColorOverride>,
+    status_disabled: Option<&StatusColorOverride>,
+) -> String {
+    let mut code = String::new();
+
+    code.push_str(&format!(
+        "pub fn {}(theme: &Theme, status: text_editor::Status) -> text_editor::Style {{\n",
+        function_name
+    ));
+    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let base = text_editor::Style {\n");
+    code.push_str("        background: Background::Color(");
+    code.push_str(&format_color_with_source(
+        background_color,
+        background_color_source,
+    ));
+    code.push_str("),\n");
+    code.push_str("        border: Border {\n");
+    code.push_str("            color: ");
+    code.push_str(&format_color_with_source(border_color, border_color_source));
+    code.push_str(",\n");
+    code.push_str(&format!("            width: {:.1},\n", border_width));
+    code.push_str("            radius: ");
+    code.push_str(&format_radius(
+        border_radius_top_left,
+        border_radius_top_right,
+        border_radius_bottom_right,
+        border_radius_bottom_left,
+        "            ",
+    ));
+    code.push_str(",\n");
+    code.push_str("        },\n");
+    code.push_str("        placeholder: ");
+    code.push_str(&format_color_with_source(
+        placeholder_color,
+        placeholder_color_source,
+    ));
+    code.push_str(",\n");
+    code.push_str("        value: ");
+    code.push_str(&format_color_with_source(text_color, text_color_source));
+    code.push_str(",\n");
+    code.push_str("        selection: ");
+    code.push_str(&format_color_with_source(
+        selection_color,
+        selection_color_source,
+    ));
+    code.push_str(",\n");
+    code.push_str("    };\n\n");
+    code.push_str("    match status {\n");
+    code.push_str("        text_editor::Status::Active => base,\n");
+
+    code.push_str("        text_editor::Status::Hovered => ");
+    if let Some(ov) = status_hovered {
+        let has_text = ov.text_color.is_some() || ov.text_color_source.is_some();
+        let has_background = ov.background_color.is_some() || ov.background_color_source.is_some();
+        let has_border = ov.border_color.is_some() || ov.border_color_source.is_some();
+        if has_text || has_background || has_border {
+            code.push_str("text_editor::Style {\n");
+            if has_text {
+                code.push_str(&format!(
+                    "            value: {},\n",
+                    format_color_with_source(
+                        ov.text_color.unwrap_or(text_color),
+                        &ov.text_color_source
+                    )
+                ));
+            }
+            if has_background {
+                code.push_str(&format!(
+                    "            background: Background::Color({}),\n",
+                    format_color_with_source(
+                        ov.background_color.unwrap_or(background_color),
+                        &ov.background_color_source
+                    )
+                ));
+            }
+            if has_border {
+                code.push_str(&format!(
+                    "            border: Border {{ color: {}, ..base.border }},\n",
+                    format_color_with_source(
+                        ov.border_color.unwrap_or(border_color),
+                        &ov.border_color_source
+                    )
+                ));
+            }
+            code.push_str("            ..base\n        },\n");
+        } else {
+            code.push_str(
+                "text_editor::Style { border: Border { color: base.border.color.scale_alpha(0.8), ..base.border }, ..base },\n",
+            );
+        }
+    } else {
+        code.push_str(
+            "text_editor::Style { border: Border { color: base.border.color.scale_alpha(0.8), ..base.border }, ..base },\n",
+        );
+    }
+
+    code.push_str("        text_editor::Status::Focused { .. } => ");
+    if let Some(ov) = status_focused {
+        let has_text = ov.text_color.is_some() || ov.text_color_source.is_some();
+        let has_background = ov.background_color.is_some() || ov.background_color_source.is_some();
+        let has_border = ov.border_color.is_some() || ov.border_color_source.is_some();
+        if has_text || has_background || has_border {
+            code.push_str("text_editor::Style {\n");
+            if has_text {
+                code.push_str(&format!(
+                    "            value: {},\n",
+                    format_color_with_source(
+                        ov.text_color.unwrap_or(text_color),
+                        &ov.text_color_source
+                    )
+                ));
+            }
+            if has_background {
+                code.push_str(&format!(
+                    "            background: Background::Color({}),\n",
+                    format_color_with_source(
+                        ov.background_color.unwrap_or(background_color),
+                        &ov.background_color_source
+                    )
+                ));
+            }
+            if has_border {
+                code.push_str(&format!(
+                    "            border: Border {{ color: {}, width: base.border.width.max(1.0), ..base.border }},\n",
+                    format_color_with_source(
+                        ov.border_color.unwrap_or(border_color),
+                        &ov.border_color_source
+                    )
+                ));
+            }
+            code.push_str("            ..base\n        },\n");
+        } else {
+            code.push_str(
+                "text_editor::Style { border: Border { color: base.border.color, width: base.border.width.max(1.0), ..base.border }, ..base },\n",
+            );
+        }
+    } else {
+        code.push_str(
+            "text_editor::Style { border: Border { color: base.border.color, width: base.border.width.max(1.0), ..base.border }, ..base },\n",
+        );
+    }
+
+    code.push_str("        text_editor::Status::Disabled => ");
+    if let Some(ov) = status_disabled {
+        code.push_str("text_editor::Style {\n");
+        code.push_str(&format!(
+            "            background: Background::Color({}),\n",
+            format_color_with_source(
+                ov.background_color
+                    .unwrap_or(background_color.scale_alpha(0.5)),
+                &ov.background_color_source
+            )
+        ));
+        code.push_str(&format!(
+            "            value: {},\n",
+            format_color_with_source(
+                ov.text_color.unwrap_or(placeholder_color),
+                &ov.text_color_source
+            )
+        ));
+        code.push_str(&format!(
+            "            border: Border {{ color: {}, ..base.border }},\n",
+            format_color_with_source(
+                ov.border_color.unwrap_or(border_color.scale_alpha(0.5)),
+                &ov.border_color_source
+            )
+        ));
+        code.push_str("            placeholder: base.placeholder.scale_alpha(0.5),\n");
+        code.push_str("            ..base\n        },\n");
+    } else {
+        code.push_str(
+            "text_editor::Style { background: base.background.scale_alpha(0.5), value: base.placeholder, placeholder: base.placeholder.scale_alpha(0.5), ..base },\n",
+        );
+    }
+
+    code.push_str("    }\n");
+    code.push_str("}");
+    code
+}
+
 pub fn generate_menu_style_code(
     function_name: &str,
     background_color: Color,
@@ -1726,6 +1925,10 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
         .get(&ThemePaneEnum::TextInput)
         .map(|m| !m.is_empty())
         .unwrap_or(false);
+    let has_text_editor = styles
+        .get(&ThemePaneEnum::TextEditor)
+        .map(|m| !m.is_empty())
+        .unwrap_or(false);
     let has_menu = styles
         .get(&ThemePaneEnum::Menu)
         .map(|m| !m.is_empty())
@@ -1763,6 +1966,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
         && !has_container
         && !has_checkbox
         && !has_text_input
+        && !has_text_editor
         && !has_menu
         && !has_picklist
         && !has_slider
@@ -1780,6 +1984,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     // Top-level imports
     out.push_str("use iced::{Background, Border, Color, Shadow, Theme, Vector};\n");
     if has_text_input
+        || has_text_editor
         || has_menu
         || has_picklist
         || has_slider
@@ -1789,7 +1994,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
         || has_combobox
     {
         out.push_str(
-            "use iced::widget::{overlay::menu, pick_list, progress_bar, radio, slider, text_input, toggler};\n",
+            "use iced::widget::{overlay::menu, pick_list, progress_bar, radio, slider, text_editor, text_input, toggler};\n",
         );
     }
     out.push_str("\n");
@@ -1930,6 +2135,43 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
                     def.border_radius_bottom_left,
                     def.icon_color,
                     &def.icon_color_source,
+                    def.placeholder_color,
+                    &def.placeholder_color_source,
+                    def.text_color,
+                    &def.text_color_source,
+                    def.selection_color,
+                    &def.selection_color_source,
+                    def.status_hovered.as_ref(),
+                    def.status_focused.as_ref(),
+                    def.status_disabled.as_ref(),
+                );
+                for line in fn_code.lines() {
+                    out.push_str("    ");
+                    out.push_str(line);
+                    out.push('\n');
+                }
+            }
+        }
+        out.push_str("}\n\n");
+    }
+
+    if has_text_editor {
+        out.push_str("pub mod text_editor {\n");
+        out.push_str("    use super::*;\n");
+        if let Some(map) = styles.get(&ThemePaneEnum::TextEditor) {
+            for (_, def) in map {
+                out.push_str("\n");
+                let fn_code = generate_text_editor_style_code(
+                    &def.name.to_lowercase().replace(' ', "_"),
+                    def.background_color,
+                    &def.background_color_source,
+                    def.border_color,
+                    &def.border_color_source,
+                    def.border_width,
+                    def.border_radius_top_left,
+                    def.border_radius_top_right,
+                    def.border_radius_bottom_right,
+                    def.border_radius_bottom_left,
                     def.placeholder_color,
                     &def.placeholder_color_source,
                     def.text_color,
@@ -2233,4 +2475,38 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     }
 
     Some(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn generate_text_editor_style_code_emits_text_editor_statuses() {
+        let code = generate_text_editor_style_code(
+            "notes",
+            Color::WHITE,
+            &None,
+            Color::BLACK,
+            &None,
+            1.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            Color::from_rgb(0.5, 0.5, 0.5),
+            &None,
+            Color::from_rgb(0.1, 0.1, 0.1),
+            &None,
+            Color::from_rgb(0.2, 0.3, 0.4),
+            &None,
+            None,
+            None,
+            None,
+        );
+
+        assert!(code.contains("pub fn notes(theme: &Theme, status: text_editor::Status)"));
+        assert!(code.contains("text_editor::Status::Focused { .. }"));
+        assert!(code.contains("text_editor::Style"));
+    }
 }
