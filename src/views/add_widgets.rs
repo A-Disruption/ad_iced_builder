@@ -92,6 +92,7 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                     widget_button(WidgetType::Popover, "Popover"),
                     widget_button(WidgetType::Menu, "Menu"),
                     widget_button(WidgetType::Layer, "Layer"),
+                    widget_button(WidgetType::Toast, "Toasts"),
                 ]
                 .spacing(10)
                 .padding(5),
@@ -235,6 +236,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Column,
                 WidgetType::Row,
                 WidgetType::Stack,
@@ -263,6 +265,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -311,6 +314,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -357,6 +361,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -395,7 +400,7 @@ pub fn get_available_types<'a>(
         vec![WidgetType::Collapsible]
     } else if matches!(
         parent.widget_type,
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast
     ) {
         if overlay_accepts_more_children(parent) {
             vec![
@@ -406,6 +411,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -454,6 +460,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -502,6 +509,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -550,6 +558,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Popover,
                 WidgetType::Menu,
                 WidgetType::Layer,
+                WidgetType::Toast,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -602,6 +611,7 @@ pub fn get_available_types<'a>(
             WidgetType::Popover,
             WidgetType::Menu,
             WidgetType::Layer,
+            WidgetType::Toast,
             WidgetType::Row,
             WidgetType::Column,
             WidgetType::Stack,

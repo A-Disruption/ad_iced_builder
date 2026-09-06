@@ -138,37 +138,81 @@ pub enum PropertyChange {
     CollapsibleExpanded(bool),
 
     // Generic Overlay properties
-    GenericOverlayTitle(String),
-    GenericOverlayOverlayWidthChoice(GenericOverlayLengthChoice),
-    GenericOverlayOverlayHeightChoice(GenericOverlayLengthChoice),
-    DraftGenericOverlayOverlayWidthFixed(String),
-    DraftGenericOverlayOverlayWidthFillPortion(String),
-    DraftGenericOverlayOverlayWidthDynamic(String),
-    DraftGenericOverlayOverlayHeightFixed(String),
-    DraftGenericOverlayOverlayHeightFillPortion(String),
-    DraftGenericOverlayOverlayHeightDynamic(String),
-    GenericOverlayOverlayPadding(f32),
-    GenericOverlayOverlayRadius(f32),
-    GenericOverlayOverlayStyle(Option<String>),
-    GenericOverlayOnHover(bool),
-    GenericOverlayHoverPositionsOnClick(bool),
-    GenericOverlayInitiallyOpen(bool),
-    GenericOverlayHoverPosition(GenericOverlayPosition),
-    GenericOverlayHoverGap(f32),
-    GenericOverlayHoverAlignment(ContainerAlignX),
-    GenericOverlayHoverMode(GenericOverlayPositionMode),
-    GenericOverlayHoverSnap(bool),
-    GenericOverlayCloseOnClickOutside(bool),
-    GenericOverlayOpaque(bool),
-    GenericOverlayOpaqueAlpha(f32),
-    GenericOverlayHideHeader(bool),
-    GenericOverlayHideCloseButton(bool),
-    GenericOverlayBlockDragging(bool),
-    GenericOverlayResizable(GenericOverlayResizeMode),
-    GenericOverlayResetOnClose(bool),
-    GenericOverlayAnimate(bool),
-    GenericOverlayAnimationPreset(GenericOverlayAnimationPreset),
-    GenericOverlaySafeTriangle(bool),
+    OverlayTitle(String),
+    OverlayWidthChoice(OverlayLengthChoice),
+    OverlayHeightChoice(OverlayLengthChoice),
+    DraftOverlayWidthFixed(String),
+    DraftOverlayWidthFillPortion(String),
+    DraftOverlayWidthDynamic(String),
+    DraftOverlayHeightFixed(String),
+    DraftOverlayHeightFillPortion(String),
+    DraftOverlayHeightDynamic(String),
+    OverlayPadding(f32),
+    OverlayRadius(f32),
+    OverlayStyle(Option<String>),
+    OverlayOnHover(bool),
+    OverlayHoverPositionsOnClick(bool),
+    OverlayInitiallyOpen(bool),
+    OverlayHoverPosition(OverlayPosition),
+    OverlayHoverGap(f32),
+    OverlayHoverAlignment(ContainerAlignX),
+    OverlayHoverMode(OverlayPositionMode),
+    OverlayHoverSnap(bool),
+    OverlayCloseOnClickOutside(bool),
+    OverlayOpaque(bool),
+    OverlayOpaqueAlpha(f32),
+    OverlayHideHeader(bool),
+    OverlayHideCloseButton(bool),
+    OverlayBlockDragging(bool),
+    OverlayResizable(OverlayResizeMode),
+    OverlayResetOnClose(bool),
+    OverlayAnimate(bool),
+    OverlayAnimationPreset(OverlayAnimationPreset),
+    OverlaySafeTriangle(bool),
+
+    /// Applies a named starting point, setting several properties at once.
+    ApplyOverlayPreset(OverlayPreset),
+    OverlayMinWidth(f32),
+    OverlayMaxWidthEnabled(bool),
+    OverlayMaxWidth(f32),
+
+    // Menu panel chrome
+    MenuSubmenuGap(f32),
+    MenuItemPadding(Padding),
+    MenuTriggerPadding(Padding),
+    MenuPlainTrigger(bool),
+    MenuCheckSide(MenuCheckSide),
+    MenuGutterSpacing(f32),
+
+    // Menu rows, set on a child of a Menu
+    MenuItemKind(MenuItemKind),
+    MenuItemChecked(bool),
+    MenuItemEnabled(bool),
+
+    // Layer
+    LayerAnchor(OverlayAnchor),
+    LayerMinHeight(f32),
+    LayerStretch(bool),
+    LayerPositionEnabled(bool),
+    LayerPositionX(f32),
+    LayerPositionY(f32),
+    LayerDismissOnEscape(bool),
+
+    // Toast stack
+    ToastAnchor(OverlayAnchor),
+    ToastMargin(f32),
+    ToastSpacing(f32),
+    ToastWidth(f32),
+
+    // Toast items, set on a child of a Toast
+    ToastVariant(ToastVariant),
+    ToastWithoutIcon(bool),
+    ToastTimeoutSecs(f32),
+
+    // Date picker placement
+    DatePickerPositionEnabled(bool),
+    DatePickerPositionX(f32),
+    DatePickerPositionY(f32),
 
     // Date Picker properties
     DatePickerSelectionMode(DatePickerSelectionMode),
@@ -625,177 +669,267 @@ pub fn apply_property_change(
         PropertyChange::CollapsibleExpanded(value) => properties.collapsible_expanded = value,
 
         // Generic Overlay properties
-        PropertyChange::GenericOverlayTitle(value) => properties.generic_overlay_title = value,
-        PropertyChange::GenericOverlayOverlayWidthChoice(choice) => match choice {
-            GenericOverlayLengthChoice::Fill => {
-                properties.generic_overlay_overlay_width_dynamic = false;
-                properties.generic_overlay_overlay_width = Length::Fill;
+        PropertyChange::OverlayTitle(value) => properties.overlay_title = value,
+        PropertyChange::OverlayWidthChoice(choice) => match choice {
+            OverlayLengthChoice::Fill => {
+                properties.overlay_width_dynamic = false;
+                properties.overlay_width = Length::Fill;
             }
-            GenericOverlayLengthChoice::FillPortion => {
-                properties.generic_overlay_overlay_width_dynamic = false;
+            OverlayLengthChoice::FillPortion => {
+                properties.overlay_width_dynamic = false;
                 if !matches!(
-                    properties.generic_overlay_overlay_width,
+                    properties.overlay_width,
                     Length::FillPortion(_)
                 ) {
-                    properties.generic_overlay_overlay_width = Length::FillPortion(1);
+                    properties.overlay_width = Length::FillPortion(1);
                 }
             }
-            GenericOverlayLengthChoice::Shrink => {
-                properties.generic_overlay_overlay_width_dynamic = false;
-                properties.generic_overlay_overlay_width = Length::Shrink;
+            OverlayLengthChoice::Shrink => {
+                properties.overlay_width_dynamic = false;
+                properties.overlay_width = Length::Shrink;
             }
-            GenericOverlayLengthChoice::Fixed => {
-                properties.generic_overlay_overlay_width_dynamic = false;
-                if !matches!(properties.generic_overlay_overlay_width, Length::Fixed(_)) {
-                    properties.generic_overlay_overlay_width = Length::Fixed(120.0);
+            OverlayLengthChoice::Fixed => {
+                properties.overlay_width_dynamic = false;
+                if !matches!(properties.overlay_width, Length::Fixed(_)) {
+                    properties.overlay_width = Length::Fixed(120.0);
                 }
             }
-            GenericOverlayLengthChoice::Dynamic => {
-                properties.generic_overlay_overlay_width_dynamic = true;
-                if properties.generic_overlay_overlay_width_dynamic_factor <= 0.0 {
-                    properties.generic_overlay_overlay_width_dynamic_factor = 1.0;
+            OverlayLengthChoice::Dynamic => {
+                properties.overlay_width_dynamic = true;
+                if properties.overlay_width_dynamic_factor <= 0.0 {
+                    properties.overlay_width_dynamic_factor = 1.0;
                 }
             }
         },
-        PropertyChange::GenericOverlayOverlayHeightChoice(choice) => match choice {
-            GenericOverlayLengthChoice::Fill => {
-                properties.generic_overlay_overlay_height_dynamic = false;
-                properties.generic_overlay_overlay_height = Length::Fill;
+        PropertyChange::OverlayHeightChoice(choice) => match choice {
+            OverlayLengthChoice::Fill => {
+                properties.overlay_height_dynamic = false;
+                properties.overlay_height = Length::Fill;
             }
-            GenericOverlayLengthChoice::FillPortion => {
-                properties.generic_overlay_overlay_height_dynamic = false;
+            OverlayLengthChoice::FillPortion => {
+                properties.overlay_height_dynamic = false;
                 if !matches!(
-                    properties.generic_overlay_overlay_height,
+                    properties.overlay_height,
                     Length::FillPortion(_)
                 ) {
-                    properties.generic_overlay_overlay_height = Length::FillPortion(1);
+                    properties.overlay_height = Length::FillPortion(1);
                 }
             }
-            GenericOverlayLengthChoice::Shrink => {
-                properties.generic_overlay_overlay_height_dynamic = false;
-                properties.generic_overlay_overlay_height = Length::Shrink;
+            OverlayLengthChoice::Shrink => {
+                properties.overlay_height_dynamic = false;
+                properties.overlay_height = Length::Shrink;
             }
-            GenericOverlayLengthChoice::Fixed => {
-                properties.generic_overlay_overlay_height_dynamic = false;
-                if !matches!(properties.generic_overlay_overlay_height, Length::Fixed(_)) {
-                    properties.generic_overlay_overlay_height = Length::Fixed(120.0);
+            OverlayLengthChoice::Fixed => {
+                properties.overlay_height_dynamic = false;
+                if !matches!(properties.overlay_height, Length::Fixed(_)) {
+                    properties.overlay_height = Length::Fixed(120.0);
                 }
             }
-            GenericOverlayLengthChoice::Dynamic => {
-                properties.generic_overlay_overlay_height_dynamic = true;
-                if properties.generic_overlay_overlay_height_dynamic_factor <= 0.0 {
-                    properties.generic_overlay_overlay_height_dynamic_factor = 1.0;
+            OverlayLengthChoice::Dynamic => {
+                properties.overlay_height_dynamic = true;
+                if properties.overlay_height_dynamic_factor <= 0.0 {
+                    properties.overlay_height_dynamic_factor = 1.0;
                 }
             }
         },
-        PropertyChange::DraftGenericOverlayOverlayWidthFixed(text) => {
-            properties.draft_generic_overlay_overlay_width_fixed = text.clone();
+        PropertyChange::DraftOverlayWidthFixed(text) => {
+            properties.draft_overlay_width_fixed = text.clone();
             if let Ok(px) = text.trim().parse::<f32>() {
                 if px >= 0.0 {
-                    properties.generic_overlay_overlay_width = Length::Fixed(px);
+                    properties.overlay_width = Length::Fixed(px);
                 }
             }
         }
-        PropertyChange::DraftGenericOverlayOverlayWidthFillPortion(text) => {
-            properties.draft_generic_overlay_overlay_width_fill_portion = text.clone();
+        PropertyChange::DraftOverlayWidthFillPortion(text) => {
+            properties.draft_overlay_width_fill_portion = text.clone();
             if let Ok(portion) = text.trim().parse::<u16>() {
                 if portion >= 1 {
-                    properties.generic_overlay_overlay_width = Length::FillPortion(portion);
+                    properties.overlay_width = Length::FillPortion(portion);
                 }
             }
         }
-        PropertyChange::DraftGenericOverlayOverlayWidthDynamic(text) => {
-            properties.draft_generic_overlay_overlay_width_dynamic = text.clone();
+        PropertyChange::DraftOverlayWidthDynamic(text) => {
+            properties.draft_overlay_width_dynamic = text.clone();
             if let Ok(factor) = text.trim().parse::<f32>() {
                 if factor > 0.0 {
-                    properties.generic_overlay_overlay_width_dynamic_factor = factor;
+                    properties.overlay_width_dynamic_factor = factor;
                 }
             }
         }
-        PropertyChange::DraftGenericOverlayOverlayHeightFixed(text) => {
-            properties.draft_generic_overlay_overlay_height_fixed = text.clone();
+        PropertyChange::DraftOverlayHeightFixed(text) => {
+            properties.draft_overlay_height_fixed = text.clone();
             if let Ok(px) = text.trim().parse::<f32>() {
                 if px >= 0.0 {
-                    properties.generic_overlay_overlay_height = Length::Fixed(px);
+                    properties.overlay_height = Length::Fixed(px);
                 }
             }
         }
-        PropertyChange::DraftGenericOverlayOverlayHeightFillPortion(text) => {
-            properties.draft_generic_overlay_overlay_height_fill_portion = text.clone();
+        PropertyChange::DraftOverlayHeightFillPortion(text) => {
+            properties.draft_overlay_height_fill_portion = text.clone();
             if let Ok(portion) = text.trim().parse::<u16>() {
                 if portion >= 1 {
-                    properties.generic_overlay_overlay_height = Length::FillPortion(portion);
+                    properties.overlay_height = Length::FillPortion(portion);
                 }
             }
         }
-        PropertyChange::DraftGenericOverlayOverlayHeightDynamic(text) => {
-            properties.draft_generic_overlay_overlay_height_dynamic = text.clone();
+        PropertyChange::DraftOverlayHeightDynamic(text) => {
+            properties.draft_overlay_height_dynamic = text.clone();
             if let Ok(factor) = text.trim().parse::<f32>() {
                 if factor > 0.0 {
-                    properties.generic_overlay_overlay_height_dynamic_factor = factor;
+                    properties.overlay_height_dynamic_factor = factor;
                 }
             }
         }
-        PropertyChange::GenericOverlayOverlayPadding(value) => {
-            properties.generic_overlay_overlay_padding = value.max(0.0)
+        PropertyChange::OverlayPadding(value) => {
+            properties.overlay_padding = value.max(0.0)
         }
-        PropertyChange::GenericOverlayOverlayRadius(value) => {
-            properties.generic_overlay_overlay_radius = value.max(0.0)
+        PropertyChange::OverlayRadius(value) => {
+            properties.overlay_radius = value.max(0.0)
         }
-        PropertyChange::GenericOverlayOverlayStyle(value) => {
-            properties.generic_overlay_overlay_style_name = value
+        PropertyChange::OverlayStyle(value) => {
+            properties.overlay_style_name = value
         }
-        PropertyChange::GenericOverlayOnHover(value) => properties.generic_overlay_on_hover = value,
-        PropertyChange::GenericOverlayHoverPositionsOnClick(value) => {
-            properties.generic_overlay_hover_positions_on_click = value
+        PropertyChange::OverlayOnHover(value) => properties.overlay_on_hover = value,
+        PropertyChange::OverlayHoverPositionsOnClick(value) => {
+            properties.overlay_hover_positions_on_click = value
         }
-        PropertyChange::GenericOverlayInitiallyOpen(value) => {
-            properties.generic_overlay_initially_open = value
+        PropertyChange::OverlayInitiallyOpen(value) => {
+            properties.overlay_initially_open = value
         }
-        PropertyChange::GenericOverlayHoverPosition(value) => {
-            properties.generic_overlay_hover_position = value
+        PropertyChange::OverlayHoverPosition(value) => {
+            properties.overlay_hover_position = value
         }
-        PropertyChange::GenericOverlayHoverGap(value) => {
-            properties.generic_overlay_hover_gap = value.max(0.0)
+        PropertyChange::OverlayHoverGap(value) => {
+            properties.overlay_hover_gap = value.max(0.0)
         }
-        PropertyChange::GenericOverlayHoverAlignment(value) => {
-            properties.generic_overlay_hover_alignment = value
+        PropertyChange::OverlayHoverAlignment(value) => {
+            properties.overlay_hover_alignment = value
         }
-        PropertyChange::GenericOverlayHoverMode(value) => {
-            properties.generic_overlay_hover_mode = value
+        PropertyChange::OverlayHoverMode(value) => {
+            properties.overlay_hover_mode = value
         }
-        PropertyChange::GenericOverlayHoverSnap(value) => {
-            properties.generic_overlay_hover_snap = value
+        PropertyChange::OverlayHoverSnap(value) => {
+            properties.overlay_hover_snap = value
         }
-        PropertyChange::GenericOverlayCloseOnClickOutside(value) => {
-            properties.generic_overlay_close_on_click_outside = value
+        PropertyChange::OverlayCloseOnClickOutside(value) => {
+            properties.overlay_close_on_click_outside = value
         }
-        PropertyChange::GenericOverlayOpaque(value) => properties.generic_overlay_opaque = value,
-        PropertyChange::GenericOverlayOpaqueAlpha(value) => {
-            properties.generic_overlay_opaque_alpha = value.clamp(0.1, 1.0)
+        PropertyChange::OverlayOpaque(value) => properties.overlay_opaque = value,
+        PropertyChange::OverlayOpaqueAlpha(value) => {
+            properties.overlay_opaque_alpha = value.clamp(0.1, 1.0)
         }
-        PropertyChange::GenericOverlayHideHeader(value) => {
-            properties.generic_overlay_hide_header = value
+        PropertyChange::OverlayHideHeader(value) => {
+            properties.overlay_hide_header = value
         }
-        PropertyChange::GenericOverlayHideCloseButton(value) => {
-            properties.generic_overlay_hide_close_button = value
+        PropertyChange::OverlayHideCloseButton(value) => {
+            properties.overlay_hide_close_button = value
         }
-        PropertyChange::GenericOverlayBlockDragging(value) => {
-            properties.generic_overlay_block_dragging = value
+        PropertyChange::OverlayBlockDragging(value) => {
+            properties.overlay_block_dragging = value
         }
-        PropertyChange::GenericOverlayResizable(value) => {
-            properties.generic_overlay_resizable = value
+        PropertyChange::OverlayResizable(value) => {
+            properties.overlay_resizable = value
         }
-        PropertyChange::GenericOverlayResetOnClose(value) => {
-            properties.generic_overlay_reset_on_close = value
+        PropertyChange::OverlayResetOnClose(value) => {
+            properties.overlay_reset_on_close = value
         }
-        PropertyChange::GenericOverlayAnimate(value) => properties.generic_overlay_animate = value,
-        PropertyChange::GenericOverlayAnimationPreset(value) => {
-            properties.generic_overlay_animation_preset = value
+        PropertyChange::OverlayAnimate(value) => properties.overlay_animate = value,
+        PropertyChange::OverlayAnimationPreset(value) => {
+            properties.overlay_animation_preset = value
         }
-        PropertyChange::GenericOverlaySafeTriangle(value) => {
-            properties.generic_overlay_safe_triangle = value
+        PropertyChange::OverlaySafeTriangle(value) => {
+            properties.overlay_safe_triangle = value
         }
+        PropertyChange::ApplyOverlayPreset(preset) => {
+            // Mirrors the widgets crate's own constructors. `layer()` is the
+            // baseline every Layer preset starts from, so each arm states the
+            // whole shape rather than only its difference — picking a preset
+            // twice, or moving between them, then lands somewhere predictable.
+            match preset {
+                OverlayPreset::LayerPlain
+                | OverlayPreset::LayerDialog
+                | OverlayPreset::LayerModal
+                | OverlayPreset::LayerSheet => {
+                    properties.layer_anchor = OverlayAnchor::Center;
+                    properties.overlay_hover_gap = 16.0;
+                    properties.overlay_padding = 16.0;
+                    properties.overlay_radius = 10.0;
+                    properties.layer_stretch = false;
+                    properties.overlay_opaque = false;
+                    properties.overlay_opaque_alpha = 0.4;
+                    properties.overlay_hide_header = true;
+                    properties.overlay_hide_close_button = false;
+                    properties.overlay_block_dragging = true;
+                    properties.overlay_resizable = OverlayResizeMode::None;
+
+                    match preset {
+                        OverlayPreset::LayerDialog => {
+                            properties.overlay_opaque = true;
+                        }
+                        OverlayPreset::LayerModal => {
+                            properties.overlay_opaque = true;
+                            properties.overlay_hide_header = false;
+                            properties.overlay_block_dragging = false;
+                            properties.overlay_resizable = OverlayResizeMode::Always;
+                        }
+                        OverlayPreset::LayerSheet => {
+                            properties.overlay_opaque = true;
+                            properties.layer_anchor = OverlayAnchor::Right;
+                            properties.overlay_hover_gap = 0.0;
+                            properties.overlay_radius = 0.0;
+                            properties.layer_stretch = true;
+                        }
+                        _ => {}
+                    }
+                }
+                OverlayPreset::PopoverPress => properties.overlay_on_hover = false,
+                OverlayPreset::PopoverHover => properties.overlay_on_hover = true,
+            }
+        }
+        PropertyChange::OverlayMinWidth(value) => properties.overlay_min_width = value,
+        PropertyChange::OverlayMaxWidthEnabled(value) => {
+            // Keep whatever bound was last typed when the checkbox goes back on.
+            properties.overlay_max_width = value.then(|| {
+                properties
+                    .overlay_max_width
+                    .unwrap_or(DEFAULT_OVERLAY_MAX_WIDTH)
+            })
+        }
+        PropertyChange::OverlayMaxWidth(value) => properties.overlay_max_width = Some(value),
+
+        PropertyChange::MenuSubmenuGap(value) => properties.menu_submenu_gap = value,
+        PropertyChange::MenuItemPadding(value) => properties.menu_item_padding = value,
+        PropertyChange::MenuTriggerPadding(value) => properties.menu_trigger_padding = value,
+        PropertyChange::MenuPlainTrigger(value) => properties.menu_plain_trigger = value,
+        PropertyChange::MenuCheckSide(value) => properties.menu_check_side = value,
+        PropertyChange::MenuGutterSpacing(value) => properties.menu_gutter_spacing = value,
+
+        PropertyChange::MenuItemKind(value) => properties.menu_item_kind = value,
+        PropertyChange::MenuItemChecked(value) => properties.menu_item_checked = value,
+        PropertyChange::MenuItemEnabled(value) => properties.menu_item_enabled = value,
+
+        PropertyChange::LayerAnchor(value) => properties.layer_anchor = value,
+        PropertyChange::LayerMinHeight(value) => properties.layer_min_height = value,
+        PropertyChange::LayerStretch(value) => properties.layer_stretch = value,
+        PropertyChange::LayerPositionEnabled(value) => properties.layer_position_enabled = value,
+        PropertyChange::LayerPositionX(value) => properties.layer_position_x = value,
+        PropertyChange::LayerPositionY(value) => properties.layer_position_y = value,
+        PropertyChange::LayerDismissOnEscape(value) => properties.layer_dismiss_on_escape = value,
+
+        PropertyChange::ToastAnchor(value) => properties.toast_anchor = value,
+        PropertyChange::ToastMargin(value) => properties.toast_margin = value,
+        PropertyChange::ToastSpacing(value) => properties.toast_spacing = value,
+        PropertyChange::ToastWidth(value) => properties.toast_width = value,
+
+        PropertyChange::ToastVariant(value) => properties.toast_variant = value,
+        PropertyChange::ToastWithoutIcon(value) => properties.toast_without_icon = value,
+        PropertyChange::ToastTimeoutSecs(value) => properties.toast_timeout_secs = value,
+
+        PropertyChange::DatePickerPositionEnabled(value) => {
+            properties.date_picker_position_enabled = value
+        }
+        PropertyChange::DatePickerPositionX(value) => properties.date_picker_position_x = value,
+        PropertyChange::DatePickerPositionY(value) => properties.date_picker_position_y = value,
 
         // Date Picker properties
         PropertyChange::DatePickerSelectionMode(value) => properties.date_picker_mode = value,

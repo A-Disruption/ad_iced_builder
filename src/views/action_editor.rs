@@ -3626,7 +3626,7 @@ mod tests {
     }
 
     #[test]
-    fn collect_state_fields_includes_generic_overlay_open_field() {
+    fn collect_state_fields_includes_overlay_open_field() {
         let (all_views, view_id, widget_id) =
             single_view_with_widget(WidgetType::Popover, |_| {});
 

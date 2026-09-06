@@ -1,5 +1,5 @@
 use iced::clipboard;
-use iced::widget::{button, container, row, space, text, text_editor};
+use iced::widget::{button, column, container, row, space, text, text_editor};
 use iced::{Element, Length, Task, Theme};
 use std::collections::{BTreeMap, HashSet};
 use uuid::Uuid;
@@ -463,7 +463,7 @@ fn build_editor_for_widget<'a>(
     hierarchy: &'a WidgetHierarchy,
     type_system: &'a TypeSystem,
     theme: &'a Theme,
-    widget: &Widget,
+    widget: &'a Widget,
     widget_id: WidgetId,
     views: &'a BTreeMap<Uuid, AppView>,
     custom_styles: &'a CustomThemes,
@@ -758,7 +758,7 @@ fn build_editor_for_widget<'a>(
             custom_styles,
             preview_content,
         ),
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => overlay_controls(
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => overlay_controls(
             &hierarchy,
             widget_id,
             theme,
@@ -819,5 +819,16 @@ fn build_editor_for_widget<'a>(
         ),
     };
 
-    controls_view.into()
+    // A widget that is a row of a Menu or an item in a Toast carries settings
+    // belonging to that role rather than to its own type, so they sit above its
+    // own panel whatever type it happens to be.
+    match overlay_child_role(&hierarchy, widget_id) {
+        Some(role) => column![
+            overlay_child_controls(role, widget_id, &widget.properties),
+            controls_view,
+        ]
+        .spacing(5)
+        .into(),
+        None => controls_view.into(),
+    }
 }

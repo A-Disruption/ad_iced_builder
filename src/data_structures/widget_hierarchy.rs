@@ -145,6 +145,7 @@ impl WidgetHierarchy {
                             | WidgetType::Popover
                             | WidgetType::Menu
                             | WidgetType::Layer
+                            | WidgetType::Toast
                             | WidgetType::Split
                             | WidgetType::Responsive
                             | WidgetType::Float
@@ -922,6 +923,7 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
             | WidgetType::Popover
             | WidgetType::Menu
             | WidgetType::Layer
+            | WidgetType::Toast
             | WidgetType::Split
             | WidgetType::Responsive
             | WidgetType::Tooltip

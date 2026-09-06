@@ -206,6 +206,7 @@ fn batch_length_picker<'a>(
             let new_len = match choice {
                 LengthChoice::Fill => Length::Fill,
                 LengthChoice::FillPortion => Length::FillPortion(DEFAULT_PORTION),
+                LengthChoice::Fit => Length::Fit,
                 LengthChoice::Shrink => Length::Shrink,
                 LengthChoice::Fixed => Length::Fixed(DEFAULT_PX),
             };

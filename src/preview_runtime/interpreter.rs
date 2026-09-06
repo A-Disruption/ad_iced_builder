@@ -10,7 +10,7 @@ use crate::action_system::semantic::{
 };
 use crate::action_system::state_ref::{
     ActionValueType, StateFieldRef, StateRefSource, date_picker_open_state_key,
-    generic_overlay_open_state_key, view_reference_selection_state_key, view_selection_state_key,
+    overlay_open_state_key, view_reference_selection_state_key, view_selection_state_key,
 };
 use crate::data_structures::types::types::{AppView, WidgetId, WidgetType};
 
@@ -663,9 +663,9 @@ fn read_state(source: &StateFieldRef, all_views: &BTreeMap<Uuid, AppView>) -> Op
             let widget = view.hierarchy.get_widget_by_id(*widget_id)?;
             if field_suffix == "_open" {
                 let (key, fallback) = match widget.widget_type {
-                    WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => (
-                        generic_overlay_open_state_key(source.view_id, *widget_id),
-                        widget.properties.generic_overlay_initially_open,
+                    WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => (
+                        overlay_open_state_key(source.view_id, *widget_id),
+                        widget.properties.overlay_initially_open,
                     ),
                     WidgetType::DatePicker => (
                         date_picker_open_state_key(source.view_id, *widget_id),
@@ -731,8 +731,8 @@ fn apply_state_write(
                 };
                 if let ActionValue::Bool(is_open) = value {
                     let key = match widget.widget_type {
-                        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
-                            generic_overlay_open_state_key(target.view_id, *widget_id)
+                        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
+                            overlay_open_state_key(target.view_id, *widget_id)
                         }
                         WidgetType::DatePicker => {
                             date_picker_open_state_key(target.view_id, *widget_id)
@@ -935,7 +935,7 @@ mod tests {
     }
 
     #[test]
-    fn generic_overlay_widget_state_reads_and_writes_open_flag() {
+    fn overlay_widget_state_reads_and_writes_open_flag() {
         let view_id = Uuid::new_v4();
         let mut all_views = one_view(view_id);
         let widget_id = {
@@ -953,7 +953,7 @@ mod tests {
             .and_then(|view| view.hierarchy.get_widget_by_id_mut(widget_id))
             .expect("overlay")
             .properties
-            .generic_overlay_initially_open = true;
+            .overlay_initially_open = true;
         let field = widget_field(view_id, widget_id, "_open", ActionValueType::Bool);
 
         assert_eq!(
@@ -967,7 +967,7 @@ mod tests {
             read_state(&field, &all_views),
             Some(ActionValue::Bool(false))
         );
-        let key = generic_overlay_open_state_key(view_id, widget_id);
+        let key = overlay_open_state_key(view_id, widget_id);
         assert_eq!(
             all_views
                 .get(&view_id)

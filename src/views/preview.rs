@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 use crate::action_system::node_kinds::ActionValue;
 use crate::action_system::state_ref::{
-    date_picker_open_state_key, generic_overlay_open_state_key, view_reference_selection_state_key,
+    date_picker_open_state_key, overlay_open_state_key, view_reference_selection_state_key,
     view_selection_state_key,
 };
 use crate::data_structures::properties::messages::PropertyChange;
@@ -44,7 +44,7 @@ pub enum Message {
     SensorHidden(WidgetId, Option<Uuid>),
     TogglerToggled(WidgetId, bool, Option<Uuid>),
     PickListSelected(WidgetId, String, Option<Uuid>),
-    GenericOverlayToggled(WidgetId, bool, Option<Uuid>),
+    OverlayToggled(WidgetId, bool, Option<Uuid>),
     DatePickerOpenRequested(WidgetId, Option<Uuid>),
     DatePickerChanged(WidgetId, date_picker_widget::DateSelection, Option<Uuid>),
     DatePickerChangedWithTime(
@@ -375,14 +375,14 @@ fn overlay_is_open(
         return false;
     };
 
-    let key = generic_overlay_open_state_key(view_id, widget_id);
+    let key = overlay_open_state_key(view_id, widget_id);
     if let Some(ActionValue::Bool(is_open)) = view.custom_state_values.get(&key) {
         return *is_open;
     }
 
     view.hierarchy
         .get_widget_by_id(widget_id)
-        .map(|widget| widget.properties.generic_overlay_initially_open)
+        .map(|widget| widget.properties.overlay_initially_open)
         .unwrap_or(false)
 }
 
@@ -922,10 +922,10 @@ pub fn update(
             }
         }
 
-        Message::GenericOverlayToggled(id, is_open, view_id) => {
+        Message::OverlayToggled(id, is_open, view_id) => {
             if let Some(view_id) = view_id {
                 if let Some(view) = all_views.get_mut(&view_id) {
-                    let key = generic_overlay_open_state_key(view_id, id);
+                    let key = overlay_open_state_key(view_id, id);
                     view.custom_state_values
                         .insert(key, ActionValue::Bool(is_open));
                 }
@@ -1516,6 +1516,16 @@ fn build_widget_preview<'a>(
             type_system,
         ),
         WidgetType::Layer => build_layer_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Toast => build_toast_preview(
             hierarchy,
             widget,
             theme,
@@ -3295,13 +3305,35 @@ fn overlay_trigger_child<'a>(
             current_view_id,
             type_system,
         ),
-        None => button(text(if widget.properties.text_content.is_empty() {
-            "Trigger"
-        } else {
-            &widget.properties.text_content
-        }))
-        .style(button::secondary)
-        .into(),
+        // With no trigger child the widget draws a plain button in its place,
+        // and the widget's own size, padding and style properties are what
+        // describe that button -- there is nothing else for them to mean.
+        None => {
+            let props = &widget.properties;
+
+            let mut trigger = button(text(if props.text_content.is_empty() {
+                "Trigger"
+            } else {
+                &props.text_content
+            }))
+            .width(props.width)
+            .height(props.height)
+            .padding(props.padding);
+
+            if let Some(style_name) = selected_widget_style_name(widget, current_view_id, all_views)
+            {
+                let style_name = style_name.to_string();
+
+                trigger = trigger.style(move |theme: &Theme, status| {
+                    resolve_button_style(custom_themes, theme, status, &style_name)
+                        .unwrap_or_else(|| button::secondary(theme, status))
+                });
+            } else {
+                trigger = trigger.style(button::secondary);
+            }
+
+            trigger.into()
+        }
     }
 }
 
@@ -3324,24 +3356,6 @@ fn overlay_preset(theme: &Theme, style_name: &str) -> Option<(Background, Color)
     };
 
     Some((Background::Color(pair.0), pair.1))
-}
-
-/// Turns the overlay width property into the pixel bound the anchored widgets
-/// take.
-///
-/// Those widgets size themselves to their contents between a pair of pixel
-/// bounds, where the old overlay took a whole `Length`. Only a fixed or
-/// upper-bounded length carries over; the rest leave the surface to its
-/// contents.
-fn overlay_width_bound(width: Length) -> Option<f32> {
-    match width {
-        Length::Fixed(w) => Some(w),
-        Length::Bounded {
-            bounds: Bounds::Max(w) | Bounds::Both { max: w, .. },
-            ..
-        } => Some(w),
-        _ => None,
-    }
 }
 
 fn build_popover_preview<'a>(
@@ -3383,36 +3397,40 @@ fn build_popover_preview<'a>(
 
     let mut popover = widgets::popover::popover(trigger, content)
         .open(overlay_is_open(current_view_id, all_views, widget.id))
-        .side(props.generic_overlay_hover_position.into())
-        .align(props.generic_overlay_hover_alignment.into())
+        .side(props.overlay_hover_position.into())
+        .align(props.overlay_hover_alignment.into())
         // `PositionMode::Inside` is a negative gap on the anchored widgets.
         .gap(
             props
-                .generic_overlay_hover_mode
-                .signed_gap(props.generic_overlay_hover_gap),
+                .overlay_hover_mode
+                .signed_gap(props.overlay_hover_gap),
         )
-        .flip(props.generic_overlay_hover_snap)
-        .padding(props.generic_overlay_overlay_padding)
-        .radius(props.generic_overlay_overlay_radius)
-        .safe_corridor(props.generic_overlay_safe_triangle)
-        .dismiss_on_outside_press(props.generic_overlay_close_on_click_outside)
-        .on_toggle(move |value| Message::GenericOverlayToggled(widget.id, value, current_view_id));
+        .flip(props.overlay_hover_snap)
+        .padding(props.overlay_padding)
+        .radius(props.overlay_radius)
+        .safe_corridor(props.overlay_safe_triangle)
+        .dismiss_on_outside_press(props.overlay_close_on_click_outside)
+        .on_toggle(move |value| Message::OverlayToggled(widget.id, value, current_view_id));
 
-    if props.generic_overlay_on_hover {
+    if props.overlay_on_hover {
         popover = popover.on_hover();
     }
 
-    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
-        popover = popover.min_width(width).max_width(width);
+    if props.overlay_min_width > 0.0 {
+        popover = popover.min_width(props.overlay_min_width);
     }
 
-    popover = if props.generic_overlay_animate {
-        popover.motion(props.generic_overlay_animation_preset.motion())
+    if let Some(max) = props.overlay_max_width {
+        popover = popover.max_width(max);
+    }
+
+    popover = if props.overlay_animate {
+        popover.motion(props.overlay_animation_preset.motion())
     } else {
         popover.no_animation()
     };
 
-    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+    if let Some(name) = props.overlay_style_name.as_deref() {
         let name = name.to_string();
 
         popover = popover.style(move |theme: &Theme| {
@@ -3432,6 +3450,66 @@ fn build_popover_preview<'a>(
     popover.into()
 }
 
+
+/// Builds one menu row from a child of a Menu widget.
+///
+/// The child's own `menu_item_*` properties say what kind of row it is. A
+/// `Submenu` row takes that child's children as its nested panel, which is the
+/// only place the widget tree nests more than one level inside a menu.
+fn menu_item_for<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    child: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> widgets::menu::Item<'a, Message> {
+    let props = &child.properties;
+
+    if props.menu_item_kind == MenuItemKind::Separator {
+        return widgets::menu::separator();
+    }
+
+    let content = build_widget_preview(
+        hierarchy,
+        child,
+        theme,
+        custom_themes,
+        highlight_selected,
+        all_views,
+        current_view_id,
+        type_system,
+    );
+
+    let item = match props.menu_item_kind {
+        MenuItemKind::Submenu => {
+            let nested = child
+                .children
+                .iter()
+                .map(|grandchild| {
+                    menu_item_for(
+                        hierarchy,
+                        grandchild,
+                        theme,
+                        custom_themes,
+                        highlight_selected,
+                        all_views,
+                        current_view_id,
+                        type_system,
+                    )
+                })
+                .collect();
+
+            widgets::menu::submenu(content, nested)
+        }
+        MenuItemKind::Toggle => widgets::menu::toggle(content, props.menu_item_checked),
+        _ => widgets::menu::item(content),
+    };
+
+    item.enabled(props.menu_item_enabled)
+}
 fn build_menu_preview<'a>(
     hierarchy: &'a WidgetHierarchy,
     widget: &'a Widget,
@@ -3455,12 +3533,14 @@ fn build_menu_preview<'a>(
         type_system,
     );
 
-    // Every child after the trigger is one row of the panel.
+    // Every child after the trigger is one row of the panel. A child's own
+    // properties say what kind of row it is; a Submenu row takes that child's
+    // children as its nested panel.
     let items: Vec<widgets::menu::Item<'a, Message>> = if widget.children.len() > 1 {
         widget.children[1..]
             .iter()
             .map(|child| {
-                widgets::menu::item(build_widget_preview(
+                menu_item_for(
                     hierarchy,
                     child,
                     theme,
@@ -3469,7 +3549,7 @@ fn build_menu_preview<'a>(
                     all_views,
                     current_view_id,
                     type_system,
-                ))
+                )
             })
             .collect()
     } else {
@@ -3480,24 +3560,37 @@ fn build_menu_preview<'a>(
     };
 
     let mut menu = widgets::menu::menu(trigger, items)
-        .side(props.generic_overlay_hover_position.into())
-        .align(props.generic_overlay_hover_alignment.into())
-        .gap(props.generic_overlay_hover_gap)
-        .padding(props.generic_overlay_overlay_padding)
-        .radius(props.generic_overlay_overlay_radius)
-        .on_toggle(move |value| Message::GenericOverlayToggled(widget.id, value, current_view_id));
+        .side(props.overlay_hover_position.into())
+        .align(props.overlay_hover_alignment.into())
+        .gap(props.overlay_hover_gap)
+        .submenu_gap(props.menu_submenu_gap)
+        .padding(props.overlay_padding)
+        .item_padding(props.menu_item_padding)
+        .trigger_padding(props.menu_trigger_padding)
+        .check_side(props.menu_check_side.into())
+        .gutter_spacing(props.menu_gutter_spacing)
+        .radius(props.overlay_radius)
+        .on_toggle(move |value| Message::OverlayToggled(widget.id, value, current_view_id));
 
-    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
-        menu = menu.min_width(width).max_width(width);
+    if props.menu_plain_trigger {
+        menu = menu.plain_trigger();
     }
 
-    menu = if props.generic_overlay_animate {
-        menu.motion(props.generic_overlay_animation_preset.motion())
+    if props.overlay_min_width > 0.0 {
+        menu = menu.min_width(props.overlay_min_width);
+    }
+
+    if let Some(max) = props.overlay_max_width {
+        menu = menu.max_width(max);
+    }
+
+    menu = if props.overlay_animate {
+        menu.motion(props.overlay_animation_preset.motion())
     } else {
         menu.no_animation()
     };
 
-    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+    if let Some(name) = props.overlay_style_name.as_deref() {
         let name = name.to_string();
 
         menu = menu.style(move |theme: &Theme| {
@@ -3546,44 +3639,57 @@ fn build_layer_preview<'a>(
 
     let mut layer = widgets::layer::layer(content)
         .open(is_open)
-        .anchor(props.generic_overlay_hover_position.into())
-        .margin(props.generic_overlay_hover_gap)
-        .padding(props.generic_overlay_overlay_padding)
-        .radius(props.generic_overlay_overlay_radius)
-        .draggable(!props.generic_overlay_block_dragging)
-        .resizable(props.generic_overlay_resizable.is_resizable())
-        .close_button(!props.generic_overlay_hide_close_button)
-        .dismiss_on_backdrop(props.generic_overlay_close_on_click_outside)
-        .dismiss_on_escape(true)
-        .on_dismiss(Message::GenericOverlayToggled(
+        .anchor(props.layer_anchor.into())
+        .margin(props.overlay_hover_gap)
+        .padding(props.overlay_padding)
+        .radius(props.overlay_radius)
+        .draggable(!props.overlay_block_dragging)
+        .resizable(props.overlay_resizable.is_resizable())
+        .close_button(!props.overlay_hide_close_button)
+        .dismiss_on_backdrop(props.overlay_close_on_click_outside)
+        .dismiss_on_escape(props.layer_dismiss_on_escape)
+        .stretch(props.layer_stretch)
+        .on_dismiss(Message::OverlayToggled(
             widget.id,
             false,
             current_view_id,
         ));
 
-    if !props.generic_overlay_hide_header {
-        layer = layer.title(props.generic_overlay_title.clone());
+    if !props.overlay_hide_header {
+        layer = layer.title(props.overlay_title.clone());
     }
 
-    if props.generic_overlay_opaque {
-        layer = layer.backdrop(props.generic_overlay_opaque_alpha);
+    if props.overlay_opaque {
+        layer = layer.backdrop(props.overlay_opaque_alpha);
     }
 
-    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
-        layer = layer.min_width(width).max_width(width);
+    if props.overlay_min_width > 0.0 {
+        layer = layer.min_width(props.overlay_min_width);
     }
 
-    if let Length::Fixed(height) = props.generic_overlay_overlay_height {
-        layer = layer.min_height(height);
+    if let Some(max) = props.overlay_max_width {
+        layer = layer.max_width(max);
     }
 
-    layer = if props.generic_overlay_animate {
-        layer.motion(props.generic_overlay_animation_preset.motion())
+    if props.layer_min_height > 0.0 {
+        layer = layer.min_height(props.layer_min_height);
+    }
+
+    // An explicit point overrides the anchor entirely.
+    if props.layer_position_enabled {
+        layer = layer.at(iced::Point::new(
+            props.layer_position_x,
+            props.layer_position_y,
+        ));
+    }
+
+    layer = if props.overlay_animate {
+        layer.motion(props.overlay_animation_preset.motion())
     } else {
         layer.no_animation()
     };
 
-    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+    if let Some(name) = props.overlay_style_name.as_deref() {
         let name = name.to_string();
 
         layer = layer.style(move |theme: &Theme| {
@@ -3606,12 +3712,98 @@ fn build_layer_preview<'a>(
     row![
         button(text(if is_open { "Layer (open)" } else { "Layer" }))
             .style(button::secondary)
-            .on_press(Message::GenericOverlayToggled(
+            .on_press(Message::OverlayToggled(
                 widget.id,
                 !is_open,
                 current_view_id,
             )),
         layer,
+    ]
+    .into()
+}
+
+fn build_toast_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+    let is_open = overlay_is_open(current_view_id, all_views, widget.id);
+
+    // Each child is one notification. Its own properties carry the variant, the
+    // timeout and whether it draws a status icon.
+    let items: Vec<widgets::toast::Toast<'a, Message>> = widget
+        .children
+        .iter()
+        .enumerate()
+        .map(|(index, child)| {
+            let child_props = &child.properties;
+
+            let mut item = widgets::toast::toast(
+                child.id.0 as u64,
+                build_widget_preview(
+                    hierarchy,
+                    child,
+                    theme,
+                    custom_themes,
+                    highlight_selected,
+                    all_views,
+                    current_view_id,
+                    type_system,
+                ),
+            )
+            .variant(child_props.toast_variant.into());
+
+            if child_props.toast_without_icon {
+                item = item.without_icon();
+            }
+
+            if child_props.toast_timeout_secs > 0.0 {
+                item = item.timeout(std::time::Duration::from_secs_f32(
+                    child_props.toast_timeout_secs,
+                ));
+            }
+
+            let _ = index;
+            item
+        })
+        .collect();
+
+    let mut toasts = widgets::toast::toasts(if is_open { items } else { Vec::new() })
+        .anchor(props.toast_anchor.into())
+        .margin(props.toast_margin)
+        .spacing(props.toast_spacing)
+        .padding(props.overlay_padding)
+        .radius(props.overlay_radius)
+        .width(props.toast_width);
+
+    toasts = if props.overlay_animate {
+        toasts.motion(props.overlay_animation_preset.motion())
+    } else {
+        toasts.no_animation()
+    };
+
+    // A toast stack draws over the viewport and takes no space in the layout,
+    // so on the canvas it needs a handle of its own to stay selectable. The
+    // handle is the builder's, and is not part of the generated code.
+    row![
+        button(text(if is_open {
+            "Toasts (showing)"
+        } else {
+            "Toasts"
+        }))
+        .style(button::secondary)
+        .on_press(Message::OverlayToggled(
+            widget.id,
+            !is_open,
+            current_view_id,
+        )),
+        toasts,
     ]
     .into()
 }

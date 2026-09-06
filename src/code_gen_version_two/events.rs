@@ -794,7 +794,7 @@ impl ImportTracker {
                 }
             }
             WidgetType::CollapsibleGroup => {}
-            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {}
+            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {}
             WidgetType::DatePicker => {
                 self.used_widgets.insert("button");
                 self.used_widgets.insert("stack");
@@ -1387,7 +1387,7 @@ fn generate_message_variants(
             }
             emitted = true;
         }
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
             if has_custom_name {
                 b.line(&format!("{}(bool),", v));
             } else {
@@ -2223,7 +2223,7 @@ fn generate_match_arms(
             b.decrease_indent();
             b.line("}");
         }
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
             let arm = if has_custom_name {
                 format!("{}(is_open)", v)
             } else {

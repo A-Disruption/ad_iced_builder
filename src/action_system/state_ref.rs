@@ -157,7 +157,7 @@ pub fn view_reference_selection_state_key(owner_view_id: Uuid, widget_id: Widget
 }
 
 /// Stable preview storage key for a Generic Overlay open/closed state.
-pub fn generic_overlay_open_state_key(owner_view_id: Uuid, widget_id: WidgetId) -> Uuid {
+pub fn overlay_open_state_key(owner_view_id: Uuid, widget_id: WidgetId) -> Uuid {
     fn fnv64(seed: u64, data: &[u8]) -> u64 {
         let mut hash = seed;
         for byte in data {

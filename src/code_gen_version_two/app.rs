@@ -744,7 +744,7 @@ fn generate_state_initializers(
             b.line(&format!(
                 "{}_open: {},",
                 to_snake_case(&name),
-                if props.generic_overlay_initially_open {
+                if props.overlay_initially_open {
                     "true"
                 } else {
                     "false"
@@ -979,10 +979,10 @@ mod tests {
     use crate::data_structures::types::types::{Widget, WidgetId, WidgetType};
 
     #[test]
-    fn generate_state_initializers_respects_generic_overlay_initial_open() {
+    fn generate_state_initializers_respects_overlay_initial_open() {
         let overlay_id = WidgetId(7);
         let mut overlay = Widget::new(WidgetType::Popover, overlay_id);
-        overlay.properties.generic_overlay_initially_open = true;
+        overlay.properties.overlay_initially_open = true;
 
         let mut b = CodeBuilder::new();
         generate_state_initializers(

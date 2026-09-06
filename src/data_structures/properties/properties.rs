@@ -186,84 +186,227 @@ pub struct Properties {
     pub collapsible_expanded: bool,
 
     // Generic Overlay properties
-    #[serde(default = "default_generic_overlay_title")]
-    pub generic_overlay_title: String,
+    #[serde(default = "default_overlay_title")]
+    #[serde(alias = "generic_overlay_title")]
+    pub overlay_title: String,
     #[serde(
-        default = "default_generic_overlay_overlay_width",
+        default = "default_overlay_width",
         with = "serde_iced::length"
     )]
-    pub generic_overlay_overlay_width: Length,
+    #[serde(alias = "generic_overlay_overlay_width")]
+    pub overlay_width: Length,
     #[serde(
-        default = "default_generic_overlay_overlay_height",
+        default = "default_overlay_height",
         with = "serde_iced::length"
     )]
-    pub generic_overlay_overlay_height: Length,
+    #[serde(alias = "generic_overlay_overlay_height")]
+    pub overlay_height: Length,
     #[serde(default)]
-    pub generic_overlay_overlay_width_dynamic: bool,
+    #[serde(alias = "generic_overlay_overlay_width_dynamic")]
+    pub overlay_width_dynamic: bool,
     #[serde(default)]
-    pub generic_overlay_overlay_height_dynamic: bool,
-    #[serde(default = "default_generic_overlay_dynamic_factor")]
-    pub generic_overlay_overlay_width_dynamic_factor: f32,
-    #[serde(default = "default_generic_overlay_dynamic_factor")]
-    pub generic_overlay_overlay_height_dynamic_factor: f32,
-    #[serde(default = "default_generic_overlay_overlay_padding")]
-    pub generic_overlay_overlay_padding: f32,
-    #[serde(default = "default_generic_overlay_overlay_radius")]
-    pub generic_overlay_overlay_radius: f32,
+    #[serde(alias = "generic_overlay_overlay_height_dynamic")]
+    pub overlay_height_dynamic: bool,
+    #[serde(default = "default_overlay_dynamic_factor")]
+    #[serde(alias = "generic_overlay_overlay_width_dynamic_factor")]
+    pub overlay_width_dynamic_factor: f32,
+    #[serde(default = "default_overlay_dynamic_factor")]
+    #[serde(alias = "generic_overlay_overlay_height_dynamic_factor")]
+    pub overlay_height_dynamic_factor: f32,
+    #[serde(default = "default_overlay_padding")]
+    #[serde(alias = "generic_overlay_overlay_padding")]
+    pub overlay_padding: f32,
+    #[serde(default = "default_overlay_radius")]
+    #[serde(alias = "generic_overlay_overlay_radius")]
+    pub overlay_radius: f32,
     #[serde(default)]
-    pub generic_overlay_overlay_style_name: Option<String>,
+    #[serde(alias = "generic_overlay_overlay_style_name")]
+    pub overlay_style_name: Option<String>,
     #[serde(default)]
-    pub generic_overlay_on_hover: bool,
+    #[serde(alias = "generic_overlay_on_hover")]
+    pub overlay_on_hover: bool,
     #[serde(default)]
-    pub generic_overlay_hover_positions_on_click: bool,
+    #[serde(alias = "generic_overlay_hover_positions_on_click")]
+    pub overlay_hover_positions_on_click: bool,
     #[serde(default)]
-    pub generic_overlay_initially_open: bool,
+    #[serde(alias = "generic_overlay_initially_open")]
+    pub overlay_initially_open: bool,
     #[serde(default)]
-    pub generic_overlay_hover_position: GenericOverlayPosition,
-    #[serde(default = "default_generic_overlay_hover_gap")]
-    pub generic_overlay_hover_gap: f32,
-    #[serde(default = "default_generic_overlay_hover_alignment")]
-    pub generic_overlay_hover_alignment: ContainerAlignX,
+    #[serde(alias = "generic_overlay_hover_position")]
+    pub overlay_hover_position: OverlayPosition,
+    #[serde(default = "default_overlay_hover_gap")]
+    #[serde(alias = "generic_overlay_hover_gap")]
+    pub overlay_hover_gap: f32,
+    #[serde(default = "default_overlay_hover_alignment")]
+    #[serde(alias = "generic_overlay_hover_alignment")]
+    pub overlay_hover_alignment: ContainerAlignX,
     #[serde(default)]
-    pub generic_overlay_hover_mode: GenericOverlayPositionMode,
-    #[serde(default = "default_generic_overlay_hover_snap")]
-    pub generic_overlay_hover_snap: bool,
+    #[serde(alias = "generic_overlay_hover_mode")]
+    pub overlay_hover_mode: OverlayPositionMode,
+    #[serde(default = "default_overlay_hover_snap")]
+    #[serde(alias = "generic_overlay_hover_snap")]
+    pub overlay_hover_snap: bool,
     #[serde(default)]
-    pub generic_overlay_close_on_click_outside: bool,
+    #[serde(alias = "generic_overlay_close_on_click_outside")]
+    pub overlay_close_on_click_outside: bool,
     #[serde(default)]
-    pub generic_overlay_opaque: bool,
-    #[serde(default = "default_generic_overlay_opaque_alpha")]
-    pub generic_overlay_opaque_alpha: f32,
+    #[serde(alias = "generic_overlay_opaque")]
+    pub overlay_opaque: bool,
+    #[serde(default = "default_overlay_opaque_alpha")]
+    #[serde(alias = "generic_overlay_opaque_alpha")]
+    pub overlay_opaque_alpha: f32,
     #[serde(default)]
-    pub generic_overlay_hide_header: bool,
+    #[serde(alias = "generic_overlay_hide_header")]
+    pub overlay_hide_header: bool,
     #[serde(default)]
-    pub generic_overlay_hide_close_button: bool,
+    #[serde(alias = "generic_overlay_hide_close_button")]
+    pub overlay_hide_close_button: bool,
     #[serde(default)]
-    pub generic_overlay_block_dragging: bool,
+    #[serde(alias = "generic_overlay_block_dragging")]
+    pub overlay_block_dragging: bool,
     #[serde(default)]
-    pub generic_overlay_resizable: GenericOverlayResizeMode,
+    #[serde(alias = "generic_overlay_resizable")]
+    pub overlay_resizable: OverlayResizeMode,
     #[serde(default)]
-    pub generic_overlay_reset_on_close: bool,
+    #[serde(alias = "generic_overlay_reset_on_close")]
+    pub overlay_reset_on_close: bool,
     #[serde(default)]
-    pub generic_overlay_interactive_base: bool,
+    #[serde(alias = "generic_overlay_interactive_base")]
+    pub overlay_interactive_base: bool,
     #[serde(default)]
-    pub generic_overlay_animate: bool,
+    #[serde(alias = "generic_overlay_animate")]
+    pub overlay_animate: bool,
     #[serde(default)]
-    pub generic_overlay_animation_preset: GenericOverlayAnimationPreset,
-    #[serde(default = "default_generic_overlay_safe_triangle")]
-    pub generic_overlay_safe_triangle: bool,
+    #[serde(alias = "generic_overlay_animation_preset")]
+    pub overlay_animation_preset: OverlayAnimationPreset,
+    #[serde(default = "default_overlay_safe_triangle")]
+    #[serde(alias = "generic_overlay_safe_triangle")]
+    pub overlay_safe_triangle: bool,
+
+    // ── The rest of the overlay widgets' builder surface ──────────────────────
+    //
+    // Everything above is shared by Popover, Menu, Layer and Toast, with each
+    // widget's own defaults applied in `apply_defaults_for_type`. What follows
+    // is per-widget: the methods only one of them has.
+
+    /// Popover, Menu, Layer, Toast: lower bound on the surface width.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_width_fixed: String,
+    pub overlay_min_width: f32,
+    /// Popover, Menu, Layer, Toast: upper bound on the surface width.
+    ///
+    /// `None` leaves the surface to its contents, which is the widget default.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_width_fill_portion: String,
+    pub overlay_max_width: Option<f32>,
+
+    // ── Menu ─────────────────────────────────────────────────────────────────
+    /// Gap between a submenu and the panel that opened it.
+    ///
+    /// Negative by default, which is what sits a submenu flush against its
+    /// parent's border.
+    #[serde(default = "default_menu_submenu_gap")]
+    pub menu_submenu_gap: f32,
+    #[serde(default = "default_menu_item_padding", with = "serde_iced::padding")]
+    pub menu_item_padding: Padding,
+    #[serde(default = "default_menu_trigger_padding", with = "serde_iced::padding")]
+    pub menu_trigger_padding: Padding,
+    /// Draws the trigger as bare content, with no surface of its own.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_width_dynamic: String,
+    pub menu_plain_trigger: bool,
+    /// Which side of a row its checkmark gutter sits on.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_height_fixed: String,
+    pub menu_check_side: MenuCheckSide,
+    /// Space between the gutter and a row's content.
+    #[serde(default = "default_menu_gutter_spacing")]
+    pub menu_gutter_spacing: f32,
+
+    // ── Menu rows ────────────────────────────────────────────────────────────
+    // Set on the *children* of a Menu, one per row.
+    /// What kind of row this child is, when its parent is a Menu.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_height_fill_portion: String,
+    pub menu_item_kind: MenuItemKind,
+    /// Whether a checkable row draws its checkmark.
     #[serde(default)]
-    pub draft_generic_overlay_overlay_height_dynamic: String,
+    pub menu_item_checked: bool,
+    /// A row that is drawn but does not respond.
+    #[serde(default = "default_true")]
+    pub menu_item_enabled: bool,
+
+    // ── Layer ────────────────────────────────────────────────────────────────
+    /// Lower bound on the surface height.
+    #[serde(default)]
+    pub layer_min_height: f32,
+    /// Stretches the surface along the edge it is anchored to.
+    #[serde(default)]
+    pub layer_stretch: bool,
+    /// Which part of the viewport the surface is anchored to.
+    ///
+    /// `Layer::new` starts at `Anchor::Center`, which the four-sided
+    /// `OverlayPosition` cannot express.
+    #[serde(default)]
+    pub layer_anchor: OverlayAnchor,
+    /// Places the surface at an explicit point instead of by anchor.
+    #[serde(default)]
+    pub layer_position_enabled: bool,
+    #[serde(default)]
+    pub layer_position_x: f32,
+    #[serde(default)]
+    pub layer_position_y: f32,
+    /// Closes the surface when Escape is pressed.
+    #[serde(default = "default_true")]
+    pub layer_dismiss_on_escape: bool,
+
+    // ── Toast ────────────────────────────────────────────────────────────────
+    /// Which corner of the viewport the stack grows from.
+    #[serde(default = "default_toast_anchor")]
+    pub toast_anchor: OverlayAnchor,
+    /// Distance from the viewport edges.
+    #[serde(default = "default_toast_margin")]
+    pub toast_margin: f32,
+    /// Space between stacked toasts.
+    #[serde(default = "default_toast_spacing")]
+    pub toast_spacing: f32,
+    /// Fixed width of every toast in the stack.
+    #[serde(default = "default_toast_width")]
+    pub toast_width: f32,
+
+    // ── Toast items ──────────────────────────────────────────────────────────
+    // Set on the *children* of a Toast, one per notification.
+    /// The accent a single toast is drawn with.
+    #[serde(default)]
+    pub toast_variant: ToastVariant,
+    /// Drops the leading status icon from a single toast.
+    #[serde(default)]
+    pub toast_without_icon: bool,
+    /// Seconds before a toast dismisses itself. Zero means it stays.
+    #[serde(default)]
+    pub toast_timeout_secs: f32,
+
+    // ── Date picker ──────────────────────────────────────────────────────────
+    /// Places the picker at an explicit point instead of over its trigger.
+    #[serde(default)]
+    pub date_picker_position_enabled: bool,
+    #[serde(default)]
+    pub date_picker_position_x: f32,
+    #[serde(default)]
+    pub date_picker_position_y: f32,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_width_fixed")]
+    pub draft_overlay_width_fixed: String,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_width_fill_portion")]
+    pub draft_overlay_width_fill_portion: String,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_width_dynamic")]
+    pub draft_overlay_width_dynamic: String,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_height_fixed")]
+    pub draft_overlay_height_fixed: String,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_height_fill_portion")]
+    pub draft_overlay_height_fill_portion: String,
+    #[serde(default)]
+    #[serde(alias = "draft_generic_overlay_overlay_height_dynamic")]
+    pub draft_overlay_height_dynamic: String,
 
     // Date Picker properties
     #[serde(default)]
@@ -455,47 +598,47 @@ fn default_collapsible_header_clickable() -> bool {
     true
 }
 
-fn default_generic_overlay_title() -> String {
+fn default_overlay_title() -> String {
     "Overlay".to_string()
 }
 
-fn default_generic_overlay_overlay_width() -> Length {
+fn default_overlay_width() -> Length {
     Length::Fixed(400.0)
 }
 
-fn default_generic_overlay_overlay_height() -> Length {
+fn default_overlay_height() -> Length {
     Length::Shrink
 }
 
-fn default_generic_overlay_dynamic_factor() -> f32 {
+fn default_overlay_dynamic_factor() -> f32 {
     1.0
 }
 
-fn default_generic_overlay_overlay_padding() -> f32 {
+fn default_overlay_padding() -> f32 {
     15.0
 }
 
-fn default_generic_overlay_overlay_radius() -> f32 {
+fn default_overlay_radius() -> f32 {
     12.0
 }
 
-fn default_generic_overlay_hover_gap() -> f32 {
+fn default_overlay_hover_gap() -> f32 {
     5.0
 }
 
-fn default_generic_overlay_hover_alignment() -> ContainerAlignX {
+fn default_overlay_hover_alignment() -> ContainerAlignX {
     ContainerAlignX::Center
 }
 
-fn default_generic_overlay_hover_snap() -> bool {
+fn default_overlay_hover_snap() -> bool {
     true
 }
 
-fn default_generic_overlay_opaque_alpha() -> f32 {
+fn default_overlay_opaque_alpha() -> f32 {
     0.3
 }
 
-fn default_generic_overlay_safe_triangle() -> bool {
+fn default_overlay_safe_triangle() -> bool {
     true
 }
 
@@ -682,42 +825,78 @@ impl Default for Properties {
             collapsible_expanded: false,
 
             // Generic Overlay defaults
-            generic_overlay_title: default_generic_overlay_title(),
-            generic_overlay_overlay_width: default_generic_overlay_overlay_width(),
-            generic_overlay_overlay_height: default_generic_overlay_overlay_height(),
-            generic_overlay_overlay_width_dynamic: false,
-            generic_overlay_overlay_height_dynamic: false,
-            generic_overlay_overlay_width_dynamic_factor: default_generic_overlay_dynamic_factor(),
-            generic_overlay_overlay_height_dynamic_factor: default_generic_overlay_dynamic_factor(),
-            generic_overlay_overlay_padding: default_generic_overlay_overlay_padding(),
-            generic_overlay_overlay_radius: default_generic_overlay_overlay_radius(),
-            generic_overlay_overlay_style_name: None,
-            generic_overlay_on_hover: false,
-            generic_overlay_hover_positions_on_click: false,
-            generic_overlay_initially_open: false,
-            generic_overlay_hover_position: GenericOverlayPosition::default(),
-            generic_overlay_hover_gap: default_generic_overlay_hover_gap(),
-            generic_overlay_hover_alignment: default_generic_overlay_hover_alignment(),
-            generic_overlay_hover_mode: GenericOverlayPositionMode::default(),
-            generic_overlay_hover_snap: default_generic_overlay_hover_snap(),
-            generic_overlay_close_on_click_outside: false,
-            generic_overlay_opaque: false,
-            generic_overlay_opaque_alpha: default_generic_overlay_opaque_alpha(),
-            generic_overlay_hide_header: false,
-            generic_overlay_hide_close_button: false,
-            generic_overlay_block_dragging: false,
-            generic_overlay_resizable: GenericOverlayResizeMode::default(),
-            generic_overlay_reset_on_close: false,
-            generic_overlay_interactive_base: false,
-            generic_overlay_animate: false,
-            generic_overlay_animation_preset: GenericOverlayAnimationPreset::default(),
-            generic_overlay_safe_triangle: default_generic_overlay_safe_triangle(),
-            draft_generic_overlay_overlay_width_fixed: String::new(),
-            draft_generic_overlay_overlay_width_fill_portion: String::new(),
-            draft_generic_overlay_overlay_width_dynamic: String::new(),
-            draft_generic_overlay_overlay_height_fixed: String::new(),
-            draft_generic_overlay_overlay_height_fill_portion: String::new(),
-            draft_generic_overlay_overlay_height_dynamic: String::new(),
+            overlay_title: default_overlay_title(),
+            overlay_width: default_overlay_width(),
+            overlay_height: default_overlay_height(),
+            overlay_width_dynamic: false,
+            overlay_height_dynamic: false,
+            overlay_width_dynamic_factor: default_overlay_dynamic_factor(),
+            overlay_height_dynamic_factor: default_overlay_dynamic_factor(),
+            overlay_padding: default_overlay_padding(),
+            overlay_radius: default_overlay_radius(),
+            overlay_style_name: None,
+            overlay_on_hover: false,
+            overlay_hover_positions_on_click: false,
+            overlay_initially_open: false,
+            overlay_hover_position: OverlayPosition::default(),
+            overlay_hover_gap: default_overlay_hover_gap(),
+            overlay_hover_alignment: default_overlay_hover_alignment(),
+            overlay_hover_mode: OverlayPositionMode::default(),
+            overlay_hover_snap: default_overlay_hover_snap(),
+            overlay_close_on_click_outside: false,
+            overlay_opaque: false,
+            overlay_opaque_alpha: default_overlay_opaque_alpha(),
+            overlay_hide_header: false,
+            overlay_hide_close_button: false,
+            overlay_block_dragging: false,
+            overlay_resizable: OverlayResizeMode::default(),
+            overlay_reset_on_close: false,
+            overlay_interactive_base: false,
+            overlay_animate: false,
+            overlay_animation_preset: OverlayAnimationPreset::default(),
+            overlay_safe_triangle: default_overlay_safe_triangle(),
+
+            // The rest of the overlay surface. These start from the widgets'
+            // own defaults; `apply_defaults_for_type` then narrows them to the
+            // particular widget being placed.
+            overlay_min_width: 0.0,
+            overlay_max_width: None,
+
+            menu_submenu_gap: default_menu_submenu_gap(),
+            menu_item_padding: default_menu_item_padding(),
+            menu_trigger_padding: default_menu_trigger_padding(),
+            menu_plain_trigger: false,
+            menu_check_side: MenuCheckSide::default(),
+            menu_gutter_spacing: default_menu_gutter_spacing(),
+            menu_item_kind: MenuItemKind::default(),
+            menu_item_checked: false,
+            menu_item_enabled: true,
+
+            layer_anchor: OverlayAnchor::Center,
+            layer_min_height: 0.0,
+            layer_stretch: false,
+            layer_position_enabled: false,
+            layer_position_x: 0.0,
+            layer_position_y: 0.0,
+            layer_dismiss_on_escape: true,
+
+            toast_anchor: default_toast_anchor(),
+            toast_margin: default_toast_margin(),
+            toast_spacing: default_toast_spacing(),
+            toast_width: default_toast_width(),
+            toast_variant: ToastVariant::default(),
+            toast_without_icon: false,
+            toast_timeout_secs: 0.0,
+
+            date_picker_position_enabled: false,
+            date_picker_position_x: 0.0,
+            date_picker_position_y: 0.0,
+            draft_overlay_width_fixed: String::new(),
+            draft_overlay_width_fill_portion: String::new(),
+            draft_overlay_width_dynamic: String::new(),
+            draft_overlay_height_fixed: String::new(),
+            draft_overlay_height_fill_portion: String::new(),
+            draft_overlay_height_dynamic: String::new(),
 
             // Date Picker defaults
             date_picker_mode: DatePickerSelectionMode::default(),
@@ -881,28 +1060,21 @@ impl Properties {
 
         // Customize defaults based on widget type [ Match actual iced defaults ]
         match widget_type {
-            WidgetType::Container => {
-                // Shrink = "let iced decide" (fluid/child-based default).
-                // Explicit Fill can be set by the user when needed.
-                props.width = Length::Shrink;
-                props.height = Length::Shrink;
+            // `container` and `scrollable` both start at `Length::Fit`.
+            WidgetType::Container | WidgetType::Scrollable => {
+                props.width = Length::Fit;
+                props.height = Length::Fit;
             }
-            WidgetType::Scrollable => {
-                props.width = Length::Shrink;
-                props.height = Length::Shrink;
+            // `column` and `row` both start at `Length::Fit`.
+            WidgetType::Column | WidgetType::Row => {
+                props.width = Length::Fit;
+                props.height = Length::Fit;
             }
-            WidgetType::Column => {
-                props.width = Length::Shrink;
-                props.height = Length::Shrink;
-            }
-            WidgetType::Row => {
-                props.width = Length::Shrink;
-                props.height = Length::Shrink;
-            }
+            // `button::DEFAULT_PADDING` with `Length::Fit` on both axes.
             WidgetType::Button => {
                 props.text_content = "Click Me!".to_string();
-                props.width = Length::Shrink;
-                props.height = Length::Shrink;
+                props.width = Length::Fit;
+                props.height = Length::Fit;
                 props.padding_mode = PaddingMode::Symmetric;
                 props.padding = Padding {
                     top: 5.0,
@@ -926,8 +1098,13 @@ impl Properties {
                 props.text_editor_line_height = default_text_editor_line_height();
                 props.text_editor_wrapping = default_text_editor_wrapping();
             }
+            // `text_input` fills its row and fits its line, with 5px padding.
             WidgetType::TextInput => {
                 props.text_input_placeholder = "Enter text...".to_string();
+                props.width = Length::Fill;
+                props.height = Length::Fit;
+                props.padding_mode = PaddingMode::Uniform;
+                props.padding = Padding::new(5.0);
             }
             WidgetType::Checkbox => {
                 props.checkbox_label = "Check me".to_string();
@@ -959,12 +1136,12 @@ impl Properties {
                 props.height = Length::Shrink;
                 props.spacing = 0.0;
             }
-            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
+            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
                 props.text_content = match widget_type {
                     WidgetType::Menu => "Menu".to_string(),
+                    WidgetType::Toast => "Notifications".to_string(),
                     _ => "Open".to_string(),
                 };
-                props.generic_overlay_title = "Overlay".to_string();
                 props.width = Length::Shrink;
                 props.height = Length::Shrink;
                 props.padding_mode = PaddingMode::Symmetric;
@@ -975,21 +1152,63 @@ impl Properties {
                     left: 10.0,
                 };
 
-                // A popover sits beside its trigger; a menu drops below it; a
-                // layer is centred on the window and, having no trigger of its
-                // own, only opens because the application says so.
+                // The surface sizes itself to its contents unless bounded, the
+                // way each of these widgets does when constructed in code.
+                props.overlay_width = Length::Shrink;
+                props.overlay_height = Length::Shrink;
+                props.overlay_min_width = 0.0;
+                props.overlay_max_width = None;
+                props.overlay_animate = true;
+
+                // Each widget's own `new()`, so a widget placed here starts out
+                // looking like one written by hand.
                 match widget_type {
+                    // `Placement::new(Side::Bottom).align(Align::Center).gap(6)`,
+                    // padding 12, radius 8, `Motion::QUICK`.
                     WidgetType::Popover => {
-                        props.generic_overlay_hover_position = GenericOverlayPosition::Right;
+                        props.overlay_hover_position = OverlayPosition::Bottom;
+                        props.overlay_hover_alignment = ContainerAlignX::Center;
+                        props.overlay_hover_gap = 6.0;
+                        props.overlay_padding = 12.0;
+                        props.overlay_radius = 8.0;
+                        props.overlay_animation_preset = OverlayAnimationPreset::Quick;
+                        props.overlay_hover_snap = true;
+                        props.overlay_safe_triangle = true;
+                        props.overlay_close_on_click_outside = true;
                     }
+                    // `Placement::new(Side::Bottom).gap(4)`, panel padding 4,
+                    // radius 6, `Motion::QUICK`.
                     WidgetType::Menu => {
-                        props.generic_overlay_hover_position = GenericOverlayPosition::Bottom;
-                        props.generic_overlay_hover_alignment = ContainerAlignX::Left;
+                        props.overlay_hover_position = OverlayPosition::Bottom;
+                        props.overlay_hover_alignment = ContainerAlignX::Left;
+                        props.overlay_hover_gap = 4.0;
+                        props.overlay_padding = 4.0;
+                        props.overlay_radius = 6.0;
+                        props.overlay_animation_preset = OverlayAnimationPreset::Quick;
                     }
+                    // `Anchor::Center`, margin 16, padding 16, radius 10,
+                    // `Motion::SMOOTH`, no backdrop, and neither draggable nor
+                    // resizable. `dialog()` and `modal()` are the presets that
+                    // add those; a bare `layer()` has none of them.
+                    WidgetType::Layer => {
+                        props.layer_anchor = OverlayAnchor::Center;
+                        props.overlay_hover_gap = 16.0;
+                        props.overlay_padding = 16.0;
+                        props.overlay_radius = 10.0;
+                        props.overlay_animation_preset = OverlayAnimationPreset::Default;
+                        props.overlay_opaque = false;
+                        props.overlay_block_dragging = true;
+                        props.overlay_resizable = OverlayResizeMode::None;
+                        props.overlay_hide_close_button = false;
+                        props.overlay_close_on_click_outside = true;
+                        props.layer_dismiss_on_escape = true;
+                    }
+                    // `Anchor::BottomRight`, margin 16, spacing 10, padding 14,
+                    // radius 8, width 360, `Motion::SMOOTH`.
                     _ => {
-                        props.generic_overlay_opaque = true;
-                        props.generic_overlay_resizable = GenericOverlayResizeMode::Always;
-                        props.generic_overlay_close_on_click_outside = true;
+                        props.overlay_padding = 14.0;
+                        props.overlay_radius = 8.0;
+                        props.overlay_animation_preset = OverlayAnimationPreset::Default;
                     }
                 }
             }
@@ -1048,7 +1267,9 @@ impl Properties {
                 props.height = Length::Shrink;
                 props.show_widget_bounds = true;
             }
+            // `svg` fills its row and takes its natural height.
             WidgetType::Svg => {
+                props.width = Length::Fill;
                 props.height = Length::Shrink;
                 props.show_widget_bounds = true;
             }
@@ -1204,3 +1425,57 @@ impl CommonProperties {
         }
     }
 }
+
+// ── Defaults matching each widget's own ──────────────────────────────────────
+// The values the widgets crate itself starts from, so a freshly placed widget
+// in the builder looks like one constructed in code.
+
+fn default_true() -> bool {
+    true
+}
+
+/// `widgets::menu::DEFAULT_SUBMENU_GAP`
+fn default_menu_submenu_gap() -> f32 {
+    -4.0
+}
+
+/// `widgets::menu::Menu::new`
+fn default_menu_item_padding() -> Padding {
+    Padding::from([4.0, 8.0])
+}
+
+/// `widgets::menu::DEFAULT_TRIGGER_PADDING`
+fn default_menu_trigger_padding() -> Padding {
+    Padding::from([4.0, 10.0])
+}
+
+/// `widgets::menu::DEFAULT_GUTTER_SPACING`
+fn default_menu_gutter_spacing() -> f32 {
+    8.0
+}
+
+/// `widgets::toast::Toasts::new`
+fn default_toast_anchor() -> OverlayAnchor {
+    OverlayAnchor::BottomRight
+}
+
+/// `widgets::toast::DEFAULT_MARGIN`
+fn default_toast_margin() -> f32 {
+    16.0
+}
+
+/// `widgets::toast::DEFAULT_SPACING`
+fn default_toast_spacing() -> f32 {
+    10.0
+}
+
+/// `widgets::toast::DEFAULT_WIDTH`
+fn default_toast_width() -> f32 {
+    360.0
+}
+
+/// The width bound offered when a max-width is first switched on.
+///
+/// The widgets themselves default to no upper bound at all, so this is only a
+/// starting point for the control, not a widget default.
+pub const DEFAULT_OVERLAY_MAX_WIDTH: f32 = 320.0;

@@ -336,6 +336,9 @@ impl<'a> CodeGeneratorV2<'a> {
             WidgetType::Layer => {
                 widget_features.insert("layer");
             }
+            WidgetType::Toast => {
+                widget_features.insert("toast");
+            }
             WidgetType::DatePicker => {
                 widget_features.insert("date_picker");
             }

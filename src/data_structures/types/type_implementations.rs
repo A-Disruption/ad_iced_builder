@@ -25,42 +25,42 @@ impl std::fmt::Display for ContainerAlignY {
     }
 }
 
-impl std::fmt::Display for GenericOverlayPosition {
+impl std::fmt::Display for OverlayPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericOverlayPosition::Top => write!(f, "Top"),
-            GenericOverlayPosition::Bottom => write!(f, "Bottom"),
-            GenericOverlayPosition::Left => write!(f, "Left"),
-            GenericOverlayPosition::Right => write!(f, "Right"),
+            OverlayPosition::Top => write!(f, "Top"),
+            OverlayPosition::Bottom => write!(f, "Bottom"),
+            OverlayPosition::Left => write!(f, "Left"),
+            OverlayPosition::Right => write!(f, "Right"),
         }
     }
 }
 
-impl std::fmt::Display for GenericOverlayPositionMode {
+impl std::fmt::Display for OverlayPositionMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericOverlayPositionMode::Outside => write!(f, "Outside"),
-            GenericOverlayPositionMode::Inside => write!(f, "Inside"),
+            OverlayPositionMode::Outside => write!(f, "Outside"),
+            OverlayPositionMode::Inside => write!(f, "Inside"),
         }
     }
 }
 
-impl std::fmt::Display for GenericOverlayResizeMode {
+impl std::fmt::Display for OverlayResizeMode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericOverlayResizeMode::None => write!(f, "None"),
-            GenericOverlayResizeMode::Always => write!(f, "Always"),
-            GenericOverlayResizeMode::WithCtrl => write!(f, "With Ctrl"),
+            OverlayResizeMode::None => write!(f, "None"),
+            OverlayResizeMode::Always => write!(f, "Always"),
+            OverlayResizeMode::WithCtrl => write!(f, "With Ctrl"),
         }
     }
 }
 
-impl std::fmt::Display for GenericOverlayAnimationPreset {
+impl std::fmt::Display for OverlayAnimationPreset {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericOverlayAnimationPreset::Default => write!(f, "Default"),
-            GenericOverlayAnimationPreset::Quick => write!(f, "Quick"),
-            GenericOverlayAnimationPreset::Slow => write!(f, "Slow"),
+            OverlayAnimationPreset::Default => write!(f, "Default"),
+            OverlayAnimationPreset::Quick => write!(f, "Quick"),
+            OverlayAnimationPreset::Slow => write!(f, "Slow"),
         }
     }
 }
@@ -484,7 +484,7 @@ pub enum ContainerAlignY {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum GenericOverlayPosition {
+pub enum OverlayPosition {
     Top,
     Bottom,
     Left,
@@ -492,13 +492,13 @@ pub enum GenericOverlayPosition {
     Right,
 }
 
-impl From<GenericOverlayPosition> for widgets::anchor::Side {
-    fn from(position: GenericOverlayPosition) -> Self {
+impl From<OverlayPosition> for widgets::anchor::Side {
+    fn from(position: OverlayPosition) -> Self {
         match position {
-            GenericOverlayPosition::Top => Self::Top,
-            GenericOverlayPosition::Bottom => Self::Bottom,
-            GenericOverlayPosition::Left => Self::Left,
-            GenericOverlayPosition::Right => Self::Right,
+            OverlayPosition::Top => Self::Top,
+            OverlayPosition::Bottom => Self::Bottom,
+            OverlayPosition::Left => Self::Left,
+            OverlayPosition::Right => Self::Right,
         }
     }
 }
@@ -508,25 +508,25 @@ impl From<GenericOverlayPosition> for widgets::anchor::Side {
 /// The same four sides the anchored widgets use, read as an edge of the window
 /// rather than a side of a trigger. `Anchor` also carries corners and a centre
 /// the builder does not expose yet.
-impl From<GenericOverlayPosition> for widgets::layer::Anchor {
-    fn from(position: GenericOverlayPosition) -> Self {
+impl From<OverlayPosition> for widgets::layer::Anchor {
+    fn from(position: OverlayPosition) -> Self {
         match position {
-            GenericOverlayPosition::Top => Self::Top,
-            GenericOverlayPosition::Bottom => Self::Bottom,
-            GenericOverlayPosition::Left => Self::Left,
-            GenericOverlayPosition::Right => Self::Right,
+            OverlayPosition::Top => Self::Top,
+            OverlayPosition::Bottom => Self::Bottom,
+            OverlayPosition::Left => Self::Left,
+            OverlayPosition::Right => Self::Right,
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum GenericOverlayPositionMode {
+pub enum OverlayPositionMode {
     #[default]
     Outside,
     Inside,
 }
 
-impl GenericOverlayPositionMode {
+impl OverlayPositionMode {
     /// Turns a gap into the signed gap the anchored widgets take.
     ///
     /// The widgets crate has no `PositionMode`: a surface always sits on the
@@ -541,14 +541,14 @@ impl GenericOverlayPositionMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum GenericOverlayResizeMode {
+pub enum OverlayResizeMode {
     #[default]
     None,
     Always,
     WithCtrl,
 }
 
-impl GenericOverlayResizeMode {
+impl OverlayResizeMode {
     /// Whether a [`Layer`] should carry resize handles.
     ///
     /// `Layer::resizable` is a flag, where the old widget distinguished
@@ -560,14 +560,14 @@ impl GenericOverlayResizeMode {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub enum GenericOverlayAnimationPreset {
+pub enum OverlayAnimationPreset {
     #[default]
     Default,
     Quick,
     Slow,
 }
 
-impl GenericOverlayAnimationPreset {
+impl OverlayAnimationPreset {
     /// The open/close transition the anchored widgets take.
     pub fn motion(self) -> widgets::animation::Motion {
         match self {
@@ -605,7 +605,7 @@ impl From<SplitStrategy> for iced_split::Strategy {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum GenericOverlayLengthChoice {
+pub enum OverlayLengthChoice {
     Fill,
     FillPortion,
     Shrink,
@@ -613,19 +613,19 @@ pub enum GenericOverlayLengthChoice {
     Dynamic,
 }
 
-impl std::fmt::Display for GenericOverlayLengthChoice {
+impl std::fmt::Display for OverlayLengthChoice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            GenericOverlayLengthChoice::Fill => write!(f, "Fill"),
-            GenericOverlayLengthChoice::FillPortion => write!(f, "FillPortion"),
-            GenericOverlayLengthChoice::Shrink => write!(f, "Shrink"),
-            GenericOverlayLengthChoice::Fixed => write!(f, "Fixed"),
-            GenericOverlayLengthChoice::Dynamic => write!(f, "Dynamic"),
+            OverlayLengthChoice::Fill => write!(f, "Fill"),
+            OverlayLengthChoice::FillPortion => write!(f, "FillPortion"),
+            OverlayLengthChoice::Shrink => write!(f, "Shrink"),
+            OverlayLengthChoice::Fixed => write!(f, "Fixed"),
+            OverlayLengthChoice::Dynamic => write!(f, "Dynamic"),
         }
     }
 }
 
-impl GenericOverlayLengthChoice {
+impl OverlayLengthChoice {
     pub fn from_state(length: Length, is_dynamic: bool) -> Self {
         if is_dynamic {
             Self::Dynamic
@@ -1174,6 +1174,11 @@ impl MouseInteraction {
 pub enum LengthChoice {
     Fill,
     FillPortion,
+    /// `Length::Fit` -- the sizing most widgets start from on iced master.
+    ///
+    /// Takes the intrinsic size of the contents, where `Shrink` compresses
+    /// them as far as they will go.
+    Fit,
     Shrink,
     Fixed,
 }
@@ -1183,6 +1188,7 @@ impl std::fmt::Display for LengthChoice {
         match self {
             LengthChoice::Fill => write!(f, "Fill"),
             LengthChoice::FillPortion => write!(f, "FillPortion"),
+            LengthChoice::Fit => write!(f, "Fit"),
             LengthChoice::Shrink => write!(f, "Shrink"),
             LengthChoice::Fixed => write!(f, "Fixed"),
         }
@@ -1196,11 +1202,11 @@ impl LengthChoice {
             Length::FillPortion(_) => LengthChoice::FillPortion,
             Length::Shrink => LengthChoice::Shrink,
             Length::Fixed(_) => LengthChoice::Fixed,
-            // See the note in `GenericOverlayLengthChoice::from_state`.
-            Length::Fit => LengthChoice::Shrink,
+            Length::Fit => LengthChoice::Fit,
             Length::Fluid(_) => LengthChoice::Fill,
             Length::Bounded { sizing, .. } => match sizing {
-                Sizing::Fit | Sizing::Shrink => LengthChoice::Shrink,
+                Sizing::Fit => LengthChoice::Fit,
+                Sizing::Shrink => LengthChoice::Shrink,
                 Sizing::Fill(1) => LengthChoice::Fill,
                 Sizing::Fill(_) => LengthChoice::FillPortion,
             },
@@ -1285,6 +1291,252 @@ pub fn parse_length(value: &str) -> Length {
             } else {
                 Length::Shrink
             }
+        }
+    }
+}
+
+/// Which side of a menu row the checkmark gutter sits on.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum MenuCheckSide {
+    /// Before the row contents, sharing the gutter with the row icon.
+    #[default]
+    Leading,
+    /// After the row contents.
+    Trailing,
+}
+
+impl MenuCheckSide {
+    pub const ALL: &'static [Self] = &[Self::Leading, Self::Trailing];
+}
+
+impl std::fmt::Display for MenuCheckSide {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Leading => write!(f, "Leading"),
+            Self::Trailing => write!(f, "Trailing"),
+        }
+    }
+}
+
+impl From<MenuCheckSide> for widgets::menu::CheckSide {
+    fn from(side: MenuCheckSide) -> Self {
+        match side {
+            MenuCheckSide::Leading => Self::Leading,
+            MenuCheckSide::Trailing => Self::Trailing,
+        }
+    }
+}
+
+/// What kind of row a child of a Menu is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum MenuItemKind {
+    /// A selectable row.
+    #[default]
+    Entry,
+    /// A selectable row that draws a checkmark when checked.
+    Toggle,
+    /// A row that opens a nested panel of the rows beneath it.
+    Submenu,
+    /// A rule between groups of rows. Its own content is not drawn.
+    Separator,
+}
+
+impl MenuItemKind {
+    pub const ALL: &'static [Self] = &[
+        Self::Entry,
+        Self::Toggle,
+        Self::Submenu,
+        Self::Separator,
+    ];
+}
+
+impl std::fmt::Display for MenuItemKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Entry => write!(f, "Entry"),
+            Self::Toggle => write!(f, "Toggle"),
+            Self::Submenu => write!(f, "Submenu"),
+            Self::Separator => write!(f, "Separator"),
+        }
+    }
+}
+
+/// The accent a single toast is drawn with.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum ToastVariant {
+    #[default]
+    Neutral,
+    Info,
+    Warning,
+    Success,
+    Danger,
+}
+
+impl ToastVariant {
+    pub const ALL: &'static [Self] = &[
+        Self::Neutral,
+        Self::Info,
+        Self::Warning,
+        Self::Success,
+        Self::Danger,
+    ];
+}
+
+impl std::fmt::Display for ToastVariant {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Neutral => write!(f, "Neutral"),
+            Self::Info => write!(f, "Info"),
+            Self::Warning => write!(f, "Warning"),
+            Self::Success => write!(f, "Success"),
+            Self::Danger => write!(f, "Danger"),
+        }
+    }
+}
+
+impl From<ToastVariant> for widgets::toast::Variant {
+    fn from(variant: ToastVariant) -> Self {
+        match variant {
+            ToastVariant::Neutral => Self::Neutral,
+            ToastVariant::Info => Self::Info,
+            ToastVariant::Warning => Self::Warning,
+            ToastVariant::Success => Self::Success,
+            ToastVariant::Danger => Self::Danger,
+        }
+    }
+}
+
+/// A corner or edge of the viewport a surface is anchored to.
+///
+/// `OverlayPosition` covers only the four sides, which is all a popover or a
+/// menu needs. A layer and a toast stack can also sit in a corner or the
+/// middle, so they take this instead.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum OverlayAnchor {
+    TopLeft,
+    Top,
+    TopRight,
+    Left,
+    #[default]
+    Center,
+    Right,
+    BottomLeft,
+    Bottom,
+    BottomRight,
+}
+
+impl OverlayAnchor {
+    pub const ALL: &'static [Self] = &[
+        Self::TopLeft,
+        Self::Top,
+        Self::TopRight,
+        Self::Left,
+        Self::Center,
+        Self::Right,
+        Self::BottomLeft,
+        Self::Bottom,
+        Self::BottomRight,
+    ];
+}
+
+impl std::fmt::Display for OverlayAnchor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::TopLeft => write!(f, "Top Left"),
+            Self::Top => write!(f, "Top"),
+            Self::TopRight => write!(f, "Top Right"),
+            Self::Left => write!(f, "Left"),
+            Self::Center => write!(f, "Center"),
+            Self::Right => write!(f, "Right"),
+            Self::BottomLeft => write!(f, "Bottom Left"),
+            Self::Bottom => write!(f, "Bottom"),
+            Self::BottomRight => write!(f, "Bottom Right"),
+        }
+    }
+}
+
+impl From<OverlayAnchor> for widgets::anchor::Anchor {
+    fn from(anchor: OverlayAnchor) -> Self {
+        match anchor {
+            OverlayAnchor::TopLeft => Self::TopLeft,
+            OverlayAnchor::Top => Self::Top,
+            OverlayAnchor::TopRight => Self::TopRight,
+            OverlayAnchor::Left => Self::Left,
+            OverlayAnchor::Center => Self::Center,
+            OverlayAnchor::Right => Self::Right,
+            OverlayAnchor::BottomLeft => Self::BottomLeft,
+            OverlayAnchor::Bottom => Self::Bottom,
+            OverlayAnchor::BottomRight => Self::BottomRight,
+        }
+    }
+}
+
+/// The path to an `Anchor` variant, for generated code.
+pub fn overlay_anchor_code(anchor: OverlayAnchor) -> &'static str {
+    match anchor {
+        OverlayAnchor::TopLeft => "widgets::anchor::Anchor::TopLeft",
+        OverlayAnchor::Top => "widgets::anchor::Anchor::Top",
+        OverlayAnchor::TopRight => "widgets::anchor::Anchor::TopRight",
+        OverlayAnchor::Left => "widgets::anchor::Anchor::Left",
+        OverlayAnchor::Center => "widgets::anchor::Anchor::Center",
+        OverlayAnchor::Right => "widgets::anchor::Anchor::Right",
+        OverlayAnchor::BottomLeft => "widgets::anchor::Anchor::BottomLeft",
+        OverlayAnchor::Bottom => "widgets::anchor::Anchor::Bottom",
+        OverlayAnchor::BottomRight => "widgets::anchor::Anchor::BottomRight",
+    }
+}
+
+/// A named starting point for an overlay widget.
+///
+/// The widgets crate ships constructors that are the plain widget plus a
+/// handful of settings — `dialog()` is `layer()` with a backdrop, `modal()`
+/// adds a title bar you can drag and resize by. Picking one here applies that
+/// same batch of settings, so a widget can start from the useful shape rather
+/// than being assembled a property at a time. Nothing is locked afterwards:
+/// every value the preset set stays editable.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum OverlayPreset {
+    /// `widgets::layer::layer` — a bare surface, centred, no backdrop.
+    LayerPlain,
+    /// `widgets::layer::dialog` — centred and dimmed, no chrome.
+    LayerDialog,
+    /// `widgets::layer::modal` — a dialog with a title bar, draggable and
+    /// resizable.
+    LayerModal,
+    /// `widgets::layer::sheet` — slides out of an edge and spans it.
+    LayerSheet,
+    /// `widgets::popover::popover` — opens on a press.
+    PopoverPress,
+    /// `widgets::popover::hover_popover` — opens on hover, and the cursor can
+    /// travel into the surface.
+    PopoverHover,
+}
+
+impl OverlayPreset {
+    /// The presets offered for a widget type, or none if it has only one shape.
+    pub fn all_for(widget_type: WidgetType) -> &'static [Self] {
+        match widget_type {
+            WidgetType::Layer => &[
+                Self::LayerPlain,
+                Self::LayerDialog,
+                Self::LayerModal,
+                Self::LayerSheet,
+            ],
+            WidgetType::Popover => &[Self::PopoverPress, Self::PopoverHover],
+            _ => &[],
+        }
+    }
+}
+
+impl std::fmt::Display for OverlayPreset {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::LayerPlain => write!(f, "layer()"),
+            Self::LayerDialog => write!(f, "dialog()"),
+            Self::LayerModal => write!(f, "modal()"),
+            Self::LayerSheet => write!(f, "sheet()"),
+            Self::PopoverPress => write!(f, "popover()"),
+            Self::PopoverHover => write!(f, "hover_popover()"),
         }
     }
 }

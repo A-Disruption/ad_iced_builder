@@ -75,6 +75,15 @@ pub fn generate_widget_code(
             type_system,
             view_refs,
         ),
+        WidgetType::Toast => generate_toast(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
         WidgetType::DatePicker => generate_date_picker(
             b,
             widget,
@@ -454,7 +463,7 @@ fn resolve_overlay_style_fn(module: &str, style_name: &str) -> Option<String> {
     ))
 }
 
-fn resolve_generic_overlay_trigger_style_fn(
+fn resolve_overlay_trigger_style_fn(
     custom_styles: &CustomThemes,
     style_name: &str,
 ) -> Option<String> {
@@ -480,26 +489,16 @@ fn resolve_generic_overlay_trigger_style_fn(
 }
 
 /// The side of the trigger an anchored overlay opens on.
-fn generic_overlay_position_code(position: GenericOverlayPosition) -> &'static str {
+fn overlay_position_code(position: OverlayPosition) -> &'static str {
     match position {
-        GenericOverlayPosition::Top => "widgets::anchor::Side::Top",
-        GenericOverlayPosition::Bottom => "widgets::anchor::Side::Bottom",
-        GenericOverlayPosition::Left => "widgets::anchor::Side::Left",
-        GenericOverlayPosition::Right => "widgets::anchor::Side::Right",
+        OverlayPosition::Top => "widgets::anchor::Side::Top",
+        OverlayPosition::Bottom => "widgets::anchor::Side::Bottom",
+        OverlayPosition::Left => "widgets::anchor::Side::Left",
+        OverlayPosition::Right => "widgets::anchor::Side::Right",
     }
 }
 
-/// The edge of the viewport a layer sits against.
-fn generic_overlay_anchor_code(position: GenericOverlayPosition) -> &'static str {
-    match position {
-        GenericOverlayPosition::Top => "widgets::layer::Anchor::Top",
-        GenericOverlayPosition::Bottom => "widgets::layer::Anchor::Bottom",
-        GenericOverlayPosition::Left => "widgets::layer::Anchor::Left",
-        GenericOverlayPosition::Right => "widgets::layer::Anchor::Right",
-    }
-}
-
-fn generic_overlay_alignment_code(alignment: ContainerAlignX) -> &'static str {
+fn overlay_alignment_code(alignment: ContainerAlignX) -> &'static str {
     match alignment {
         ContainerAlignX::Left => "widgets::anchor::Align::Start",
         ContainerAlignX::Center => "widgets::anchor::Align::Center",
@@ -2677,6 +2676,35 @@ fn generate_overlay_child(
             type_system,
             view_refs,
         ),
+        (true, None) if index == 0 => {
+            // The trigger slot falls back to a button carrying the widget's own
+            // size, padding and style, matching what the preview draws.
+            let props = &widget.properties;
+
+            let label = if props.text_content.is_empty() {
+                placeholder
+            } else {
+                &props.text_content
+            };
+
+            b.indent();
+            b.push(&format!("iced::widget::button(iced::widget::text(\"{label}\"))"));
+
+            if !matches!(props.width, Length::Fit) {
+                b.push(&format!(".width({})", format_length(props.width)));
+            }
+            if !matches!(props.height, Length::Fit) {
+                b.push(&format!(".height({})", format_length(props.height)));
+            }
+
+            if let Some(style_fn) = props
+                .custom_style_name
+                .as_deref()
+                .and_then(|name| resolve_overlay_trigger_style_fn(custom_styles, name))
+            {
+                b.push(&format!(".style({style_fn})"));
+            }
+        }
         (true, None) => {
             b.indent();
             b.push(&format!("iced::widget::text(\"{placeholder}\")"));
@@ -2688,85 +2716,115 @@ fn generate_overlay_child(
     }
 }
 
-/// The pixel bound the anchored widgets take, from the overlay width property.
-///
-/// See `overlay_width_bound` in the preview: those widgets size themselves to
-/// their contents between pixel bounds, so only a fixed or upper-bounded
-/// length carries over from the old `Length`-valued property.
-fn overlay_width_bound_code(width: Length) -> Option<f32> {
-    match width {
-        Length::Fixed(w) => Some(w),
-        Length::Bounded {
-            bounds: Bounds::Max(w) | Bounds::Both { max: w, .. },
-            ..
-        } => Some(w),
-        _ => None,
-    }
-}
-
 /// The `widgets::animation::Motion` constant for an animation preset.
-fn overlay_motion_code(preset: GenericOverlayAnimationPreset) -> &'static str {
+fn overlay_motion_code(preset: OverlayAnimationPreset) -> &'static str {
     match preset {
-        GenericOverlayAnimationPreset::Default => "widgets::animation::Motion::SMOOTH",
-        GenericOverlayAnimationPreset::Quick => "widgets::animation::Motion::QUICK",
-        GenericOverlayAnimationPreset::Slow => {
+        OverlayAnimationPreset::Default => "widgets::animation::Motion::SMOOTH",
+        OverlayAnimationPreset::Quick => "widgets::animation::Motion::QUICK",
+        OverlayAnimationPreset::Slow => {
             "widgets::animation::Motion::SMOOTH.duration(std::time::Duration::from_millis(420))"
         }
     }
 }
 
 /// Emits the shared surface settings of an anchored overlay.
-fn generate_anchored_common(b: &mut CodeBuilder, props: &Properties, include_side_extras: bool) {
-    if props.generic_overlay_hover_position != GenericOverlayPosition::Right {
-        b.dot_method(
-            "side",
-            generic_overlay_position_code(props.generic_overlay_hover_position),
-        );
+/// The values a widget's own constructor starts from.
+///
+/// Generated code only calls a builder method when the project differs from
+/// this, so the output reads like hand-written code rather than a full
+/// restatement of every default. Each widget has its own set, which is why
+/// this is passed in rather than being a set of constants.
+struct OverlayDefaults {
+    side: OverlayPosition,
+    align: ContainerAlignX,
+    gap: f32,
+    padding: f32,
+    radius: f32,
+    motion: OverlayAnimationPreset,
+}
+
+impl OverlayDefaults {
+    /// `widgets::popover::Popover::new`
+    const POPOVER: Self = Self {
+        side: OverlayPosition::Bottom,
+        align: ContainerAlignX::Center,
+        gap: 6.0,
+        padding: 12.0,
+        radius: 8.0,
+        motion: OverlayAnimationPreset::Quick,
+    };
+
+    /// `widgets::menu::Menu::new`
+    const MENU: Self = Self {
+        side: OverlayPosition::Bottom,
+        align: ContainerAlignX::Left,
+        gap: 4.0,
+        padding: 4.0,
+        radius: 6.0,
+        motion: OverlayAnimationPreset::Quick,
+    };
+
+    /// `widgets::layer::Layer::new`
+    const LAYER: Self = Self {
+        side: OverlayPosition::Bottom,
+        align: ContainerAlignX::Center,
+        gap: 16.0,
+        padding: 16.0,
+        radius: 10.0,
+        motion: OverlayAnimationPreset::Default,
+    };
+}
+
+/// Emits the surface settings shared by the anchored overlays.
+fn generate_anchored_common(
+    b: &mut CodeBuilder,
+    props: &Properties,
+    defaults: &OverlayDefaults,
+    include_side_extras: bool,
+) {
+    if props.overlay_hover_position != defaults.side {
+        b.dot_method("side", overlay_position_code(props.overlay_hover_position));
     }
-    if props.generic_overlay_hover_alignment != ContainerAlignX::Center {
+    if props.overlay_hover_alignment != defaults.align {
         b.dot_method(
             "align",
-            generic_overlay_alignment_code(props.generic_overlay_hover_alignment),
+            overlay_alignment_code(props.overlay_hover_alignment),
         );
     }
 
     // `PositionMode::Inside` had no counterpart in the new widgets; a negative
     // gap is what pulls a surface back over its trigger.
-    let gap = props
-        .generic_overlay_hover_mode
-        .signed_gap(props.generic_overlay_hover_gap);
+    let gap = props.overlay_hover_mode.signed_gap(props.overlay_hover_gap);
 
-    if (gap - 5.0).abs() > f32::EPSILON {
+    if (gap - defaults.gap).abs() > f32::EPSILON {
         b.dot_method("gap", &format!("{gap:.1}"));
     }
 
-    if include_side_extras && !props.generic_overlay_hover_snap {
+    if include_side_extras && !props.overlay_hover_snap {
         b.dot_method("flip", "false");
     }
 
-    if let Some(width) = overlay_width_bound_code(props.generic_overlay_overlay_width) {
-        b.dot_method("min_width", &format!("{width:.1}"));
-        b.dot_method("max_width", &format!("{width:.1}"));
+    if props.overlay_min_width > 0.0 {
+        b.dot_method("min_width", &format!("{:.1}", props.overlay_min_width));
+    }
+    if let Some(max) = props.overlay_max_width {
+        b.dot_method("max_width", &format!("{max:.1}"));
     }
 
-    if (props.generic_overlay_overlay_padding - 15.0).abs() > f32::EPSILON {
-        b.dot_method(
-            "padding",
-            &format!("{:.1}", props.generic_overlay_overlay_padding),
-        );
+    if (props.overlay_padding - defaults.padding).abs() > f32::EPSILON {
+        b.dot_method("padding", &format!("{:.1}", props.overlay_padding));
     }
-    if (props.generic_overlay_overlay_radius - 12.0).abs() > f32::EPSILON {
-        b.dot_method(
-            "radius",
-            &format!("{:.1}", props.generic_overlay_overlay_radius),
-        );
+    if (props.overlay_radius - defaults.radius).abs() > f32::EPSILON {
+        b.dot_method("radius", &format!("{:.1}", props.overlay_radius));
     }
 
-    if props.generic_overlay_animate {
-        b.dot_method(
-            "motion",
-            overlay_motion_code(props.generic_overlay_animation_preset),
-        );
+    if props.overlay_animate {
+        if props.overlay_animation_preset != defaults.motion {
+            b.dot_method(
+                "motion",
+                overlay_motion_code(props.overlay_animation_preset),
+            );
+        }
     } else {
         b.dot_method_no_args("no_animation");
     }
@@ -2829,16 +2887,16 @@ fn generate_popover(
         b.add_id(id);
     }
 
-    if props.generic_overlay_on_hover {
+    if props.overlay_on_hover {
         b.dot_method_no_args("on_hover");
     }
 
-    generate_anchored_common(b, props, true);
+    generate_anchored_common(b, props, &OverlayDefaults::POPOVER, true);
 
-    if props.generic_overlay_close_on_click_outside {
+    if props.overlay_close_on_click_outside {
         b.dot_method("dismiss_on_outside_press", "true");
     }
-    if !props.generic_overlay_safe_triangle {
+    if !props.overlay_safe_triangle {
         b.dot_method("safe_corridor", "false");
     }
 
@@ -2853,7 +2911,7 @@ fn generate_popover(
         b.push(".on_toggle(|_| Message::Noop)");
     }
 
-    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+    if let Some(ref style_name) = props.overlay_style_name
         && let Some(style_fn) = resolve_overlay_style_fn("popover", style_name)
     {
         b.dot_method("style", &style_fn);
@@ -2945,7 +3003,33 @@ fn generate_menu(
         b.add_id(id);
     }
 
-    generate_anchored_common(b, props, false);
+    generate_anchored_common(b, props, &OverlayDefaults::MENU, false);
+
+    // The panel chrome a menu has and the other overlays do not.
+    if (props.menu_submenu_gap - (-4.0)).abs() > f32::EPSILON {
+        b.dot_method("submenu_gap", &format!("{:.1}", props.menu_submenu_gap));
+    }
+    if props.menu_item_padding != Padding::from([4.0, 8.0]) {
+        b.dot_method("item_padding", &format_padding(&props.menu_item_padding));
+    }
+    if props.menu_trigger_padding != Padding::from([4.0, 10.0]) {
+        b.dot_method(
+            "trigger_padding",
+            &format_padding(&props.menu_trigger_padding),
+        );
+    }
+    if props.menu_plain_trigger {
+        b.dot_method_no_args("plain_trigger");
+    }
+    if props.menu_check_side != MenuCheckSide::Leading {
+        b.dot_method("check_side", "widgets::menu::CheckSide::Trailing");
+    }
+    if (props.menu_gutter_spacing - 8.0).abs() > f32::EPSILON {
+        b.dot_method(
+            "gutter_spacing",
+            &format!("{:.1}", props.menu_gutter_spacing),
+        );
+    }
 
     if use_self {
         let variant = CodeBuilder::msg_variant(&name, "Toggled", has_custom_name);
@@ -2956,7 +3040,7 @@ fn generate_menu(
         b.push(".on_toggle(|_| Message::Noop)");
     }
 
-    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+    if let Some(ref style_name) = props.overlay_style_name
         && let Some(style_fn) = resolve_overlay_style_fn("menu", style_name)
     {
         b.dot_method("style", &style_fn);
@@ -3016,65 +3100,75 @@ fn generate_layer(
         b.dot_method("open", "false");
     }
 
-    // A layer is placed against the viewport, so the same property that gives a
-    // popover its side gives a layer its anchor, and the gap becomes a margin.
-    if props.generic_overlay_hover_position != GenericOverlayPosition::Right {
+    // A layer is placed against the viewport rather than against a trigger, so
+    // it carries its own anchor and the gap becomes a margin.
+    if props.layer_anchor != OverlayAnchor::Center {
+        b.dot_method("anchor", overlay_anchor_code(props.layer_anchor));
+    }
+    if props.layer_position_enabled {
+        // An explicit point overrides the anchor entirely.
         b.dot_method(
-            "anchor",
-            generic_overlay_anchor_code(props.generic_overlay_hover_position),
+            "at",
+            &format!(
+                "iced::Point::new({:.1}, {:.1})",
+                props.layer_position_x, props.layer_position_y
+            ),
         );
     }
-    if (props.generic_overlay_hover_gap - 5.0).abs() > f32::EPSILON {
-        b.dot_method("margin", &format!("{:.1}", props.generic_overlay_hover_gap));
+    if (props.overlay_hover_gap - OverlayDefaults::LAYER.gap).abs() > f32::EPSILON {
+        b.dot_method("margin", &format!("{:.1}", props.overlay_hover_gap));
     }
 
-    if !props.generic_overlay_hide_header {
-        b.dot_method("title", &format!("\"{}\"", props.generic_overlay_title));
+    if !props.overlay_hide_header {
+        b.dot_method("title", &format!("\"{}\"", props.overlay_title));
     }
-    if props.generic_overlay_hide_close_button {
+    // `Layer::new` draws a close button, is neither draggable nor resizable,
+    // has no backdrop, and dismisses on both the backdrop and Escape.
+    if props.overlay_hide_close_button {
         b.dot_method("close_button", "false");
     }
-    if props.generic_overlay_block_dragging {
-        b.dot_method("draggable", "false");
+    if !props.overlay_block_dragging {
+        b.dot_method("draggable", "true");
     }
-    if props.generic_overlay_resizable.is_resizable() {
+    if props.overlay_resizable.is_resizable() {
         b.dot_method("resizable", "true");
     }
-    if props.generic_overlay_opaque {
-        b.dot_method(
-            "backdrop",
-            &format!("{:.2}", props.generic_overlay_opaque_alpha),
-        );
+    if props.layer_stretch {
+        b.dot_method("stretch", "true");
     }
-    if props.generic_overlay_close_on_click_outside {
-        b.dot_method("dismiss_on_backdrop", "true");
+    if props.overlay_opaque {
+        b.dot_method("backdrop", &format!("{:.2}", props.overlay_opaque_alpha));
     }
-
-    if let Some(width) = overlay_width_bound_code(props.generic_overlay_overlay_width) {
-        b.dot_method("min_width", &format!("{width:.1}"));
-        b.dot_method("max_width", &format!("{width:.1}"));
+    if !props.overlay_close_on_click_outside {
+        b.dot_method("dismiss_on_backdrop", "false");
     }
-    if let Length::Fixed(height) = props.generic_overlay_overlay_height {
-        b.dot_method("min_height", &format!("{height:.1}"));
-    }
-    if (props.generic_overlay_overlay_padding - 15.0).abs() > f32::EPSILON {
-        b.dot_method(
-            "padding",
-            &format!("{:.1}", props.generic_overlay_overlay_padding),
-        );
-    }
-    if (props.generic_overlay_overlay_radius - 12.0).abs() > f32::EPSILON {
-        b.dot_method(
-            "radius",
-            &format!("{:.1}", props.generic_overlay_overlay_radius),
-        );
+    if !props.layer_dismiss_on_escape {
+        b.dot_method("dismiss_on_escape", "false");
     }
 
-    if props.generic_overlay_animate {
-        b.dot_method(
-            "motion",
-            overlay_motion_code(props.generic_overlay_animation_preset),
-        );
+    if props.overlay_min_width > 0.0 {
+        b.dot_method("min_width", &format!("{:.1}", props.overlay_min_width));
+    }
+    if let Some(max) = props.overlay_max_width {
+        b.dot_method("max_width", &format!("{max:.1}"));
+    }
+    if props.layer_min_height > 0.0 {
+        b.dot_method("min_height", &format!("{:.1}", props.layer_min_height));
+    }
+    if (props.overlay_padding - OverlayDefaults::LAYER.padding).abs() > f32::EPSILON {
+        b.dot_method("padding", &format!("{:.1}", props.overlay_padding));
+    }
+    if (props.overlay_radius - OverlayDefaults::LAYER.radius).abs() > f32::EPSILON {
+        b.dot_method("radius", &format!("{:.1}", props.overlay_radius));
+    }
+
+    if props.overlay_animate {
+        if props.overlay_animation_preset != OverlayDefaults::LAYER.motion {
+            b.dot_method(
+                "motion",
+                overlay_motion_code(props.overlay_animation_preset),
+            );
+        }
     } else {
         b.dot_method_no_args("no_animation");
     }
@@ -3088,13 +3182,150 @@ fn generate_layer(
         b.dot_method("on_dismiss", "Message::Noop");
     }
 
-    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+    if let Some(ref style_name) = props.overlay_style_name
         && let Some(style_fn) = resolve_overlay_style_fn("layer", style_name)
     {
         b.dot_method("style", &style_fn);
     }
 
     b.decrease_indent();
+}
+
+fn generate_toast(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let has_custom_name = !props.widget_name.trim().is_empty();
+
+    b.indent();
+    b.push("widgets::toast::toasts(");
+    b.newline();
+    b.increase_indent();
+    b.indent();
+    b.push("vec![");
+    b.newline();
+    b.increase_indent();
+
+    // Each child is one notification, carrying its own variant and timeout.
+    if use_self && !widget.children.is_empty() {
+        for child in &widget.children {
+            let child_props = &child.properties;
+
+            b.indent();
+            b.push("widgets::toast::toast(");
+            b.newline();
+            b.increase_indent();
+            b.indent();
+            b.push(&format!("{}u64,", child.id.0));
+            b.newline();
+            generate_widget_code(
+                b,
+                child,
+                names,
+                use_self,
+                custom_styles,
+                type_system,
+                view_refs,
+            );
+            b.newline();
+            b.decrease_indent();
+            b.indent();
+            b.push(")");
+
+            if child_props.toast_variant != ToastVariant::Neutral {
+                b.push(&format!(
+                    ".variant({})",
+                    toast_variant_code(child_props.toast_variant)
+                ));
+            }
+            if child_props.toast_without_icon {
+                b.push(".without_icon()");
+            }
+            if child_props.toast_timeout_secs > 0.0 {
+                b.push(&format!(
+                    ".timeout(std::time::Duration::from_secs_f32({:.1}))",
+                    child_props.toast_timeout_secs
+                ));
+            }
+
+            b.push(",");
+            b.newline();
+        }
+    } else {
+        b.indent();
+        b.push("// toasts");
+        b.newline();
+    }
+
+    b.decrease_indent();
+    b.indent();
+    b.push("],");
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    if let Some(ref id) = props.widget_id
+        && !id.is_empty()
+    {
+        b.add_id(id);
+    }
+
+    if props.toast_anchor != OverlayAnchor::BottomRight {
+        b.dot_method("anchor", overlay_anchor_code(props.toast_anchor));
+    }
+    if (props.toast_margin - 16.0).abs() > f32::EPSILON {
+        b.dot_method("margin", &format!("{:.1}", props.toast_margin));
+    }
+    if (props.toast_spacing - 10.0).abs() > f32::EPSILON {
+        b.dot_method("spacing", &format!("{:.1}", props.toast_spacing));
+    }
+    if (props.overlay_padding - 14.0).abs() > f32::EPSILON {
+        b.dot_method("padding", &format!("{:.1}", props.overlay_padding));
+    }
+    if (props.overlay_radius - 8.0).abs() > f32::EPSILON {
+        b.dot_method("radius", &format!("{:.1}", props.overlay_radius));
+    }
+    if (props.toast_width - 360.0).abs() > f32::EPSILON {
+        b.dot_method("width", &format!("{:.1}", props.toast_width));
+    }
+
+    if props.overlay_animate {
+        if props.overlay_animation_preset != OverlayAnimationPreset::Default {
+            b.dot_method(
+                "motion",
+                overlay_motion_code(props.overlay_animation_preset),
+            );
+        }
+    } else {
+        b.dot_method_no_args("no_animation");
+    }
+
+    let _ = (name, has_custom_name);
+
+    b.decrease_indent();
+}
+
+/// The path to a `toast::Variant`, for generated code.
+fn toast_variant_code(variant: ToastVariant) -> &'static str {
+    match variant {
+        ToastVariant::Neutral => "widgets::toast::Variant::Neutral",
+        ToastVariant::Info => "widgets::toast::Variant::Info",
+        ToastVariant::Warning => "widgets::toast::Variant::Warning",
+        ToastVariant::Success => "widgets::toast::Variant::Success",
+        ToastVariant::Danger => "widgets::toast::Variant::Danger",
+    }
 }
 
 fn generate_date_picker(
@@ -3174,11 +3405,11 @@ fn generate_date_picker(
     let default_style = props
         .custom_style_name
         .as_deref()
-        .and_then(|style_name| resolve_generic_overlay_trigger_style_fn(custom_styles, style_name));
+        .and_then(|style_name| resolve_overlay_trigger_style_fn(custom_styles, style_name));
     let alternate_style = props
         .active_style_name
         .as_deref()
-        .and_then(|style_name| resolve_generic_overlay_trigger_style_fn(custom_styles, style_name));
+        .and_then(|style_name| resolve_overlay_trigger_style_fn(custom_styles, style_name));
     let (uses_condition, condition) = style_condition_code(widget);
 
     match (&default_style, &alternate_style, &condition, uses_condition) {
@@ -3818,5 +4049,21 @@ fn generate_view_reference(b: &mut CodeBuilder, widget: &Widget, view_refs: &[Vi
     } else {
         b.indent();
         b.push("text(\"ViewReference: not resolved\")");
+    }
+}
+
+/// A `Padding` literal for generated code.
+///
+/// The menu takes padding for its rows and its trigger separately from the
+/// panel's own, and neither goes through `CodeBuilder::add_padding`, which
+/// emits a `.padding(..)` call rather than a bare value.
+fn format_padding(padding: &Padding) -> String {
+    if padding.top == padding.bottom && padding.left == padding.right {
+        format!("[{:.1}, {:.1}].into()", padding.top, padding.left)
+    } else {
+        format!(
+            "iced::Padding {{ top: {:.1}, right: {:.1}, bottom: {:.1}, left: {:.1} }}",
+            padding.top, padding.right, padding.bottom, padding.left
+        )
     }
 }

@@ -2988,7 +2988,7 @@ fn collapsible_style_options() -> Vec<String> {
         .collect()
 }
 
-fn generic_overlay_style_options() -> Vec<String> {
+fn overlay_style_options() -> Vec<String> {
     ["Primary", "Success", "Danger", "Warning", "Blank"]
         .into_iter()
         .map(str::to_string)
@@ -3216,461 +3216,590 @@ pub fn overlay_controls<'a>(
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
-    let has_trigger_child = widget.children.get(0).is_some();
-    let uses_hover_placement =
-        props.generic_overlay_on_hover || props.generic_overlay_hover_positions_on_click;
 
-    let overlay_style_options = generic_overlay_style_options();
-    let overlay_style_picker = column![
-        text("Overlay panel style").size(LABEL_SIZE),
-        pick_list(
-            props.generic_overlay_overlay_style_name.clone(),
-            overlay_style_options,
-            ToString::to_string,
-        )
-        .on_select(move |selection| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayOverlayStyle(Some(selection))
-            ))
-        .placeholder("default"),
-    ]
-    .spacing(LABEL_SPACING);
+    // The four widgets that replaced `generic_overlay` share this panel, and
+    // each shows only the settings it actually has. A Layer and a Toast stack
+    // are placed against the viewport and have no trigger; a Popover and a Menu
+    // hang off one.
+    let kind = widget.widget_type;
+    let is_popover = kind == WidgetType::Popover;
+    let is_menu = kind == WidgetType::Menu;
+    let is_layer = kind == WidgetType::Layer;
+    let is_toast = kind == WidgetType::Toast;
+    let is_anchored = is_popover || is_menu;
+    let has_trigger_child = widget.children.first().is_some();
 
-    let opaque_alpha_controls: Element<'a, Message> = if props.generic_overlay_opaque {
-        column![
-            text("Backdrop Alpha").size(LABEL_SIZE),
-            row![
-                slider(
-                    0.1..=1.0,
-                    props.generic_overlay_opaque_alpha,
-                    move |value| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::GenericOverlayOpaqueAlpha(value),
-                        )
-                    }
-                )
-                .step(0.05)
-                .width(220),
-                text(format!("{:.2}", props.generic_overlay_opaque_alpha))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING)
-        .into()
-    } else {
-        column![].into()
-    };
-
-    let animation_controls: Element<'a, Message> = if props.generic_overlay_animate {
-        column![
-            text("Animation Speed").size(LABEL_SIZE),
-            pick_list(
-                Some(props.generic_overlay_animation_preset),
-                vec![
-                    GenericOverlayAnimationPreset::Default,
-                    GenericOverlayAnimationPreset::Quick,
-                    GenericOverlayAnimationPreset::Slow,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayAnimationPreset(value)
-                ))
-            .width(160),
-        ]
-        .spacing(LABEL_SPACING)
-        .into()
-    } else {
-        column![].into()
-    };
-
-    let trigger_controls: Element<'a, Message> = if has_trigger_child {
-        column![
-            text(
-                "The trigger wrapper stays shrink-sized with zero padding and text-button styling so the trigger child renders unchanged."
-            )
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        ]
-        .spacing(LABEL_SPACING)
-        .into()
-    } else {
-        column![
-            custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
-            conditional_style_section(
-                widget_id,
-                props,
-                theme,
-                view_id,
-                h.root(),
-                views,
-                type_system
-            ),
-            size_controls_scrollable_aware(
-                props.width,
-                move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
-                props.height,
-                move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
-                h,
-                widget_id,
-            ),
-            padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-            clip_control(widget_id, props.clip, theme),
-        ]
-        .spacing(MAIN_SPACING)
-        .into()
-    };
-
-    let placement_controls: Element<'a, Message> = if uses_hover_placement {
-        column![
-            row![
-                column![
-                    text("Hover Position").size(LABEL_SIZE),
-                    pick_list(
-                        Some(props.generic_overlay_hover_position),
-                        vec![
-                            GenericOverlayPosition::Top,
-                            GenericOverlayPosition::Right,
-                            GenericOverlayPosition::Bottom,
-                            GenericOverlayPosition::Left,
-                        ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |value| Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::GenericOverlayHoverPosition(value)
-                        ))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING),
-                column![
-                    text("Alignment").size(LABEL_SIZE),
-                    pick_list(
-                        Some(props.generic_overlay_hover_alignment),
-                        vec![
-                            ContainerAlignX::Left,
-                            ContainerAlignX::Center,
-                            ContainerAlignX::Right,
-                        ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |value| Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::GenericOverlayHoverAlignment(value)
-                        ))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING),
-                column![
-                    text("Mode").size(LABEL_SIZE),
-                    pick_list(
-                        Some(props.generic_overlay_hover_mode),
-                        vec![
-                            GenericOverlayPositionMode::Outside,
-                            GenericOverlayPositionMode::Inside,
-                        ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |value| Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::GenericOverlayHoverMode(value)
-                        ))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING),
-            ]
-            .spacing(MAIN_SPACING),
-            column![
-                text("Hover Gap").size(LABEL_SIZE),
-                row![
-                    slider(0.0..=40.0, props.generic_overlay_hover_gap, move |value| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::GenericOverlayHoverGap(value),
-                        )
-                    })
-                    .step(1.0)
-                    .width(220),
-                    text(format!("{:.0}px", props.generic_overlay_hover_gap))
-                        .size(LABEL_SIZE)
-                        .width(60),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
-            ]
-            .spacing(LABEL_SPACING),
-            checkbox(props.generic_overlay_hover_snap)
-                .label("Snap inside viewport")
-                .on_toggle(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayHoverSnap(value)
-                )),
-            checkbox(props.generic_overlay_safe_triangle)
-                .label("Use safe triangle")
-                .on_toggle(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlaySafeTriangle(value)
-                )),
-        ]
-        .spacing(MAIN_SPACING)
-        .into()
-    } else {
-        column![].into()
-    };
-
-    // The three widgets that replaced `generic_overlay` share this panel, and
-    // each shows only the parts it actually has: `Layer` sits against the
-    // viewport with a title bar it can be dragged and resized by and has no
-    // trigger, while `Popover` and `Menu` hang off a trigger and are placed
-    // relative to it.
-    let is_layer = widget.widget_type == WidgetType::Layer;
-    let is_popover = widget.widget_type == WidgetType::Popover;
-    let has_trigger = !is_layer;
-
-    let (title, blurb) = match widget.widget_type {
+    let (title, blurb) = match kind {
         WidgetType::Popover => (
-            "Popover Properties",
+            "Popover",
             "Child 1 is the trigger, child 2 is the panel it opens.",
         ),
         WidgetType::Menu => (
-            "Menu Properties",
+            "Menu",
             "Child 1 is the trigger. Every child after it is one row of the panel.",
         ),
-        _ => (
-            "Layer Properties",
+        WidgetType::Layer => (
+            "Layer",
             "The single child is the panel content. A layer is positioned against \
              the window rather than a trigger, so the application decides when it \
              is open.",
         ),
+        _ => (
+            "Toasts",
+            "Each child is one notification. The stack draws over the window, so \
+             the application decides when it is showing.",
+        ),
     };
 
-    let header_title_controls: Element<'a, Message> = if is_layer {
-        column![
-            text("Header Title").size(LABEL_SIZE),
-            text_input("Overlay", &props.generic_overlay_title)
-                .on_input(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayTitle(value)
-                ))
-                .width(300),
+    // ── Header ───────────────────────────────────────────────────────────────
+    let presets = OverlayPreset::all_for(kind);
+
+    let preset_picker: Element<'a, Message> = if presets.is_empty() {
+        nothing()
+    } else {
+        field(
+            "Start From",
+            pick_list(None::<OverlayPreset>, presets, ToString::to_string)
+                .on_select(move |preset| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ApplyOverlayPreset(preset),
+                    )
+                })
+                .placeholder("preset…")
+                .width(FIELD_WIDTH),
+        )
+    };
+
+    let header = column![
+        row![
+            column![
+                text(title).size(TITLE_SIZE),
+                text(blurb)
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+            ]
+            .spacing(LABEL_SPACING)
+            .width(Length::Fill),
+            preset_picker,
         ]
-        .spacing(LABEL_SPACING)
-        .into()
-    } else {
-        column![].into()
-    };
+        .spacing(SECTION_SPACING)
+        .align_y(Alignment::Start),
+        widget_name(widget_id, &props.widget_name),
+    ]
+    .spacing(SECTION_SPACING);
 
-    let trigger_section: Element<'a, Message> = if has_trigger {
-        column![text("Trigger").size(SECTION_SIZE), trigger_controls]
-            .spacing(MAIN_SPACING)
-            .into()
-    } else {
-        column![].into()
-    };
+    // ── Surface ──────────────────────────────────────────────────────────────
+    let mut surface = vec![
+        field(
+            "Panel Style",
+            pick_list(
+                props.overlay_style_name.clone(),
+                overlay_style_options(),
+                ToString::to_string,
+            )
+            .on_select(move |selection| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayStyle(Some(selection)))
+            })
+            .placeholder("default")
+            .width(FIELD_WIDTH),
+        ),
+        field(
+            "Padding",
+            float_input(props.overlay_padding, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayPadding(value))
+            }),
+        ),
+        field(
+            "Corner Radius",
+            float_input(props.overlay_radius, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayRadius(value))
+            }),
+        ),
+    ];
 
-    // Only a popover opens on hover. A menu is always press-driven, and a layer
-    // has nothing to hover.
-    let hover_toggle: Element<'a, Message> = if is_popover {
-        checkbox(props.generic_overlay_on_hover)
-            .label("Open on hover")
-            .on_toggle(move |value| {
+    // A toast stack takes one fixed width for every toast in it, where the
+    // anchored widgets size themselves between bounds.
+    if is_toast {
+        surface.push(field(
+            "Toast Width",
+            float_input(props.toast_width, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::ToastWidth(value))
+            }),
+        ));
+    } else {
+        surface.push(field(
+            "Min Width",
+            float_input(props.overlay_min_width, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayMinWidth(value))
+            }),
+        ));
+        surface.push(toggle_field(
+            "Limit width",
+            props.overlay_max_width.is_some(),
+            move |value| {
                 Message::PropertyChanged(
                     widget_id,
-                    PropertyChange::GenericOverlayOnHover(value),
+                    PropertyChange::OverlayMaxWidthEnabled(value),
                 )
+            },
+        ));
+
+        if let Some(max) = props.overlay_max_width {
+            surface.push(field(
+                "Max Width",
+                float_input(max, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::OverlayMaxWidth(value))
+                }),
+            ));
+        }
+    }
+
+    if is_layer {
+        surface.push(field(
+            "Min Height",
+            float_input(props.layer_min_height, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerMinHeight(value))
+            }),
+        ));
+    }
+
+    // ── Placement ────────────────────────────────────────────────────────────
+    let mut placement: Vec<Element<'a, Message>> = Vec::new();
+
+    if is_anchored {
+        placement.push(field(
+            "Side",
+            pick_list(
+                Some(props.overlay_hover_position),
+                vec![
+                    OverlayPosition::Top,
+                    OverlayPosition::Bottom,
+                    OverlayPosition::Left,
+                    OverlayPosition::Right,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverPosition(value))
             })
-            .into()
+            .width(FIELD_WIDTH),
+        ));
+        placement.push(field(
+            "Align",
+            pick_list(
+                Some(props.overlay_hover_alignment),
+                vec![
+                    ContainerAlignX::Left,
+                    ContainerAlignX::Center,
+                    ContainerAlignX::Right,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverAlignment(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+        placement.push(field(
+            "Gap",
+            float_input(props.overlay_hover_gap, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverGap(value))
+            }),
+        ));
+        placement.push(field(
+            "Overlap",
+            pick_list(
+                Some(props.overlay_hover_mode),
+                vec![
+                    OverlayPositionMode::Outside,
+                    OverlayPositionMode::Inside,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverMode(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+        placement.push(toggle_field(
+            "Flip to fit",
+            props.overlay_hover_snap,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverSnap(value))
+            },
+        ));
+    }
+
+    if is_layer {
+        placement.push(field(
+            "Anchor",
+            pick_list(
+                Some(props.layer_anchor),
+                OverlayAnchor::ALL,
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerAnchor(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+        placement.push(field(
+            "Margin",
+            float_input(props.overlay_hover_gap, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverGap(value))
+            }),
+        ));
+        placement.push(toggle_field(
+            "Stretch to edge",
+            props.layer_stretch,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerStretch(value))
+            },
+        ));
+        placement.push(toggle_field(
+            "Exact point",
+            props.layer_position_enabled,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerPositionEnabled(value))
+            },
+        ));
+
+        // The anchor is ignored once a point is given, so the coordinates only
+        // appear when they are the thing in charge.
+        if props.layer_position_enabled {
+            placement.push(field(
+                "X",
+                float_input(props.layer_position_x, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::LayerPositionX(value))
+                }),
+            ));
+            placement.push(field(
+                "Y",
+                float_input(props.layer_position_y, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::LayerPositionY(value))
+                }),
+            ));
+        }
+    }
+
+    if is_toast {
+        placement.push(field(
+            "Corner",
+            pick_list(
+                Some(props.toast_anchor),
+                OverlayAnchor::ALL,
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::ToastAnchor(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+        placement.push(field(
+            "Margin",
+            float_input(props.toast_margin, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::ToastMargin(value))
+            }),
+        ));
+        placement.push(field(
+            "Spacing",
+            float_input(props.toast_spacing, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::ToastSpacing(value))
+            }),
+        ));
+    }
+
+    // ── Menu panel ───────────────────────────────────────────────────────────
+    let menu_panel: Element<'a, Message> = if is_menu {
+        section(
+            "Menu Panel",
+            column![
+                field_grid(vec![
+                    field(
+                        "Submenu Gap",
+                        float_input(props.menu_submenu_gap, move |value| {
+                            Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::MenuSubmenuGap(value),
+                            )
+                        }),
+                    ),
+                    field(
+                        "Gutter Spacing",
+                        float_input(props.menu_gutter_spacing, move |value| {
+                            Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::MenuGutterSpacing(value),
+                            )
+                        }),
+                    ),
+                    field(
+                        "Check Side",
+                        pick_list(
+                            Some(props.menu_check_side),
+                            MenuCheckSide::ALL,
+                            ToString::to_string
+                        )
+                        .on_select(move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuCheckSide(value)
+                        ))
+                        .width(FIELD_WIDTH),
+                    ),
+                    toggle_field("Plain trigger", props.menu_plain_trigger, move |value| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuPlainTrigger(value),
+                        )
+                    }),
+                ]),
+                padding_field("Row Padding", props.menu_item_padding, move |padding| {
+                    Message::PropertyChanged(widget_id, PropertyChange::MenuItemPadding(padding))
+                }),
+                padding_field(
+                    "Trigger Padding",
+                    props.menu_trigger_padding,
+                    move |padding| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::MenuTriggerPadding(padding)
+                    ),
+                ),
+            ]
+            .spacing(SECTION_SPACING),
+        )
     } else {
-        column![].into()
+        nothing()
     };
 
-    // Dragging, resizing and the backdrop belong to the window-like layer.
-    let layer_behavior: Element<'a, Message> = if is_layer {
-        column![
-            checkbox(props.generic_overlay_opaque)
-                .label("Dim the page behind")
-                .on_toggle(move |value| Message::PropertyChanged(
+    // ── Behaviour ────────────────────────────────────────────────────────────
+    // A menu owns its own open state: it has neither an `open` flag for the
+    // application to drive nor a dismissal setting, so neither is offered.
+    let mut behaviour: Vec<Element<'a, Message>> = Vec::new();
+
+    if !is_menu {
+        behaviour.push(toggle_field(
+            "Start open",
+            props.overlay_initially_open,
+            move |value| {
+                Message::PropertyChanged(
                     widget_id,
-                    PropertyChange::GenericOverlayOpaque(value)
-                )),
-            opaque_alpha_controls,
-            checkbox(props.generic_overlay_hide_header)
-                .label("Hide header")
-                .on_toggle(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayHideHeader(value)
-                )),
-            checkbox(props.generic_overlay_hide_close_button)
-                .label("Hide close button")
-                .on_toggle(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayHideCloseButton(value)
-                )),
-            checkbox(props.generic_overlay_block_dragging)
-                .label("Block dragging")
-                .on_toggle(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayBlockDragging(value)
-                )),
-            column![
-                text("Resize Mode").size(LABEL_SIZE),
-                pick_list(
-                    Some(props.generic_overlay_resizable),
-                    vec![
-                        GenericOverlayResizeMode::None,
-                        GenericOverlayResizeMode::Always,
-                        GenericOverlayResizeMode::WithCtrl,
-                    ],
-                    ToString::to_string,
+                    PropertyChange::OverlayInitiallyOpen(value),
                 )
-                .on_select(move |value| Message::PropertyChanged(
+            },
+        ));
+    }
+
+    if !is_toast && !is_menu {
+        behaviour.push(toggle_field(
+            if is_layer {
+                "Close on backdrop"
+            } else {
+                "Close on outside press"
+            },
+            props.overlay_close_on_click_outside,
+            move |value| {
+                Message::PropertyChanged(
                     widget_id,
-                    PropertyChange::GenericOverlayResizable(value)
-                ))
-                .width(180),
-            ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(MAIN_SPACING)
-        .into()
+                    PropertyChange::OverlayCloseOnClickOutside(value),
+                )
+            },
+        ));
+    }
+
+    if is_popover {
+        behaviour.push(toggle_field(
+            "Open on hover",
+            props.overlay_on_hover,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayOnHover(value))
+            },
+        ));
+
+        // The corridor is the forgiving path between trigger and surface, so it
+        // only means anything when hovering is what opens the popover.
+        if props.overlay_on_hover {
+            behaviour.push(toggle_field(
+                "Safe corridor",
+                props.overlay_safe_triangle,
+                move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::OverlaySafeTriangle(value),
+                    )
+                },
+            ));
+        }
+    }
+
+    if is_layer {
+        behaviour.push(toggle_field(
+            "Close on Escape",
+            props.layer_dismiss_on_escape,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerDismissOnEscape(value))
+            },
+        ));
+        behaviour.push(toggle_field(
+            "Draggable",
+            !props.overlay_block_dragging,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayBlockDragging(!value))
+            },
+        ));
+        behaviour.push(field(
+            "Resize",
+            pick_list(
+                Some(props.overlay_resizable),
+                vec![
+                    OverlayResizeMode::None,
+                    OverlayResizeMode::Always,
+                    OverlayResizeMode::WithCtrl,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayResizable(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+        behaviour.push(toggle_field("Dim the page", props.overlay_opaque, move |value| {
+            Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaque(value))
+        }));
+
+        // The alpha only reaches the screen when there is a backdrop to apply
+        // it to.
+        if props.overlay_opaque {
+            behaviour.push(field(
+                "Dim Amount",
+                slider(0.1..=1.0, props.overlay_opaque_alpha, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaqueAlpha(value))
+                })
+                .step(0.05)
+                .width(FIELD_WIDTH),
+            ));
+        }
+    }
+
+    // ── Title bar, for the one widget that draws one ─────────────────────────
+    let title_bar: Element<'a, Message> = if is_layer {
+        let mut fields = vec![toggle_field(
+            "Show title bar",
+            !props.overlay_hide_header,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHideHeader(!value))
+            },
+        )];
+
+        // Nothing else in this group exists without the bar itself.
+        if !props.overlay_hide_header {
+            fields.push(field(
+                "Title",
+                text_input("Overlay", &props.overlay_title)
+                    .on_input(move |value| {
+                        Message::PropertyChanged(widget_id, PropertyChange::OverlayTitle(value))
+                    })
+                    .width(FIELD_WIDTH),
+            ));
+            fields.push(toggle_field(
+                "Close button",
+                !props.overlay_hide_close_button,
+                move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::OverlayHideCloseButton(!value),
+                    )
+                },
+            ));
+        }
+
+        section("Title Bar", field_grid(fields))
     } else {
-        column![].into()
+        nothing()
+    };
+
+    // ── Animation ────────────────────────────────────────────────────────────
+    let mut animation = vec![toggle_field(
+        "Animate",
+        props.overlay_animate,
+        move |value| Message::PropertyChanged(widget_id, PropertyChange::OverlayAnimate(value)),
+    )];
+
+    if props.overlay_animate {
+        animation.push(field(
+            "Speed",
+            pick_list(
+                Some(props.overlay_animation_preset),
+                vec![
+                    OverlayAnimationPreset::Default,
+                    OverlayAnimationPreset::Quick,
+                    OverlayAnimationPreset::Slow,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::OverlayAnimationPreset(value),
+                )
+            })
+            .width(FIELD_WIDTH),
+        ));
+    }
+
+    // ── Trigger ──────────────────────────────────────────────────────────────
+    // Without a trigger child the widget draws a plain button in its place, and
+    // that button is stylable and sizable like any other.
+    let trigger: Element<'a, Message> = if !is_anchored {
+        nothing()
+    } else if has_trigger_child {
+        section(
+            "Trigger",
+            text(
+                "The trigger child renders unchanged: the widget wraps it without \
+                 adding padding or styling of its own.",
+            )
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        )
+    } else {
+        section(
+            "Trigger",
+            column![
+                custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
+                conditional_style_section(
+                    widget_id,
+                    props,
+                    theme,
+                    view_id,
+                    h.root(),
+                    views,
+                    type_system
+                ),
+                size_controls_scrollable_aware(
+                    props.width,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+                    props.height,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+                    h,
+                    widget_id,
+                ),
+                padding_controls(props.padding, widget_id, props.padding_mode, theme),
+                clip_control(widget_id, props.clip, theme),
+            ]
+            .spacing(SECTION_SPACING),
+        )
     };
 
     let content = column![
-        text(title).size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
-        text(blurb)
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        header_title_controls,
-        trigger_section,
-        text("Overlay Panel").size(SECTION_SIZE),
-        overlay_style_picker,
-        row![
-            generic_overlay_size_picker(
-                "Overlay Width",
-                props.generic_overlay_overlay_width,
-                props.generic_overlay_overlay_width_dynamic,
-                props.generic_overlay_overlay_width_dynamic_factor,
-                Some(&props.draft_generic_overlay_overlay_width_fixed),
-                Some(&props.draft_generic_overlay_overlay_width_fill_portion),
-                Some(&props.draft_generic_overlay_overlay_width_dynamic),
-                move |choice| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayOverlayWidthChoice(choice)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayWidthFixed(text)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayWidthFillPortion(text)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayWidthDynamic(text)
-                ),
-            ),
-            generic_overlay_size_picker(
-                "Overlay Height",
-                props.generic_overlay_overlay_height,
-                props.generic_overlay_overlay_height_dynamic,
-                props.generic_overlay_overlay_height_dynamic_factor,
-                Some(&props.draft_generic_overlay_overlay_height_fixed),
-                Some(&props.draft_generic_overlay_overlay_height_fill_portion),
-                Some(&props.draft_generic_overlay_overlay_height_dynamic),
-                move |choice| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayOverlayHeightChoice(choice)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayHeightFixed(text)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayHeightFillPortion(text)
-                ),
-                move |text| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::DraftGenericOverlayOverlayHeightDynamic(text)
-                ),
-            ),
-        ]
-        .spacing(MAIN_SPACING),
-        column![
-            text("Overlay Padding").size(LABEL_SIZE),
-            row![
-                slider(0.0..=40.0, props.generic_overlay_overlay_padding, move |value| {
-                    Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::GenericOverlayOverlayPadding(value)
-                    )
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.generic_overlay_overlay_padding))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Overlay Radius").size(LABEL_SIZE),
-            row![
-                slider(0.0..=32.0, props.generic_overlay_overlay_radius, move |value| {
-                    Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::GenericOverlayOverlayRadius(value)
-                    )
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.generic_overlay_overlay_radius))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        text("Placement").size(SECTION_SIZE),
-        hover_toggle,
-        placement_controls,
-        text("Behavior").size(SECTION_SIZE),
-        checkbox(props.generic_overlay_initially_open)
-            .label("Start open")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayInitiallyOpen(value)
-            )),
-        checkbox(props.generic_overlay_close_on_click_outside)
-            .label(if is_layer {
-                "Close when the backdrop is pressed"
-            } else {
-                "Close on press outside"
-            })
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayCloseOnClickOutside(value)
-            )),
-        layer_behavior,
-        checkbox(props.generic_overlay_animate)
-            .label("Animate open and close")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayAnimate(value)
-            )),
-        animation_controls,
+        header,
+        section("Surface", field_grid(surface)),
+        section("Placement", field_grid(placement)),
+        menu_panel,
+        title_bar,
+        section("Behaviour", field_grid(behaviour)),
+        section("Animation", field_grid(animation)),
+        trigger,
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -5178,7 +5307,7 @@ where
     let choice_now = LengthChoice::from_length(current);
 
     // Build available choices based on scrollable constraints
-    let mut available_choices = vec![LengthChoice::Shrink, LengthChoice::Fixed];
+    let mut available_choices = vec![LengthChoice::Fit, LengthChoice::Shrink, LengthChoice::Fixed];
     if can_fill {
         available_choices.insert(0, LengthChoice::Fill);
         available_choices.insert(1, LengthChoice::FillPortion);
@@ -5207,6 +5336,7 @@ where
                     Length::FillPortion(p) => Length::FillPortion(p),
                     _ => Length::FillPortion(DEFAULT_PORTION),
                 },
+                LengthChoice::Fit => Length::Fit,
                 LengthChoice::Shrink => Length::Shrink,
                 LengthChoice::Fixed => match current {
                     Length::Fixed(px) => Length::Fixed(px),
@@ -5318,7 +5448,7 @@ pub fn length_picker_with_draft<'a>(
 
     let choice_now = LengthChoice::from_length(current);
 
-    let mut available_choices = vec![LengthChoice::Shrink, LengthChoice::Fixed];
+    let mut available_choices = vec![LengthChoice::Fit, LengthChoice::Shrink, LengthChoice::Fixed];
     if can_fill {
         available_choices.insert(0, LengthChoice::Fill);
         available_choices.insert(1, LengthChoice::FillPortion);
@@ -5345,6 +5475,7 @@ pub fn length_picker_with_draft<'a>(
                     Length::FillPortion(p) => Length::FillPortion(p),
                     _ => Length::FillPortion(DEFAULT_PORTION),
                 },
+                LengthChoice::Fit => Length::Fit,
                 LengthChoice::Shrink => Length::Shrink,
                 LengthChoice::Fixed => match current {
                     Length::Fixed(px) => Length::Fixed(px),
@@ -5402,100 +5533,6 @@ pub fn length_picker_with_draft<'a>(
         .into()
 }
 
-pub fn generic_overlay_size_picker<'a>(
-    label: &'a str,
-    current: Length,
-    is_dynamic: bool,
-    dynamic_factor: f32,
-    fixed_draft: Option<&'a String>,
-    fill_portion_draft: Option<&'a String>,
-    dynamic_draft: Option<&'a String>,
-    on_choice_change: impl Fn(GenericOverlayLengthChoice) -> Message + 'a + Copy,
-    on_fixed_draft_change: impl Fn(String) -> Message + 'a + Copy,
-    on_fill_portion_draft_change: impl Fn(String) -> Message + 'a + Copy,
-    on_dynamic_draft_change: impl Fn(String) -> Message + 'a + Copy,
-) -> Element<'a, Message> {
-    const DEFAULT_PX: f32 = 120.0;
-    const DEFAULT_PORTION: u16 = 1;
-
-    let choice_now = GenericOverlayLengthChoice::from_state(current, is_dynamic);
-    let available_choices = vec![
-        GenericOverlayLengthChoice::Fill,
-        GenericOverlayLengthChoice::FillPortion,
-        GenericOverlayLengthChoice::Shrink,
-        GenericOverlayLengthChoice::Fixed,
-        GenericOverlayLengthChoice::Dynamic,
-    ];
-
-    let picker = column![
-        text(label).size(LABEL_SIZE),
-        pick_list(
-            Some(choice_now),
-            available_choices,
-            ToString::to_string,
-        )
-        .on_select(move |choice| {
-            on_choice_change(choice)
-        })
-        .width(160),
-    ]
-    .spacing(LABEL_SPACING)
-    .width(Length::Shrink);
-
-    let extra: Element<_> = match choice_now {
-        GenericOverlayLengthChoice::Fixed => {
-            let committed_value = match current {
-                Length::Fixed(px) => format!("{px}"),
-                _ => format!("{DEFAULT_PX}"),
-            };
-            let display_text = fixed_draft.map(|s| s.as_str()).unwrap_or("");
-
-            column![
-                text("Pixels").size(LABEL_SIZE),
-                text_input(committed_value.clone(), display_text)
-                    .on_input(move |value| on_fixed_draft_change(value))
-                    .width(75),
-            ]
-            .spacing(LABEL_SPACING)
-            .into()
-        }
-        GenericOverlayLengthChoice::FillPortion => {
-            let committed_value = match current {
-                Length::FillPortion(portion) => portion.to_string(),
-                _ => DEFAULT_PORTION.to_string(),
-            };
-            let display_text = fill_portion_draft.map(|s| s.as_str()).unwrap_or("");
-
-            column![
-                text("Portion").size(LABEL_SIZE),
-                text_input(committed_value.clone(), display_text)
-                    .on_input(move |value| on_fill_portion_draft_change(value))
-                    .width(75),
-            ]
-            .spacing(LABEL_SPACING)
-            .into()
-        }
-        GenericOverlayLengthChoice::Dynamic => {
-            let committed_value = format!("{dynamic_factor}");
-            let display_text = dynamic_draft.map(|s| s.as_str()).unwrap_or("");
-
-            column![
-                text("Factor").size(LABEL_SIZE),
-                text_input(committed_value.clone(), display_text)
-                    .on_input(move |value| on_dynamic_draft_change(value))
-                    .width(75),
-            ]
-            .spacing(LABEL_SPACING)
-            .into()
-        }
-        _ => space::horizontal().into(),
-    };
-
-    row![picker, extra]
-        .width(Length::Fill)
-        .spacing(SECTION_SPACING)
-        .into()
-}
 
 pub fn padding_controls<'a>(
     current_padding: Padding,
@@ -6287,5 +6324,260 @@ pub fn add_code_preview<'a>(
     ]
     .padding(5)
     .spacing(10)
+    .into()
+}
+
+/// The role a widget plays inside an overlay parent, if any.
+///
+/// A row of a Menu or an item in a Toast carries settings that belong to that
+/// role rather than to the widget's own type — any widget at all can be a menu
+/// row. The trigger, which is a Menu's first child, is not a row.
+pub fn overlay_child_role(h: &WidgetHierarchy, widget_id: WidgetId) -> Option<WidgetType> {
+    let parent_id = h.find_parent_id(widget_id)?;
+    let parent = h.get_widget_by_id(parent_id)?;
+
+    match parent.widget_type {
+        WidgetType::Toast => Some(WidgetType::Toast),
+        WidgetType::Menu => {
+            let is_trigger = parent
+                .children
+                .first()
+                .is_some_and(|first| first.id == widget_id);
+
+            (!is_trigger).then_some(WidgetType::Menu)
+        }
+        // A submenu's own children are rows of that submenu.
+        WidgetType::Popover | WidgetType::Layer => None,
+        _ => {
+            let grandparent_is_menu = h
+                .find_parent_id(parent_id)
+                .and_then(|id| h.get_widget_by_id(id))
+                .is_some_and(|w| w.widget_type == WidgetType::Menu);
+
+            (grandparent_is_menu && parent.properties.menu_item_kind == MenuItemKind::Submenu)
+                .then_some(WidgetType::Menu)
+        }
+    }
+}
+
+/// The settings a widget has by virtue of sitting inside a Menu or a Toast.
+pub fn overlay_child_controls<'a>(
+    role: WidgetType,
+    widget_id: WidgetId,
+    props: &'a Properties,
+) -> Element<'a, Message> {
+    match role {
+        WidgetType::Menu => {
+            let kind = props.menu_item_kind;
+
+            let checked: Element<'a, Message> = if kind == MenuItemKind::Toggle {
+                checkbox(props.menu_item_checked)
+                    .label("Checked")
+                    .on_toggle(move |value| {
+                        Message::PropertyChanged(widget_id, PropertyChange::MenuItemChecked(value))
+                    })
+                    .into()
+            } else {
+                column![].into()
+            };
+
+            column![
+                text("Menu Row").size(SECTION_SIZE),
+                column![
+                    text("Row Kind").size(LABEL_SIZE),
+                    pick_list(Some(kind), MenuItemKind::ALL, ToString::to_string)
+                        .on_select(move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuItemKind(value)
+                        ))
+                        .width(180),
+                ]
+                .spacing(LABEL_SPACING),
+                checked,
+                checkbox(props.menu_item_enabled)
+                    .label("Enabled")
+                    .on_toggle(move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::MenuItemEnabled(value)
+                    )),
+                rule::horizontal(1),
+            ]
+            .spacing(LABEL_SPACING)
+            .into()
+        }
+        _ => column![
+            text("Toast").size(SECTION_SIZE),
+            column![
+                text("Variant").size(LABEL_SIZE),
+                pick_list(
+                    Some(props.toast_variant),
+                    ToastVariant::ALL,
+                    ToString::to_string
+                )
+                .on_select(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::ToastVariant(value)
+                ))
+                .width(180),
+            ]
+            .spacing(LABEL_SPACING),
+            checkbox(props.toast_without_icon)
+                .label("Hide status icon")
+                .on_toggle(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::ToastWithoutIcon(value)
+                )),
+            float_field(
+                "Dismiss after (seconds, 0 keeps it)",
+                props.toast_timeout_secs,
+                move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::ToastTimeoutSecs(value)
+                ),
+            ),
+            rule::horizontal(1),
+        ]
+        .spacing(LABEL_SPACING)
+        .into(),
+    }
+}
+
+/// A labelled numeric field.
+///
+/// The overlay widgets take most of their measurements as plain pixel values,
+/// and a text field keeps an exact number enterable where a slider would not.
+pub fn float_field<'a>(
+    label: &'a str,
+    value: f32,
+    on_change: impl Fn(f32) -> Message + 'a,
+) -> Element<'a, Message> {
+    column![
+        text(label).size(LABEL_SIZE),
+        text_input("0", format!("{value}"))
+            .on_input(move |raw| {
+                let parsed = raw.trim().parse::<f32>().unwrap_or(0.0);
+                on_change(parsed)
+            })
+            .width(120),
+    ]
+    .spacing(LABEL_SPACING)
+    .into()
+}
+
+/// Four numeric fields for the sides of a `Padding`.
+///
+/// The menu takes padding for its rows and its trigger separately from the
+/// panel's own, and neither goes through the shared padding control, which is
+/// tied to a widget's single `padding` property and its mode.
+pub fn padding_field<'a>(
+    label: &'a str,
+    padding: Padding,
+    on_change: impl Fn(Padding) -> Message + Clone + 'a,
+) -> Element<'a, Message> {
+    // Four narrow entries on one line: a padding is one setting, so it reads
+    // better as a single row than as four fields in the wrapping grid.
+    let side = move |value: f32, set: fn(&mut Padding, f32)| {
+        let on_change = on_change.clone();
+
+        text_input("0", format!("{value}"))
+            .on_input(move |raw| {
+                let mut next = padding;
+                set(&mut next, raw.trim().parse::<f32>().unwrap_or(0.0));
+                on_change(next)
+            })
+            .width(56)
+    };
+
+    column![
+        text(format!("{label} (top, right, bottom, left)")).size(LABEL_SIZE),
+        row![
+            side(padding.top, |p, v| p.top = v),
+            side(padding.right, |p, v| p.right = v),
+            side(padding.bottom, |p, v| p.bottom = v),
+            side(padding.left, |p, v| p.left = v),
+        ]
+        .spacing(LABEL_SPACING),
+    ]
+    .spacing(LABEL_SPACING)
+    .into()
+}
+
+// ── Property grid ────────────────────────────────────────────────────────────
+//
+// The overlay panels carry enough settings that a single column of full-width
+// rows runs to several screens. These lay small controls out in a wrapping row
+// instead, so the editor's width is actually used and related settings sit
+// beside each other.
+
+/// The width one control in the property grid occupies.
+///
+/// Wide enough for a pick list of anchor names, narrow enough that three fit
+/// across the editor at its default width.
+const FIELD_WIDTH: f32 = 168.0;
+
+/// A labelled control, sized to the property grid.
+pub fn field<'a>(
+    label: &'a str,
+    control: impl Into<Element<'a, Message>>,
+) -> Element<'a, Message> {
+    column![text(label).size(LABEL_SIZE), control.into()]
+        .spacing(LABEL_SPACING)
+        .width(FIELD_WIDTH)
+        .into()
+}
+
+/// Lays fields out across the available width, wrapping onto further rows.
+pub fn field_grid<'a>(fields: Vec<Element<'a, Message>>) -> Element<'a, Message> {
+    Row::with_children(fields)
+        .spacing(SECTION_SPACING)
+        .wrap()
+        .into()
+}
+
+/// A titled group of controls.
+pub fn section<'a>(
+    title: &'a str,
+    body: impl Into<Element<'a, Message>>,
+) -> Element<'a, Message> {
+    column![
+        text(title).size(SECTION_SIZE),
+        rule::horizontal(1),
+        body.into(),
+    ]
+    .spacing(LABEL_SPACING)
+    .into()
+}
+
+/// Nothing at all, for a section that does not apply to this widget.
+pub fn nothing<'a>() -> Element<'a, Message> {
+    column![].into()
+}
+
+/// A numeric entry sized for the property grid.
+pub fn float_input<'a>(
+    value: f32,
+    on_change: impl Fn(f32) -> Message + 'a,
+) -> Element<'a, Message> {
+    text_input("0", format!("{value}"))
+        .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
+        .width(FIELD_WIDTH)
+        .into()
+}
+
+/// A checkbox laid out to line up with the labelled fields beside it.
+///
+/// The label sits inside the checkbox rather than above it, so an empty label
+/// row keeps it on the same baseline as the controls it wraps alongside.
+pub fn toggle_field<'a>(
+    label: &'a str,
+    checked: bool,
+    on_toggle: impl Fn(bool) -> Message + 'a,
+) -> Element<'a, Message> {
+    column![
+        text(" ").size(LABEL_SIZE),
+        checkbox(checked).label(label).on_toggle(on_toggle),
+    ]
+    .spacing(LABEL_SPACING)
+    .width(FIELD_WIDTH)
     .into()
 }

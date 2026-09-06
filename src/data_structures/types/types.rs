@@ -67,10 +67,11 @@ pub enum WidgetType {
     // loads as a `Popover`: it is the one of the three that keeps both of the
     // old widget's children (trigger and content) and its default anchored,
     // trigger-driven behaviour.
-    #[serde(alias = "GenericOverlay")]
+    #[serde(alias = "Overlay")]
     Popover,
     Menu,
     Layer,
+    Toast,
     DatePicker,
     Split,
     Float,
