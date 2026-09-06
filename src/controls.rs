@@ -18,11 +18,28 @@ use iced::widget::{
 use iced::{Alignment, Color, Element, Length, Padding, Theme, padding};
 use std::collections::BTreeMap;
 use uuid::Uuid;
-use widgets::generic_overlay::overlay_button;
+use widgets::anchor;
+use widgets::popover::popover;
 
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use crate::views::widget_tree::Message;
 use control_styling::*;
+
+/// Looks up a Lucide icon by the name stored in a project.
+///
+/// iced_lucide 0.2 renamed icons from `snake_case` to the upstream
+/// `kebab-case`, so a name saved before that migration is normalised before
+/// the lookup. Falls back to the replacement glyph when nothing matches.
+pub fn lucide_icon(name: &str) -> icon_lucide::Icon {
+    icon_lucide::find(name)
+        .or_else(|| icon_lucide::find(&name.replace('_', "-")))
+        .unwrap_or(icon_lucide::Icon {
+            name: "",
+            codepoint: "\u{FFFD}",
+            font: icon_lucide::ALL_ICONS[0].font,
+            family: "lucide",
+        })
+}
 
 pub fn container_controls<'a>(
     h: &'a WidgetHierarchy,
@@ -58,18 +75,19 @@ pub fn container_controls<'a>(
         column![
             text("Sizing Mode").size(SECTION_SIZE),
             pick_list(
+                Some(props.container_sizing_mode),
                 vec![
                     ContainerSizingMode::Manual,
                     ContainerSizingMode::CenterX,
                     ContainerSizingMode::CenterY,
                     ContainerSizingMode::Center,
                 ],
-                Some(props.container_sizing_mode),
-                move |mode| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |mode| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::ContainerSizingMode(mode)
-                )
-            ),
+                )),
             text(match props.container_sizing_mode {
                 ContainerSizingMode::Manual => "Set width and height separately",
                 ContainerSizingMode::CenterX => "Set width and center content horizontally",
@@ -155,14 +173,15 @@ pub fn container_controls<'a>(
                 column![
                     text("Horizontal Align").size(LABEL_SIZE),
                     pick_list(
+                        Some(props.align_x),
                         vec![
                             ContainerAlignX::Left,
                             ContainerAlignX::Center,
                             ContainerAlignX::Right
                         ],
-                        Some(props.align_x),
-                        move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignX(v)),
+                        ToString::to_string,
                     )
+                    .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignX(v)))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING)
@@ -170,14 +189,15 @@ pub fn container_controls<'a>(
                 column![
                     text("Vertical Align").size(LABEL_SIZE),
                     pick_list(
+                        Some(props.align_y),
                         vec![
                             ContainerAlignY::Top,
                             ContainerAlignY::Center,
                             ContainerAlignY::Bottom
                         ],
-                        Some(props.align_y),
-                        move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignY(v)),
+                        ToString::to_string,
                     )
+                    .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignY(v)))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING)
@@ -300,17 +320,18 @@ pub fn row_controls<'a>(
                     .spacing(LABEL_SPACING)
                     .align_y(Alignment::End),
                     pick_list(
+                        Some(props.wrapping_align_x),
                         vec![
                             ContainerAlignX::Left,
                             ContainerAlignX::Center,
                             ContainerAlignX::Right,
                         ],
-                        Some(props.wrapping_align_x),
-                        move |align| Message::PropertyChanged(
+                        ToString::to_string,
+                    )
+                    .on_select(move |align| Message::PropertyChanged(
                             widget_id,
                             PropertyChange::WrappingAlignX(align)
-                        ),
-                    )
+                        ))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING),
@@ -325,17 +346,18 @@ pub fn row_controls<'a>(
                 text("Vertical Alignment").size(LABEL_SIZE),
                 row![
                     pick_list(
+                        Some(AlignmentXOption::from_alignment(props.align_items)),
                         vec![
                             AlignmentXOption::Start,
                             AlignmentXOption::Center,
                             AlignmentXOption::End
                         ],
-                        Some(AlignmentXOption::from_alignment(props.align_items)),
-                        move |sel| Message::PropertyChanged(
+                        ToString::to_string,
+                    )
+                    .on_select(move |sel| Message::PropertyChanged(
                             widget_id,
                             PropertyChange::AlignItems(sel.to_alignment())
-                        ),
-                    ),
+                        )),
                     information(theme, "Aligns children vertically within the row"),
                 ]
                 .spacing(LABEL_SPACING)
@@ -396,17 +418,18 @@ pub fn column_controls<'a>(
         column![
             text("Horizontal Alignment").size(LABEL_SIZE),
             pick_list(
+                Some(AlignmentXOption::from_alignment(props.align_items)),
                 vec![
                     AlignmentXOption::Start,
                     AlignmentXOption::Center,
                     AlignmentXOption::End
                 ],
-                Some(AlignmentXOption::from_alignment(props.align_items)),
-                move |sel| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |sel| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::AlignItems(sel.to_alignment())
-                ),
-            ),
+                )),
         ]
         .spacing(LABEL_SPACING),
         size_controls_scrollable_aware(
@@ -442,7 +465,7 @@ pub fn button_controls<'a>(
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     // Determine which handler is currently selected
     let selected_handler = if props.button_on_press_enabled {
@@ -592,10 +615,11 @@ pub fn text_controls<'a>(
         column![
             text("Font").size(LABEL_SIZE),
             pick_list(
-                vec![FontType::Default, FontType::Monospace],
                 Some(props.font),
-                move |v| Message::PropertyChanged(widget_id, PropertyChange::Font(v)),
+                vec![FontType::Default, FontType::Monospace],
+                ToString::to_string,
             )
+            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::Font(v)))
             .width(200),
         ]
         .spacing(LABEL_SPACING),
@@ -613,24 +637,26 @@ pub fn text_controls<'a>(
         column![
             text("Wrapping").size(LABEL_SIZE),
             pick_list(
+                Some(TextWrapping::from(props.wrap)),
                 vec![
                     TextWrapping::None,
                     TextWrapping::Word,
                     TextWrapping::Glyph,
                     TextWrapping::WordOrGlyph
                 ],
-                Some(TextWrapping::from(props.wrap)),
-                move |w| Message::PropertyChanged(widget_id, PropertyChange::TextWrap(w))
+                ToString::to_string,
             )
+            .on_select(move |w| Message::PropertyChanged(widget_id, PropertyChange::TextWrap(w)))
         ]
         .spacing(LABEL_SPACING),
         column![
             text("Shaping").size(LABEL_SIZE),
             pick_list(
-                vec![TextShaping::Basic, TextShaping::Advanced, TextShaping::Auto],
                 Some(TextShaping::from(props.shaping)),
-                move |s| Message::PropertyChanged(widget_id, PropertyChange::TextShaping(s))
+                vec![TextShaping::Basic, TextShaping::Advanced, TextShaping::Auto],
+                ToString::to_string,
             )
+            .on_select(move |s| Message::PropertyChanged(widget_id, PropertyChange::TextShaping(s)))
         ]
         .spacing(LABEL_SPACING),
         column![
@@ -667,6 +693,7 @@ pub fn text_controls<'a>(
             column![
                 text("Align X").size(LABEL_SIZE),
                 pick_list(
+                    Some(AlignText::from(props.text_align_x)),
                     vec![
                         AlignText::Default,
                         AlignText::Left,
@@ -674,23 +701,24 @@ pub fn text_controls<'a>(
                         AlignText::Right,
                         AlignText::Justified
                     ],
-                    Some(AlignText::from(props.text_align_x)),
-                    move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignX(a))
+                    ToString::to_string,
                 )
+                .on_select(move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignX(a)))
             ]
             .spacing(LABEL_SPACING)
             .width(Length::Fill),
             column![
                 text("Align Y").size(LABEL_SIZE),
                 pick_list(
+                    Some(AlignmentYOption::from(props.text_align_y)),
                     vec![
                         AlignmentYOption::Top,
                         AlignmentYOption::Center,
                         AlignmentYOption::Bottom
                     ],
-                    Some(AlignmentYOption::from(props.text_align_y)),
-                    move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignY(a))
+                    ToString::to_string,
                 )
+                .on_select(move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignY(a)))
             ]
             .spacing(LABEL_SPACING)
             .width(Length::Fill),
@@ -771,26 +799,28 @@ pub fn text_input_controls<'a>(
         column![
             text("Font").size(LABEL_SIZE),
             pick_list(
-                vec![FontType::Default, FontType::Monospace],
                 Some(props.text_input_font),
-                move |v| Message::PropertyChanged(
+                vec![FontType::Default, FontType::Monospace],
+                ToString::to_string,
+            )
+            .on_select(move |v| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::TextInputFont(v.into())
-                )
-            ),
+                )),
         ]
         .spacing(LABEL_SPACING),
         column![
             text("Horizontal Alignment").size(LABEL_SIZE),
             pick_list(
+                Some(props.text_input_alignment),
                 vec![
                     ContainerAlignX::Left,
                     ContainerAlignX::Center,
                     ContainerAlignX::Right,
                 ],
-                Some(props.text_input_alignment),
-                move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputAlignment(v))
-            ),
+                ToString::to_string,
+            )
+            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputAlignment(v))),
         ]
         .spacing(LABEL_SPACING),
         column![
@@ -827,18 +857,18 @@ pub fn text_input_controls<'a>(
             let filter = props.text_input_icon_picker_filter.to_lowercase();
             let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
                 .iter()
-                .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
-                .map(|(name, codepoint)| {
-                    let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-                    let name_clone = name.to_string();
+                .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
+                .map(|icon| {
+                    let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+                    let name_clone = icon.name.to_string();
                     tooltip(
-                        button(icon_lucide::render(codepoint))
+                        button(icon_lucide::render(*icon))
                             .on_press(Message::PropertyChanged(
                                 widget_id,
                                 PropertyChange::TextInputIconSelected(name_clone, cp_u32),
                             ))
                             .style(button::text),
-                        container(text(*name))
+                        container(text(icon.name))
                             .style(container::bordered_box)
                             .padding(5),
                         tooltip::Position::Top,
@@ -866,28 +896,24 @@ pub fn text_input_controls<'a>(
             ]
             .spacing(4);
 
-            let current_cp_str: &'static str = icon_lucide::ALL_ICONS
-                .iter()
-                .find(|(name, _)| *name == props.text_input_icon_name.as_str())
-                .map(|(_, cp)| *cp)
-                .unwrap_or("\u{FFFD}");
+            let current_icon = lucide_icon(&props.text_input_icon_name);
 
             let trigger = row![
-                icon_lucide::render(current_cp_str).size(20),
+                icon_lucide::render(current_icon).size(20),
                 text(&props.text_input_icon_name),
             ]
             .spacing(6)
             .align_y(Alignment::Center);
 
-            let picker = overlay_button(trigger, "Select Icon", picker_content)
-                .overlay_width(650.0)
-                .overlay_height(450.0)
-                .hide_header()
-                .close_on_click_outside()
-                .hover_positions_on_click()
-                .hover_position(widgets::generic_overlay::Position::Right)
-                .hover_gap(5.0)
-                .hover_alignment(Alignment::Start);
+            let picker = popover(
+                trigger,
+                container(picker_content).width(650).height(450),
+            )
+            .side(anchor::Side::Right)
+            .align(anchor::Align::Start)
+            .gap(5.0)
+            .max_width(650.0)
+            .dismiss_on_outside_press(true);
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -903,13 +929,14 @@ pub fn text_input_controls<'a>(
                         column![
                             text("Side").size(LABEL_SIZE),
                             pick_list(
-                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
                                 Some(props.text_input_icon_side),
-                                move |v| Message::PropertyChanged(
+                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
+                                ToString::to_string,
+                            )
+                            .on_select(move |v| Message::PropertyChanged(
                                     widget_id,
                                     PropertyChange::TextInputIconSide(v)
-                                )
-                            ),
+                                )),
                         ]
                         .spacing(LABEL_SPACING),
                         column![
@@ -1060,30 +1087,32 @@ pub fn text_editor_controls<'a>(
         column![
             text("Font").size(LABEL_SIZE),
             pick_list(
-                vec![FontType::Default, FontType::Monospace],
                 Some(props.text_editor_font),
-                move |font| Message::PropertyChanged(
+                vec![FontType::Default, FontType::Monospace],
+                ToString::to_string,
+            )
+            .on_select(move |font| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::TextEditorFont(font),
-                )
-            ),
+                )),
         ]
         .spacing(LABEL_SPACING),
         column![
             text("Wrapping").size(LABEL_SIZE),
             pick_list(
+                Some(TextWrapping::from(props.text_editor_wrapping)),
                 vec![
                     TextWrapping::None,
                     TextWrapping::Word,
                     TextWrapping::Glyph,
                     TextWrapping::WordOrGlyph,
                 ],
-                Some(TextWrapping::from(props.text_editor_wrapping)),
-                move |wrapping| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |wrapping| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::TextEditorWrapping(wrapping),
-                )
-            ),
+                )),
         ]
         .spacing(LABEL_SPACING),
         column![
@@ -1423,7 +1452,7 @@ pub fn radio_controls<'a>(
                     .map(|(i, option)| {
                         let label = format!("Option {}", i + 1);
                         row![
-                            text_input(&label, option)
+                            text_input(label.clone(), option)
                                 .on_input({
                                     let index = i;
                                     let existing = props.radio_options.clone();
@@ -1468,17 +1497,18 @@ pub fn radio_controls<'a>(
         column![
             text("Default Selection").size(LABEL_SIZE),
             pick_list(
-                props.radio_options.clone(),
                 props.radio_options.get(props.radio_selected_index).cloned(),
-                move |selected| {
+                props.radio_options.clone(),
+                ToString::to_string,
+            )
+            .on_select(move |selected| {
                     let current = props.radio_options.clone();
                     if let Some(ix) = current.iter().position(|s| s == &selected) {
                         Message::PropertyChanged(widget_id, PropertyChange::RadioSelectedIndex(ix))
                     } else {
                         Message::PropertyChanged(widget_id, PropertyChange::RadioSelectedIndex(0))
                     }
-                }
-            )
+                })
             .width(220),
         ]
         .spacing(LABEL_SPACING),
@@ -1545,13 +1575,14 @@ pub fn picklist_controls<'a>(
         column![
             text("Default Selection").size(LABEL_SIZE),
             pick_list(
-                props.picklist_options.clone(),
                 props.picklist_selected.clone(),
-                move |selection| Message::PropertyChanged(
+                props.picklist_options.clone(),
+                ToString::to_string,
+            )
+            .on_select(move |selection| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::PickListSelected(Some(selection))
-                )
-            ),
+                )),
         ]
         .spacing(LABEL_SPACING),
         column![
@@ -1563,7 +1594,7 @@ pub fn picklist_controls<'a>(
                     .enumerate()
                     .map(|(i, option)| {
                         row![
-                            text_input(&format!("Option {}", i + 1), option)
+                            text_input(format!("Option {}", i + 1), option)
                                 .on_input({
                                     let index = i;
                                     let current = props.picklist_options.clone();
@@ -1669,7 +1700,7 @@ pub fn slider_controls<'a>(
         row![
             column![
                 text("Min").size(LABEL_SIZE),
-                text_input("min", &min_str)
+                text_input("min", min_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_min);
                         Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
@@ -1679,7 +1710,7 @@ pub fn slider_controls<'a>(
             .spacing(LABEL_SPACING),
             column![
                 text("Max").size(LABEL_SIZE),
-                text_input("max", &max_str)
+                text_input("max", max_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_max);
                         Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
@@ -1689,7 +1720,7 @@ pub fn slider_controls<'a>(
             .spacing(LABEL_SPACING),
             column![
                 text("Step").size(LABEL_SIZE),
-                text_input("step", &step_str)
+                text_input("step", step_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_step.max(0.000_001));
                         Message::PropertyChanged(
@@ -1740,7 +1771,7 @@ pub fn slider_controls<'a>(
             ),
             column![
                 text("Height (Thickness)").size(LABEL_SIZE),
-                text_input("px", &slider_height)
+                text_input("px", slider_height.clone())
                     .on_input(move |s| {
                         Message::PropertyChanged(
                             widget_id,
@@ -1794,7 +1825,7 @@ pub fn vertical_slider_controls<'a>(
         row![
             column![
                 text("Min").size(LABEL_SIZE),
-                text_input("min", &min_str)
+                text_input("min", min_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_min);
                         Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
@@ -1804,7 +1835,7 @@ pub fn vertical_slider_controls<'a>(
             .spacing(LABEL_SPACING),
             column![
                 text("Max").size(LABEL_SIZE),
-                text_input("max", &max_str)
+                text_input("max", max_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_max);
                         Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
@@ -1814,7 +1845,7 @@ pub fn vertical_slider_controls<'a>(
             .spacing(LABEL_SPACING),
             column![
                 text("Step").size(LABEL_SIZE),
-                text_input("step", &step_str)
+                text_input("step", step_str.clone())
                     .on_input(move |s| {
                         let v = parse_f32(&s, props.slider_step.max(0.000_001));
                         Message::PropertyChanged(
@@ -1865,7 +1896,7 @@ pub fn vertical_slider_controls<'a>(
             ),
             column![
                 text("Width (Thickness)").size(LABEL_SIZE),
-                text_input("px", &slider_width)
+                text_input("px", slider_width.clone())
                     .on_input(move |s| {
                         Message::PropertyChanged(
                             widget_id,
@@ -1902,10 +1933,11 @@ pub fn rule_controls<'a>(
         column![
             text("Orientation").size(LABEL_SIZE),
             pick_list(
-                vec![Orientation::Horizontal, Orientation::Vertical],
                 Some(p.orientation),
-                move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o))
+                vec![Orientation::Horizontal, Orientation::Vertical],
+                ToString::to_string,
             )
+            .on_select(move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o)))
         ]
         .spacing(LABEL_SPACING),
         column![
@@ -1974,39 +2006,42 @@ pub fn scrollable_controls<'a>(
         column![
             text("Direction").size(LABEL_SIZE),
             pick_list(
-                vec![DirChoice::Vertical, DirChoice::Horizontal, DirChoice::Both],
                 Some(DirChoice::to_choice(props.scroll_dir)),
-                move |c| Message::PropertyChanged(
+                vec![DirChoice::Vertical, DirChoice::Horizontal, DirChoice::Both],
+                ToString::to_string,
+            )
+            .on_select(move |c| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::ScrollableDirection(DirChoice::from_choice(c))
-                )
-            )
+                ))
         ]
         .spacing(LABEL_SPACING),
         row![
             column![
                 text("Anchor X").size(LABEL_SIZE),
                 pick_list(
-                    vec![AnchorChoice::Start, AnchorChoice::End],
                     Some(AnchorChoice::from(props.anchor_x)),
-                    move |a| Message::PropertyChanged(
+                    vec![AnchorChoice::Start, AnchorChoice::End],
+                    ToString::to_string,
+                )
+                .on_select(move |a| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::ScrollableAnchorX(AnchorChoice::from_anchor(a))
-                    )
-                )
+                    ))
             ]
             .spacing(LABEL_SPACING)
             .width(Length::Fill),
             column![
                 text("Anchor Y").size(LABEL_SIZE),
                 pick_list(
-                    vec![AnchorChoice::Start, AnchorChoice::End],
                     Some(AnchorChoice::from(props.anchor_y)),
-                    move |a| Message::PropertyChanged(
+                    vec![AnchorChoice::Start, AnchorChoice::End],
+                    ToString::to_string,
+                )
+                .on_select(move |a| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::ScrollableAnchorY(AnchorChoice::from_anchor(a))
-                    )
-                )
+                    ))
             ]
             .spacing(LABEL_SPACING)
             .width(Length::Fill),
@@ -2037,10 +2072,11 @@ pub fn space_controls<'a>(
         column![
             text("Orientation").size(LABEL_SIZE),
             pick_list(
-                vec![Orientation::Horizontal, Orientation::Vertical],
                 Some(props.orientation),
-                move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o))
-            ),
+                vec![Orientation::Horizontal, Orientation::Vertical],
+                ToString::to_string,
+            )
+            .on_select(move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o))),
             checkbox(props.show_widget_bounds).label("Show Bounds")
         ]
         .spacing(LABEL_SPACING),
@@ -2109,7 +2145,7 @@ pub fn progress_controls<'a>(
                 ),
                 column![
                     text("Girth (Width)").size(LABEL_SIZE),
-                    text_input("px", &girth_str)
+                    text_input("px", girth_str.clone())
                         .on_input(move |s| {
                             Message::PropertyChanged(
                                 widget_id,
@@ -2136,7 +2172,7 @@ pub fn progress_controls<'a>(
                 ),
                 column![
                     text("Girth (Height)").size(LABEL_SIZE),
-                    text_input("px", &girth_str)
+                    text_input("px", girth_str.clone())
                         .on_input(move |s| {
                             Message::PropertyChanged(
                                 widget_id,
@@ -2154,7 +2190,7 @@ pub fn progress_controls<'a>(
             row![
                 column![
                     text("Min").size(LABEL_SIZE),
-                    text_input("min", &format!("{}", p.progress_min))
+                    text_input("min", format!("{}", p.progress_min))
                         .on_input(move |s| {
                             let v = s.trim().parse::<f32>().unwrap_or(p.progress_min);
                             Message::PropertyChanged(widget_id, PropertyChange::ProgressMin(v))
@@ -2164,7 +2200,7 @@ pub fn progress_controls<'a>(
                 .spacing(LABEL_SPACING),
                 column![
                     text("Max").size(LABEL_SIZE),
-                    text_input("max", &format!("{}", p.progress_max))
+                    text_input("max", format!("{}", p.progress_max))
                         .on_input(move |s| {
                             let v = s.trim().parse::<f32>().unwrap_or(p.progress_max);
                             Message::PropertyChanged(widget_id, PropertyChange::ProgressMax(v))
@@ -2232,6 +2268,7 @@ pub fn image_controls<'a>(
         row![
             text("Fit").size(LABEL_SIZE).width(Length::Fixed(80.0)),
             pick_list(
+                Some(props.image_fit),
                 vec![
                     ContentFitChoice::Contain,
                     ContentFitChoice::Cover,
@@ -2239,9 +2276,9 @@ pub fn image_controls<'a>(
                     ContentFitChoice::ScaleDown,
                     ContentFitChoice::None,
                 ],
-                Some(props.image_fit),
-                move |v| Message::PropertyChanged(widget_id, PropertyChange::ImageFit(v))
+                ToString::to_string,
             )
+            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::ImageFit(v)))
         ]
         .spacing(SECTION_SPACING),
         size_controls_scrollable_aware(
@@ -2284,6 +2321,7 @@ pub fn svg_controls<'a>(
         row![
             text("Fit").size(LABEL_SIZE).width(Length::Fixed(80.0)),
             pick_list(
+                Some(props.svg_fit),
                 vec![
                     ContentFitChoice::Contain,
                     ContentFitChoice::Cover,
@@ -2291,9 +2329,9 @@ pub fn svg_controls<'a>(
                     ContentFitChoice::ScaleDown,
                     ContentFitChoice::None,
                 ],
-                Some(props.svg_fit),
-                move |v| Message::PropertyChanged(widget_id, PropertyChange::SvgFit(v))
+                ToString::to_string,
             )
+            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::SvgFit(v)))
         ]
         .spacing(SECTION_SPACING),
         size_controls_scrollable_aware(
@@ -2339,18 +2377,19 @@ pub fn tooltip_controls<'a>(
         row![
             text("Position").size(LABEL_SIZE).width(Length::Fixed(80.0)),
             pick_list(
+                Some(p.tooltip_position),
                 vec![
                     TooltipPosition::Top,
                     TooltipPosition::Bottom,
                     TooltipPosition::Left,
                     TooltipPosition::Right
                 ],
-                Some(p.tooltip_position),
-                move |pos| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |pos| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::TooltipPosition(pos)
-                )
-            )
+                ))
         ]
         .spacing(SECTION_SPACING),
         column![
@@ -2483,7 +2522,12 @@ pub fn combobox_controls<'a>(
                         .spacing(LABEL_SPACING)
                     } else {
                         column![
-                            pick_list(type_system.enum_names(), Some(selected), move |enum_name| {
+                            pick_list(
+                                Some(selected),
+                                type_system.enum_names(),
+                                ToString::to_string,
+                            )
+                            .on_select(move |enum_name| {
                                 let enum_id = type_system
                                     .get_enum_by_name(&enum_name)
                                     .expect("MissingEnumDef")
@@ -2547,7 +2591,7 @@ pub fn combobox_controls<'a>(
                         .enumerate()
                         .map(|(i, option)| {
                             row![
-                                text_input(&format!("Option {}", i + 1), option)
+                                text_input(format!("Option {}", i + 1), option)
                                     .on_input({
                                         let index = i;
                                         let current = props.combobox_options.clone();
@@ -2649,18 +2693,18 @@ pub fn combobox_controls<'a>(
             let filter = props.combobox_icon_picker_filter.to_lowercase();
             let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
                 .iter()
-                .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
-                .map(|(name, codepoint)| {
-                    let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-                    let name_clone = name.to_string();
+                .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
+                .map(|icon| {
+                    let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+                    let name_clone = icon.name.to_string();
                     tooltip(
-                        button(icon_lucide::render(codepoint))
+                        button(icon_lucide::render(*icon))
                             .on_press(Message::PropertyChanged(
                                 widget_id,
                                 PropertyChange::ComboBoxIconSelected(name_clone, cp_u32),
                             ))
                             .style(button::text),
-                        container(text(*name))
+                        container(text(icon.name))
                             .style(container::bordered_box)
                             .padding(5),
                         tooltip::Position::Top,
@@ -2686,28 +2730,24 @@ pub fn combobox_controls<'a>(
             ]
             .spacing(4);
 
-            let current_cp_str: &'static str = icon_lucide::ALL_ICONS
-                .iter()
-                .find(|(name, _)| *name == props.combobox_icon_name.as_str())
-                .map(|(_, cp)| *cp)
-                .unwrap_or("\u{FFFD}");
+            let current_icon = lucide_icon(&props.combobox_icon_name);
 
             let trigger = row![
-                icon_lucide::render(current_cp_str).size(20),
+                icon_lucide::render(current_icon).size(20),
                 text(&props.combobox_icon_name),
             ]
             .spacing(6)
             .align_y(Alignment::Center);
 
-            let picker = overlay_button(trigger, "Select Icon", picker_content)
-                .overlay_width(650.0)
-                .overlay_height(450.0)
-                .hide_header()
-                .close_on_click_outside()
-                .hover_positions_on_click()
-                .hover_position(widgets::generic_overlay::Position::Right)
-                .hover_gap(5.0)
-                .hover_alignment(Alignment::Start);
+            let picker = popover(
+                trigger,
+                container(picker_content).width(650).height(450),
+            )
+            .side(anchor::Side::Right)
+            .align(anchor::Align::Start)
+            .gap(5.0)
+            .max_width(650.0)
+            .dismiss_on_outside_press(true);
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -2723,13 +2763,14 @@ pub fn combobox_controls<'a>(
                         column![
                             text("Side").size(LABEL_SIZE),
                             pick_list(
-                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
                                 Some(props.combobox_icon_side),
-                                move |v| Message::PropertyChanged(
+                                vec![TextInputIconSide::Left, TextInputIconSide::Right],
+                                ToString::to_string,
+                            )
+                            .on_select(move |v| Message::PropertyChanged(
                                     widget_id,
                                     PropertyChange::ComboBoxIconSide(v)
-                                )
-                            ),
+                                )),
                         ]
                         .spacing(LABEL_SPACING),
                         column![
@@ -3008,14 +3049,15 @@ pub fn collapsible_controls<'a>(
         column![
             text("Title Alignment").size(LABEL_SIZE),
             pick_list(
+                Some(props.align_x),
                 vec![
                     ContainerAlignX::Left,
                     ContainerAlignX::Center,
                     ContainerAlignX::Right,
                 ],
-                Some(props.align_x),
-                move |value| Message::PropertyChanged(widget_id, PropertyChange::AlignX(value)),
+                ToString::to_string,
             )
+            .on_select(move |value| Message::PropertyChanged(widget_id, PropertyChange::AlignX(value)))
             .width(200),
         ]
         .spacing(LABEL_SPACING),
@@ -3038,10 +3080,11 @@ pub fn collapsible_controls<'a>(
         column![
             text("Title Font").size(LABEL_SIZE),
             pick_list(
-                vec![FontType::Default, FontType::Monospace],
                 Some(props.font),
-                move |value| Message::PropertyChanged(widget_id, PropertyChange::Font(value)),
+                vec![FontType::Default, FontType::Monospace],
+                ToString::to_string,
             )
+            .on_select(move |value| Message::PropertyChanged(widget_id, PropertyChange::Font(value)))
             .width(200),
         ]
         .spacing(LABEL_SPACING),
@@ -3069,27 +3112,29 @@ pub fn collapsible_controls<'a>(
         column![
             text("Style").size(LABEL_SIZE),
             pick_list(
-                style_options.clone(),
                 props.custom_style_name.clone(),
-                move |selection| {
+                style_options.clone(),
+                ToString::to_string,
+            )
+            .on_select(move |selection| {
                     Message::PropertyChanged(
                         widget_id,
                         PropertyChange::CustomStyle(Some(selection)),
                     )
-                }
-            )
+                })
             .placeholder("default"),
             text("Alternate style").size(LABEL_SIZE),
             pick_list(
-                style_options,
                 props.active_style_name.clone(),
-                move |selection| {
+                style_options,
+                ToString::to_string,
+            )
+            .on_select(move |selection| {
                     Message::PropertyChanged(
                         widget_id,
                         PropertyChange::ActiveStyle(Some(selection)),
                     )
-                }
-            )
+                })
             .placeholder("none"),
         ]
         .spacing(LABEL_SPACING),
@@ -3159,7 +3204,7 @@ pub fn collapsible_group_controls<'a>(
         .into()
 }
 
-pub fn generic_overlay_controls<'a>(
+pub fn overlay_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,
     theme: &Theme,
@@ -3179,13 +3224,14 @@ pub fn generic_overlay_controls<'a>(
     let overlay_style_picker = column![
         text("Overlay panel style").size(LABEL_SIZE),
         pick_list(
-            overlay_style_options,
             props.generic_overlay_overlay_style_name.clone(),
-            move |selection| Message::PropertyChanged(
+            overlay_style_options,
+            ToString::to_string,
+        )
+        .on_select(move |selection| Message::PropertyChanged(
                 widget_id,
                 PropertyChange::GenericOverlayOverlayStyle(Some(selection))
-            )
-        )
+            ))
         .placeholder("default"),
     ]
     .spacing(LABEL_SPACING);
@@ -3223,17 +3269,18 @@ pub fn generic_overlay_controls<'a>(
         column![
             text("Animation Speed").size(LABEL_SIZE),
             pick_list(
+                Some(props.generic_overlay_animation_preset),
                 vec![
                     GenericOverlayAnimationPreset::Default,
                     GenericOverlayAnimationPreset::Quick,
                     GenericOverlayAnimationPreset::Slow,
                 ],
-                Some(props.generic_overlay_animation_preset),
-                move |value| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |value| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::GenericOverlayAnimationPreset(value)
-                ),
-            )
+                ))
             .width(160),
         ]
         .spacing(LABEL_SPACING)
@@ -3285,51 +3332,54 @@ pub fn generic_overlay_controls<'a>(
                 column![
                     text("Hover Position").size(LABEL_SIZE),
                     pick_list(
+                        Some(props.generic_overlay_hover_position),
                         vec![
                             GenericOverlayPosition::Top,
                             GenericOverlayPosition::Right,
                             GenericOverlayPosition::Bottom,
                             GenericOverlayPosition::Left,
                         ],
-                        Some(props.generic_overlay_hover_position),
-                        move |value| Message::PropertyChanged(
+                        ToString::to_string,
+                    )
+                    .on_select(move |value| Message::PropertyChanged(
                             widget_id,
                             PropertyChange::GenericOverlayHoverPosition(value)
-                        ),
-                    )
+                        ))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING),
                 column![
                     text("Alignment").size(LABEL_SIZE),
                     pick_list(
+                        Some(props.generic_overlay_hover_alignment),
                         vec![
                             ContainerAlignX::Left,
                             ContainerAlignX::Center,
                             ContainerAlignX::Right,
                         ],
-                        Some(props.generic_overlay_hover_alignment),
-                        move |value| Message::PropertyChanged(
+                        ToString::to_string,
+                    )
+                    .on_select(move |value| Message::PropertyChanged(
                             widget_id,
                             PropertyChange::GenericOverlayHoverAlignment(value)
-                        ),
-                    )
+                        ))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING),
                 column![
                     text("Mode").size(LABEL_SIZE),
                     pick_list(
+                        Some(props.generic_overlay_hover_mode),
                         vec![
                             GenericOverlayPositionMode::Outside,
                             GenericOverlayPositionMode::Inside,
                         ],
-                        Some(props.generic_overlay_hover_mode),
-                        move |value| Message::PropertyChanged(
+                        ToString::to_string,
+                    )
+                    .on_select(move |value| Message::PropertyChanged(
                             widget_id,
                             PropertyChange::GenericOverlayHoverMode(value)
-                        ),
-                    )
+                        ))
                     .width(160),
                 ]
                 .spacing(LABEL_SPACING),
@@ -3373,14 +3423,33 @@ pub fn generic_overlay_controls<'a>(
         column![].into()
     };
 
-    let content = column![
-        text("Generic Overlay Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
-        text(
-            "Generic Overlay uses the real custom widget. Child 1 is the trigger content and child 2 is the overlay content."
-        )
-        .size(LABEL_SIZE)
-        .color(Color::from_rgb(0.6, 0.6, 0.6)),
+    // The three widgets that replaced `generic_overlay` share this panel, and
+    // each shows only the parts it actually has: `Layer` sits against the
+    // viewport with a title bar it can be dragged and resized by and has no
+    // trigger, while `Popover` and `Menu` hang off a trigger and are placed
+    // relative to it.
+    let is_layer = widget.widget_type == WidgetType::Layer;
+    let is_popover = widget.widget_type == WidgetType::Popover;
+    let has_trigger = !is_layer;
+
+    let (title, blurb) = match widget.widget_type {
+        WidgetType::Popover => (
+            "Popover Properties",
+            "Child 1 is the trigger, child 2 is the panel it opens.",
+        ),
+        WidgetType::Menu => (
+            "Menu Properties",
+            "Child 1 is the trigger. Every child after it is one row of the panel.",
+        ),
+        _ => (
+            "Layer Properties",
+            "The single child is the panel content. A layer is positioned against \
+             the window rather than a trigger, so the application decides when it \
+             is open.",
+        ),
+    };
+
+    let header_title_controls: Element<'a, Message> = if is_layer {
         column![
             text("Header Title").size(LABEL_SIZE),
             text_input("Overlay", &props.generic_overlay_title)
@@ -3390,9 +3459,97 @@ pub fn generic_overlay_controls<'a>(
                 ))
                 .width(300),
         ]
-        .spacing(LABEL_SPACING),
-        text("Trigger").size(SECTION_SIZE),
-        trigger_controls,
+        .spacing(LABEL_SPACING)
+        .into()
+    } else {
+        column![].into()
+    };
+
+    let trigger_section: Element<'a, Message> = if has_trigger {
+        column![text("Trigger").size(SECTION_SIZE), trigger_controls]
+            .spacing(MAIN_SPACING)
+            .into()
+    } else {
+        column![].into()
+    };
+
+    // Only a popover opens on hover. A menu is always press-driven, and a layer
+    // has nothing to hover.
+    let hover_toggle: Element<'a, Message> = if is_popover {
+        checkbox(props.generic_overlay_on_hover)
+            .label("Open on hover")
+            .on_toggle(move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayOnHover(value),
+                )
+            })
+            .into()
+    } else {
+        column![].into()
+    };
+
+    // Dragging, resizing and the backdrop belong to the window-like layer.
+    let layer_behavior: Element<'a, Message> = if is_layer {
+        column![
+            checkbox(props.generic_overlay_opaque)
+                .label("Dim the page behind")
+                .on_toggle(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayOpaque(value)
+                )),
+            opaque_alpha_controls,
+            checkbox(props.generic_overlay_hide_header)
+                .label("Hide header")
+                .on_toggle(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayHideHeader(value)
+                )),
+            checkbox(props.generic_overlay_hide_close_button)
+                .label("Hide close button")
+                .on_toggle(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayHideCloseButton(value)
+                )),
+            checkbox(props.generic_overlay_block_dragging)
+                .label("Block dragging")
+                .on_toggle(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayBlockDragging(value)
+                )),
+            column![
+                text("Resize Mode").size(LABEL_SIZE),
+                pick_list(
+                    Some(props.generic_overlay_resizable),
+                    vec![
+                        GenericOverlayResizeMode::None,
+                        GenericOverlayResizeMode::Always,
+                        GenericOverlayResizeMode::WithCtrl,
+                    ],
+                    ToString::to_string,
+                )
+                .on_select(move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::GenericOverlayResizable(value)
+                ))
+                .width(180),
+            ]
+            .spacing(LABEL_SPACING),
+        ]
+        .spacing(MAIN_SPACING)
+        .into()
+    } else {
+        column![].into()
+    };
+
+    let content = column![
+        text(title).size(TITLE_SIZE),
+        widget_name(widget_id, &props.widget_name),
+        text(blurb)
+            .size(LABEL_SIZE)
+            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        header_title_controls,
+        trigger_section,
         text("Overlay Panel").size(SECTION_SIZE),
         overlay_style_picker,
         row![
@@ -3487,18 +3644,7 @@ pub fn generic_overlay_controls<'a>(
         ]
         .spacing(LABEL_SPACING),
         text("Placement").size(SECTION_SIZE),
-        checkbox(props.generic_overlay_on_hover)
-            .label("Open on hover")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayOnHover(value)
-            )),
-        checkbox(props.generic_overlay_hover_positions_on_click)
-            .label("Use hover placement on click")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayHoverPositionsOnClick(value)
-            )),
+        hover_toggle,
         placement_controls,
         text("Behavior").size(SECTION_SIZE),
         checkbox(props.generic_overlay_initially_open)
@@ -3508,59 +3654,16 @@ pub fn generic_overlay_controls<'a>(
                 PropertyChange::GenericOverlayInitiallyOpen(value)
             )),
         checkbox(props.generic_overlay_close_on_click_outside)
-            .label("Close on click outside")
+            .label(if is_layer {
+                "Close when the backdrop is pressed"
+            } else {
+                "Close on press outside"
+            })
             .on_toggle(move |value| Message::PropertyChanged(
                 widget_id,
                 PropertyChange::GenericOverlayCloseOnClickOutside(value)
             )),
-        checkbox(props.generic_overlay_opaque)
-            .label("Opaque backdrop")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayOpaque(value)
-            )),
-        opaque_alpha_controls,
-        checkbox(props.generic_overlay_hide_header)
-            .label("Hide header")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayHideHeader(value)
-            )),
-        checkbox(props.generic_overlay_hide_close_button)
-            .label("Hide close button")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayHideCloseButton(value)
-            )),
-        checkbox(props.generic_overlay_block_dragging)
-            .label("Block dragging")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayBlockDragging(value)
-            )),
-        column![
-            text("Resize Mode").size(LABEL_SIZE),
-            pick_list(
-                vec![
-                    GenericOverlayResizeMode::None,
-                    GenericOverlayResizeMode::Always,
-                    GenericOverlayResizeMode::WithCtrl,
-                ],
-                Some(props.generic_overlay_resizable),
-                move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GenericOverlayResizable(value)
-                ),
-            )
-            .width(180),
-        ]
-        .spacing(LABEL_SPACING),
-        checkbox(props.generic_overlay_reset_on_close)
-            .label("Reset position and size on close")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::GenericOverlayResetOnClose(value)
-            )),
+        layer_behavior,
         checkbox(props.generic_overlay_animate)
             .label("Animate open and close")
             .on_toggle(move |value| Message::PropertyChanged(
@@ -3592,16 +3695,17 @@ pub fn date_picker_controls<'a>(
     let mode_controls = column![
         text("Selection Mode").size(LABEL_SIZE),
         pick_list(
+            Some(props.date_picker_mode),
             vec![
                 DatePickerSelectionMode::Single,
                 DatePickerSelectionMode::Range,
             ],
-            Some(props.date_picker_mode),
-            move |value| Message::PropertyChanged(
+            ToString::to_string,
+        )
+        .on_select(move |value| Message::PropertyChanged(
                 widget_id,
                 PropertyChange::DatePickerSelectionMode(value),
-            )
-        )
+            ))
         .width(180),
     ]
     .spacing(LABEL_SPACING);
@@ -3833,30 +3937,32 @@ pub fn split_controls<'a>(
         column![
             text("Orientation").size(LABEL_SIZE),
             pick_list(
-                vec![Orientation::Vertical, Orientation::Horizontal],
                 Some(props.orientation),
-                move |value| Message::PropertyChanged(
+                vec![Orientation::Vertical, Orientation::Horizontal],
+                ToString::to_string,
+            )
+            .on_select(move |value| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::Orientation(value)
-                ),
-            )
+                ))
             .width(180),
         ]
         .spacing(LABEL_SPACING),
         column![
             text("Sizing Strategy").size(LABEL_SIZE),
             pick_list(
+                Some(props.split_strategy),
                 vec![
                     SplitStrategy::Relative,
                     SplitStrategy::Start,
                     SplitStrategy::End,
                 ],
-                Some(props.split_strategy),
-                move |value| Message::PropertyChanged(
+                ToString::to_string,
+            )
+            .on_select(move |value| Message::PropertyChanged(
                     widget_id,
                     PropertyChange::SplitStrategy(value)
-                ),
-            )
+                ))
             .width(180),
         ]
         .spacing(LABEL_SPACING),
@@ -4256,13 +4362,14 @@ pub fn mousearea_controls<'a>(
             column![
                 text("Mouse Cursor:").size(LABEL_SIZE),
                 pick_list(
-                    MouseInteraction::ALL,
                     props.mousearea_interaction,
-                    move |v| Message::PropertyChanged(
+                    MouseInteraction::ALL,
+                    ToString::to_string,
+                )
+                .on_select(move |v| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::MouseAreaInteraction(Some(v))
-                    )
-                )
+                    ))
                 .placeholder("Default cursor"),
             ]
             .spacing(LABEL_SPACING),
@@ -4300,7 +4407,12 @@ pub fn themer_controls<'a>(
         widget_name(widget_id, &props.widget_name),
         column![
             text("Theme").size(LABEL_SIZE),
-            pick_list(Theme::ALL, props.themer_theme.clone(), move |theme| {
+            pick_list(
+                props.themer_theme.clone(),
+                Theme::ALL,
+                ToString::to_string,
+            )
+            .on_select(move |theme| {
                 Message::PropertyChanged(widget_id, PropertyChange::ThemerTheme(Some(theme)))
             })
             .placeholder("Inherit from parent"),
@@ -4339,7 +4451,7 @@ pub fn grid_controls<'a>(
     let layout_section: Element<Message> = if props.grid_use_fluid {
         column![
             text("Fluid Max Column Width").size(LABEL_SIZE),
-            text_input("200", &fluid_max_str)
+            text_input("200", fluid_max_str.clone())
                 .on_input(move |s| {
                     let v = parse_f32(&s, props.grid_fluid_max_width);
                     Message::PropertyChanged(widget_id, PropertyChange::GridFluidMaxWidth(v))
@@ -4354,7 +4466,7 @@ pub fn grid_controls<'a>(
     } else {
         column![
             text("Columns").size(LABEL_SIZE),
-            text_input("3", &columns_str)
+            text_input("3", columns_str.clone())
                 .on_input(move |s| {
                     let v = s
                         .trim()
@@ -4388,7 +4500,7 @@ pub fn grid_controls<'a>(
         layout_section,
         column![
             text("Spacing").size(LABEL_SIZE),
-            text_input("0", &spacing_str)
+            text_input("0", spacing_str.clone())
                 .on_input(move |s| {
                     let v = parse_f32(&s, props.grid_spacing);
                     Message::PropertyChanged(widget_id, PropertyChange::GridSpacing(v))
@@ -4398,7 +4510,7 @@ pub fn grid_controls<'a>(
         .spacing(LABEL_SPACING),
         column![
             text("Fixed Width (px)").size(LABEL_SIZE),
-            text_input("none", &fixed_width_str)
+            text_input("none", fixed_width_str.clone())
                 .on_input(move |s| {
                     let v = if s.trim().is_empty() {
                         None
@@ -4449,7 +4561,7 @@ pub fn pin_controls<'a>(
         text("Position").size(SECTION_SIZE),
         row![
             text("X").size(LABEL_SIZE).width(Length::Fixed(20.0)),
-            text_input("0", &x_str)
+            text_input("0", x_str.clone())
                 .on_input(move |s| {
                     let v = parse_f32(&s, props.pin_point.x);
                     Message::PropertyChanged(widget_id, PropertyChange::PinX(v))
@@ -4460,7 +4572,7 @@ pub fn pin_controls<'a>(
         .align_y(Alignment::Center),
         row![
             text("Y").size(LABEL_SIZE).width(Length::Fixed(20.0)),
-            text_input("0", &y_str)
+            text_input("0", y_str.clone())
                 .on_input(move |s| {
                     let v = parse_f32(&s, props.pin_point.y);
                     Message::PropertyChanged(widget_id, PropertyChange::PinY(v))
@@ -4526,9 +4638,11 @@ pub fn table_controls<'a>(
             } else {
                 column![
                     pick_list(
-                        struct_names,
                         Some(selected_struct_name),
-                        move |struct_name| {
+                        struct_names,
+                        ToString::to_string,
+                    )
+                    .on_select(move |struct_name| {
                             let struct_id = type_system
                                 .get_struct_by_name(&struct_name)
                                 .expect("MissingStructDef")
@@ -4537,8 +4651,7 @@ pub fn table_controls<'a>(
                                 widget_id,
                                 PropertyChange::TableReferencedStruct(Some(struct_id)),
                             )
-                        }
-                    )
+                        })
                     .placeholder("Choose a struct...")
                     .width(200),
                 ]
@@ -4701,12 +4814,14 @@ pub fn view_reference_controls<'a>(
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.6, 0.6, 0.6)),
             pick_list(
+                selected_view_name,
                 view_options
                     .iter()
                     .map(|(_, name)| name.clone())
                     .collect::<Vec<_>>(),
-                selected_view_name,
-                move |selected_name| {
+                ToString::to_string,
+            )
+            .on_select(move |selected_name| {
                     // Find the UUID for the selected name
                     let view_id = view_options
                         .iter()
@@ -4717,8 +4832,7 @@ pub fn view_reference_controls<'a>(
                         widget_id,
                         PropertyChange::ViewReferenceId(view_id, selected_name),
                     )
-                }
-            )
+                })
             .placeholder("Select a view...")
             .width(300),
         ]
@@ -4730,7 +4844,7 @@ pub fn view_reference_controls<'a>(
                     rule::horizontal(2),
                     text(format!("Selected: {}", view.name))
                         .size(LABEL_SIZE)
-                        .color(theme.extended_palette().success.base.color),
+                        .color(theme.palette().success.base.color),
                     text("This view will be embedded here")
                         .size(LABEL_SIZE - 2.0)
                         .color(Color::from_rgb(0.5, 0.5, 0.5)),
@@ -4740,7 +4854,7 @@ pub fn view_reference_controls<'a>(
                 column![
                     text("Selected view no longer exists")
                         .size(LABEL_SIZE)
-                        .color(theme.extended_palette().danger.base.color),
+                        .color(theme.palette().danger.base.color),
                 ]
             }
         } else {
@@ -4758,12 +4872,14 @@ pub fn view_reference_controls<'a>(
                         views.iter().map(|(id, v)| (*id, v.name.clone())).collect();
                     row![
                         pick_list(
+                            selected_name,
                             view_options2
                                 .iter()
                                 .map(|(_, name)| name.clone())
                                 .collect::<Vec<_>>(),
-                            selected_name,
-                            move |n| {
+                            ToString::to_string,
+                        )
+                        .on_select(move |n| {
                                 let vid = view_options2
                                     .iter()
                                     .find(|(_, name)| name == &n)
@@ -4773,8 +4889,7 @@ pub fn view_reference_controls<'a>(
                                     widget_id,
                                     PropertyChange::SetExtraViewRef(i, vid),
                                 )
-                            }
-                        )
+                            })
                         .placeholder("Select view...")
                         .width(220),
                         button(text("×").size(12)).on_press(Message::PropertyChanged(
@@ -4831,18 +4946,18 @@ pub fn icon_controls<'a>(
     let filter = props.icon_picker_filter.to_lowercase();
     let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
         .iter()
-        .filter(|(name, _)| filter.is_empty() || name.contains(filter.as_str()))
-        .map(|(name, codepoint)| {
-            let cp_u32 = codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-            let name_clone = name.to_string();
+        .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
+        .map(|icon| {
+            let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
+            let name_clone = icon.name.to_string();
             tooltip(
-                button(icon_lucide::render(codepoint))
+                button(icon_lucide::render(*icon))
                     .on_press(Message::PropertyChanged(
                         widget_id,
                         PropertyChange::IconSelected(name_clone, cp_u32),
                     ))
                     .style(button::text),
-                container(text(*name))
+                container(text(icon.name))
                     .style(container::bordered_box)
                     .padding(5),
                 tooltip::Position::Top,
@@ -4867,28 +4982,24 @@ pub fn icon_controls<'a>(
     .spacing(4);
 
     // Trigger button shows the current icon + its name
-    let current_cp_str: &'static str = icon_lucide::ALL_ICONS
-        .iter()
-        .find(|(name, _)| *name == props.icon_name.as_str())
-        .map(|(_, cp)| *cp)
-        .unwrap_or("\u{FFFD}");
+    let current_icon = lucide_icon(&props.icon_name);
 
     let trigger = row![
-        icon_lucide::render(current_cp_str).size(20),
+        icon_lucide::render(current_icon).size(20),
         text(&props.icon_name),
     ]
     .spacing(6)
     .align_y(Alignment::Center);
 
-    let picker = overlay_button(trigger, "Select Icon", picker_content)
-        .overlay_width(650.0)
-        .overlay_height(450.0)
-        .hide_header()
-        .close_on_click_outside()
-        .hover_positions_on_click()
-        .hover_position(widgets::generic_overlay::Position::Right)
-        .hover_gap(5.0)
-        .hover_alignment(Alignment::Start);
+    let picker = popover(
+        trigger,
+        container(picker_content).width(650).height(450),
+    )
+    .side(anchor::Side::Right)
+    .align(anchor::Align::Start)
+    .gap(5.0)
+    .max_width(650.0)
+    .dismiss_on_outside_press(true);
 
     let content = column![
         text("Icon Properties").size(TITLE_SIZE),
@@ -4937,7 +5048,7 @@ where
     //let cur = color_to_hex(current);
     column![
         text(label),
-        text_input("#RRGGBB or #RRGGBBAA", &current)
+        text_input("#RRGGBB or #RRGGBBAA", current)
             .on_input(move |s| on_change(s))
             .width(160)
     ]
@@ -5084,7 +5195,12 @@ where
         } else {
             column![text(label)]
         },
-        pick_list(available_choices, Some(choice_now), move |choice| {
+        pick_list(
+            Some(choice_now),
+            available_choices,
+            ToString::to_string,
+        )
+        .on_select(move |choice| {
             let new_len = match choice {
                 LengthChoice::Fill => Length::Fill,
                 LengthChoice::FillPortion => match current {
@@ -5113,7 +5229,7 @@ where
             };
             column![
                 text("Pixels"),
-                text_input("e.g. 120.0", &value_str)
+                text_input("e.g. 120.0", value_str.clone())
                     .on_input(move |v| on_change(parse_length(&v)))
                     .width(120)
             ]
@@ -5128,7 +5244,7 @@ where
             let value_str = portion_now.to_string();
             column![
                 text("Portion"),
-                text_input("e.g. 1", &value_str)
+                text_input("e.g. 1", value_str.clone())
                     .on_input(move |v| {
                         let p = v
                             .trim()
@@ -5217,7 +5333,12 @@ pub fn length_picker_with_draft<'a>(
         } else {
             column![text(label).size(LABEL_SIZE)]
         },
-        pick_list(available_choices, Some(choice_now), move |choice| {
+        pick_list(
+            Some(choice_now),
+            available_choices,
+            ToString::to_string,
+        )
+        .on_select(move |choice| {
             let new_len = match choice {
                 LengthChoice::Fill => Length::Fill,
                 LengthChoice::FillPortion => match current {
@@ -5248,7 +5369,7 @@ pub fn length_picker_with_draft<'a>(
 
             column![
                 text("Pixels").size(LABEL_SIZE),
-                text_input(&committed_value, display_text)
+                text_input(committed_value.clone(), display_text)
                     .on_input(move |v| { on_draft_change(v) })
                     .width(75)
             ]
@@ -5265,7 +5386,7 @@ pub fn length_picker_with_draft<'a>(
 
             column![
                 text("Portion").size(LABEL_SIZE),
-                text_input(&committed_value, display_text)
+                text_input(committed_value.clone(), display_text)
                     .on_input(move |v| { on_draft_change(v) })
                     .width(75)
             ]
@@ -5308,7 +5429,12 @@ pub fn generic_overlay_size_picker<'a>(
 
     let picker = column![
         text(label).size(LABEL_SIZE),
-        pick_list(available_choices, Some(choice_now), move |choice| {
+        pick_list(
+            Some(choice_now),
+            available_choices,
+            ToString::to_string,
+        )
+        .on_select(move |choice| {
             on_choice_change(choice)
         })
         .width(160),
@@ -5326,7 +5452,7 @@ pub fn generic_overlay_size_picker<'a>(
 
             column![
                 text("Pixels").size(LABEL_SIZE),
-                text_input(&committed_value, display_text)
+                text_input(committed_value.clone(), display_text)
                     .on_input(move |value| on_fixed_draft_change(value))
                     .width(75),
             ]
@@ -5342,7 +5468,7 @@ pub fn generic_overlay_size_picker<'a>(
 
             column![
                 text("Portion").size(LABEL_SIZE),
-                text_input(&committed_value, display_text)
+                text_input(committed_value.clone(), display_text)
                     .on_input(move |value| on_fill_portion_draft_change(value))
                     .width(75),
             ]
@@ -5355,7 +5481,7 @@ pub fn generic_overlay_size_picker<'a>(
 
             column![
                 text("Factor").size(LABEL_SIZE),
-                text_input(&committed_value, display_text)
+                text_input(committed_value.clone(), display_text)
                     .on_input(move |value| on_dynamic_draft_change(value))
                     .width(75),
             ]
@@ -5563,7 +5689,7 @@ pub fn padding_controls<'a>(
 }
 
 pub fn information<'a>(theme: &Theme, info: &'a str) -> Element<'a, Message> {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
     tooltip(
         icon::info()
             .center()
@@ -5708,9 +5834,9 @@ pub fn widget_id_control<'a>(
         ]
         .spacing(LABEL_SPACING)
         .align_y(Alignment::End),
-        if let Some(ref id_val) = id {
+        if let Some(id_val) = id {
             row![
-                text_input("widget_id", *&id_val)
+                text_input("widget_id", id_val)
                     .on_input(move |v| {
                         Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
                     })
@@ -5872,13 +5998,14 @@ fn conditional_style_section<'a>(
             column![
                 text("When equals").size(LABEL_SIZE),
                 pick_list(
-                    value_variants,
                     props.style_condition_value.clone(),
-                    move |v| Message::PropertyChanged(
+                    value_variants,
+                    ToString::to_string,
+                )
+                .on_select(move |v| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::StyleConditionValue(Some(v))
-                    ),
-                )
+                    ))
                 .placeholder("select value"),
             ]
             .spacing(LABEL_SPACING)
@@ -5886,7 +6013,7 @@ fn conditional_style_section<'a>(
         } else {
             column![
                 text("When equals").size(LABEL_SIZE),
-                text_input("value", &condition_value)
+                text_input("value", condition_value.clone())
                     .on_input(move |v| {
                         let val = if v.is_empty() { None } else { Some(v) };
                         Message::PropertyChanged(
@@ -5902,7 +6029,12 @@ fn conditional_style_section<'a>(
         let fields_for_closure = fields.clone();
         column![
             text("State field").size(LABEL_SIZE),
-            pick_list(field_options, selected_field_display, move |d: String| {
+            pick_list(
+                selected_field_display,
+                field_options,
+                ToString::to_string,
+            )
+            .on_select(move |d: String| {
                 // Map display label back to field path
                 let path = fields_for_closure
                     .iter()
@@ -5910,7 +6042,7 @@ fn conditional_style_section<'a>(
                     .map(|(_, p, _)| p.clone())
                     .unwrap_or(d);
                 Message::PropertyChanged(widget_id, PropertyChange::StyleConditionField(Some(path)))
-            },)
+            })
             .placeholder("select field"),
             value_section,
         ]
@@ -5921,7 +6053,7 @@ fn conditional_style_section<'a>(
             text("State field").size(LABEL_SIZE),
             text_input(
                 "self.field_name",
-                &props.style_condition_field.clone().unwrap_or_default()
+                props.style_condition_field.clone().unwrap_or_default()
             )
             .on_input(move |v| {
                 let val = if v.is_empty() { None } else { Some(v) };
@@ -5929,7 +6061,7 @@ fn conditional_style_section<'a>(
             })
             .size(LABEL_SIZE),
             text("When equals").size(LABEL_SIZE),
-            text_input("value", &condition_value)
+            text_input("value", condition_value.clone())
                 .on_input(move |v| {
                     let val = if v.is_empty() { None } else { Some(v) };
                     Message::PropertyChanged(widget_id, PropertyChange::StyleConditionValue(val))
@@ -5995,15 +6127,16 @@ fn custom_style_picker<'a>(
     let mut content = column![
         text("Style").size(LABEL_SIZE),
         pick_list(
-            style_options.clone(),
             props.custom_style_name.clone(),
-            move |selection| {
+            style_options.clone(),
+            ToString::to_string,
+        )
+        .on_select(move |selection| {
                 Message::PropertyChanged(
                     widget_id,
                     PropertyChange::CustomStyle(Some(selection.to_string())),
                 )
-            }
-        )
+            })
         .placeholder("default"),
     ]
     .spacing(LABEL_SPACING);
@@ -6011,15 +6144,16 @@ fn custom_style_picker<'a>(
     if supports_active_style {
         content = content.push(text("Alternate style").size(LABEL_SIZE)).push(
             pick_list(
-                style_options,
                 props.active_style_name.clone(),
-                move |selection| {
+                style_options,
+                ToString::to_string,
+            )
+            .on_select(move |selection| {
                     Message::PropertyChanged(
                         widget_id,
                         PropertyChange::ActiveStyle(Some(selection.to_string())),
                     )
-                },
-            )
+                })
             .placeholder("none"),
         );
     }
@@ -6111,7 +6245,12 @@ fn named_style_picker<'a>(
 
     column![
         text(label).size(LABEL_SIZE),
-        pick_list(style_options, selected_style, move |selection| {
+        pick_list(
+            selected_style,
+            style_options,
+            ToString::to_string,
+        )
+        .on_select(move |selection| {
             Message::PropertyChanged(widget_id, change(Some(selection)))
         })
         .placeholder("default"),

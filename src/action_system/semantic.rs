@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use uuid::Uuid;
-use widgets::flow_editor::PortType;
+use crate::action_system::flow_model::PortType;
 
 use crate::action_system::flow::{AppFlow, FlowTrigger};
 use crate::action_system::graph::{ActionGraph, ActionNodeData, ActionNodeId};

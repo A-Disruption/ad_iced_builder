@@ -506,7 +506,7 @@ fn generate_state_fields(
         WidgetType::Toggler => {
             b.line(&format!("pub {}_active: bool,", to_snake_case(&name)));
         }
-        WidgetType::GenericOverlay => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             b.line(&format!("pub {}_open: bool,", to_snake_case(&name)));
         }
         WidgetType::DatePicker => {
@@ -740,7 +740,7 @@ fn generate_state_initializers(
                 }
             ));
         }
-        WidgetType::GenericOverlay => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             b.line(&format!(
                 "{}_open: {},",
                 to_snake_case(&name),
@@ -981,7 +981,7 @@ mod tests {
     #[test]
     fn generate_state_initializers_respects_generic_overlay_initial_open() {
         let overlay_id = WidgetId(7);
-        let mut overlay = Widget::new(WidgetType::GenericOverlay, overlay_id);
+        let mut overlay = Widget::new(WidgetType::Popover, overlay_id);
         overlay.properties.generic_overlay_initially_open = true;
 
         let mut b = CodeBuilder::new();

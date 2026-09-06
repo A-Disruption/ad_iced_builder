@@ -62,7 +62,15 @@ pub enum WidgetType {
     Stack,
     Collapsible,
     CollapsibleGroup,
-    GenericOverlay,
+    // The widgets crate replaced its one `generic_overlay` with three separate
+    // widgets, so the builder does too. A project saved before that split
+    // loads as a `Popover`: it is the one of the three that keeps both of the
+    // old widget's children (trigger and content) and its default anchored,
+    // trigger-driven behaviour.
+    #[serde(alias = "GenericOverlay")]
+    Popover,
+    Menu,
+    Layer,
     DatePicker,
     Split,
     Float,

@@ -477,10 +477,11 @@ pub fn view<'a>(
                 // Window Level Section
                 section_header("Window Level"),
                 pick_list(
-                    LevelChoice::ALL,
                     Some(LevelChoice::from(settings.level)),
-                    move |level| Message::SetLevel(*id, level.into())
+                    LevelChoice::ALL,
+                    ToString::to_string,
                 )
+                .on_select(move |level| Message::SetLevel(*id, level.into()))
                 .placeholder("Select window level")
                 .width(Length::Fill),
             ]
@@ -500,7 +501,12 @@ pub fn view<'a>(
             text("Window Settings").size(18),
             space::horizontal(),
             text("Theme").size(14),
-            pick_list(iced::Theme::ALL, Some(theme.clone()), Message::UpdateTheme)
+            pick_list(
+                Some(theme.clone()),
+                iced::Theme::ALL,
+                ToString::to_string,
+            )
+            .on_select(Message::UpdateTheme)
                 .width(Length::Fixed(200.0))
         ]
         .align_y(Alignment::Center)
@@ -532,7 +538,7 @@ fn section_header<'a>(title: &'a str) -> Element<'a, Message> {
             .style(|theme: &iced::Theme| {
                 container::Style {
                     background: Some(iced::Background::Color(
-                        theme.extended_palette().background.strong.color,
+                        theme.palette().background.strong.color,
                     )),
                     ..Default::default()
                 }
@@ -615,13 +621,14 @@ fn labeled_picklist<'a>(
     column![
         text(label).size(14),
         pick_list(
-            options,
             Some(current_selection),
-            move |option| match option {
+            options,
+            ToString::to_string,
+        )
+        .on_select(move |option| match option {
                 ViewOption::None => on_select(None),
                 ViewOption::View { id, .. } => on_select(Some(id)),
-            }
-        )
+            })
         .placeholder("Select view...")
         .width(Length::Fill),
     ]

@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-iced = { version = "0.14.0", features = [
+iced = { version = "0.15.0-dev", features = [
     "tokio",
-    "lazy",
     "advanced",
     "debug",
     "canvas",
@@ -15,21 +14,54 @@ iced = { version = "0.14.0", features = [
     "markdown",
     "qr_code",
 ] }
-iced_runtime = { version = "0.14.0" }
-iced_split = "0.1.0"
-#widgets = { git = "https://github.com/A-Disruption/widgets.git" , features = ["tree", "collapsible", "generic_overlay", "color_picker"] }
-widgets = { path = "C:/Rust Projects/widgets", features = ["collapsible", "tree", "color_picker", "generic_overlay", "date_picker", "flow_editor"]}
+iced_runtime = { version = "0.15.0-dev" }
+# Fork of edwloef/iced_split, ported to iced master (upstream is pinned to
+# iced_core 0.14 and only exists at 0.1.0).
+iced_split = { path = "C:/Rust Projects/iced_split" }
+#iced_split = { git = "https://github.com/A-Disruption/iced_split.git" }
+
+widgets = { path = "C:/Rust Projects/widgets", features = [
+    "collapsible",
+    "tree",
+    "color_picker_two",
+    "menu",
+    "popover",
+    "layer",
+    "toast",
+    "date_picker",
+] }
+#widgets = { git = "https://github.com/A-Disruption/widgets.git", features = ["collapsible", "tree", "color_picker_two", "menu", "popover", "layer", "toast", "date_picker"] }
+
+advanced-table = { path = "C:/Rust Projects/advanced-table" }
+#advanced-table = { git = "https://github.com/A-Disruption/advanced-table.git" }
+
+iced-native-frame = { path = "C:/Rust Projects/iced-window-decorations" }
+#iced-native-frame = { git = "https://github.com/A-Disruption/iced-window-decorations.git" }
+
+iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
+#iced_lucide = { git = "https://github.com/A-Disruption/iced_lucide.git" }
+
 uuid = { version = "1.21.0", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.149"
 rfd = "0.15"
-tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master"}
-iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
+tree_sitter_highlighter = { path = "C:/Rust Projects/tree_sitter_highlighter" }
+#tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master" }
 
 [build-dependencies]
 iced_fontello = "0.14.1"
 iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
 
+[features]
+default = []
+# The node-graph action editor. Parked until `flow_editor` is ported to
+# iced master; the action *data model* and *code generation* stay compiled.
+action_editor = []
+
+# `iced` is asked for by version above and pointed at a source here, so every
+# crate in the graph asking for `iced 0.15.0-dev` resolves to one checkout —
+# which is what keeps `Element` and `Theme` one type across all of them.
+# 0.15 is unreleased, so this block is not optional.
 [patch.crates-io]
-#iced = { git = "https://github.com/iced-rs/iced", branch = "master" }
-#iced_runtime = { git = "https://github.com/iced-rs/iced", branch = "master"}
+iced = { git = "https://github.com/iced-rs/iced.git", branch = "master" }
+iced_runtime = { git = "https://github.com/iced-rs/iced.git", branch = "master" }

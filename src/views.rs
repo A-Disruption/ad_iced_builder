@@ -1,3 +1,4 @@
+#[cfg(feature = "action_editor")]
 pub mod action_editor;
 pub mod add_views;
 pub mod add_widgets;

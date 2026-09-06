@@ -481,7 +481,7 @@ pub fn view<'a>(
                         field_type_options(type_system, struct_id, Some(&field.field_type));
 
                     row![
-                        text_input::<Message, Theme, iced::Renderer>("field_name", &field_name,)
+                        text_input::<Message, Theme, iced::Renderer>("field_name", field_name.clone())
                             .on_input(move |new_name| {
                                 Message::UpdateFieldName {
                                     struct_id,
@@ -490,16 +490,17 @@ pub fn view<'a>(
                                 }
                             }),
                         pick_list(
-                            type_opts_inner,
                             Some(field_type_option),
-                            move |selected: FieldTypeOption| {
+                            type_opts_inner,
+                            ToString::to_string,
+                        )
+                        .on_select(move |selected: FieldTypeOption| {
                                 Message::UpdateFieldType {
                                     struct_id,
                                     field_id,
                                     new_type: selected.field_type,
                                 }
-                            }
-                        )
+                            })
                         .width(150),
                         button(icon_lucide::trash_2())
                             .style(styles::button::cancel)
@@ -516,12 +517,12 @@ pub fn view<'a>(
                 .collect::<Vec<_>>();
 
             collapsible(
-                &struct_name,
+                struct_name.clone(),
                 column![
                     column![
                         text("Struct Name"),
                         row![
-                            text_input("Struct Name", &struct_name).on_input(move |name| {
+                            text_input("Struct Name", struct_name.clone()).on_input(move |name| {
                                 Message::RenameStruct {
                                     struct_id,
                                     new_name: name,
@@ -545,20 +546,21 @@ pub fn view<'a>(
                     // Add new field row
                     container(
                         row![
-                            text_input("field_name", &new_field_name).on_input(move |v| {
+                            text_input("field_name", new_field_name.clone()).on_input(move |v| {
                                 Message::NewFieldNameInputChanged {
                                     struct_id,
                                     value: v,
                                 }
                             }),
                             pick_list(
-                                add_field_type_options,
                                 Some(new_field_type_option),
-                                move |selected: FieldTypeOption| Message::NewFieldTypeChanged {
+                                add_field_type_options,
+                                ToString::to_string,
+                            )
+                            .on_select(move |selected: FieldTypeOption| Message::NewFieldTypeChanged {
                                     struct_id,
                                     field_type: selected.field_type,
-                                }
-                            )
+                                })
                             .width(150),
                             button(icon_lucide::plus().center())
                                 .style(button::text)

@@ -668,7 +668,7 @@ pub fn view<'a>(
                             row![
                                 text_input::<Message, Theme, iced::Renderer>(
                                     "field_name",
-                                    &field_name,
+                                    field_name.clone(),
                                 )
                                 .on_input(move |new_name| {
                                     Message::UpdateVariantFieldName {
@@ -679,17 +679,18 @@ pub fn view<'a>(
                                     }
                                 }),
                                 pick_list(
-                                    type_options,
                                     Some(field_type_option),
-                                    move |selected: FieldTypeOption| {
+                                    type_options,
+                                    ToString::to_string,
+                                )
+                                .on_select(move |selected: FieldTypeOption| {
                                         Message::UpdateVariantFieldType {
                                             enum_id,
                                             variant_id,
                                             field_id,
                                             new_type: selected.field_type,
                                         }
-                                    }
-                                )
+                                    })
                                 .width(150),
                                 button(icon_lucide::trash_2())
                                     .style(styles::button::cancel)
@@ -709,7 +710,7 @@ pub fn view<'a>(
                         row![
                             text_input::<Message, Theme, iced::Renderer>(
                                 "Variant Name",
-                                &variant_name,
+                                variant_name.clone(),
                             )
                             .on_input(move |new_name| {
                                 Message::UpdateVariant {
@@ -733,7 +734,7 @@ pub fn view<'a>(
                                 text("Payload Fields").size(11),
                                 column(field_rows).spacing(6),
                                 row![
-                                    text_input("field_name", &new_field_name).on_input(
+                                    text_input("field_name", new_field_name.clone()).on_input(
                                         move |value| {
                                             Message::NewVariantFieldNameInputChanged {
                                                 enum_id,
@@ -743,16 +744,17 @@ pub fn view<'a>(
                                         }
                                     ),
                                     pick_list(
-                                        add_type_options,
                                         Some(new_field_type_option),
-                                        move |selected: FieldTypeOption| {
+                                        add_type_options,
+                                        ToString::to_string,
+                                    )
+                                    .on_select(move |selected: FieldTypeOption| {
                                             Message::NewVariantFieldTypeChanged {
                                                 enum_id,
                                                 variant_id,
                                                 field_type: selected.field_type,
                                             }
-                                        }
-                                    )
+                                        })
                                     .width(150),
                                     button(icon_lucide::plus().center())
                                         .style(button::text)
@@ -785,12 +787,12 @@ pub fn view<'a>(
                 .unwrap_or_else(|| container(text("")).padding(0));
 
             collapsible(
-                &enum_name,
+                enum_name.clone(),
                 column![
                     column![
                         text("Enum Name"),
                         row![
-                            text_input("Enum Name", &enum_name).on_input(move |name| {
+                            text_input("Enum Name", enum_name.clone()).on_input(move |name| {
                                 Message::RenameEnum {
                                     enum_id: enum_id,
                                     new_name: name,
@@ -812,7 +814,7 @@ pub fn view<'a>(
                     column(variant_rows).padding([5, 10]),
                     container(
                         row![
-                            text_input("variant_name", &new_variant_name).on_input(move |value| {
+                            text_input("variant_name", new_variant_name.clone()).on_input(move |value| {
                                 Message::NewVariantInputChanged { enum_id, value }
                             }),
                             button(icon_lucide::plus().center())

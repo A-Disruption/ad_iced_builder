@@ -19,9 +19,138 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use tree_sitter_highlighter::{TreeSitterIcedHighlighter, TsSettings, code_gen_text_editor_style};
-use widgets::generic_overlay;
-use widgets::{collapsible::collapsible, color_picker};
+use widgets::collapsible::collapsible;
+use widgets::color_picker_two::{SwatchGroup, color_picker_two};
 
+
+/// Every palette slot a generated style can name, with the path to reach it.
+///
+/// The builder emits `palette.primary.base.color` rather than a literal RGBA
+/// whenever the colour a user picked is one of the theme's own, which is what
+/// keeps generated styles following the theme. The old `ColorButton` reported
+/// that path itself; `color_picker_two` reports only a colour, so the path is
+/// recovered by matching the colour back against the palette here.
+fn palette_slots(theme: &Theme) -> Vec<(&'static str, Color)> {
+    let palette = theme.palette();
+
+    vec![
+        ("background.base.color", palette.background.base.color),
+        ("background.base.text", palette.background.base.text),
+        ("background.weak.color", palette.background.weak.color),
+        ("background.weak.text", palette.background.weak.text),
+        ("background.strong.color", palette.background.strong.color),
+        ("background.strong.text", palette.background.strong.text),
+        ("primary.base.color", palette.primary.base.color),
+        ("primary.base.text", palette.primary.base.text),
+        ("primary.weak.color", palette.primary.weak.color),
+        ("primary.strong.color", palette.primary.strong.color),
+        ("secondary.base.color", palette.secondary.base.color),
+        ("secondary.base.text", palette.secondary.base.text),
+        ("success.base.color", palette.success.base.color),
+        ("success.base.text", palette.success.base.text),
+        ("warning.base.color", palette.warning.base.color),
+        ("warning.base.text", palette.warning.base.text),
+        ("danger.base.color", palette.danger.base.color),
+        ("danger.base.text", palette.danger.base.text),
+    ]
+}
+
+/// The palette path a colour came from, if it is one of the theme's own.
+fn palette_source_of(theme: &Theme, color: Color) -> Option<String> {
+    fn close(a: f32, b: f32) -> bool {
+        (a - b).abs() < 0.002
+    }
+
+    palette_slots(theme)
+        .into_iter()
+        .find(|(_, slot)| {
+            close(slot.r, color.r)
+                && close(slot.g, color.g)
+                && close(slot.b, color.b)
+                && close(slot.a, color.a)
+        })
+        .map(|(path, _)| format!("theme.palette().{path}"))
+}
+
+fn color_to_hex(color: Color) -> String {
+    let channel = |v: f32| (v.clamp(0.0, 1.0) * 255.0).round() as u8;
+
+    format!(
+        "#{:02X}{:02X}{:02X}",
+        channel(color.r),
+        channel(color.g),
+        channel(color.b)
+    )
+}
+
+/// A colour swatch that opens a picker, reporting the palette slot it hit.
+///
+/// This is the builder's replacement for the widgets crate's `ColorButton`,
+/// which went away with `color_picker`. `color_picker_two` is a surface the
+/// application opens rather than a self-contained button, so the swatch, the
+/// open flag and the palette-source lookup live here.
+fn color_button<'a>(
+    label: &'a str,
+    color: Color,
+    theme: &Theme,
+    open_slot: Option<&str>,
+    height: f32,
+    show_hex: bool,
+    on_change: impl Fn(Color, Option<String>) -> Message + 'a,
+) -> Element<'a, Message> {
+    let is_open = open_slot == Some(label);
+    let key = label.to_string();
+    let toggle_key = key.clone();
+
+    let caption = if show_hex {
+        format!("{label}  {}", color_to_hex(color))
+    } else {
+        label.to_string()
+    };
+
+    // Enough contrast to read the caption against whatever was picked.
+    let caption_color = if color.r * 0.299 + color.g * 0.587 + color.b * 0.114 > 0.55 {
+        Color::BLACK
+    } else {
+        Color::WHITE
+    };
+
+    let swatch = button(
+        container(text(caption).size(12).color(caption_color))
+            .center(Length::Fill)
+            .width(Length::Fill)
+            .height(Length::Fixed(height)),
+    )
+    .padding(0)
+    .style(move |theme: &Theme, _status| button::Style {
+        background: Some(Background::Color(color)),
+        text_color: caption_color,
+        border: Border {
+            color: theme.palette().background.strong.color,
+            width: 1.0,
+            radius: 4.0.into(),
+        },
+        ..button::Style::default()
+    })
+    .on_press(Message::ToggleColorPicker(toggle_key, !is_open));
+
+    let theme_for_source = theme.clone();
+
+    let picker = color_picker_two(is_open, color)
+        .swatches(vec![SwatchGroup::new(
+            "Theme",
+            palette_slots(theme)
+                .into_iter()
+                .map(|(_, color)| color)
+                .collect::<Vec<_>>(),
+        )])
+        .on_change(move |color| on_change(color, palette_source_of(&theme_for_source, color)))
+        .on_close(move || Message::ToggleColorPicker(key.clone(), false));
+
+    // The picker renders a one-pixel anchor in place and hangs its surface off
+    // that, so it sits beside the swatch rather than over it.
+    row![swatch, picker].into()
+}
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum ThemePaneEnum {
     ExtendedPalette,
@@ -112,6 +241,13 @@ pub struct CustomThemes {
     snap: bool,
     rule_fill_mode: RuleFillMode,
 
+    /// Which colour slot has its picker open, by the slot's label.
+    ///
+    /// `color_picker_two` is driven by the application rather than holding its
+    /// own open state the way the old `ColorButton` did, so the panel has to
+    /// remember which of its swatches was pressed.
+    open_color_picker: Option<String>,
+
     // source tracking for palette reference in color_picker
     text_color_source: Option<String>,
     border_color_source: Option<String>,
@@ -149,7 +285,7 @@ pub struct CustomThemes {
 
 impl CustomThemes {
     pub fn new(theme: &Theme) -> Self {
-        let palette = theme.extended_palette();
+        let palette = theme.palette();
         let mut styles = BTreeMap::new();
         styles.insert(ThemePaneEnum::Container, BTreeMap::new());
         styles.insert(ThemePaneEnum::Button, BTreeMap::new());
@@ -185,6 +321,7 @@ impl CustomThemes {
             shadow_blur_radius: 0.0,
             snap: true,
             rule_fill_mode: RuleFillMode::Full,
+            open_color_picker: None,
             text_color_source: None,
             border_color_source: None,
             background_color_source: None,
@@ -233,7 +370,7 @@ impl CustomThemes {
     }
 
     fn reset_to_theme(&mut self) {
-        let palette = self.theme.extended_palette();
+        let palette = self.theme.palette();
 
         self.style_name = String::new();
         self.text_color = palette.background.base.text;
@@ -289,7 +426,11 @@ impl CustomThemes {
                 }
                 return Task::none();
             }
-            Message::CopyCode(code) => return clipboard::write(code),
+            Message::CopyCode(code) => return clipboard::write(code).discard(),
+            Message::ToggleColorPicker(slot, open) => {
+                self.open_color_picker = open.then_some(slot);
+                return Task::none();
+            }
             Message::UpdateStyleName(name) => {
                 self.style_name = name;
             }
@@ -1237,8 +1378,18 @@ impl CustomThemes {
                     row![
                         column![
                             container(text("text_color").size(16)).center_x(Length::Fill),
-                            color_picker::ColorButton::new(current_text_color)
-                                .on_change_with_source(move |color, source| {
+                            color_button(
+                                if is_active_status {
+                                    "text_color"
+                                } else {
+                                    "text_color (override)"
+                                },
+                                current_text_color,
+                                &self.theme,
+                                self.open_color_picker.as_deref(),
+                                50.0,
+                                true,
+                                move |color, source| {
                                     if is_active_status {
                                         Message::UpdateTextColor { color, source }
                                     } else {
@@ -1249,21 +1400,24 @@ impl CustomThemes {
                                             source,
                                         }
                                     }
-                                })
-                                .title(if is_active_status {
-                                    "text_color"
-                                } else {
-                                    "text_color (override)"
-                                })
-                                .width(Length::Fill)
-                                .height(Length::Fixed(50.0))
-                                .show_hex(),
+                                },
+                            ),
                         ]
                         .width(Length::FillPortion(1)),
                         column![
                             container(text("background color").size(16)).center_x(Length::Fill),
-                            color_picker::ColorButton::new(current_background_color)
-                                .on_change_with_source(move |color, source| {
+                            color_button(
+                                if is_active_status {
+                                    "background color"
+                                } else {
+                                    "background color (override)"
+                                },
+                                current_background_color,
+                                &self.theme,
+                                self.open_color_picker.as_deref(),
+                                50.0,
+                                true,
+                                move |color, source| {
                                     if is_active_status {
                                         Message::UpdateBackgroundColor { color, source }
                                     } else {
@@ -1274,15 +1428,8 @@ impl CustomThemes {
                                             source,
                                         }
                                     }
-                                })
-                                .title(if is_active_status {
-                                    "background color"
-                                } else {
-                                    "background color (override)"
-                                })
-                                .width(Length::Fill)
-                                .height(Length::Fixed(50.0))
-                                .show_hex(),
+                                },
+                            ),
                         ]
                         .width(Length::FillPortion(1)),
                     ]
@@ -1304,8 +1451,18 @@ impl CustomThemes {
                 row![
                     column![
                         container(text("icon_color").size(16)).center_x(Length::Fill),
-                        color_picker::ColorButton::new(current_icon_color)
-                            .on_change_with_source(move |color, source| {
+                        color_button(
+                            if is_active_status {
+                                "icon_color"
+                            } else {
+                                "icon_color (override)"
+                            },
+                            current_icon_color,
+                            &self.theme,
+                            self.open_color_picker.as_deref(),
+                            50.0,
+                            true,
+                            move |color, source| {
                                 if is_active_status {
                                     Message::UpdateIconColor { color, source }
                                 } else {
@@ -1316,15 +1473,8 @@ impl CustomThemes {
                                         source,
                                     }
                                 }
-                            })
-                            .title(if is_active_status {
-                                "icon_color"
-                            } else {
-                                "icon_color (override)"
-                            })
-                            .width(Length::Fill)
-                            .height(Length::Fixed(50.0))
-                            .show_hex(),
+                            },
+                        ),
                     ]
                     .width(Length::FillPortion(1)),
                 ]
@@ -1354,14 +1504,17 @@ impl CustomThemes {
                                 column![
                                     container(text("placeholder color").size(16))
                                         .center_x(Length::Fill),
-                                    color_picker::ColorButton::new(self.placeholder_color)
-                                        .on_change_with_source(|color, source| {
+                                    color_button(
+                                        "placeholder color",
+                                        self.placeholder_color,
+                                        &self.theme,
+                                        self.open_color_picker.as_deref(),
+                                        50.0,
+                                        true,
+                                        |color, source| {
                                             Message::UpdatePlaceholderColor { color, source }
-                                        })
-                                        .title("placeholder color")
-                                        .width(Length::Fill)
-                                        .height(Length::Fixed(50.0))
-                                        .show_hex(),
+                                        },
+                                    ),
                                 ]
                                 .width(Length::FillPortion(1)),
                             )
@@ -1378,14 +1531,17 @@ impl CustomThemes {
                                 column![
                                     container(text("selection color").size(16))
                                         .center_x(Length::Fill),
-                                    color_picker::ColorButton::new(self.selection_color)
-                                        .on_change_with_source(|color, source| {
+                                    color_button(
+                                        "selection color",
+                                        self.selection_color,
+                                        &self.theme,
+                                        self.open_color_picker.as_deref(),
+                                        50.0,
+                                        true,
+                                        |color, source| {
                                             Message::UpdateSelectionColor { color, source }
-                                        })
-                                        .title("selection color")
-                                        .width(Length::Fill)
-                                        .height(Length::Fixed(50.0))
-                                        .show_hex(),
+                                        },
+                                    ),
                                 ]
                                 .width(Length::FillPortion(1)),
                             )
@@ -1405,29 +1561,33 @@ impl CustomThemes {
                                     column![
                                         container(text("selected text color").size(16))
                                             .center_x(Length::Fill),
-                                        color_picker::ColorButton::new(self.selected_text_color)
-                                            .on_change_with_source(|color, source| {
+                                        color_button(
+                                            "selected text color",
+                                            self.selected_text_color,
+                                            &self.theme,
+                                            self.open_color_picker.as_deref(),
+                                            50.0,
+                                            true,
+                                            |color, source| {
                                                 Message::UpdateSelectedTextColor { color, source }
-                                            })
-                                            .title("selected text color")
-                                            .width(Length::Fill)
-                                            .height(Length::Fixed(50.0))
-                                            .show_hex(),
+                                            },
+                                        ),
                                     ]
                                     .width(Length::FillPortion(1)),
                                     column![
                                         container(text("selected bg color").size(16))
                                             .center_x(Length::Fill),
-                                        color_picker::ColorButton::new(
-                                            self.selected_background_color
-                                        )
-                                        .on_change_with_source(|color, source| {
+                                        color_button(
+                                            "selected background color",
+                                            self.selected_background_color,
+                                            &self.theme,
+                                            self.open_color_picker.as_deref(),
+                                            50.0,
+                                            true,
+                                            |color, source| {
                                             Message::UpdateSelectedBackgroundColor { color, source }
-                                        })
-                                        .title("selected background color")
-                                        .width(Length::Fill)
-                                        .height(Length::Fixed(50.0))
-                                        .show_hex(),
+                                        },
+                                        ),
                                     ]
                                     .width(Length::FillPortion(1)),
                                 ]
@@ -1550,8 +1710,18 @@ impl CustomThemes {
                     .align_x(Alignment::Center),
                     column![
                         container(text("border color").size(16)).center_x(Length::Fill),
-                        color_picker::ColorButton::new(current_border_color)
-                            .on_change_with_source(move |color, source| {
+                        color_button(
+                            if is_active_status {
+                                "border color"
+                            } else {
+                                "border color (override)"
+                            },
+                            current_border_color,
+                            &self.theme,
+                            self.open_color_picker.as_deref(),
+                            50.0,
+                            true,
+                            move |color, source| {
                                 if is_active_status {
                                     Message::UpdateBorderColor { color, source }
                                 } else {
@@ -1562,15 +1732,8 @@ impl CustomThemes {
                                         source,
                                     }
                                 }
-                            })
-                            .title(if is_active_status {
-                                "border color"
-                            } else {
-                                "border color (override)"
-                            })
-                            .width(Length::Fill)
-                            .height(Length::Fixed(50.0))
-                            .show_hex(),
+                            },
+                        ),
                     ]
                     .width(Length::FillPortion(1)),
                     if has_statuses && !is_active_status {
@@ -1667,14 +1830,17 @@ impl CustomThemes {
                         if self.shadow_enabled {
                             column![
                                 container(text("shadow color").size(16)).center_x(Length::Fill),
-                                color_picker::ColorButton::new(self.shadow_color)
-                                    .on_change_with_source(|color, source| {
+                                color_button(
+                                    "shadow color",
+                                    self.shadow_color,
+                                    &self.theme,
+                                    self.open_color_picker.as_deref(),
+                                    50.0,
+                                    true,
+                                    |color, source| {
                                         Message::UpdateShadowColor { color, source }
-                                    })
-                                    .title("shadow color")
-                                    .width(Length::Fill)
-                                    .height(Length::Fixed(50.0))
-                                    .show_hex()
+                                    },
+                                )
                             ]
                             .width(Length::FillPortion(1))
                         } else {
@@ -1897,7 +2063,12 @@ impl CustomThemes {
                     .iter()
                     .find(|option| **option == self.preview_value)
                     .cloned();
-                pick_list(options, selected, Message::ComboboxSelected)
+                pick_list(
+                    selected,
+                    options,
+                    ToString::to_string,
+                )
+                .on_select(Message::ComboboxSelected)
                     .placeholder("Choose an option...")
                     .style(move |theme, status| definition.to_pick_list_style(theme, status))
                     .into()
@@ -2043,8 +2214,6 @@ impl CustomThemes {
                         tooltip::Position::Left
                     ),
                 )
-                .style(button::text)
-                .overlay_style(generic_overlay::blank)
             ]
             .spacing(10)
             .height(Length::Fill)
@@ -2274,7 +2443,9 @@ impl CustomThemes {
         } else {
             self.border_color
         };
-        let icon_color = if let Some(ref source) = self.icon_color_source {
+        // See the note in `style_enum.rs`: the input no longer draws its own
+        // icon, so this colour has nowhere to go in `text_input::Style`.
+        let _icon_color = if let Some(ref source) = self.icon_color_source {
             evaluate_theme_expression(theme, source).unwrap_or(self.icon_color)
         } else {
             self.icon_color
@@ -2307,7 +2478,6 @@ impl CustomThemes {
                     bottom_left: self.border_radius_bottom_left,
                 },
             },
-            icon: icon_color,
             placeholder: placeholder_color,
             value: text_color,
             selection: selection_color,
@@ -2315,7 +2485,7 @@ impl CustomThemes {
     }
 
     fn reset_style_editor(&mut self, view: ThemePaneEnum) {
-        let palette = self.theme.extended_palette();
+        let palette = self.theme.palette();
         self.style_name = String::new();
         self.text_color = palette.background.base.text;
         self.text_color_source = None;
@@ -2621,8 +2791,8 @@ impl CustomThemes {
 
     /// View to see all colors of a theme
     pub fn show_theme_colors<'a>(&'a self, theme: &'a Theme) -> Element<'a, Message> {
-        let palette = theme.extended_palette();
-        let base = theme.palette();
+        let palette = theme.palette();
+        let base = theme.seed();
 
         let base_palette = container(
             column![
@@ -3024,7 +3194,7 @@ impl CustomThemes {
         );
 
         column![palette_showcase.style(|theme: &Theme, status| {
-            let palette = theme.extended_palette();
+            let palette = theme.palette();
 
             // theme+status-aware default
             let mut s = scrollable::default(theme, status);
@@ -3070,6 +3240,9 @@ pub enum Message {
     ChangeView(ThemePaneEnum),
     Edit(text_editor::Action),
     CopyCode(String),
+
+    /// Opens or closes the picker for the colour slot with the given label.
+    ToggleColorPicker(String, bool),
 
     // Generic Style properties
     UpdateTextColor {
@@ -3141,7 +3314,7 @@ pub enum Message {
     ComboboxSelected(String),
 }
 
-//const EDITOR_FONT: iced::Font = iced::Font::with_name("Consolas").weight(iced::font::Weight::Medium);
+//const EDITOR_FONT: iced::Font = iced::Font::new("Consolas").weight(iced::font::Weight::Medium);
 pub const EDITOR_FONT: iced::Font = iced::Font {
     family: iced::font::Family::Name("Consolas"),
     weight: iced::font::Weight::Medium,

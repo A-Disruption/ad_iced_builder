@@ -5,9 +5,10 @@ use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::enum_builder::TypeSystem;
 use iced::{
     Element, Length, Task,
-    widget::{button, column, row, rule, scrollable, text},
+    widget::{button, column, container, row, rule, scrollable, text},
 };
-use widgets::generic_overlay::overlay_button;
+use widgets::anchor::{Align, Side};
+use widgets::popover::popover;
 // Application messages
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -88,7 +89,9 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
                 row![
                     widget_button(WidgetType::Collapsible, "Collapsible"),
                     widget_button(WidgetType::CollapsibleGroup, "Coll. Group"),
-                    widget_button(WidgetType::GenericOverlay, "Overlay"),
+                    widget_button(WidgetType::Popover, "Popover"),
+                    widget_button(WidgetType::Menu, "Menu"),
+                    widget_button(WidgetType::Layer, "Layer"),
                 ]
                 .spacing(10)
                 .padding(5),
@@ -187,6 +190,19 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
     .into()
 }
 
+/// Whether one of the overlay widgets can take another child.
+///
+/// `Popover` holds a trigger and its content and no more; `Layer` is the
+/// content on its own; `Menu` holds a trigger and then one child per row, so
+/// it never fills up.
+fn overlay_accepts_more_children(parent: &crate::data_structures::types::types::Widget) -> bool {
+    match parent.widget_type {
+        WidgetType::Popover => parent.children.len() < 2,
+        WidgetType::Layer => parent.children.is_empty(),
+        _ => true,
+    }
+}
+
 /// Returns list of widget's that can be added to the currently selected widget
 pub fn get_available_types<'a>(
     hierarchy: &'a WidgetHierarchy,
@@ -216,7 +232,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Container,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Column,
                 WidgetType::Row,
                 WidgetType::Stack,
@@ -242,7 +260,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -288,7 +308,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -332,7 +354,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -369,14 +393,19 @@ pub fn get_available_types<'a>(
         }
     } else if parent.widget_type == WidgetType::CollapsibleGroup {
         vec![WidgetType::Collapsible]
-    } else if parent.widget_type == WidgetType::GenericOverlay {
-        if parent.children.len() < 2 {
+    } else if matches!(
+        parent.widget_type,
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer
+    ) {
+        if overlay_accepts_more_children(parent) {
             vec![
                 WidgetType::Container,
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -422,7 +451,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -468,7 +499,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -514,7 +547,9 @@ pub fn get_available_types<'a>(
                 WidgetType::Scrollable,
                 WidgetType::Collapsible,
                 WidgetType::CollapsibleGroup,
-                WidgetType::GenericOverlay,
+                WidgetType::Popover,
+                WidgetType::Menu,
+                WidgetType::Layer,
                 WidgetType::Row,
                 WidgetType::Column,
                 WidgetType::Stack,
@@ -564,7 +599,9 @@ pub fn get_available_types<'a>(
             WidgetType::Scrollable,
             WidgetType::Collapsible,
             WidgetType::CollapsibleGroup,
-            WidgetType::GenericOverlay,
+            WidgetType::Popover,
+            WidgetType::Menu,
+            WidgetType::Layer,
             WidgetType::Row,
             WidgetType::Column,
             WidgetType::Stack,
@@ -667,15 +704,18 @@ fn multi_selection_controls<'a>(
         rule::horizontal(2),
         // Batch edit button
         text("Batch Edit:").size(14),
-        // Create overlay for batch editing
-        overlay_button(
-            "Edit All Properties",
-            format!("Editing {} widgets", selected_count),
-            batch_editor_controls(&hierarchy)
+        // `popover` keeps its own open state when `.open()` is never called, so
+        // this reads the same way the old self-contained overlay button did.
+        popover(
+            button(text("Edit All Properties")).style(button::primary),
+            container(batch_editor_controls(&hierarchy))
+                .width(500)
+                .height(750),
         )
-        .overlay_width(500.0)
-        .overlay_height(750.0)
-        .style(button::primary),
+        .side(Side::Bottom)
+        .align(Align::Start)
+        .max_width(500.0)
+        .dismiss_on_outside_press(true),
     ]
     .spacing(10)
     .into()

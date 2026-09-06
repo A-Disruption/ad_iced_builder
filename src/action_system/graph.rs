@@ -8,7 +8,7 @@ use iced::Color;
 use iced::Point;
 use iced::Vector;
 use serde::{Deserialize, Serialize};
-use widgets::flow_editor::{
+use crate::action_system::flow_model::{
     Edge, FlowNode, NodeId, PaletteEntry, PortDef, PortId, PortSide, PortType, VariableType,
     Viewport2D,
 };

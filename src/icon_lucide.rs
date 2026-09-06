@@ -1,8469 +1,20591 @@
 // Generated automatically by iced_lucide at build time.
 // Do not edit manually.
-// a1fab13c939f3b3e59f3c13251d402b06fc3c81c95c81e77f9047950119f32bc
+// 3e914891b42fdb713e5a93f21664c7c5391998f0476609bdfb802f725f16dd50
+
+//! Icon fonts for this crate.
+//!
+//! Each font here is a subset containing only the icons this
+//! project asks for, cut from these upstream sets:
+//!
+//! - **Lucide** — ISC — <https://lucide.dev/icons>
+//!
+//! Redistributing these fonts means carrying their licenses with you.
+
+#![allow(dead_code)]
+
 use iced::Font;
-use iced::widget::{Text, text};
+use iced::widget::Text;
 
-pub const FONT: &[u8] = include_bytes!("../fonts/lucide.ttf");
+/// Lucide subset — ISC.
+pub const FONT_LUCIDE: &[u8] = include_bytes!("../fonts/lucide.ttf");
 
-/// All icons as `(name, codepoint_str)` pairs.
-/// Use this to populate an icon-picker widget.
-#[allow(dead_code)]
-pub const ALL_ICONS: &[(&str, &str)] = &[
-    ("a_arrow_down", "\u{E585}"),
-    ("a_arrow_up", "\u{E586}"),
-    ("a_large_small", "\u{E587}"),
-    ("accessibility", "\u{E297}"),
-    ("activity", "\u{E038}"),
-    ("air_vent", "\u{E34D}"),
-    ("airplay", "\u{E039}"),
-    ("alarm_clock", "\u{E03A}"),
-    ("alarm_clock_check", "\u{E1EC}"),
-    ("alarm_clock_minus", "\u{E1ED}"),
-    ("alarm_clock_off", "\u{E23B}"),
-    ("alarm_clock_plus", "\u{E1EE}"),
-    ("alarm_smoke", "\u{E57B}"),
-    ("album", "\u{E03B}"),
-    ("align_center_horizontal", "\u{E26C}"),
-    ("align_center_vertical", "\u{E26D}"),
-    ("align_end_horizontal", "\u{E26E}"),
-    ("align_end_vertical", "\u{E26F}"),
-    ("align_horizontal_distribute_center", "\u{E03C}"),
-    ("align_horizontal_distribute_end", "\u{E03D}"),
-    ("align_horizontal_distribute_start", "\u{E03E}"),
-    ("align_horizontal_justify_center", "\u{E272}"),
-    ("align_horizontal_justify_end", "\u{E273}"),
-    ("align_horizontal_justify_start", "\u{E274}"),
-    ("align_horizontal_space_around", "\u{E275}"),
-    ("align_horizontal_space_between", "\u{E276}"),
-    ("align_start_horizontal", "\u{E270}"),
-    ("align_start_vertical", "\u{E271}"),
-    ("align_vertical_distribute_center", "\u{E27E}"),
-    ("align_vertical_distribute_end", "\u{E27F}"),
-    ("align_vertical_distribute_start", "\u{E280}"),
-    ("align_vertical_justify_center", "\u{E277}"),
-    ("align_vertical_justify_end", "\u{E278}"),
-    ("align_vertical_justify_start", "\u{E279}"),
-    ("align_vertical_space_around", "\u{E27A}"),
-    ("align_vertical_space_between", "\u{E27B}"),
-    ("ambulance", "\u{E5BB}"),
-    ("ampersand", "\u{E49C}"),
-    ("ampersands", "\u{E49D}"),
-    ("amphora", "\u{E61B}"),
-    ("anchor", "\u{E03F}"),
-    ("angry", "\u{E2FC}"),
-    ("annoyed", "\u{E2FD}"),
-    ("antenna", "\u{E4E2}"),
-    ("anvil", "\u{E580}"),
-    ("aperture", "\u{E040}"),
-    ("app_window", "\u{E426}"),
-    ("app_window_mac", "\u{E5D2}"),
-    ("apple", "\u{E34E}"),
-    ("archive", "\u{E041}"),
-    ("archive_restore", "\u{E2CD}"),
-    ("archive_x", "\u{E50C}"),
-    ("armchair", "\u{E2C0}"),
-    ("arrow_big_down", "\u{E1E1}"),
-    ("arrow_big_down_dash", "\u{E41D}"),
-    ("arrow_big_left", "\u{E1E2}"),
-    ("arrow_big_left_dash", "\u{E41E}"),
-    ("arrow_big_right", "\u{E1E3}"),
-    ("arrow_big_right_dash", "\u{E41F}"),
-    ("arrow_big_up", "\u{E1E4}"),
-    ("arrow_big_up_dash", "\u{E420}"),
-    ("arrow_down", "\u{E042}"),
-    ("arrow_down_0_1", "\u{E413}"),
-    ("arrow_down_1_0", "\u{E414}"),
-    ("arrow_down_a_z", "\u{E415}"),
-    ("arrow_down_from_line", "\u{E454}"),
-    ("arrow_down_left", "\u{E043}"),
-    ("arrow_down_narrow_wide", "\u{E044}"),
-    ("arrow_down_right", "\u{E045}"),
-    ("arrow_down_to_dot", "\u{E44D}"),
-    ("arrow_down_to_line", "\u{E455}"),
-    ("arrow_down_up", "\u{E046}"),
-    ("arrow_down_wide_narrow", "\u{E047}"),
-    ("arrow_down_z_a", "\u{E416}"),
-    ("arrow_left", "\u{E048}"),
-    ("arrow_left_from_line", "\u{E456}"),
-    ("arrow_left_right", "\u{E24A}"),
-    ("arrow_left_to_line", "\u{E457}"),
-    ("arrow_right", "\u{E049}"),
-    ("arrow_right_from_line", "\u{E458}"),
-    ("arrow_right_left", "\u{E417}"),
-    ("arrow_right_to_line", "\u{E459}"),
-    ("arrow_up", "\u{E04A}"),
-    ("arrow_up_0_1", "\u{E418}"),
-    ("arrow_up_1_0", "\u{E419}"),
-    ("arrow_up_a_z", "\u{E41A}"),
-    ("arrow_up_down", "\u{E37D}"),
-    ("arrow_up_from_dot", "\u{E44E}"),
-    ("arrow_up_from_line", "\u{E45A}"),
-    ("arrow_up_left", "\u{E04B}"),
-    ("arrow_up_narrow_wide", "\u{E04C}"),
-    ("arrow_up_right", "\u{E04D}"),
-    ("arrow_up_to_line", "\u{E45B}"),
-    ("arrow_up_wide_narrow", "\u{E41B}"),
-    ("arrow_up_z_a", "\u{E41C}"),
-    ("arrows_up_from_line", "\u{E4D4}"),
-    ("asterisk", "\u{E1EF}"),
-    ("at_sign", "\u{E04E}"),
-    ("atom", "\u{E3D7}"),
-    ("audio_lines", "\u{E55A}"),
-    ("audio_waveform", "\u{E55B}"),
-    ("award", "\u{E04F}"),
-    ("axe", "\u{E050}"),
-    ("axis_3d", "\u{E2FE}"),
-    ("baby", "\u{E2CE}"),
-    ("backpack", "\u{E2C8}"),
-    ("badge", "\u{E474}"),
-    ("badge_alert", "\u{E475}"),
-    ("badge_cent", "\u{E50F}"),
-    ("badge_check", "\u{E241}"),
-    ("badge_dollar_sign", "\u{E476}"),
-    ("badge_euro", "\u{E510}"),
-    ("badge_indian_rupee", "\u{E511}"),
-    ("badge_info", "\u{E477}"),
-    ("badge_japanese_yen", "\u{E512}"),
-    ("badge_minus", "\u{E478}"),
-    ("badge_percent", "\u{E479}"),
-    ("badge_plus", "\u{E47A}"),
-    ("badge_pound_sterling", "\u{E513}"),
-    ("badge_question_mark", "\u{E47B}"),
-    ("badge_russian_ruble", "\u{E514}"),
-    ("badge_swiss_franc", "\u{E515}"),
-    ("badge_turkish_lira", "\u{E67E}"),
-    ("badge_x", "\u{E47C}"),
-    ("baggage_claim", "\u{E2C9}"),
-    ("balloon", "\u{E6AF}"),
-    ("ban", "\u{E051}"),
-    ("banana", "\u{E34F}"),
-    ("bandage", "\u{E61D}"),
-    ("banknote", "\u{E052}"),
-    ("banknote_arrow_down", "\u{E64C}"),
-    ("banknote_arrow_up", "\u{E64D}"),
-    ("banknote_x", "\u{E64E}"),
-    ("barcode", "\u{E533}"),
-    ("barrel", "\u{E675}"),
-    ("baseline", "\u{E285}"),
-    ("bath", "\u{E2AB}"),
-    ("battery", "\u{E053}"),
-    ("battery_charging", "\u{E054}"),
-    ("battery_full", "\u{E055}"),
-    ("battery_low", "\u{E056}"),
-    ("battery_medium", "\u{E057}"),
-    ("battery_plus", "\u{E63E}"),
-    ("battery_warning", "\u{E3AC}"),
-    ("beaker", "\u{E058}"),
-    ("bean", "\u{E38F}"),
-    ("bean_off", "\u{E390}"),
-    ("bed", "\u{E2C1}"),
-    ("bed_double", "\u{E2C2}"),
-    ("bed_single", "\u{E2C3}"),
-    ("beef", "\u{E3A5}"),
-    ("beer", "\u{E2CF}"),
-    ("beer_off", "\u{E5D9}"),
-    ("bell", "\u{E059}"),
-    ("bell_dot", "\u{E42B}"),
-    ("bell_electric", "\u{E57C}"),
-    ("bell_minus", "\u{E1F0}"),
-    ("bell_off", "\u{E05A}"),
-    ("bell_plus", "\u{E1F1}"),
-    ("bell_ring", "\u{E224}"),
-    ("between_horizontal_end", "\u{E591}"),
-    ("between_horizontal_start", "\u{E592}"),
-    ("between_vertical_end", "\u{E593}"),
-    ("between_vertical_start", "\u{E594}"),
-    ("biceps_flexed", "\u{E5EB}"),
-    ("bike", "\u{E1D2}"),
-    ("binary", "\u{E1F2}"),
-    ("binoculars", "\u{E621}"),
-    ("biohazard", "\u{E441}"),
-    ("bird", "\u{E3C5}"),
-    ("birdhouse", "\u{E69A}"),
-    ("bitcoin", "\u{E05B}"),
-    ("blend", "\u{E59C}"),
-    ("blinds", "\u{E3C0}"),
-    ("blocks", "\u{E4FA}"),
-    ("bluetooth", "\u{E05C}"),
-    ("bluetooth_connected", "\u{E1B8}"),
-    ("bluetooth_off", "\u{E1B9}"),
-    ("bluetooth_searching", "\u{E1BA}"),
-    ("bold", "\u{E05D}"),
-    ("bolt", "\u{E58C}"),
-    ("bomb", "\u{E2FF}"),
-    ("bone", "\u{E358}"),
-    ("book", "\u{E05E}"),
-    ("book_a", "\u{E544}"),
-    ("book_alert", "\u{E672}"),
-    ("book_audio", "\u{E545}"),
-    ("book_check", "\u{E546}"),
-    ("book_copy", "\u{E3EC}"),
-    ("book_dashed", "\u{E3ED}"),
-    ("book_down", "\u{E3EE}"),
-    ("book_headphones", "\u{E547}"),
-    ("book_heart", "\u{E548}"),
-    ("book_image", "\u{E549}"),
-    ("book_key", "\u{E3EF}"),
-    ("book_lock", "\u{E3F0}"),
-    ("book_marked", "\u{E3F1}"),
-    ("book_minus", "\u{E3F2}"),
-    ("book_open", "\u{E05F}"),
-    ("book_open_check", "\u{E381}"),
-    ("book_open_text", "\u{E54A}"),
-    ("book_plus", "\u{E3F3}"),
-    ("book_search", "\u{E6AB}"),
-    ("book_text", "\u{E54B}"),
-    ("book_type", "\u{E54C}"),
-    ("book_up", "\u{E3F4}"),
-    ("book_up_2", "\u{E4A6}"),
-    ("book_user", "\u{E54D}"),
-    ("book_x", "\u{E3F5}"),
-    ("bookmark", "\u{E060}"),
-    ("bookmark_check", "\u{E51F}"),
-    ("bookmark_minus", "\u{E23C}"),
-    ("bookmark_plus", "\u{E23D}"),
-    ("bookmark_x", "\u{E520}"),
-    ("boom_box", "\u{E4EE}"),
-    ("bot", "\u{E1BB}"),
-    ("bot_message_square", "\u{E5CE}"),
-    ("bot_off", "\u{E5E0}"),
-    ("bottle_wine", "\u{E67B}"),
-    ("bow_arrow", "\u{E65E}"),
-    ("box_icon", "\u{E061}"),
-    ("boxes", "\u{E2D0}"),
-    ("braces", "\u{E36A}"),
-    ("brackets", "\u{E443}"),
-    ("brain", "\u{E3C6}"),
-    ("brain_circuit", "\u{E3C7}"),
-    ("brain_cog", "\u{E3C8}"),
-    ("brick_wall", "\u{E581}"),
-    ("brick_wall_fire", "\u{E653}"),
-    ("brick_wall_shield", "\u{E690}"),
-    ("briefcase", "\u{E062}"),
-    ("briefcase_business", "\u{E5D5}"),
-    ("briefcase_conveyor_belt", "\u{E62B}"),
-    ("briefcase_medical", "\u{E5D6}"),
-    ("bring_to_front", "\u{E4EF}"),
-    ("brush", "\u{E1D3}"),
-    ("brush_cleaning", "\u{E666}"),
-    ("bubbles", "\u{E654}"),
-    ("bug", "\u{E20C}"),
-    ("bug_off", "\u{E50D}"),
-    ("bug_play", "\u{E50E}"),
-    ("building", "\u{E1CC}"),
-    ("building_2", "\u{E290}"),
-    ("bus", "\u{E1D4}"),
-    ("bus_front", "\u{E4FB}"),
-    ("cable", "\u{E4E3}"),
-    ("cable_car", "\u{E4FC}"),
-    ("cake", "\u{E344}"),
-    ("cake_slice", "\u{E4B9}"),
-    ("calculator", "\u{E1BC}"),
-    ("calendar", "\u{E063}"),
-    ("calendar_1", "\u{E630}"),
-    ("calendar_arrow_down", "\u{E5FE}"),
-    ("calendar_arrow_up", "\u{E5FF}"),
-    ("calendar_check", "\u{E2B7}"),
-    ("calendar_check_2", "\u{E2B8}"),
-    ("calendar_clock", "\u{E304}"),
-    ("calendar_cog", "\u{E5ED}"),
-    ("calendar_days", "\u{E2B9}"),
-    ("calendar_fold", "\u{E5B4}"),
-    ("calendar_heart", "\u{E305}"),
-    ("calendar_minus", "\u{E2BA}"),
-    ("calendar_minus_2", "\u{E5B5}"),
-    ("calendar_off", "\u{E2BB}"),
-    ("calendar_plus", "\u{E2BC}"),
-    ("calendar_plus_2", "\u{E5B6}"),
-    ("calendar_range", "\u{E2BD}"),
-    ("calendar_search", "\u{E306}"),
-    ("calendar_sync", "\u{E636}"),
-    ("calendar_x", "\u{E2BE}"),
-    ("calendar_x_2", "\u{E2BF}"),
-    ("calendars", "\u{E6A7}"),
-    ("camera", "\u{E064}"),
-    ("camera_off", "\u{E065}"),
-    ("candy", "\u{E391}"),
-    ("candy_cane", "\u{E4BA}"),
-    ("candy_off", "\u{E392}"),
-    ("cannabis", "\u{E5D4}"),
-    ("cannabis_off", "\u{E6B7}"),
-    ("captions", "\u{E3A4}"),
-    ("captions_off", "\u{E5C1}"),
-    ("car", "\u{E1D5}"),
-    ("car_front", "\u{E4FD}"),
-    ("car_taxi_front", "\u{E4FE}"),
-    ("caravan", "\u{E539}"),
-    ("card_sim", "\u{E671}"),
-    ("carrot", "\u{E25A}"),
-    ("case_lower", "\u{E3D8}"),
-    ("case_sensitive", "\u{E3D9}"),
-    ("case_upper", "\u{E3DA}"),
-    ("cassette_tape", "\u{E4CA}"),
-    ("cast", "\u{E066}"),
-    ("castle", "\u{E3E0}"),
-    ("cat", "\u{E38C}"),
-    ("cctv", "\u{E57D}"),
-    ("chart_area", "\u{E4D3}"),
-    ("chart_bar", "\u{E2A2}"),
-    ("chart_bar_big", "\u{E4A7}"),
-    ("chart_bar_decreasing", "\u{E607}"),
-    ("chart_bar_increasing", "\u{E608}"),
-    ("chart_bar_stacked", "\u{E609}"),
-    ("chart_candlestick", "\u{E4A8}"),
-    ("chart_column", "\u{E2A3}"),
-    ("chart_column_big", "\u{E4A9}"),
-    ("chart_column_decreasing", "\u{E067}"),
-    ("chart_column_increasing", "\u{E2A4}"),
-    ("chart_column_stacked", "\u{E60A}"),
-    ("chart_gantt", "\u{E624}"),
-    ("chart_line", "\u{E2A5}"),
-    ("chart_network", "\u{E60B}"),
-    ("chart_no_axes_column", "\u{E068}"),
-    ("chart_no_axes_column_decreasing", "\u{E069}"),
-    ("chart_no_axes_column_increasing", "\u{E06A}"),
-    ("chart_no_axes_combined", "\u{E60C}"),
-    ("chart_no_axes_gantt", "\u{E4C4}"),
-    ("chart_pie", "\u{E06B}"),
-    ("chart_scatter", "\u{E48A}"),
-    ("chart_spline", "\u{E60D}"),
-    ("check", "\u{E06C}"),
-    ("check_check", "\u{E38E}"),
-    ("check_line", "\u{E66B}"),
-    ("chef_hat", "\u{E2AC}"),
-    ("cherry", "\u{E350}"),
-    ("chess_bishop", "\u{E6A0}"),
-    ("chess_king", "\u{E6A1}"),
-    ("chess_knight", "\u{E6A2}"),
-    ("chess_pawn", "\u{E6A3}"),
-    ("chess_queen", "\u{E6A4}"),
-    ("chess_rook", "\u{E6A5}"),
-    ("chevron_down", "\u{E06D}"),
-    ("chevron_first", "\u{E243}"),
-    ("chevron_last", "\u{E244}"),
-    ("chevron_left", "\u{E06E}"),
-    ("chevron_right", "\u{E06F}"),
-    ("chevron_up", "\u{E070}"),
-    ("chevrons_down", "\u{E071}"),
-    ("chevrons_down_up", "\u{E228}"),
-    ("chevrons_left", "\u{E072}"),
-    ("chevrons_left_right", "\u{E293}"),
-    ("chevrons_left_right_ellipsis", "\u{E61F}"),
-    ("chevrons_right", "\u{E073}"),
-    ("chevrons_right_left", "\u{E294}"),
-    ("chevrons_up", "\u{E074}"),
-    ("chevrons_up_down", "\u{E211}"),
-    ("chromium", "\u{E075}"),
-    ("church", "\u{E3E1}"),
-    ("cigarette", "\u{E2C6}"),
-    ("cigarette_off", "\u{E2C7}"),
-    ("circle", "\u{E076}"),
-    ("circle_alert", "\u{E077}"),
-    ("circle_arrow_down", "\u{E078}"),
-    ("circle_arrow_left", "\u{E079}"),
-    ("circle_arrow_out_down_left", "\u{E3F7}"),
-    ("circle_arrow_out_down_right", "\u{E3F8}"),
-    ("circle_arrow_out_up_left", "\u{E3F9}"),
-    ("circle_arrow_out_up_right", "\u{E3FA}"),
-    ("circle_arrow_right", "\u{E07A}"),
-    ("circle_arrow_up", "\u{E07B}"),
-    ("circle_check", "\u{E226}"),
-    ("circle_check_big", "\u{E07C}"),
-    ("circle_chevron_down", "\u{E4DD}"),
-    ("circle_chevron_left", "\u{E4DE}"),
-    ("circle_chevron_right", "\u{E4DF}"),
-    ("circle_chevron_up", "\u{E4E0}"),
-    ("circle_dashed", "\u{E4B0}"),
-    ("circle_divide", "\u{E07D}"),
-    ("circle_dollar_sign", "\u{E47D}"),
-    ("circle_dot", "\u{E345}"),
-    ("circle_dot_dashed", "\u{E4B1}"),
-    ("circle_ellipsis", "\u{E346}"),
-    ("circle_equal", "\u{E400}"),
-    ("circle_fading_arrow_up", "\u{E618}"),
-    ("circle_fading_plus", "\u{E5BC}"),
-    ("circle_gauge", "\u{E4E1}"),
-    ("circle_minus", "\u{E07E}"),
-    ("circle_off", "\u{E401}"),
-    ("circle_parking", "\u{E3C9}"),
-    ("circle_parking_off", "\u{E3CA}"),
-    ("circle_pause", "\u{E07F}"),
-    ("circle_percent", "\u{E51A}"),
-    ("circle_pile", "\u{E6B0}"),
-    ("circle_play", "\u{E080}"),
-    ("circle_plus", "\u{E081}"),
-    ("circle_pound_sterling", "\u{E66D}"),
-    ("circle_power", "\u{E550}"),
-    ("circle_question_mark", "\u{E082}"),
-    ("circle_slash", "\u{E402}"),
-    ("circle_slash_2", "\u{E213}"),
-    ("circle_small", "\u{E640}"),
-    ("circle_star", "\u{E68D}"),
-    ("circle_stop", "\u{E083}"),
-    ("circle_user", "\u{E461}"),
-    ("circle_user_round", "\u{E462}"),
-    ("circle_x", "\u{E084}"),
-    ("circuit_board", "\u{E403}"),
-    ("citrus", "\u{E375}"),
-    ("clapperboard", "\u{E29B}"),
-    ("clipboard", "\u{E085}"),
-    ("clipboard_check", "\u{E219}"),
-    ("clipboard_clock", "\u{E688}"),
-    ("clipboard_copy", "\u{E225}"),
-    ("clipboard_list", "\u{E086}"),
-    ("clipboard_minus", "\u{E5BE}"),
-    ("clipboard_paste", "\u{E3E8}"),
-    ("clipboard_pen", "\u{E307}"),
-    ("clipboard_pen_line", "\u{E308}"),
-    ("clipboard_plus", "\u{E5BF}"),
-    ("clipboard_type", "\u{E309}"),
-    ("clipboard_x", "\u{E222}"),
-    ("clock", "\u{E087}"),
-    ("clock_1", "\u{E24B}"),
-    ("clock_10", "\u{E24C}"),
-    ("clock_11", "\u{E24D}"),
-    ("clock_12", "\u{E24E}"),
-    ("clock_2", "\u{E24F}"),
-    ("clock_3", "\u{E250}"),
-    ("clock_4", "\u{E251}"),
-    ("clock_5", "\u{E252}"),
-    ("clock_6", "\u{E253}"),
-    ("clock_7", "\u{E254}"),
-    ("clock_8", "\u{E255}"),
-    ("clock_9", "\u{E256}"),
-    ("clock_alert", "\u{E62A}"),
-    ("clock_arrow_down", "\u{E600}"),
-    ("clock_arrow_up", "\u{E601}"),
-    ("clock_check", "\u{E69E}"),
-    ("clock_fading", "\u{E64A}"),
-    ("clock_plus", "\u{E667}"),
-    ("closed_caption", "\u{E68A}"),
-    ("cloud", "\u{E088}"),
-    ("cloud_alert", "\u{E633}"),
-    ("cloud_backup", "\u{E6B1}"),
-    ("cloud_check", "\u{E66E}"),
-    ("cloud_cog", "\u{E30A}"),
-    ("cloud_download", "\u{E089}"),
-    ("cloud_drizzle", "\u{E08A}"),
-    ("cloud_fog", "\u{E214}"),
-    ("cloud_hail", "\u{E08B}"),
-    ("cloud_lightning", "\u{E08C}"),
-    ("cloud_moon", "\u{E215}"),
-    ("cloud_moon_rain", "\u{E2FA}"),
-    ("cloud_off", "\u{E08D}"),
-    ("cloud_rain", "\u{E08E}"),
-    ("cloud_rain_wind", "\u{E08F}"),
-    ("cloud_snow", "\u{E090}"),
-    ("cloud_sun", "\u{E216}"),
-    ("cloud_sun_rain", "\u{E2FB}"),
-    ("cloud_sync", "\u{E6B2}"),
-    ("cloud_upload", "\u{E091}"),
-    ("cloudy", "\u{E217}"),
-    ("clover", "\u{E092}"),
-    ("club", "\u{E496}"),
-    ("code", "\u{E093}"),
-    ("code_xml", "\u{E206}"),
-    ("codepen", "\u{E094}"),
-    ("codesandbox", "\u{E095}"),
-    ("coffee", "\u{E096}"),
-    ("cog", "\u{E30B}"),
-    ("coins", "\u{E097}"),
-    ("columns_2", "\u{E098}"),
-    ("columns_3", "\u{E099}"),
-    ("columns_3_cog", "\u{E661}"),
-    ("columns_4", "\u{E589}"),
-    ("combine", "\u{E44C}"),
-    ("command", "\u{E09A}"),
-    ("compass", "\u{E09B}"),
-    ("component", "\u{E2AD}"),
-    ("computer", "\u{E4E4}"),
-    ("concierge_bell", "\u{E378}"),
-    ("cone", "\u{E523}"),
-    ("construction", "\u{E3B4}"),
-    ("contact", "\u{E09C}"),
-    ("contact_round", "\u{E463}"),
-    ("container", "\u{E4D5}"),
-    ("contrast", "\u{E09D}"),
-    ("cookie", "\u{E26B}"),
-    ("cooking_pot", "\u{E584}"),
-    ("copy", "\u{E09E}"),
-    ("copy_check", "\u{E3FB}"),
-    ("copy_minus", "\u{E3FC}"),
-    ("copy_plus", "\u{E3FD}"),
-    ("copy_slash", "\u{E3FE}"),
-    ("copy_x", "\u{E3FF}"),
-    ("copyleft", "\u{E09F}"),
-    ("copyright", "\u{E0A0}"),
-    ("corner_down_left", "\u{E0A1}"),
-    ("corner_down_right", "\u{E0A2}"),
-    ("corner_left_down", "\u{E0A3}"),
-    ("corner_left_up", "\u{E0A4}"),
-    ("corner_right_down", "\u{E0A5}"),
-    ("corner_right_up", "\u{E0A6}"),
-    ("corner_up_left", "\u{E0A7}"),
-    ("corner_up_right", "\u{E0A8}"),
-    ("cpu", "\u{E0A9}"),
-    ("creative_commons", "\u{E3B2}"),
-    ("credit_card", "\u{E0AA}"),
-    ("croissant", "\u{E2AE}"),
-    ("crop", "\u{E0AB}"),
-    ("cross", "\u{E1E5}"),
-    ("crosshair", "\u{E0AC}"),
-    ("crown", "\u{E1D6}"),
-    ("cuboid", "\u{E524}"),
-    ("cup_soda", "\u{E2D1}"),
-    ("currency", "\u{E230}"),
-    ("cylinder", "\u{E525}"),
-    ("dam", "\u{E606}"),
-    ("database", "\u{E0AD}"),
-    ("database_backup", "\u{E3AB}"),
-    ("database_search", "\u{E6BC}"),
-    ("database_zap", "\u{E50B}"),
-    ("decimals_arrow_left", "\u{E65C}"),
-    ("decimals_arrow_right", "\u{E65D}"),
-    ("delete", "\u{E0AE}"),
-    ("dessert", "\u{E4BB}"),
-    ("diameter", "\u{E526}"),
-    ("diamond", "\u{E2D2}"),
-    ("diamond_minus", "\u{E5E1}"),
-    ("diamond_percent", "\u{E51B}"),
-    ("diamond_plus", "\u{E5E2}"),
-    ("dice_1", "\u{E287}"),
-    ("dice_2", "\u{E288}"),
-    ("dice_3", "\u{E289}"),
-    ("dice_4", "\u{E28A}"),
-    ("dice_5", "\u{E28B}"),
-    ("dice_6", "\u{E28C}"),
-    ("dices", "\u{E2C5}"),
-    ("diff", "\u{E30C}"),
-    ("disc", "\u{E0AF}"),
-    ("disc_2", "\u{E3F6}"),
-    ("disc_3", "\u{E494}"),
-    ("disc_album", "\u{E55C}"),
-    ("divide", "\u{E0B0}"),
-    ("dna", "\u{E393}"),
-    ("dna_off", "\u{E394}"),
-    ("dock", "\u{E5D3}"),
-    ("dog", "\u{E38D}"),
-    ("dollar_sign", "\u{E0B1}"),
-    ("donut", "\u{E4BC}"),
-    ("door_closed", "\u{E3D5}"),
-    ("door_closed_locked", "\u{E664}"),
-    ("door_open", "\u{E3D6}"),
-    ("dot", "\u{E44F}"),
-    ("download", "\u{E0B2}"),
-    ("drafting_compass", "\u{E527}"),
-    ("drama", "\u{E521}"),
-    ("dribbble", "\u{E0B3}"),
-    ("drill", "\u{E58D}"),
-    ("drone", "\u{E676}"),
-    ("droplet", "\u{E0B4}"),
-    ("droplet_off", "\u{E638}"),
-    ("droplets", "\u{E0B5}"),
-    ("drum", "\u{E55D}"),
-    ("drumstick", "\u{E25B}"),
-    ("dumbbell", "\u{E3A1}"),
-    ("ear", "\u{E382}"),
-    ("ear_off", "\u{E383}"),
-    ("earth", "\u{E1F3}"),
-    ("earth_lock", "\u{E5CC}"),
-    ("eclipse", "\u{E59D}"),
-    ("egg", "\u{E25D}"),
-    ("egg_fried", "\u{E351}"),
-    ("egg_off", "\u{E395}"),
-    ("ellipsis", "\u{E0B6}"),
-    ("ellipsis_vertical", "\u{E0B7}"),
-    ("equal", "\u{E1BD}"),
-    ("equal_approximately", "\u{E634}"),
-    ("equal_not", "\u{E1BE}"),
-    ("eraser", "\u{E28F}"),
-    ("ethernet_port", "\u{E620}"),
-    ("euro", "\u{E0B8}"),
-    ("ev_charger", "\u{E697}"),
-    ("expand", "\u{E21A}"),
-    ("external_link", "\u{E0B9}"),
-    ("eye", "\u{E0BA}"),
-    ("eye_closed", "\u{E62E}"),
-    ("eye_off", "\u{E0BB}"),
-    ("facebook", "\u{E0BC}"),
-    ("factory", "\u{E29F}"),
-    ("fan", "\u{E379}"),
-    ("fast_forward", "\u{E0BD}"),
-    ("feather", "\u{E0BE}"),
-    ("fence", "\u{E582}"),
-    ("ferris_wheel", "\u{E47F}"),
-    ("figma", "\u{E0BF}"),
-    ("file", "\u{E0C0}"),
-    ("file_archive", "\u{E30D}"),
-    ("file_axis_3d", "\u{E30E}"),
-    ("file_badge", "\u{E30F}"),
-    ("file_box", "\u{E310}"),
-    ("file_braces", "\u{E36B}"),
-    ("file_braces_corner", "\u{E36C}"),
-    ("file_chart_column", "\u{E311}"),
-    ("file_chart_column_increasing", "\u{E312}"),
-    ("file_chart_line", "\u{E313}"),
-    ("file_chart_pie", "\u{E314}"),
-    ("file_check", "\u{E0C1}"),
-    ("file_check_corner", "\u{E0C2}"),
-    ("file_clock", "\u{E315}"),
-    ("file_code", "\u{E0C3}"),
-    ("file_code_corner", "\u{E45E}"),
-    ("file_cog", "\u{E316}"),
-    ("file_diff", "\u{E317}"),
-    ("file_digit", "\u{E0C4}"),
-    ("file_down", "\u{E318}"),
-    ("file_exclamation_point", "\u{E319}"),
-    ("file_headphone", "\u{E31A}"),
-    ("file_heart", "\u{E31B}"),
-    ("file_image", "\u{E31C}"),
-    ("file_input", "\u{E0C5}"),
-    ("file_key", "\u{E31D}"),
-    ("file_lock", "\u{E31E}"),
-    ("file_minus", "\u{E0C6}"),
-    ("file_minus_corner", "\u{E0C7}"),
-    ("file_music", "\u{E55E}"),
-    ("file_output", "\u{E0C8}"),
-    ("file_pen", "\u{E31F}"),
-    ("file_pen_line", "\u{E320}"),
-    ("file_play", "\u{E321}"),
-    ("file_plus", "\u{E0C9}"),
-    ("file_plus_corner", "\u{E0CA}"),
-    ("file_question_mark", "\u{E322}"),
-    ("file_scan", "\u{E323}"),
-    ("file_search", "\u{E0CB}"),
-    ("file_search_corner", "\u{E324}"),
-    ("file_signal", "\u{E325}"),
-    ("file_sliders", "\u{E5A0}"),
-    ("file_spreadsheet", "\u{E326}"),
-    ("file_stack", "\u{E4A1}"),
-    ("file_symlink", "\u{E327}"),
-    ("file_terminal", "\u{E328}"),
-    ("file_text", "\u{E0CC}"),
-    ("file_type", "\u{E329}"),
-    ("file_type_corner", "\u{E36D}"),
-    ("file_up", "\u{E32A}"),
-    ("file_user", "\u{E62D}"),
-    ("file_video_camera", "\u{E32B}"),
-    ("file_volume", "\u{E32C}"),
-    ("file_x", "\u{E0CD}"),
-    ("file_x_corner", "\u{E0CE}"),
-    ("files", "\u{E0CF}"),
-    ("film", "\u{E0D0}"),
-    ("fingerprint_pattern", "\u{E2CB}"),
-    ("fire_extinguisher", "\u{E57E}"),
-    ("fish", "\u{E3A6}"),
-    ("fish_off", "\u{E3B0}"),
-    ("fish_symbol", "\u{E4F4}"),
-    ("fishing_hook", "\u{E6B6}"),
-    ("flag", "\u{E0D1}"),
-    ("flag_off", "\u{E292}"),
-    ("flag_triangle_left", "\u{E237}"),
-    ("flag_triangle_right", "\u{E238}"),
-    ("flame", "\u{E0D2}"),
-    ("flame_kindling", "\u{E53A}"),
-    ("flashlight", "\u{E0D3}"),
-    ("flashlight_off", "\u{E0D4}"),
-    ("flask_conical", "\u{E0D5}"),
-    ("flask_conical_off", "\u{E396}"),
-    ("flask_round", "\u{E0D6}"),
-    ("flip_horizontal_2", "\u{E35D}"),
-    ("flip_vertical_2", "\u{E35E}"),
-    ("flower", "\u{E2D3}"),
-    ("flower_2", "\u{E2D4}"),
-    ("focus", "\u{E29E}"),
-    ("fold_horizontal", "\u{E43B}"),
-    ("fold_vertical", "\u{E43C}"),
-    ("folder", "\u{E0D7}"),
-    ("folder_archive", "\u{E32D}"),
-    ("folder_check", "\u{E32E}"),
-    ("folder_clock", "\u{E32F}"),
-    ("folder_closed", "\u{E330}"),
-    ("folder_code", "\u{E5FB}"),
-    ("folder_cog", "\u{E331}"),
-    ("folder_dot", "\u{E4C5}"),
-    ("folder_down", "\u{E332}"),
-    ("folder_git", "\u{E409}"),
-    ("folder_git_2", "\u{E40A}"),
-    ("folder_heart", "\u{E333}"),
-    ("folder_input", "\u{E334}"),
-    ("folder_kanban", "\u{E4C6}"),
-    ("folder_key", "\u{E335}"),
-    ("folder_lock", "\u{E336}"),
-    ("folder_minus", "\u{E0D8}"),
-    ("folder_open", "\u{E247}"),
-    ("folder_open_dot", "\u{E4C7}"),
-    ("folder_output", "\u{E337}"),
-    ("folder_pen", "\u{E338}"),
-    ("folder_plus", "\u{E0D9}"),
-    ("folder_root", "\u{E4C8}"),
-    ("folder_search", "\u{E339}"),
-    ("folder_search_2", "\u{E33A}"),
-    ("folder_symlink", "\u{E33B}"),
-    ("folder_sync", "\u{E4C9}"),
-    ("folder_tree", "\u{E33C}"),
-    ("folder_up", "\u{E33D}"),
-    ("folder_x", "\u{E33E}"),
-    ("folders", "\u{E33F}"),
-    ("footprints", "\u{E3B9}"),
-    ("forklift", "\u{E3C1}"),
-    ("form", "\u{E6A8}"),
-    ("forward", "\u{E229}"),
-    ("frame", "\u{E291}"),
-    ("framer", "\u{E0DA}"),
-    ("frown", "\u{E0DB}"),
-    ("fuel", "\u{E2AF}"),
-    ("fullscreen", "\u{E534}"),
-    ("funnel", "\u{E0DC}"),
-    ("funnel_plus", "\u{E0DD}"),
-    ("funnel_x", "\u{E3B5}"),
-    ("gallery_horizontal", "\u{E4CE}"),
-    ("gallery_horizontal_end", "\u{E4CF}"),
-    ("gallery_thumbnails", "\u{E4D0}"),
-    ("gallery_vertical", "\u{E4D1}"),
-    ("gallery_vertical_end", "\u{E4D2}"),
-    ("gamepad", "\u{E0DE}"),
-    ("gamepad_2", "\u{E0DF}"),
-    ("gamepad_directional", "\u{E69B}"),
-    ("gauge", "\u{E1BF}"),
-    ("gavel", "\u{E0E0}"),
-    ("gem", "\u{E242}"),
-    ("georgian_lari", "\u{E678}"),
-    ("ghost", "\u{E20E}"),
-    ("gift", "\u{E0E1}"),
-    ("git_branch", "\u{E0E2}"),
-    ("git_branch_minus", "\u{E69C}"),
-    ("git_branch_plus", "\u{E1F4}"),
-    ("git_commit_horizontal", "\u{E0E3}"),
-    ("git_commit_vertical", "\u{E552}"),
-    ("git_compare", "\u{E359}"),
-    ("git_compare_arrows", "\u{E553}"),
-    ("git_fork", "\u{E28D}"),
-    ("git_graph", "\u{E554}"),
-    ("git_merge", "\u{E0E4}"),
-    ("git_merge_conflict", "\u{E6C3}"),
-    ("git_pull_request", "\u{E0E5}"),
-    ("git_pull_request_arrow", "\u{E555}"),
-    ("git_pull_request_closed", "\u{E35A}"),
-    ("git_pull_request_create", "\u{E556}"),
-    ("git_pull_request_create_arrow", "\u{E557}"),
-    ("git_pull_request_draft", "\u{E35B}"),
-    ("github", "\u{E0E6}"),
-    ("gitlab", "\u{E0E7}"),
-    ("glass_water", "\u{E2D5}"),
-    ("glasses", "\u{E20D}"),
-    ("globe", "\u{E0E8}"),
-    ("globe_lock", "\u{E5CD}"),
-    ("globe_off", "\u{E6C1}"),
-    ("globe_x", "\u{E6BA}"),
-    ("goal", "\u{E4A5}"),
-    ("gpu", "\u{E66A}"),
-    ("graduation_cap", "\u{E234}"),
-    ("grape", "\u{E352}"),
-    ("grid_2x2", "\u{E4FF}"),
-    ("grid_2x2_check", "\u{E5E4}"),
-    ("grid_2x2_plus", "\u{E628}"),
-    ("grid_2x2_x", "\u{E5E5}"),
-    ("grid_3x2", "\u{E66F}"),
-    ("grid_3x3", "\u{E0E9}"),
-    ("grip", "\u{E3B1}"),
-    ("grip_horizontal", "\u{E0EA}"),
-    ("grip_vertical", "\u{E0EB}"),
-    ("group", "\u{E464}"),
-    ("guitar", "\u{E55F}"),
-    ("ham", "\u{E5D7}"),
-    ("hamburger", "\u{E665}"),
-    ("hammer", "\u{E0EC}"),
-    ("hand", "\u{E1D7}"),
-    ("hand_coins", "\u{E5B8}"),
-    ("hand_fist", "\u{E68B}"),
-    ("hand_grab", "\u{E1E6}"),
-    ("hand_heart", "\u{E5B9}"),
-    ("hand_helping", "\u{E3B8}"),
-    ("hand_metal", "\u{E22C}"),
-    ("hand_platter", "\u{E5BA}"),
-    ("handbag", "\u{E689}"),
-    ("handshake", "\u{E5C0}"),
-    ("hard_drive", "\u{E0ED}"),
-    ("hard_drive_download", "\u{E4E5}"),
-    ("hard_drive_upload", "\u{E4E6}"),
-    ("hard_hat", "\u{E0EE}"),
-    ("hash", "\u{E0EF}"),
-    ("hat_glasses", "\u{E683}"),
-    ("haze", "\u{E0F0}"),
-    ("hd", "\u{E6B5}"),
-    ("hdmi_port", "\u{E4E7}"),
-    ("heading", "\u{E384}"),
-    ("heading_1", "\u{E385}"),
-    ("heading_2", "\u{E386}"),
-    ("heading_3", "\u{E387}"),
-    ("heading_4", "\u{E388}"),
-    ("heading_5", "\u{E389}"),
-    ("heading_6", "\u{E38A}"),
-    ("headphone_off", "\u{E629}"),
-    ("headphones", "\u{E0F1}"),
-    ("headset", "\u{E5BD}"),
-    ("heart", "\u{E0F2}"),
-    ("heart_crack", "\u{E2D6}"),
-    ("heart_handshake", "\u{E2D7}"),
-    ("heart_minus", "\u{E651}"),
-    ("heart_off", "\u{E295}"),
-    ("heart_plus", "\u{E652}"),
-    ("heart_pulse", "\u{E36E}"),
-    ("heater", "\u{E58E}"),
-    ("helicopter", "\u{E69D}"),
-    ("hexagon", "\u{E0F3}"),
-    ("highlighter", "\u{E0F4}"),
-    ("history", "\u{E1F5}"),
-    ("hop", "\u{E397}"),
-    ("hop_off", "\u{E398}"),
-    ("hospital", "\u{E5D8}"),
-    ("hotel", "\u{E3E2}"),
-    ("hourglass", "\u{E296}"),
-    ("house", "\u{E0F5}"),
-    ("house_heart", "\u{E695}"),
-    ("house_plug", "\u{E5F0}"),
-    ("house_plus", "\u{E5F1}"),
-    ("house_wifi", "\u{E63C}"),
-    ("ice_cream_bowl", "\u{E3A7}"),
-    ("ice_cream_cone", "\u{E353}"),
-    ("id_card", "\u{E617}"),
-    ("id_card_lanyard", "\u{E670}"),
-    ("image", "\u{E0F6}"),
-    ("image_down", "\u{E53C}"),
-    ("image_minus", "\u{E1F6}"),
-    ("image_off", "\u{E1C0}"),
-    ("image_play", "\u{E5DF}"),
-    ("image_plus", "\u{E1F7}"),
-    ("image_up", "\u{E5CB}"),
-    ("image_upscale", "\u{E637}"),
-    ("images", "\u{E5C4}"),
-    ("import", "\u{E22F}"),
-    ("inbox", "\u{E0F7}"),
-    ("indian_rupee", "\u{E0F8}"),
-    ("infinity", "\u{E1E7}"),
-    ("info", "\u{E0F9}"),
-    ("inspection_panel", "\u{E583}"),
-    ("instagram", "\u{E0FA}"),
-    ("italic", "\u{E0FB}"),
-    ("iteration_ccw", "\u{E423}"),
-    ("iteration_cw", "\u{E424}"),
-    ("japanese_yen", "\u{E0FC}"),
-    ("joystick", "\u{E355}"),
-    ("kanban", "\u{E4DC}"),
-    ("kayak", "\u{E68F}"),
-    ("key", "\u{E0FD}"),
-    ("key_round", "\u{E4A3}"),
-    ("key_square", "\u{E4A4}"),
-    ("keyboard", "\u{E284}"),
-    ("keyboard_music", "\u{E560}"),
-    ("keyboard_off", "\u{E5DE}"),
-    ("lamp", "\u{E2D8}"),
-    ("lamp_ceiling", "\u{E2D9}"),
-    ("lamp_desk", "\u{E2DA}"),
-    ("lamp_floor", "\u{E2DB}"),
-    ("lamp_wall_down", "\u{E2DC}"),
-    ("lamp_wall_up", "\u{E2DD}"),
-    ("land_plot", "\u{E528}"),
-    ("landmark", "\u{E23A}"),
-    ("languages", "\u{E0FE}"),
-    ("laptop", "\u{E1CD}"),
-    ("laptop_minimal", "\u{E1D8}"),
-    ("laptop_minimal_check", "\u{E632}"),
-    ("lasso", "\u{E1CE}"),
-    ("lasso_select", "\u{E1CF}"),
-    ("laugh", "\u{E300}"),
-    ("layers", "\u{E529}"),
-    ("layers_2", "\u{E52A}"),
-    ("layers_plus", "\u{E6B3}"),
-    ("layout_dashboard", "\u{E1C1}"),
-    ("layout_grid", "\u{E0FF}"),
-    ("layout_list", "\u{E1D9}"),
-    ("layout_panel_left", "\u{E470}"),
-    ("layout_panel_top", "\u{E471}"),
-    ("layout_template", "\u{E207}"),
-    ("leaf", "\u{E2DE}"),
-    ("leafy_green", "\u{E46F}"),
-    ("lectern", "\u{E5E9}"),
-    ("lens_concave", "\u{E6BF}"),
-    ("lens_convex", "\u{E6C0}"),
-    ("library", "\u{E100}"),
-    ("library_big", "\u{E54E}"),
-    ("life_buoy", "\u{E101}"),
-    ("ligature", "\u{E43A}"),
-    ("lightbulb", "\u{E1C2}"),
-    ("lightbulb_off", "\u{E208}"),
-    ("line_dot_right_horizontal", "\u{E6C2}"),
-    ("line_squiggle", "\u{E67A}"),
-    ("link", "\u{E102}"),
-    ("link_2", "\u{E103}"),
-    ("link_2_off", "\u{E104}"),
-    ("linkedin", "\u{E105}"),
-    ("list", "\u{E106}"),
-    ("list_check", "\u{E5FA}"),
-    ("list_checks", "\u{E1D0}"),
-    ("list_chevrons_down_up", "\u{E694}"),
-    ("list_chevrons_up_down", "\u{E696}"),
-    ("list_collapse", "\u{E59B}"),
-    ("list_end", "\u{E2DF}"),
-    ("list_filter", "\u{E460}"),
-    ("list_filter_plus", "\u{E639}"),
-    ("list_indent_decrease", "\u{E107}"),
-    ("list_indent_increase", "\u{E108}"),
-    ("list_minus", "\u{E23E}"),
-    ("list_music", "\u{E2E0}"),
-    ("list_ordered", "\u{E1D1}"),
-    ("list_plus", "\u{E23F}"),
-    ("list_restart", "\u{E452}"),
-    ("list_start", "\u{E2E1}"),
-    ("list_todo", "\u{E4C3}"),
-    ("list_tree", "\u{E408}"),
-    ("list_video", "\u{E2E2}"),
-    ("list_x", "\u{E240}"),
-    ("loader", "\u{E109}"),
-    ("loader_circle", "\u{E10A}"),
-    ("loader_pinwheel", "\u{E5E6}"),
-    ("locate", "\u{E1DA}"),
-    ("locate_fixed", "\u{E1DB}"),
-    ("locate_off", "\u{E282}"),
-    ("lock", "\u{E10B}"),
-    ("lock_keyhole", "\u{E531}"),
-    ("lock_keyhole_open", "\u{E532}"),
-    ("lock_open", "\u{E10C}"),
-    ("log_in", "\u{E10D}"),
-    ("log_out", "\u{E10E}"),
-    ("logs", "\u{E5F4}"),
-    ("lollipop", "\u{E4BD}"),
-    ("luggage", "\u{E2CA}"),
-    ("magnet", "\u{E2B5}"),
-    ("mail", "\u{E10F}"),
-    ("mail_check", "\u{E361}"),
-    ("mail_minus", "\u{E362}"),
-    ("mail_open", "\u{E363}"),
-    ("mail_plus", "\u{E364}"),
-    ("mail_question_mark", "\u{E365}"),
-    ("mail_search", "\u{E366}"),
-    ("mail_warning", "\u{E367}"),
-    ("mail_x", "\u{E368}"),
-    ("mailbox", "\u{E3D4}"),
-    ("mails", "\u{E369}"),
-    ("map", "\u{E110}"),
-    ("map_minus", "\u{E686}"),
-    ("map_pin", "\u{E111}"),
-    ("map_pin_check", "\u{E60F}"),
-    ("map_pin_check_inside", "\u{E610}"),
-    ("map_pin_house", "\u{E61C}"),
-    ("map_pin_minus", "\u{E611}"),
-    ("map_pin_minus_inside", "\u{E612}"),
-    ("map_pin_off", "\u{E2A6}"),
-    ("map_pin_pen", "\u{E655}"),
-    ("map_pin_plus", "\u{E613}"),
-    ("map_pin_plus_inside", "\u{E614}"),
-    ("map_pin_x", "\u{E615}"),
-    ("map_pin_x_inside", "\u{E616}"),
-    ("map_pinned", "\u{E53D}"),
-    ("map_plus", "\u{E63F}"),
-    ("mars", "\u{E641}"),
-    ("mars_stroke", "\u{E642}"),
-    ("martini", "\u{E2E3}"),
-    ("maximize", "\u{E112}"),
-    ("maximize_2", "\u{E113}"),
-    ("medal", "\u{E36F}"),
-    ("megaphone", "\u{E235}"),
-    ("megaphone_off", "\u{E370}"),
-    ("meh", "\u{E114}"),
-    ("memory_stick", "\u{E445}"),
-    ("menu", "\u{E115}"),
-    ("merge", "\u{E43F}"),
-    ("message_circle", "\u{E116}"),
-    ("message_circle_check", "\u{E6C8}"),
-    ("message_circle_code", "\u{E562}"),
-    ("message_circle_dashed", "\u{E563}"),
-    ("message_circle_heart", "\u{E564}"),
-    ("message_circle_more", "\u{E565}"),
-    ("message_circle_off", "\u{E566}"),
-    ("message_circle_plus", "\u{E567}"),
-    ("message_circle_question_mark", "\u{E568}"),
-    ("message_circle_reply", "\u{E569}"),
-    ("message_circle_warning", "\u{E56A}"),
-    ("message_circle_x", "\u{E56B}"),
-    ("message_square", "\u{E117}"),
-    ("message_square_check", "\u{E6CC}"),
-    ("message_square_code", "\u{E56C}"),
-    ("message_square_dashed", "\u{E40B}"),
-    ("message_square_diff", "\u{E56D}"),
-    ("message_square_dot", "\u{E56E}"),
-    ("message_square_heart", "\u{E56F}"),
-    ("message_square_lock", "\u{E62C}"),
-    ("message_square_more", "\u{E570}"),
-    ("message_square_off", "\u{E571}"),
-    ("message_square_plus", "\u{E40C}"),
-    ("message_square_quote", "\u{E572}"),
-    ("message_square_reply", "\u{E573}"),
-    ("message_square_share", "\u{E574}"),
-    ("message_square_text", "\u{E575}"),
-    ("message_square_warning", "\u{E576}"),
-    ("message_square_x", "\u{E577}"),
-    ("messages_square", "\u{E40D}"),
-    ("metronome", "\u{E6CD}"),
-    ("mic", "\u{E118}"),
-    ("mic_off", "\u{E119}"),
-    ("mic_vocal", "\u{E349}"),
-    ("microchip", "\u{E61A}"),
-    ("microscope", "\u{E2E4}"),
-    ("microwave", "\u{E37A}"),
-    ("milestone", "\u{E298}"),
-    ("milk", "\u{E399}"),
-    ("milk_off", "\u{E39A}"),
-    ("minimize", "\u{E11A}"),
-    ("minimize_2", "\u{E11B}"),
-    ("minus", "\u{E11C}"),
-    ("mirror_rectangular", "\u{E6C4}"),
-    ("mirror_round", "\u{E6C5}"),
-    ("monitor", "\u{E11D}"),
-    ("monitor_check", "\u{E482}"),
-    ("monitor_cloud", "\u{E699}"),
-    ("monitor_cog", "\u{E603}"),
-    ("monitor_dot", "\u{E483}"),
-    ("monitor_down", "\u{E421}"),
-    ("monitor_off", "\u{E1DC}"),
-    ("monitor_pause", "\u{E484}"),
-    ("monitor_play", "\u{E485}"),
-    ("monitor_smartphone", "\u{E3A2}"),
-    ("monitor_speaker", "\u{E210}"),
-    ("monitor_stop", "\u{E486}"),
-    ("monitor_up", "\u{E422}"),
-    ("monitor_x", "\u{E487}"),
-    ("moon", "\u{E11E}"),
-    ("moon_star", "\u{E410}"),
-    ("motorbike", "\u{E698}"),
-    ("mountain", "\u{E231}"),
-    ("mountain_snow", "\u{E232}"),
-    ("mouse", "\u{E28E}"),
-    ("mouse_left", "\u{E6C9}"),
-    ("mouse_off", "\u{E5DB}"),
-    ("mouse_pointer", "\u{E11F}"),
-    ("mouse_pointer_2", "\u{E1C3}"),
-    ("mouse_pointer_2_off", "\u{E6A6}"),
-    ("mouse_pointer_ban", "\u{E5E7}"),
-    ("mouse_pointer_click", "\u{E120}"),
-    ("mouse_right", "\u{E6CA}"),
-    ("move_3d", "\u{E2E5}"),
-    ("move_diagonal", "\u{E1C4}"),
-    ("move_diagonal_2", "\u{E1C5}"),
-    ("move_down", "\u{E48C}"),
-    ("move_down_left", "\u{E48D}"),
-    ("move_down_right", "\u{E48E}"),
-    ("move_horizontal", "\u{E1C6}"),
-    ("move_icon", "\u{E121}"),
-    ("move_left", "\u{E48F}"),
-    ("move_right", "\u{E490}"),
-    ("move_up", "\u{E491}"),
-    ("move_up_left", "\u{E492}"),
-    ("move_up_right", "\u{E493}"),
-    ("move_vertical", "\u{E1C7}"),
-    ("music", "\u{E122}"),
-    ("music_2", "\u{E34A}"),
-    ("music_3", "\u{E34B}"),
-    ("music_4", "\u{E34C}"),
-    ("navigation", "\u{E123}"),
-    ("navigation_2", "\u{E124}"),
-    ("navigation_2_off", "\u{E2A7}"),
-    ("navigation_off", "\u{E2A8}"),
-    ("network", "\u{E125}"),
-    ("newspaper", "\u{E348}"),
-    ("nfc", "\u{E3C3}"),
-    ("non_binary", "\u{E643}"),
-    ("notebook", "\u{E595}"),
-    ("notebook_pen", "\u{E596}"),
-    ("notebook_tabs", "\u{E597}"),
-    ("notebook_text", "\u{E598}"),
-    ("notepad_text", "\u{E599}"),
-    ("notepad_text_dashed", "\u{E59A}"),
-    ("nut", "\u{E39B}"),
-    ("nut_off", "\u{E39C}"),
-    ("octagon", "\u{E126}"),
-    ("octagon_alert", "\u{E127}"),
-    ("octagon_minus", "\u{E627}"),
-    ("octagon_pause", "\u{E21B}"),
-    ("octagon_x", "\u{E128}"),
-    ("omega", "\u{E619}"),
-    ("option", "\u{E1F8}"),
-    ("orbit", "\u{E3E7}"),
-    ("origami", "\u{E5E3}"),
-    ("package", "\u{E129}"),
-    ("package_2", "\u{E340}"),
-    ("package_check", "\u{E266}"),
-    ("package_minus", "\u{E267}"),
-    ("package_open", "\u{E2CC}"),
-    ("package_plus", "\u{E268}"),
-    ("package_search", "\u{E269}"),
-    ("package_x", "\u{E26A}"),
-    ("paint_bucket", "\u{E2E6}"),
-    ("paint_roller", "\u{E59E}"),
-    ("paintbrush", "\u{E2E7}"),
-    ("paintbrush_vertical", "\u{E2E8}"),
-    ("palette", "\u{E1DD}"),
-    ("panda", "\u{E668}"),
-    ("panel_bottom", "\u{E42C}"),
-    ("panel_bottom_close", "\u{E42D}"),
-    ("panel_bottom_dashed", "\u{E42E}"),
-    ("panel_bottom_open", "\u{E42F}"),
-    ("panel_left", "\u{E12A}"),
-    ("panel_left_close", "\u{E21C}"),
-    ("panel_left_dashed", "\u{E430}"),
-    ("panel_left_open", "\u{E21D}"),
-    ("panel_left_right_dashed", "\u{E692}"),
-    ("panel_right", "\u{E431}"),
-    ("panel_right_close", "\u{E432}"),
-    ("panel_right_dashed", "\u{E433}"),
-    ("panel_right_open", "\u{E434}"),
-    ("panel_top", "\u{E435}"),
-    ("panel_top_bottom_dashed", "\u{E693}"),
-    ("panel_top_close", "\u{E436}"),
-    ("panel_top_dashed", "\u{E437}"),
-    ("panel_top_open", "\u{E438}"),
-    ("panels_left_bottom", "\u{E12B}"),
-    ("panels_right_bottom", "\u{E588}"),
-    ("panels_top_left", "\u{E12C}"),
-    ("paperclip", "\u{E12D}"),
-    ("parentheses", "\u{E444}"),
-    ("parking_meter", "\u{E500}"),
-    ("party_popper", "\u{E343}"),
-    ("pause", "\u{E12E}"),
-    ("paw_print", "\u{E4F5}"),
-    ("pc_case", "\u{E446}"),
-    ("pen", "\u{E12F}"),
-    ("pen_line", "\u{E130}"),
-    ("pen_off", "\u{E5EE}"),
-    ("pen_tool", "\u{E131}"),
-    ("pencil", "\u{E1F9}"),
-    ("pencil_line", "\u{E4F0}"),
-    ("pencil_off", "\u{E5EF}"),
-    ("pencil_ruler", "\u{E4F1}"),
-    ("pentagon", "\u{E52B}"),
-    ("percent", "\u{E132}"),
-    ("person_standing", "\u{E21E}"),
-    ("philippine_peso", "\u{E604}"),
-    ("phone", "\u{E133}"),
-    ("phone_call", "\u{E134}"),
-    ("phone_forwarded", "\u{E135}"),
-    ("phone_incoming", "\u{E136}"),
-    ("phone_missed", "\u{E137}"),
-    ("phone_off", "\u{E138}"),
-    ("phone_outgoing", "\u{E139}"),
-    ("pi", "\u{E472}"),
-    ("piano", "\u{E561}"),
-    ("pickaxe", "\u{E5C6}"),
-    ("picture_in_picture", "\u{E3AE}"),
-    ("picture_in_picture_2", "\u{E3AF}"),
-    ("piggy_bank", "\u{E13A}"),
-    ("pilcrow", "\u{E3A3}"),
-    ("pilcrow_left", "\u{E5DC}"),
-    ("pilcrow_right", "\u{E5DD}"),
-    ("pill", "\u{E3BD}"),
-    ("pill_bottle", "\u{E5EA}"),
-    ("pin", "\u{E259}"),
-    ("pin_off", "\u{E2B6}"),
-    ("pipette", "\u{E13B}"),
-    ("pizza", "\u{E354}"),
-    ("plane", "\u{E1DE}"),
-    ("plane_landing", "\u{E3CD}"),
-    ("plane_takeoff", "\u{E3CE}"),
-    ("play", "\u{E13C}"),
-    ("plug", "\u{E37F}"),
-    ("plug_2", "\u{E380}"),
-    ("plug_zap", "\u{E45C}"),
-    ("plus", "\u{E13D}"),
-    ("pocket", "\u{E13E}"),
-    ("pocket_knife", "\u{E4A0}"),
-    ("podcast", "\u{E1FA}"),
-    ("pointer", "\u{E1E8}"),
-    ("pointer_off", "\u{E57F}"),
-    ("popcorn", "\u{E4BE}"),
-    ("popsicle", "\u{E4BF}"),
-    ("pound_sterling", "\u{E13F}"),
-    ("power", "\u{E140}"),
-    ("power_off", "\u{E209}"),
-    ("presentation", "\u{E4AE}"),
-    ("printer", "\u{E141}"),
-    ("printer_check", "\u{E5F5}"),
-    ("printer_x", "\u{E6BB}"),
-    ("projector", "\u{E4AF}"),
-    ("proportions", "\u{E5CF}"),
-    ("puzzle", "\u{E29C}"),
-    ("pyramid", "\u{E52C}"),
-    ("qr_code", "\u{E1DF}"),
-    ("quote", "\u{E239}"),
-    ("rabbit", "\u{E4F6}"),
-    ("radar", "\u{E497}"),
-    ("radiation", "\u{E442}"),
-    ("radical", "\u{E5C2}"),
-    ("radio", "\u{E142}"),
-    ("radio_receiver", "\u{E1FB}"),
-    ("radio_tower", "\u{E404}"),
-    ("radius", "\u{E52D}"),
-    ("rail_symbol", "\u{E501}"),
-    ("rainbow", "\u{E4C2}"),
-    ("rat", "\u{E3EB}"),
-    ("ratio", "\u{E4E8}"),
-    ("receipt", "\u{E3D3}"),
-    ("receipt_cent", "\u{E5A5}"),
-    ("receipt_euro", "\u{E5A6}"),
-    ("receipt_indian_rupee", "\u{E5A7}"),
-    ("receipt_japanese_yen", "\u{E5A8}"),
-    ("receipt_pound_sterling", "\u{E5A9}"),
-    ("receipt_russian_ruble", "\u{E5AA}"),
-    ("receipt_swiss_franc", "\u{E5AB}"),
-    ("receipt_text", "\u{E5AC}"),
-    ("receipt_turkish_lira", "\u{E67F}"),
-    ("rectangle_circle", "\u{E673}"),
-    ("rectangle_ellipsis", "\u{E21F}"),
-    ("rectangle_goggles", "\u{E656}"),
-    ("rectangle_horizontal", "\u{E376}"),
-    ("rectangle_vertical", "\u{E377}"),
-    ("recycle", "\u{E2E9}"),
-    ("redo", "\u{E143}"),
-    ("redo_2", "\u{E2A0}"),
-    ("redo_dot", "\u{E450}"),
-    ("refresh_ccw", "\u{E144}"),
-    ("refresh_ccw_dot", "\u{E4B2}"),
-    ("refresh_cw", "\u{E145}"),
-    ("refresh_cw_off", "\u{E498}"),
-    ("refrigerator", "\u{E37B}"),
-    ("regex", "\u{E1FC}"),
-    ("remove_formatting", "\u{E3B3}"),
-    ("repeat", "\u{E146}"),
-    ("repeat_1", "\u{E1FD}"),
-    ("repeat_2", "\u{E411}"),
-    ("replace", "\u{E3DB}"),
-    ("replace_all", "\u{E3DC}"),
-    ("reply", "\u{E22A}"),
-    ("reply_all", "\u{E22B}"),
-    ("rewind", "\u{E147}"),
-    ("ribbon", "\u{E558}"),
-    ("rocket", "\u{E286}"),
-    ("rocking_chair", "\u{E233}"),
-    ("roller_coaster", "\u{E480}"),
-    ("rose", "\u{E691}"),
-    ("rotate_3d", "\u{E2EA}"),
-    ("rotate_ccw", "\u{E148}"),
-    ("rotate_ccw_key", "\u{E650}"),
-    ("rotate_ccw_square", "\u{E5D0}"),
-    ("rotate_cw", "\u{E149}"),
-    ("rotate_cw_square", "\u{E5D1}"),
-    ("route", "\u{E53E}"),
-    ("route_off", "\u{E53F}"),
-    ("router", "\u{E3BF}"),
-    ("rows_2", "\u{E439}"),
-    ("rows_3", "\u{E58A}"),
-    ("rows_4", "\u{E58B}"),
-    ("rss", "\u{E14A}"),
-    ("ruler", "\u{E14B}"),
-    ("ruler_dimension_line", "\u{E662}"),
-    ("russian_ruble", "\u{E14C}"),
-    ("sailboat", "\u{E37E}"),
-    ("salad", "\u{E3A8}"),
-    ("sandwich", "\u{E3A9}"),
-    ("satellite", "\u{E447}"),
-    ("satellite_dish", "\u{E448}"),
-    ("saudi_riyal", "\u{E64B}"),
-    ("save", "\u{E14D}"),
-    ("save_all", "\u{E40F}"),
-    ("save_off", "\u{E5F3}"),
-    ("scale", "\u{E212}"),
-    ("scale_3d", "\u{E2EB}"),
-    ("scaling", "\u{E2EC}"),
-    ("scan", "\u{E257}"),
-    ("scan_barcode", "\u{E535}"),
-    ("scan_eye", "\u{E536}"),
-    ("scan_face", "\u{E371}"),
-    ("scan_heart", "\u{E63A}"),
-    ("scan_line", "\u{E258}"),
-    ("scan_qr_code", "\u{E5F6}"),
-    ("scan_search", "\u{E537}"),
-    ("scan_text", "\u{E538}"),
-    ("school", "\u{E3E3}"),
-    ("scissors", "\u{E14E}"),
-    ("scissors_line_dashed", "\u{E4E9}"),
-    ("scooter", "\u{E6AC}"),
-    ("screen_share", "\u{E14F}"),
-    ("screen_share_off", "\u{E150}"),
-    ("scroll", "\u{E2ED}"),
-    ("scroll_text", "\u{E45F}"),
-    ("search", "\u{E151}"),
-    ("search_alert", "\u{E6B4}"),
-    ("search_check", "\u{E4AA}"),
-    ("search_code", "\u{E4AB}"),
-    ("search_slash", "\u{E4AC}"),
-    ("search_x", "\u{E4AD}"),
-    ("section", "\u{E5E8}"),
-    ("send", "\u{E152}"),
-    ("send_horizontal", "\u{E4F2}"),
-    ("send_to_back", "\u{E4F3}"),
-    ("separator_horizontal", "\u{E1C8}"),
-    ("separator_vertical", "\u{E1C9}"),
-    ("server", "\u{E153}"),
-    ("server_cog", "\u{E341}"),
-    ("server_crash", "\u{E1E9}"),
-    ("server_off", "\u{E1EA}"),
-    ("settings", "\u{E154}"),
-    ("settings_2", "\u{E245}"),
-    ("shapes", "\u{E4B3}"),
-    ("share", "\u{E155}"),
-    ("share_2", "\u{E156}"),
-    ("sheet", "\u{E157}"),
-    ("shell", "\u{E4F7}"),
-    ("shelving_unit", "\u{E6C7}"),
-    ("shield", "\u{E158}"),
-    ("shield_alert", "\u{E1FE}"),
-    ("shield_ban", "\u{E159}"),
-    ("shield_check", "\u{E1FF}"),
-    ("shield_ellipsis", "\u{E516}"),
-    ("shield_half", "\u{E517}"),
-    ("shield_minus", "\u{E518}"),
-    ("shield_off", "\u{E15A}"),
-    ("shield_plus", "\u{E519}"),
-    ("shield_question_mark", "\u{E40E}"),
-    ("shield_user", "\u{E647}"),
-    ("shield_x", "\u{E200}"),
-    ("ship", "\u{E3BA}"),
-    ("ship_wheel", "\u{E502}"),
-    ("shirt", "\u{E1CA}"),
-    ("shopping_bag", "\u{E15B}"),
-    ("shopping_basket", "\u{E4EA}"),
-    ("shopping_cart", "\u{E15C}"),
-    ("shovel", "\u{E15D}"),
-    ("shower_head", "\u{E37C}"),
-    ("shredder", "\u{E65B}"),
-    ("shrimp", "\u{E649}"),
-    ("shrink", "\u{E220}"),
-    ("shrub", "\u{E2EE}"),
-    ("shuffle", "\u{E15E}"),
-    ("sigma", "\u{E201}"),
-    ("signal", "\u{E25F}"),
-    ("signal_high", "\u{E260}"),
-    ("signal_low", "\u{E261}"),
-    ("signal_medium", "\u{E262}"),
-    ("signal_zero", "\u{E263}"),
-    ("signature", "\u{E5F2}"),
-    ("signpost", "\u{E540}"),
-    ("signpost_big", "\u{E541}"),
-    ("siren", "\u{E2EF}"),
-    ("skip_back", "\u{E15F}"),
-    ("skip_forward", "\u{E160}"),
-    ("skull", "\u{E221}"),
-    ("slack", "\u{E161}"),
-    ("slash", "\u{E51D}"),
-    ("slice", "\u{E2F0}"),
-    ("sliders_horizontal", "\u{E29A}"),
-    ("sliders_vertical", "\u{E162}"),
-    ("smartphone", "\u{E163}"),
-    ("smartphone_charging", "\u{E22E}"),
-    ("smartphone_nfc", "\u{E3C4}"),
-    ("smile", "\u{E164}"),
-    ("smile_plus", "\u{E301}"),
-    ("snail", "\u{E4F8}"),
-    ("snowflake", "\u{E165}"),
-    ("soap_dispenser_droplet", "\u{E669}"),
-    ("sofa", "\u{E2C4}"),
-    ("solar_panel", "\u{E69F}"),
-    ("soup", "\u{E3AA}"),
-    ("space", "\u{E3DD}"),
-    ("spade", "\u{E499}"),
-    ("sparkle", "\u{E47E}"),
-    ("sparkles", "\u{E412}"),
-    ("speaker", "\u{E166}"),
-    ("speech", "\u{E51E}"),
-    ("spell_check", "\u{E49A}"),
-    ("spell_check_2", "\u{E49B}"),
-    ("spline", "\u{E38B}"),
-    ("spline_pointer", "\u{E64F}"),
-    ("split", "\u{E440}"),
-    ("spool", "\u{E677}"),
-    ("spotlight", "\u{E682}"),
-    ("spray_can", "\u{E495}"),
-    ("sprout", "\u{E1EB}"),
-    ("square", "\u{E167}"),
-    ("square_activity", "\u{E4B4}"),
-    ("square_arrow_down", "\u{E427}"),
-    ("square_arrow_down_left", "\u{E4B5}"),
-    ("square_arrow_down_right", "\u{E4B6}"),
-    ("square_arrow_left", "\u{E428}"),
-    ("square_arrow_out_down_left", "\u{E5A1}"),
-    ("square_arrow_out_down_right", "\u{E5A2}"),
-    ("square_arrow_out_up_left", "\u{E5A3}"),
-    ("square_arrow_out_up_right", "\u{E5A4}"),
-    ("square_arrow_right", "\u{E429}"),
-    ("square_arrow_right_enter", "\u{E6CE}"),
-    ("square_arrow_right_exit", "\u{E6CF}"),
-    ("square_arrow_up", "\u{E42A}"),
-    ("square_arrow_up_left", "\u{E4B7}"),
-    ("square_arrow_up_right", "\u{E4B8}"),
-    ("square_asterisk", "\u{E168}"),
-    ("square_bottom_dashed_scissors", "\u{E4EB}"),
-    ("square_centerline_dashed_horizontal", "\u{E35F}"),
-    ("square_centerline_dashed_vertical", "\u{E360}"),
-    ("square_chart_gantt", "\u{E169}"),
-    ("square_check", "\u{E559}"),
-    ("square_check_big", "\u{E16A}"),
-    ("square_chevron_down", "\u{E3CF}"),
-    ("square_chevron_left", "\u{E3D0}"),
-    ("square_chevron_right", "\u{E3D1}"),
-    ("square_chevron_up", "\u{E3D2}"),
-    ("square_code", "\u{E16B}"),
-    ("square_dashed", "\u{E1CB}"),
-    ("square_dashed_bottom", "\u{E4C0}"),
-    ("square_dashed_bottom_code", "\u{E4C1}"),
-    ("square_dashed_kanban", "\u{E16C}"),
-    ("square_dashed_mouse_pointer", "\u{E509}"),
-    ("square_dashed_top_solid", "\u{E66C}"),
-    ("square_divide", "\u{E16D}"),
-    ("square_dot", "\u{E16E}"),
-    ("square_equal", "\u{E16F}"),
-    ("square_function", "\u{E22D}"),
-    ("square_kanban", "\u{E170}"),
-    ("square_library", "\u{E54F}"),
-    ("square_m", "\u{E503}"),
-    ("square_menu", "\u{E453}"),
-    ("square_minus", "\u{E171}"),
-    ("square_mouse_pointer", "\u{E202}"),
-    ("square_parking", "\u{E3CB}"),
-    ("square_parking_off", "\u{E3CC}"),
-    ("square_pause", "\u{E684}"),
-    ("square_pen", "\u{E172}"),
-    ("square_percent", "\u{E51C}"),
-    ("square_pi", "\u{E488}"),
-    ("square_pilcrow", "\u{E48B}"),
-    ("square_play", "\u{E481}"),
-    ("square_plus", "\u{E173}"),
-    ("square_power", "\u{E551}"),
-    ("square_radical", "\u{E5C3}"),
-    ("square_round_corner", "\u{E648}"),
-    ("square_scissors", "\u{E4EC}"),
-    ("square_sigma", "\u{E489}"),
-    ("square_slash", "\u{E174}"),
-    ("square_split_horizontal", "\u{E3B6}"),
-    ("square_split_vertical", "\u{E3B7}"),
-    ("square_square", "\u{E60E}"),
-    ("square_stack", "\u{E4A2}"),
-    ("square_star", "\u{E68E}"),
-    ("square_stop", "\u{E685}"),
-    ("square_terminal", "\u{E20A}"),
-    ("square_user", "\u{E465}"),
-    ("square_user_round", "\u{E466}"),
-    ("square_x", "\u{E175}"),
-    ("squares_exclude", "\u{E657}"),
-    ("squares_intersect", "\u{E658}"),
-    ("squares_subtract", "\u{E659}"),
-    ("squares_unite", "\u{E65A}"),
-    ("squircle", "\u{E57A}"),
-    ("squircle_dashed", "\u{E679}"),
-    ("squirrel", "\u{E49F}"),
-    ("stamp", "\u{E3BB}"),
-    ("star", "\u{E176}"),
-    ("star_half", "\u{E20B}"),
-    ("star_off", "\u{E2B0}"),
-    ("step_back", "\u{E3E9}"),
-    ("step_forward", "\u{E3EA}"),
-    ("stethoscope", "\u{E2F1}"),
-    ("sticker", "\u{E302}"),
-    ("sticky_note", "\u{E303}"),
-    ("stone", "\u{E6B8}"),
-    ("store", "\u{E3E4}"),
-    ("stretch_horizontal", "\u{E27C}"),
-    ("stretch_vertical", "\u{E27D}"),
-    ("strikethrough", "\u{E177}"),
-    ("subscript", "\u{E25C}"),
-    ("sun", "\u{E178}"),
-    ("sun_dim", "\u{E299}"),
-    ("sun_medium", "\u{E2B1}"),
-    ("sun_moon", "\u{E2B2}"),
-    ("sun_snow", "\u{E372}"),
-    ("sunrise", "\u{E179}"),
-    ("sunset", "\u{E17A}"),
-    ("superscript", "\u{E25E}"),
-    ("swatch_book", "\u{E59F}"),
-    ("swiss_franc", "\u{E17B}"),
-    ("switch_camera", "\u{E17C}"),
-    ("sword", "\u{E2B3}"),
-    ("swords", "\u{E2B4}"),
-    ("syringe", "\u{E2F2}"),
-    ("table", "\u{E17D}"),
-    ("table_2", "\u{E2F9}"),
-    ("table_cells_merge", "\u{E5C7}"),
-    ("table_cells_split", "\u{E5C8}"),
-    ("table_columns_split", "\u{E5C9}"),
-    ("table_of_contents", "\u{E61E}"),
-    ("table_properties", "\u{E4DB}"),
-    ("table_rows_split", "\u{E5CA}"),
-    ("tablet", "\u{E17E}"),
-    ("tablet_smartphone", "\u{E50A}"),
-    ("tablets", "\u{E3BE}"),
-    ("tag", "\u{E17F}"),
-    ("tags", "\u{E35C}"),
-    ("tally_1", "\u{E4D6}"),
-    ("tally_2", "\u{E4D7}"),
-    ("tally_3", "\u{E4D8}"),
-    ("tally_4", "\u{E4D9}"),
-    ("tally_5", "\u{E4DA}"),
-    ("tangent", "\u{E52E}"),
-    ("target", "\u{E180}"),
-    ("telescope", "\u{E5C5}"),
-    ("tent", "\u{E227}"),
-    ("tent_tree", "\u{E53B}"),
-    ("terminal", "\u{E181}"),
-    ("test_tube", "\u{E405}"),
-    ("test_tube_diagonal", "\u{E406}"),
-    ("test_tubes", "\u{E407}"),
-    ("text_align_center", "\u{E182}"),
-    ("text_align_end", "\u{E183}"),
-    ("text_align_justify", "\u{E184}"),
-    ("text_align_start", "\u{E185}"),
-    ("text_cursor", "\u{E264}"),
-    ("text_cursor_input", "\u{E265}"),
-    ("text_initial", "\u{E605}"),
-    ("text_quote", "\u{E49E}"),
-    ("text_search", "\u{E5AD}"),
-    ("text_select", "\u{E3DE}"),
-    ("text_wrap", "\u{E248}"),
-    ("theater", "\u{E522}"),
-    ("thermometer", "\u{E186}"),
-    ("thermometer_snowflake", "\u{E187}"),
-    ("thermometer_sun", "\u{E188}"),
-    ("thumbs_down", "\u{E189}"),
-    ("thumbs_up", "\u{E18A}"),
-    ("ticket", "\u{E20F}"),
-    ("ticket_check", "\u{E5AE}"),
-    ("ticket_minus", "\u{E5AF}"),
-    ("ticket_percent", "\u{E5B0}"),
-    ("ticket_plus", "\u{E5B1}"),
-    ("ticket_slash", "\u{E5B2}"),
-    ("ticket_x", "\u{E5B3}"),
-    ("tickets", "\u{E622}"),
-    ("tickets_plane", "\u{E623}"),
-    ("timer", "\u{E1E0}"),
-    ("timer_off", "\u{E249}"),
-    ("timer_reset", "\u{E236}"),
-    ("toggle_left", "\u{E18B}"),
-    ("toggle_right", "\u{E18C}"),
-    ("toilet", "\u{E635}"),
-    ("tool_case", "\u{E67D}"),
-    ("toolbox", "\u{E6B9}"),
-    ("tornado", "\u{E218}"),
-    ("torus", "\u{E52F}"),
-    ("touchpad", "\u{E449}"),
-    ("touchpad_off", "\u{E44A}"),
-    ("towel_rack", "\u{E6C6}"),
-    ("tower_control", "\u{E3BC}"),
-    ("toy_brick", "\u{E347}"),
-    ("tractor", "\u{E504}"),
-    ("traffic_cone", "\u{E505}"),
-    ("train_front", "\u{E506}"),
-    ("train_front_tunnel", "\u{E507}"),
-    ("train_track", "\u{E508}"),
-    ("tram_front", "\u{E2A9}"),
-    ("transgender", "\u{E644}"),
-    ("trash", "\u{E18D}"),
-    ("trash_2", "\u{E18E}"),
-    ("tree_deciduous", "\u{E2F3}"),
-    ("tree_palm", "\u{E281}"),
-    ("tree_pine", "\u{E2F4}"),
-    ("trees", "\u{E2F5}"),
-    ("trello", "\u{E18F}"),
-    ("trending_down", "\u{E190}"),
-    ("trending_up", "\u{E191}"),
-    ("trending_up_down", "\u{E625}"),
-    ("triangle", "\u{E192}"),
-    ("triangle_alert", "\u{E193}"),
-    ("triangle_dashed", "\u{E63D}"),
-    ("triangle_right", "\u{E4ED}"),
-    ("trophy", "\u{E373}"),
-    ("truck", "\u{E194}"),
-    ("truck_electric", "\u{E65F}"),
-    ("turkish_lira", "\u{E680}"),
-    ("turntable", "\u{E68C}"),
-    ("turtle", "\u{E4F9}"),
-    ("tv", "\u{E195}"),
-    ("tv_minimal", "\u{E203}"),
-    ("tv_minimal_play", "\u{E5EC}"),
-    ("twitch", "\u{E196}"),
-    ("twitter", "\u{E197}"),
-    ("type_icon", "\u{E198}"),
-    ("type_outline", "\u{E602}"),
-    ("umbrella", "\u{E199}"),
-    ("umbrella_off", "\u{E543}"),
-    ("underline", "\u{E19A}"),
-    ("undo", "\u{E19B}"),
-    ("undo_2", "\u{E2A1}"),
-    ("undo_dot", "\u{E451}"),
-    ("unfold_horizontal", "\u{E43D}"),
-    ("unfold_vertical", "\u{E43E}"),
-    ("ungroup", "\u{E467}"),
-    ("university", "\u{E3E5}"),
-    ("unlink", "\u{E19C}"),
-    ("unlink_2", "\u{E19D}"),
-    ("unplug", "\u{E45D}"),
-    ("upload", "\u{E19E}"),
-    ("usb", "\u{E356}"),
-    ("user", "\u{E19F}"),
-    ("user_check", "\u{E1A0}"),
-    ("user_cog", "\u{E342}"),
-    ("user_key", "\u{E6BD}"),
-    ("user_lock", "\u{E660}"),
-    ("user_minus", "\u{E1A1}"),
-    ("user_pen", "\u{E5FC}"),
-    ("user_plus", "\u{E1A2}"),
-    ("user_round", "\u{E468}"),
-    ("user_round_check", "\u{E469}"),
-    ("user_round_cog", "\u{E46A}"),
-    ("user_round_key", "\u{E6BE}"),
-    ("user_round_minus", "\u{E46B}"),
-    ("user_round_pen", "\u{E5FD}"),
-    ("user_round_plus", "\u{E46C}"),
-    ("user_round_search", "\u{E578}"),
-    ("user_round_x", "\u{E46D}"),
-    ("user_search", "\u{E579}"),
-    ("user_star", "\u{E687}"),
-    ("user_x", "\u{E1A3}"),
-    ("users", "\u{E1A4}"),
-    ("users_round", "\u{E46E}"),
-    ("utensils", "\u{E2F6}"),
-    ("utensils_crossed", "\u{E2F7}"),
-    ("utility_pole", "\u{E3C2}"),
-    ("van", "\u{E6AD}"),
-    ("variable", "\u{E473}"),
-    ("vault", "\u{E58F}"),
-    ("vector_square", "\u{E67C}"),
-    ("vegan", "\u{E39D}"),
-    ("venetian_mask", "\u{E2AA}"),
-    ("venus", "\u{E645}"),
-    ("venus_and_mars", "\u{E646}"),
-    ("vibrate", "\u{E223}"),
-    ("vibrate_off", "\u{E29D}"),
-    ("video", "\u{E1A5}"),
-    ("video_off", "\u{E1A6}"),
-    ("videotape", "\u{E4CB}"),
-    ("view", "\u{E1A7}"),
-    ("voicemail", "\u{E1A8}"),
-    ("volleyball", "\u{E62F}"),
-    ("volume", "\u{E1A9}"),
-    ("volume_1", "\u{E1AA}"),
-    ("volume_2", "\u{E1AB}"),
-    ("volume_off", "\u{E626}"),
-    ("volume_x", "\u{E1AC}"),
-    ("vote", "\u{E3AD}"),
-    ("wallet", "\u{E204}"),
-    ("wallet_cards", "\u{E4CC}"),
-    ("wallet_minimal", "\u{E4CD}"),
-    ("wallpaper", "\u{E44B}"),
-    ("wand", "\u{E246}"),
-    ("wand_sparkles", "\u{E357}"),
-    ("warehouse", "\u{E3E6}"),
-    ("washing_machine", "\u{E590}"),
-    ("watch", "\u{E1AD}"),
-    ("waves", "\u{E283}"),
-    ("waves_arrow_down", "\u{E6A9}"),
-    ("waves_arrow_up", "\u{E6AA}"),
-    ("waves_ladder", "\u{E63B}"),
-    ("waypoints", "\u{E542}"),
-    ("webcam", "\u{E205}"),
-    ("webhook", "\u{E374}"),
-    ("webhook_off", "\u{E5B7}"),
-    ("weight", "\u{E530}"),
-    ("weight_tilde", "\u{E6AE}"),
-    ("wheat", "\u{E39E}"),
-    ("wheat_off", "\u{E39F}"),
-    ("whole_word", "\u{E3DF}"),
-    ("wifi", "\u{E1AE}"),
-    ("wifi_cog", "\u{E674}"),
-    ("wifi_high", "\u{E5F7}"),
-    ("wifi_low", "\u{E5F8}"),
-    ("wifi_off", "\u{E1AF}"),
-    ("wifi_pen", "\u{E663}"),
-    ("wifi_sync", "\u{E681}"),
-    ("wifi_zero", "\u{E5F9}"),
-    ("wind", "\u{E1B0}"),
-    ("wind_arrow_down", "\u{E631}"),
-    ("wine", "\u{E2F8}"),
-    ("wine_off", "\u{E3A0}"),
-    ("workflow", "\u{E425}"),
-    ("worm", "\u{E5DA}"),
-    ("wrench", "\u{E1B1}"),
-    ("x", "\u{E1B2}"),
-    ("x_line_top", "\u{E6CB}"),
-    ("youtube", "\u{E1B3}"),
-    ("zap", "\u{E1B4}"),
-    ("zap_off", "\u{E1B5}"),
-    ("zoom_in", "\u{E1B6}"),
-    ("zoom_out", "\u{E1B7}"),
+/// Every font this module needs.
+///
+/// Register all of them before rendering any icon:
+///
+/// ```ignore
+/// let mut app = iced::application(App::new, App::update, App::view);
+///
+/// for font in icon::FONTS {
+///     app = app.font(*font);
+/// }
+///
+/// app.run()
+/// ```
+// One entry per line stays readable as the list grows, and keeps a
+// `cargo fmt` in the consuming crate from rewriting generated output.
+#[rustfmt::skip]
+pub const FONTS: &[&[u8]] = &[
+    FONT_LUCIDE,
 ];
 
-#[allow(dead_code)]
-pub fn a_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E585}")
-}
-#[allow(dead_code)]
-pub fn a_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E586}")
-}
-#[allow(dead_code)]
-pub fn a_large_small<'a>() -> Text<'a> {
-    icon("\u{E587}")
-}
-#[allow(dead_code)]
-pub fn accessibility<'a>() -> Text<'a> {
-    icon("\u{E297}")
-}
-#[allow(dead_code)]
-pub fn activity<'a>() -> Text<'a> {
-    icon("\u{E038}")
-}
-#[allow(dead_code)]
-pub fn air_vent<'a>() -> Text<'a> {
-    icon("\u{E34D}")
-}
-#[allow(dead_code)]
-pub fn airplay<'a>() -> Text<'a> {
-    icon("\u{E039}")
-}
-#[allow(dead_code)]
-pub fn alarm_clock<'a>() -> Text<'a> {
-    icon("\u{E03A}")
-}
-#[allow(dead_code)]
-pub fn alarm_clock_check<'a>() -> Text<'a> {
-    icon("\u{E1EC}")
-}
-#[allow(dead_code)]
-pub fn alarm_clock_minus<'a>() -> Text<'a> {
-    icon("\u{E1ED}")
-}
-#[allow(dead_code)]
-pub fn alarm_clock_off<'a>() -> Text<'a> {
-    icon("\u{E23B}")
-}
-#[allow(dead_code)]
-pub fn alarm_clock_plus<'a>() -> Text<'a> {
-    icon("\u{E1EE}")
-}
-#[allow(dead_code)]
-pub fn alarm_smoke<'a>() -> Text<'a> {
-    icon("\u{E57B}")
-}
-#[allow(dead_code)]
-pub fn album<'a>() -> Text<'a> {
-    icon("\u{E03B}")
-}
-#[allow(dead_code)]
-pub fn align_center_horizontal<'a>() -> Text<'a> {
-    icon("\u{E26C}")
-}
-#[allow(dead_code)]
-pub fn align_center_vertical<'a>() -> Text<'a> {
-    icon("\u{E26D}")
-}
-#[allow(dead_code)]
-pub fn align_end_horizontal<'a>() -> Text<'a> {
-    icon("\u{E26E}")
-}
-#[allow(dead_code)]
-pub fn align_end_vertical<'a>() -> Text<'a> {
-    icon("\u{E26F}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_distribute_center<'a>() -> Text<'a> {
-    icon("\u{E03C}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_distribute_end<'a>() -> Text<'a> {
-    icon("\u{E03D}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_distribute_start<'a>() -> Text<'a> {
-    icon("\u{E03E}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_justify_center<'a>() -> Text<'a> {
-    icon("\u{E272}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_justify_end<'a>() -> Text<'a> {
-    icon("\u{E273}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_justify_start<'a>() -> Text<'a> {
-    icon("\u{E274}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_space_around<'a>() -> Text<'a> {
-    icon("\u{E275}")
-}
-#[allow(dead_code)]
-pub fn align_horizontal_space_between<'a>() -> Text<'a> {
-    icon("\u{E276}")
-}
-#[allow(dead_code)]
-pub fn align_start_horizontal<'a>() -> Text<'a> {
-    icon("\u{E270}")
-}
-#[allow(dead_code)]
-pub fn align_start_vertical<'a>() -> Text<'a> {
-    icon("\u{E271}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_distribute_center<'a>() -> Text<'a> {
-    icon("\u{E27E}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_distribute_end<'a>() -> Text<'a> {
-    icon("\u{E27F}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_distribute_start<'a>() -> Text<'a> {
-    icon("\u{E280}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_justify_center<'a>() -> Text<'a> {
-    icon("\u{E277}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_justify_end<'a>() -> Text<'a> {
-    icon("\u{E278}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_justify_start<'a>() -> Text<'a> {
-    icon("\u{E279}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_space_around<'a>() -> Text<'a> {
-    icon("\u{E27A}")
-}
-#[allow(dead_code)]
-pub fn align_vertical_space_between<'a>() -> Text<'a> {
-    icon("\u{E27B}")
-}
-#[allow(dead_code)]
-pub fn ambulance<'a>() -> Text<'a> {
-    icon("\u{E5BB}")
-}
-#[allow(dead_code)]
-pub fn ampersand<'a>() -> Text<'a> {
-    icon("\u{E49C}")
-}
-#[allow(dead_code)]
-pub fn ampersands<'a>() -> Text<'a> {
-    icon("\u{E49D}")
-}
-#[allow(dead_code)]
-pub fn amphora<'a>() -> Text<'a> {
-    icon("\u{E61B}")
-}
-#[allow(dead_code)]
-pub fn anchor<'a>() -> Text<'a> {
-    icon("\u{E03F}")
-}
-#[allow(dead_code)]
-pub fn angry<'a>() -> Text<'a> {
-    icon("\u{E2FC}")
-}
-#[allow(dead_code)]
-pub fn annoyed<'a>() -> Text<'a> {
-    icon("\u{E2FD}")
-}
-#[allow(dead_code)]
-pub fn antenna<'a>() -> Text<'a> {
-    icon("\u{E4E2}")
-}
-#[allow(dead_code)]
-pub fn anvil<'a>() -> Text<'a> {
-    icon("\u{E580}")
-}
-#[allow(dead_code)]
-pub fn aperture<'a>() -> Text<'a> {
-    icon("\u{E040}")
-}
-#[allow(dead_code)]
-pub fn app_window<'a>() -> Text<'a> {
-    icon("\u{E426}")
-}
-#[allow(dead_code)]
-pub fn app_window_mac<'a>() -> Text<'a> {
-    icon("\u{E5D2}")
-}
-#[allow(dead_code)]
-pub fn apple<'a>() -> Text<'a> {
-    icon("\u{E34E}")
-}
-#[allow(dead_code)]
-pub fn archive<'a>() -> Text<'a> {
-    icon("\u{E041}")
-}
-#[allow(dead_code)]
-pub fn archive_restore<'a>() -> Text<'a> {
-    icon("\u{E2CD}")
-}
-#[allow(dead_code)]
-pub fn archive_x<'a>() -> Text<'a> {
-    icon("\u{E50C}")
-}
-#[allow(dead_code)]
-pub fn armchair<'a>() -> Text<'a> {
-    icon("\u{E2C0}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_down<'a>() -> Text<'a> {
-    icon("\u{E1E1}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_down_dash<'a>() -> Text<'a> {
-    icon("\u{E41D}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_left<'a>() -> Text<'a> {
-    icon("\u{E1E2}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_left_dash<'a>() -> Text<'a> {
-    icon("\u{E41E}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_right<'a>() -> Text<'a> {
-    icon("\u{E1E3}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_right_dash<'a>() -> Text<'a> {
-    icon("\u{E41F}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_up<'a>() -> Text<'a> {
-    icon("\u{E1E4}")
-}
-#[allow(dead_code)]
-pub fn arrow_big_up_dash<'a>() -> Text<'a> {
-    icon("\u{E420}")
-}
-#[allow(dead_code)]
-pub fn arrow_down<'a>() -> Text<'a> {
-    icon("\u{E042}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_0_1<'a>() -> Text<'a> {
-    icon("\u{E413}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_1_0<'a>() -> Text<'a> {
-    icon("\u{E414}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_a_z<'a>() -> Text<'a> {
-    icon("\u{E415}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_from_line<'a>() -> Text<'a> {
-    icon("\u{E454}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_left<'a>() -> Text<'a> {
-    icon("\u{E043}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_narrow_wide<'a>() -> Text<'a> {
-    icon("\u{E044}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_right<'a>() -> Text<'a> {
-    icon("\u{E045}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_to_dot<'a>() -> Text<'a> {
-    icon("\u{E44D}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_to_line<'a>() -> Text<'a> {
-    icon("\u{E455}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_up<'a>() -> Text<'a> {
-    icon("\u{E046}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_wide_narrow<'a>() -> Text<'a> {
-    icon("\u{E047}")
-}
-#[allow(dead_code)]
-pub fn arrow_down_z_a<'a>() -> Text<'a> {
-    icon("\u{E416}")
-}
-#[allow(dead_code)]
-pub fn arrow_left<'a>() -> Text<'a> {
-    icon("\u{E048}")
-}
-#[allow(dead_code)]
-pub fn arrow_left_from_line<'a>() -> Text<'a> {
-    icon("\u{E456}")
-}
-#[allow(dead_code)]
-pub fn arrow_left_right<'a>() -> Text<'a> {
-    icon("\u{E24A}")
-}
-#[allow(dead_code)]
-pub fn arrow_left_to_line<'a>() -> Text<'a> {
-    icon("\u{E457}")
-}
-#[allow(dead_code)]
-pub fn arrow_right<'a>() -> Text<'a> {
-    icon("\u{E049}")
-}
-#[allow(dead_code)]
-pub fn arrow_right_from_line<'a>() -> Text<'a> {
-    icon("\u{E458}")
-}
-#[allow(dead_code)]
-pub fn arrow_right_left<'a>() -> Text<'a> {
-    icon("\u{E417}")
-}
-#[allow(dead_code)]
-pub fn arrow_right_to_line<'a>() -> Text<'a> {
-    icon("\u{E459}")
-}
-#[allow(dead_code)]
-pub fn arrow_up<'a>() -> Text<'a> {
-    icon("\u{E04A}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_0_1<'a>() -> Text<'a> {
-    icon("\u{E418}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_1_0<'a>() -> Text<'a> {
-    icon("\u{E419}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_a_z<'a>() -> Text<'a> {
-    icon("\u{E41A}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_down<'a>() -> Text<'a> {
-    icon("\u{E37D}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_from_dot<'a>() -> Text<'a> {
-    icon("\u{E44E}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_from_line<'a>() -> Text<'a> {
-    icon("\u{E45A}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_left<'a>() -> Text<'a> {
-    icon("\u{E04B}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_narrow_wide<'a>() -> Text<'a> {
-    icon("\u{E04C}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_right<'a>() -> Text<'a> {
-    icon("\u{E04D}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_to_line<'a>() -> Text<'a> {
-    icon("\u{E45B}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_wide_narrow<'a>() -> Text<'a> {
-    icon("\u{E41B}")
-}
-#[allow(dead_code)]
-pub fn arrow_up_z_a<'a>() -> Text<'a> {
-    icon("\u{E41C}")
-}
-#[allow(dead_code)]
-pub fn arrows_up_from_line<'a>() -> Text<'a> {
-    icon("\u{E4D4}")
-}
-#[allow(dead_code)]
-pub fn asterisk<'a>() -> Text<'a> {
-    icon("\u{E1EF}")
-}
-#[allow(dead_code)]
-pub fn at_sign<'a>() -> Text<'a> {
-    icon("\u{E04E}")
-}
-#[allow(dead_code)]
-pub fn atom<'a>() -> Text<'a> {
-    icon("\u{E3D7}")
-}
-#[allow(dead_code)]
-pub fn audio_lines<'a>() -> Text<'a> {
-    icon("\u{E55A}")
-}
-#[allow(dead_code)]
-pub fn audio_waveform<'a>() -> Text<'a> {
-    icon("\u{E55B}")
-}
-#[allow(dead_code)]
-pub fn award<'a>() -> Text<'a> {
-    icon("\u{E04F}")
-}
-#[allow(dead_code)]
-pub fn axe<'a>() -> Text<'a> {
-    icon("\u{E050}")
-}
-#[allow(dead_code)]
-pub fn axis_3d<'a>() -> Text<'a> {
-    icon("\u{E2FE}")
-}
-#[allow(dead_code)]
-pub fn baby<'a>() -> Text<'a> {
-    icon("\u{E2CE}")
-}
-#[allow(dead_code)]
-pub fn backpack<'a>() -> Text<'a> {
-    icon("\u{E2C8}")
-}
-#[allow(dead_code)]
-pub fn badge<'a>() -> Text<'a> {
-    icon("\u{E474}")
-}
-#[allow(dead_code)]
-pub fn badge_alert<'a>() -> Text<'a> {
-    icon("\u{E475}")
-}
-#[allow(dead_code)]
-pub fn badge_cent<'a>() -> Text<'a> {
-    icon("\u{E50F}")
-}
-#[allow(dead_code)]
-pub fn badge_check<'a>() -> Text<'a> {
-    icon("\u{E241}")
-}
-#[allow(dead_code)]
-pub fn badge_dollar_sign<'a>() -> Text<'a> {
-    icon("\u{E476}")
-}
-#[allow(dead_code)]
-pub fn badge_euro<'a>() -> Text<'a> {
-    icon("\u{E510}")
-}
-#[allow(dead_code)]
-pub fn badge_indian_rupee<'a>() -> Text<'a> {
-    icon("\u{E511}")
-}
-#[allow(dead_code)]
-pub fn badge_info<'a>() -> Text<'a> {
-    icon("\u{E477}")
-}
-#[allow(dead_code)]
-pub fn badge_japanese_yen<'a>() -> Text<'a> {
-    icon("\u{E512}")
-}
-#[allow(dead_code)]
-pub fn badge_minus<'a>() -> Text<'a> {
-    icon("\u{E478}")
-}
-#[allow(dead_code)]
-pub fn badge_percent<'a>() -> Text<'a> {
-    icon("\u{E479}")
-}
-#[allow(dead_code)]
-pub fn badge_plus<'a>() -> Text<'a> {
-    icon("\u{E47A}")
-}
-#[allow(dead_code)]
-pub fn badge_pound_sterling<'a>() -> Text<'a> {
-    icon("\u{E513}")
-}
-#[allow(dead_code)]
-pub fn badge_question_mark<'a>() -> Text<'a> {
-    icon("\u{E47B}")
-}
-#[allow(dead_code)]
-pub fn badge_russian_ruble<'a>() -> Text<'a> {
-    icon("\u{E514}")
-}
-#[allow(dead_code)]
-pub fn badge_swiss_franc<'a>() -> Text<'a> {
-    icon("\u{E515}")
-}
-#[allow(dead_code)]
-pub fn badge_turkish_lira<'a>() -> Text<'a> {
-    icon("\u{E67E}")
-}
-#[allow(dead_code)]
-pub fn badge_x<'a>() -> Text<'a> {
-    icon("\u{E47C}")
-}
-#[allow(dead_code)]
-pub fn baggage_claim<'a>() -> Text<'a> {
-    icon("\u{E2C9}")
-}
-#[allow(dead_code)]
-pub fn balloon<'a>() -> Text<'a> {
-    icon("\u{E6AF}")
-}
-#[allow(dead_code)]
-pub fn ban<'a>() -> Text<'a> {
-    icon("\u{E051}")
-}
-#[allow(dead_code)]
-pub fn banana<'a>() -> Text<'a> {
-    icon("\u{E34F}")
-}
-#[allow(dead_code)]
-pub fn bandage<'a>() -> Text<'a> {
-    icon("\u{E61D}")
-}
-#[allow(dead_code)]
-pub fn banknote<'a>() -> Text<'a> {
-    icon("\u{E052}")
-}
-#[allow(dead_code)]
-pub fn banknote_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E64C}")
-}
-#[allow(dead_code)]
-pub fn banknote_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E64D}")
-}
-#[allow(dead_code)]
-pub fn banknote_x<'a>() -> Text<'a> {
-    icon("\u{E64E}")
-}
-#[allow(dead_code)]
-pub fn barcode<'a>() -> Text<'a> {
-    icon("\u{E533}")
-}
-#[allow(dead_code)]
-pub fn barrel<'a>() -> Text<'a> {
-    icon("\u{E675}")
-}
-#[allow(dead_code)]
-pub fn baseline<'a>() -> Text<'a> {
-    icon("\u{E285}")
-}
-#[allow(dead_code)]
-pub fn bath<'a>() -> Text<'a> {
-    icon("\u{E2AB}")
-}
-#[allow(dead_code)]
-pub fn battery<'a>() -> Text<'a> {
-    icon("\u{E053}")
-}
-#[allow(dead_code)]
-pub fn battery_charging<'a>() -> Text<'a> {
-    icon("\u{E054}")
-}
-#[allow(dead_code)]
-pub fn battery_full<'a>() -> Text<'a> {
-    icon("\u{E055}")
-}
-#[allow(dead_code)]
-pub fn battery_low<'a>() -> Text<'a> {
-    icon("\u{E056}")
-}
-#[allow(dead_code)]
-pub fn battery_medium<'a>() -> Text<'a> {
-    icon("\u{E057}")
-}
-
-pub fn battery_plus<'a>() -> Text<'a> {
-    icon("\u{E63E}")
-}
-
-pub fn battery_warning<'a>() -> Text<'a> {
-    icon("\u{E3AC}")
-}
-
-pub fn beaker<'a>() -> Text<'a> {
-    icon("\u{E058}")
-}
-
-pub fn bean<'a>() -> Text<'a> {
-    icon("\u{E38F}")
-}
-
-pub fn bean_off<'a>() -> Text<'a> {
-    icon("\u{E390}")
-}
-
-pub fn bed<'a>() -> Text<'a> {
-    icon("\u{E2C1}")
-}
-
-pub fn bed_double<'a>() -> Text<'a> {
-    icon("\u{E2C2}")
-}
-
-pub fn bed_single<'a>() -> Text<'a> {
-    icon("\u{E2C3}")
-}
-
-pub fn beef<'a>() -> Text<'a> {
-    icon("\u{E3A5}")
-}
-
-pub fn beer<'a>() -> Text<'a> {
-    icon("\u{E2CF}")
-}
-
-pub fn beer_off<'a>() -> Text<'a> {
-    icon("\u{E5D9}")
-}
-
-pub fn bell<'a>() -> Text<'a> {
-    icon("\u{E059}")
-}
-
-pub fn bell_dot<'a>() -> Text<'a> {
-    icon("\u{E42B}")
-}
-
-pub fn bell_electric<'a>() -> Text<'a> {
-    icon("\u{E57C}")
-}
-
-pub fn bell_minus<'a>() -> Text<'a> {
-    icon("\u{E1F0}")
-}
-
-pub fn bell_off<'a>() -> Text<'a> {
-    icon("\u{E05A}")
-}
-
-pub fn bell_plus<'a>() -> Text<'a> {
-    icon("\u{E1F1}")
-}
-
-pub fn bell_ring<'a>() -> Text<'a> {
-    icon("\u{E224}")
-}
-
-pub fn between_horizontal_end<'a>() -> Text<'a> {
-    icon("\u{E591}")
-}
-
-pub fn between_horizontal_start<'a>() -> Text<'a> {
-    icon("\u{E592}")
-}
-
-pub fn between_vertical_end<'a>() -> Text<'a> {
-    icon("\u{E593}")
-}
-
-pub fn between_vertical_start<'a>() -> Text<'a> {
-    icon("\u{E594}")
-}
-
-pub fn biceps_flexed<'a>() -> Text<'a> {
-    icon("\u{E5EB}")
-}
-
-pub fn bike<'a>() -> Text<'a> {
-    icon("\u{E1D2}")
-}
-
-pub fn binary<'a>() -> Text<'a> {
-    icon("\u{E1F2}")
-}
-
-pub fn binoculars<'a>() -> Text<'a> {
-    icon("\u{E621}")
-}
-
-pub fn biohazard<'a>() -> Text<'a> {
-    icon("\u{E441}")
-}
-
-pub fn bird<'a>() -> Text<'a> {
-    icon("\u{E3C5}")
-}
-
-pub fn birdhouse<'a>() -> Text<'a> {
-    icon("\u{E69A}")
-}
-
-pub fn bitcoin<'a>() -> Text<'a> {
-    icon("\u{E05B}")
-}
-
-pub fn blend<'a>() -> Text<'a> {
-    icon("\u{E59C}")
-}
-
-pub fn blinds<'a>() -> Text<'a> {
-    icon("\u{E3C0}")
-}
-
-pub fn blocks<'a>() -> Text<'a> {
-    icon("\u{E4FA}")
-}
-
-pub fn bluetooth<'a>() -> Text<'a> {
-    icon("\u{E05C}")
-}
-
-pub fn bluetooth_connected<'a>() -> Text<'a> {
-    icon("\u{E1B8}")
-}
-
-pub fn bluetooth_off<'a>() -> Text<'a> {
-    icon("\u{E1B9}")
-}
-
-pub fn bluetooth_searching<'a>() -> Text<'a> {
-    icon("\u{E1BA}")
-}
-
-pub fn bold<'a>() -> Text<'a> {
-    icon("\u{E05D}")
-}
-
-pub fn bolt<'a>() -> Text<'a> {
-    icon("\u{E58C}")
-}
-
-pub fn bomb<'a>() -> Text<'a> {
-    icon("\u{E2FF}")
-}
-
-pub fn bone<'a>() -> Text<'a> {
-    icon("\u{E358}")
-}
-
-pub fn book<'a>() -> Text<'a> {
-    icon("\u{E05E}")
-}
-
-pub fn book_a<'a>() -> Text<'a> {
-    icon("\u{E544}")
-}
-
-pub fn book_alert<'a>() -> Text<'a> {
-    icon("\u{E672}")
-}
-
-pub fn book_audio<'a>() -> Text<'a> {
-    icon("\u{E545}")
-}
-
-pub fn book_check<'a>() -> Text<'a> {
-    icon("\u{E546}")
-}
-
-pub fn book_copy<'a>() -> Text<'a> {
-    icon("\u{E3EC}")
-}
-
-pub fn book_dashed<'a>() -> Text<'a> {
-    icon("\u{E3ED}")
-}
-
-pub fn book_down<'a>() -> Text<'a> {
-    icon("\u{E3EE}")
-}
-
-pub fn book_headphones<'a>() -> Text<'a> {
-    icon("\u{E547}")
-}
-
-pub fn book_heart<'a>() -> Text<'a> {
-    icon("\u{E548}")
-}
-
-pub fn book_image<'a>() -> Text<'a> {
-    icon("\u{E549}")
-}
-
-pub fn book_key<'a>() -> Text<'a> {
-    icon("\u{E3EF}")
-}
-
-pub fn book_lock<'a>() -> Text<'a> {
-    icon("\u{E3F0}")
-}
-
-pub fn book_marked<'a>() -> Text<'a> {
-    icon("\u{E3F1}")
-}
-
-pub fn book_minus<'a>() -> Text<'a> {
-    icon("\u{E3F2}")
-}
-
-pub fn book_open<'a>() -> Text<'a> {
-    icon("\u{E05F}")
-}
-
-pub fn book_open_check<'a>() -> Text<'a> {
-    icon("\u{E381}")
-}
-
-pub fn book_open_text<'a>() -> Text<'a> {
-    icon("\u{E54A}")
-}
-
-pub fn book_plus<'a>() -> Text<'a> {
-    icon("\u{E3F3}")
-}
-
-pub fn book_search<'a>() -> Text<'a> {
-    icon("\u{E6AB}")
-}
-
-pub fn book_text<'a>() -> Text<'a> {
-    icon("\u{E54B}")
-}
-
-pub fn book_type<'a>() -> Text<'a> {
-    icon("\u{E54C}")
-}
-
-pub fn book_up<'a>() -> Text<'a> {
-    icon("\u{E3F4}")
-}
-
-pub fn book_up_2<'a>() -> Text<'a> {
-    icon("\u{E4A6}")
-}
-
-pub fn book_user<'a>() -> Text<'a> {
-    icon("\u{E54D}")
-}
-
-pub fn book_x<'a>() -> Text<'a> {
-    icon("\u{E3F5}")
-}
-
-pub fn bookmark<'a>() -> Text<'a> {
-    icon("\u{E060}")
-}
-
-pub fn bookmark_check<'a>() -> Text<'a> {
-    icon("\u{E51F}")
-}
-
-pub fn bookmark_minus<'a>() -> Text<'a> {
-    icon("\u{E23C}")
-}
-
-pub fn bookmark_plus<'a>() -> Text<'a> {
-    icon("\u{E23D}")
-}
-
-pub fn bookmark_x<'a>() -> Text<'a> {
-    icon("\u{E520}")
-}
-
-pub fn boom_box<'a>() -> Text<'a> {
-    icon("\u{E4EE}")
-}
-
-pub fn bot<'a>() -> Text<'a> {
-    icon("\u{E1BB}")
-}
-
-pub fn bot_message_square<'a>() -> Text<'a> {
-    icon("\u{E5CE}")
-}
-
-pub fn bot_off<'a>() -> Text<'a> {
-    icon("\u{E5E0}")
-}
-
-pub fn bottle_wine<'a>() -> Text<'a> {
-    icon("\u{E67B}")
-}
-
-pub fn bow_arrow<'a>() -> Text<'a> {
-    icon("\u{E65E}")
-}
-
-pub fn box_icon<'a>() -> Text<'a> {
-    icon("\u{E061}")
-}
-
-pub fn boxes<'a>() -> Text<'a> {
-    icon("\u{E2D0}")
-}
-
-pub fn braces<'a>() -> Text<'a> {
-    icon("\u{E36A}")
-}
-
-pub fn brackets<'a>() -> Text<'a> {
-    icon("\u{E443}")
-}
-
-pub fn brain<'a>() -> Text<'a> {
-    icon("\u{E3C6}")
-}
-
-pub fn brain_circuit<'a>() -> Text<'a> {
-    icon("\u{E3C7}")
-}
-
-pub fn brain_cog<'a>() -> Text<'a> {
-    icon("\u{E3C8}")
-}
-
-pub fn brick_wall<'a>() -> Text<'a> {
-    icon("\u{E581}")
-}
-
-pub fn brick_wall_fire<'a>() -> Text<'a> {
-    icon("\u{E653}")
-}
-
-pub fn brick_wall_shield<'a>() -> Text<'a> {
-    icon("\u{E690}")
-}
-
-pub fn briefcase<'a>() -> Text<'a> {
-    icon("\u{E062}")
-}
-
-pub fn briefcase_business<'a>() -> Text<'a> {
-    icon("\u{E5D5}")
-}
-
-pub fn briefcase_conveyor_belt<'a>() -> Text<'a> {
-    icon("\u{E62B}")
-}
-
-pub fn briefcase_medical<'a>() -> Text<'a> {
-    icon("\u{E5D6}")
-}
-
-pub fn bring_to_front<'a>() -> Text<'a> {
-    icon("\u{E4EF}")
-}
-
-pub fn brush<'a>() -> Text<'a> {
-    icon("\u{E1D3}")
-}
-
-pub fn brush_cleaning<'a>() -> Text<'a> {
-    icon("\u{E666}")
-}
-
-pub fn bubbles<'a>() -> Text<'a> {
-    icon("\u{E654}")
-}
-
-pub fn bug<'a>() -> Text<'a> {
-    icon("\u{E20C}")
-}
-
-pub fn bug_off<'a>() -> Text<'a> {
-    icon("\u{E50D}")
-}
-
-pub fn bug_play<'a>() -> Text<'a> {
-    icon("\u{E50E}")
-}
-
-pub fn building<'a>() -> Text<'a> {
-    icon("\u{E1CC}")
-}
-
-pub fn building_2<'a>() -> Text<'a> {
-    icon("\u{E290}")
-}
-
-pub fn bus<'a>() -> Text<'a> {
-    icon("\u{E1D4}")
-}
-
-pub fn bus_front<'a>() -> Text<'a> {
-    icon("\u{E4FB}")
-}
-
-pub fn cable<'a>() -> Text<'a> {
-    icon("\u{E4E3}")
-}
-
-pub fn cable_car<'a>() -> Text<'a> {
-    icon("\u{E4FC}")
-}
-
-pub fn cake<'a>() -> Text<'a> {
-    icon("\u{E344}")
-}
-
-pub fn cake_slice<'a>() -> Text<'a> {
-    icon("\u{E4B9}")
-}
-
-pub fn calculator<'a>() -> Text<'a> {
-    icon("\u{E1BC}")
-}
-
-pub fn calendar<'a>() -> Text<'a> {
-    icon("\u{E063}")
-}
-
-pub fn calendar_1<'a>() -> Text<'a> {
-    icon("\u{E630}")
-}
-
-pub fn calendar_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E5FE}")
-}
-
-pub fn calendar_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E5FF}")
-}
-
-pub fn calendar_check<'a>() -> Text<'a> {
-    icon("\u{E2B7}")
-}
-
-pub fn calendar_check_2<'a>() -> Text<'a> {
-    icon("\u{E2B8}")
-}
-
-pub fn calendar_clock<'a>() -> Text<'a> {
-    icon("\u{E304}")
-}
-
-pub fn calendar_cog<'a>() -> Text<'a> {
-    icon("\u{E5ED}")
-}
-
-pub fn calendar_days<'a>() -> Text<'a> {
-    icon("\u{E2B9}")
-}
-
-pub fn calendar_fold<'a>() -> Text<'a> {
-    icon("\u{E5B4}")
-}
-
-pub fn calendar_heart<'a>() -> Text<'a> {
-    icon("\u{E305}")
-}
-
-pub fn calendar_minus<'a>() -> Text<'a> {
-    icon("\u{E2BA}")
-}
-
-pub fn calendar_minus_2<'a>() -> Text<'a> {
-    icon("\u{E5B5}")
-}
-
-pub fn calendar_off<'a>() -> Text<'a> {
-    icon("\u{E2BB}")
-}
-
-pub fn calendar_plus<'a>() -> Text<'a> {
-    icon("\u{E2BC}")
-}
-
-pub fn calendar_plus_2<'a>() -> Text<'a> {
-    icon("\u{E5B6}")
-}
-
-pub fn calendar_range<'a>() -> Text<'a> {
-    icon("\u{E2BD}")
-}
-
-pub fn calendar_search<'a>() -> Text<'a> {
-    icon("\u{E306}")
-}
-
-pub fn calendar_sync<'a>() -> Text<'a> {
-    icon("\u{E636}")
-}
-
-pub fn calendar_x<'a>() -> Text<'a> {
-    icon("\u{E2BE}")
-}
-
-pub fn calendar_x_2<'a>() -> Text<'a> {
-    icon("\u{E2BF}")
-}
-
-pub fn calendars<'a>() -> Text<'a> {
-    icon("\u{E6A7}")
-}
-
-pub fn camera<'a>() -> Text<'a> {
-    icon("\u{E064}")
-}
-
-pub fn camera_off<'a>() -> Text<'a> {
-    icon("\u{E065}")
-}
-
-pub fn candy<'a>() -> Text<'a> {
-    icon("\u{E391}")
-}
-
-pub fn candy_cane<'a>() -> Text<'a> {
-    icon("\u{E4BA}")
-}
-
-pub fn candy_off<'a>() -> Text<'a> {
-    icon("\u{E392}")
-}
-
-pub fn cannabis<'a>() -> Text<'a> {
-    icon("\u{E5D4}")
-}
-
-pub fn cannabis_off<'a>() -> Text<'a> {
-    icon("\u{E6B7}")
-}
-
-pub fn captions<'a>() -> Text<'a> {
-    icon("\u{E3A4}")
-}
-
-pub fn captions_off<'a>() -> Text<'a> {
-    icon("\u{E5C1}")
-}
-
-pub fn car<'a>() -> Text<'a> {
-    icon("\u{E1D5}")
-}
-
-pub fn car_front<'a>() -> Text<'a> {
-    icon("\u{E4FD}")
-}
-
-pub fn car_taxi_front<'a>() -> Text<'a> {
-    icon("\u{E4FE}")
-}
-
-pub fn caravan<'a>() -> Text<'a> {
-    icon("\u{E539}")
-}
-
-pub fn card_sim<'a>() -> Text<'a> {
-    icon("\u{E671}")
-}
-
-pub fn carrot<'a>() -> Text<'a> {
-    icon("\u{E25A}")
-}
-
-pub fn case_lower<'a>() -> Text<'a> {
-    icon("\u{E3D8}")
-}
-
-pub fn case_sensitive<'a>() -> Text<'a> {
-    icon("\u{E3D9}")
-}
-
-pub fn case_upper<'a>() -> Text<'a> {
-    icon("\u{E3DA}")
-}
-
-pub fn cassette_tape<'a>() -> Text<'a> {
-    icon("\u{E4CA}")
-}
-
-pub fn cast<'a>() -> Text<'a> {
-    icon("\u{E066}")
-}
-
-pub fn castle<'a>() -> Text<'a> {
-    icon("\u{E3E0}")
-}
-
-pub fn cat<'a>() -> Text<'a> {
-    icon("\u{E38C}")
-}
-
-pub fn cctv<'a>() -> Text<'a> {
-    icon("\u{E57D}")
-}
-
-pub fn chart_area<'a>() -> Text<'a> {
-    icon("\u{E4D3}")
-}
-
-pub fn chart_bar<'a>() -> Text<'a> {
-    icon("\u{E2A2}")
-}
-
-pub fn chart_bar_big<'a>() -> Text<'a> {
-    icon("\u{E4A7}")
-}
-
-pub fn chart_bar_decreasing<'a>() -> Text<'a> {
-    icon("\u{E607}")
-}
-
-pub fn chart_bar_increasing<'a>() -> Text<'a> {
-    icon("\u{E608}")
-}
-
-pub fn chart_bar_stacked<'a>() -> Text<'a> {
-    icon("\u{E609}")
-}
-
-pub fn chart_candlestick<'a>() -> Text<'a> {
-    icon("\u{E4A8}")
-}
-
-pub fn chart_column<'a>() -> Text<'a> {
-    icon("\u{E2A3}")
-}
-
-pub fn chart_column_big<'a>() -> Text<'a> {
-    icon("\u{E4A9}")
-}
-
-pub fn chart_column_decreasing<'a>() -> Text<'a> {
-    icon("\u{E067}")
-}
-
-pub fn chart_column_increasing<'a>() -> Text<'a> {
-    icon("\u{E2A4}")
-}
-
-pub fn chart_column_stacked<'a>() -> Text<'a> {
-    icon("\u{E60A}")
-}
-
-pub fn chart_gantt<'a>() -> Text<'a> {
-    icon("\u{E624}")
-}
-
-pub fn chart_line<'a>() -> Text<'a> {
-    icon("\u{E2A5}")
-}
-
-pub fn chart_network<'a>() -> Text<'a> {
-    icon("\u{E60B}")
-}
-
-pub fn chart_no_axes_column<'a>() -> Text<'a> {
-    icon("\u{E068}")
-}
-
-pub fn chart_no_axes_column_decreasing<'a>() -> Text<'a> {
-    icon("\u{E069}")
-}
-
-pub fn chart_no_axes_column_increasing<'a>() -> Text<'a> {
-    icon("\u{E06A}")
-}
-
-pub fn chart_no_axes_combined<'a>() -> Text<'a> {
-    icon("\u{E60C}")
-}
-
-pub fn chart_no_axes_gantt<'a>() -> Text<'a> {
-    icon("\u{E4C4}")
-}
-
-pub fn chart_pie<'a>() -> Text<'a> {
-    icon("\u{E06B}")
-}
-
-pub fn chart_scatter<'a>() -> Text<'a> {
-    icon("\u{E48A}")
-}
-
-pub fn chart_spline<'a>() -> Text<'a> {
-    icon("\u{E60D}")
-}
-
-pub fn check<'a>() -> Text<'a> {
-    icon("\u{E06C}")
-}
-
-pub fn check_check<'a>() -> Text<'a> {
-    icon("\u{E38E}")
-}
-
-pub fn check_line<'a>() -> Text<'a> {
-    icon("\u{E66B}")
-}
-
-pub fn chef_hat<'a>() -> Text<'a> {
-    icon("\u{E2AC}")
-}
-
-pub fn cherry<'a>() -> Text<'a> {
-    icon("\u{E350}")
-}
-
-pub fn chess_bishop<'a>() -> Text<'a> {
-    icon("\u{E6A0}")
-}
-
-pub fn chess_king<'a>() -> Text<'a> {
-    icon("\u{E6A1}")
-}
-
-pub fn chess_knight<'a>() -> Text<'a> {
-    icon("\u{E6A2}")
-}
-
-pub fn chess_pawn<'a>() -> Text<'a> {
-    icon("\u{E6A3}")
-}
-
-pub fn chess_queen<'a>() -> Text<'a> {
-    icon("\u{E6A4}")
-}
-
-pub fn chess_rook<'a>() -> Text<'a> {
-    icon("\u{E6A5}")
-}
-
-pub fn chevron_down<'a>() -> Text<'a> {
-    icon("\u{E06D}")
-}
-
-pub fn chevron_first<'a>() -> Text<'a> {
-    icon("\u{E243}")
-}
-
-pub fn chevron_last<'a>() -> Text<'a> {
-    icon("\u{E244}")
-}
-
-pub fn chevron_left<'a>() -> Text<'a> {
-    icon("\u{E06E}")
-}
-
-pub fn chevron_right<'a>() -> Text<'a> {
-    icon("\u{E06F}")
-}
-
-pub fn chevron_up<'a>() -> Text<'a> {
-    icon("\u{E070}")
-}
-
-pub fn chevrons_down<'a>() -> Text<'a> {
-    icon("\u{E071}")
-}
-
-pub fn chevrons_down_up<'a>() -> Text<'a> {
-    icon("\u{E228}")
-}
-
-pub fn chevrons_left<'a>() -> Text<'a> {
-    icon("\u{E072}")
-}
-
-pub fn chevrons_left_right<'a>() -> Text<'a> {
-    icon("\u{E293}")
-}
-
-pub fn chevrons_left_right_ellipsis<'a>() -> Text<'a> {
-    icon("\u{E61F}")
-}
-
-pub fn chevrons_right<'a>() -> Text<'a> {
-    icon("\u{E073}")
-}
-
-pub fn chevrons_right_left<'a>() -> Text<'a> {
-    icon("\u{E294}")
-}
-
-pub fn chevrons_up<'a>() -> Text<'a> {
-    icon("\u{E074}")
-}
-
-pub fn chevrons_up_down<'a>() -> Text<'a> {
-    icon("\u{E211}")
-}
-
-pub fn chromium<'a>() -> Text<'a> {
-    icon("\u{E075}")
-}
-
-pub fn church<'a>() -> Text<'a> {
-    icon("\u{E3E1}")
-}
-
-pub fn cigarette<'a>() -> Text<'a> {
-    icon("\u{E2C6}")
-}
-
-pub fn cigarette_off<'a>() -> Text<'a> {
-    icon("\u{E2C7}")
-}
-
-pub fn circle<'a>() -> Text<'a> {
-    icon("\u{E076}")
-}
-
-pub fn circle_alert<'a>() -> Text<'a> {
-    icon("\u{E077}")
-}
-
-pub fn circle_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E078}")
-}
-
-pub fn circle_arrow_left<'a>() -> Text<'a> {
-    icon("\u{E079}")
-}
-
-pub fn circle_arrow_out_down_left<'a>() -> Text<'a> {
-    icon("\u{E3F7}")
-}
-
-pub fn circle_arrow_out_down_right<'a>() -> Text<'a> {
-    icon("\u{E3F8}")
-}
-
-pub fn circle_arrow_out_up_left<'a>() -> Text<'a> {
-    icon("\u{E3F9}")
-}
-
-pub fn circle_arrow_out_up_right<'a>() -> Text<'a> {
-    icon("\u{E3FA}")
-}
-
-pub fn circle_arrow_right<'a>() -> Text<'a> {
-    icon("\u{E07A}")
-}
-
-pub fn circle_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E07B}")
-}
-
-pub fn circle_check<'a>() -> Text<'a> {
-    icon("\u{E226}")
-}
-
-pub fn circle_check_big<'a>() -> Text<'a> {
-    icon("\u{E07C}")
-}
-
-pub fn circle_chevron_down<'a>() -> Text<'a> {
-    icon("\u{E4DD}")
-}
-
-pub fn circle_chevron_left<'a>() -> Text<'a> {
-    icon("\u{E4DE}")
-}
-
-pub fn circle_chevron_right<'a>() -> Text<'a> {
-    icon("\u{E4DF}")
-}
-
-pub fn circle_chevron_up<'a>() -> Text<'a> {
-    icon("\u{E4E0}")
-}
-
-pub fn circle_dashed<'a>() -> Text<'a> {
-    icon("\u{E4B0}")
-}
-
-pub fn circle_divide<'a>() -> Text<'a> {
-    icon("\u{E07D}")
-}
-
-pub fn circle_dollar_sign<'a>() -> Text<'a> {
-    icon("\u{E47D}")
-}
-
-pub fn circle_dot<'a>() -> Text<'a> {
-    icon("\u{E345}")
-}
-
-pub fn circle_dot_dashed<'a>() -> Text<'a> {
-    icon("\u{E4B1}")
-}
-
-pub fn circle_ellipsis<'a>() -> Text<'a> {
-    icon("\u{E346}")
-}
-
-pub fn circle_equal<'a>() -> Text<'a> {
-    icon("\u{E400}")
-}
-
-pub fn circle_fading_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E618}")
-}
-
-pub fn circle_fading_plus<'a>() -> Text<'a> {
-    icon("\u{E5BC}")
-}
-
-pub fn circle_gauge<'a>() -> Text<'a> {
-    icon("\u{E4E1}")
-}
-
-pub fn circle_minus<'a>() -> Text<'a> {
-    icon("\u{E07E}")
-}
-
-pub fn circle_off<'a>() -> Text<'a> {
-    icon("\u{E401}")
-}
-
-pub fn circle_parking<'a>() -> Text<'a> {
-    icon("\u{E3C9}")
-}
-
-pub fn circle_parking_off<'a>() -> Text<'a> {
-    icon("\u{E3CA}")
-}
-
-pub fn circle_pause<'a>() -> Text<'a> {
-    icon("\u{E07F}")
-}
-
-pub fn circle_percent<'a>() -> Text<'a> {
-    icon("\u{E51A}")
-}
-
-pub fn circle_pile<'a>() -> Text<'a> {
-    icon("\u{E6B0}")
-}
-
-pub fn circle_play<'a>() -> Text<'a> {
-    icon("\u{E080}")
-}
-
-pub fn circle_plus<'a>() -> Text<'a> {
-    icon("\u{E081}")
-}
-
-pub fn circle_pound_sterling<'a>() -> Text<'a> {
-    icon("\u{E66D}")
-}
-
-pub fn circle_power<'a>() -> Text<'a> {
-    icon("\u{E550}")
-}
-
-pub fn circle_question_mark<'a>() -> Text<'a> {
-    icon("\u{E082}")
-}
-
-pub fn circle_slash<'a>() -> Text<'a> {
-    icon("\u{E402}")
-}
-
-pub fn circle_slash_2<'a>() -> Text<'a> {
-    icon("\u{E213}")
-}
-
-pub fn circle_small<'a>() -> Text<'a> {
-    icon("\u{E640}")
-}
-
-pub fn circle_star<'a>() -> Text<'a> {
-    icon("\u{E68D}")
-}
-
-pub fn circle_stop<'a>() -> Text<'a> {
-    icon("\u{E083}")
-}
-
-pub fn circle_user<'a>() -> Text<'a> {
-    icon("\u{E461}")
-}
-
-pub fn circle_user_round<'a>() -> Text<'a> {
-    icon("\u{E462}")
-}
-
-pub fn circle_x<'a>() -> Text<'a> {
-    icon("\u{E084}")
-}
-
-pub fn circuit_board<'a>() -> Text<'a> {
-    icon("\u{E403}")
-}
-
-pub fn citrus<'a>() -> Text<'a> {
-    icon("\u{E375}")
-}
-
-pub fn clapperboard<'a>() -> Text<'a> {
-    icon("\u{E29B}")
-}
-
-pub fn clipboard<'a>() -> Text<'a> {
-    icon("\u{E085}")
-}
-
-pub fn clipboard_check<'a>() -> Text<'a> {
-    icon("\u{E219}")
-}
-
-pub fn clipboard_clock<'a>() -> Text<'a> {
-    icon("\u{E688}")
-}
-
-pub fn clipboard_copy<'a>() -> Text<'a> {
-    icon("\u{E225}")
-}
-
-pub fn clipboard_list<'a>() -> Text<'a> {
-    icon("\u{E086}")
-}
-
-pub fn clipboard_minus<'a>() -> Text<'a> {
-    icon("\u{E5BE}")
-}
-
-pub fn clipboard_paste<'a>() -> Text<'a> {
-    icon("\u{E3E8}")
-}
-
-pub fn clipboard_pen<'a>() -> Text<'a> {
-    icon("\u{E307}")
-}
-
-pub fn clipboard_pen_line<'a>() -> Text<'a> {
-    icon("\u{E308}")
-}
-
-pub fn clipboard_plus<'a>() -> Text<'a> {
-    icon("\u{E5BF}")
-}
-
-pub fn clipboard_type<'a>() -> Text<'a> {
-    icon("\u{E309}")
-}
-
-pub fn clipboard_x<'a>() -> Text<'a> {
-    icon("\u{E222}")
-}
-
-pub fn clock<'a>() -> Text<'a> {
-    icon("\u{E087}")
-}
-
-pub fn clock_1<'a>() -> Text<'a> {
-    icon("\u{E24B}")
-}
-
-pub fn clock_10<'a>() -> Text<'a> {
-    icon("\u{E24C}")
-}
-
-pub fn clock_11<'a>() -> Text<'a> {
-    icon("\u{E24D}")
-}
-
-pub fn clock_12<'a>() -> Text<'a> {
-    icon("\u{E24E}")
-}
-
-pub fn clock_2<'a>() -> Text<'a> {
-    icon("\u{E24F}")
-}
-
-pub fn clock_3<'a>() -> Text<'a> {
-    icon("\u{E250}")
-}
-
-pub fn clock_4<'a>() -> Text<'a> {
-    icon("\u{E251}")
-}
-
-pub fn clock_5<'a>() -> Text<'a> {
-    icon("\u{E252}")
-}
-
-pub fn clock_6<'a>() -> Text<'a> {
-    icon("\u{E253}")
-}
-
-pub fn clock_7<'a>() -> Text<'a> {
-    icon("\u{E254}")
-}
-
-pub fn clock_8<'a>() -> Text<'a> {
-    icon("\u{E255}")
-}
-
-pub fn clock_9<'a>() -> Text<'a> {
-    icon("\u{E256}")
-}
-
-pub fn clock_alert<'a>() -> Text<'a> {
-    icon("\u{E62A}")
-}
-
-pub fn clock_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E600}")
-}
-
-pub fn clock_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E601}")
-}
-
-pub fn clock_check<'a>() -> Text<'a> {
-    icon("\u{E69E}")
-}
-
-pub fn clock_fading<'a>() -> Text<'a> {
-    icon("\u{E64A}")
-}
-
-pub fn clock_plus<'a>() -> Text<'a> {
-    icon("\u{E667}")
-}
-
-pub fn closed_caption<'a>() -> Text<'a> {
-    icon("\u{E68A}")
-}
-
-pub fn cloud<'a>() -> Text<'a> {
-    icon("\u{E088}")
-}
-
-pub fn cloud_alert<'a>() -> Text<'a> {
-    icon("\u{E633}")
-}
-
-pub fn cloud_backup<'a>() -> Text<'a> {
-    icon("\u{E6B1}")
-}
-
-pub fn cloud_check<'a>() -> Text<'a> {
-    icon("\u{E66E}")
-}
-
-pub fn cloud_cog<'a>() -> Text<'a> {
-    icon("\u{E30A}")
-}
-
-pub fn cloud_download<'a>() -> Text<'a> {
-    icon("\u{E089}")
-}
-
-pub fn cloud_drizzle<'a>() -> Text<'a> {
-    icon("\u{E08A}")
-}
-
-pub fn cloud_fog<'a>() -> Text<'a> {
-    icon("\u{E214}")
-}
-
-pub fn cloud_hail<'a>() -> Text<'a> {
-    icon("\u{E08B}")
-}
-
-pub fn cloud_lightning<'a>() -> Text<'a> {
-    icon("\u{E08C}")
-}
-
-pub fn cloud_moon<'a>() -> Text<'a> {
-    icon("\u{E215}")
-}
-
-pub fn cloud_moon_rain<'a>() -> Text<'a> {
-    icon("\u{E2FA}")
-}
-
-pub fn cloud_off<'a>() -> Text<'a> {
-    icon("\u{E08D}")
-}
-
-pub fn cloud_rain<'a>() -> Text<'a> {
-    icon("\u{E08E}")
-}
-
-pub fn cloud_rain_wind<'a>() -> Text<'a> {
-    icon("\u{E08F}")
-}
-
-pub fn cloud_snow<'a>() -> Text<'a> {
-    icon("\u{E090}")
-}
-
-pub fn cloud_sun<'a>() -> Text<'a> {
-    icon("\u{E216}")
-}
-
-pub fn cloud_sun_rain<'a>() -> Text<'a> {
-    icon("\u{E2FB}")
-}
-
-pub fn cloud_sync<'a>() -> Text<'a> {
-    icon("\u{E6B2}")
-}
-
-pub fn cloud_upload<'a>() -> Text<'a> {
-    icon("\u{E091}")
-}
-
-pub fn cloudy<'a>() -> Text<'a> {
-    icon("\u{E217}")
-}
-
-pub fn clover<'a>() -> Text<'a> {
-    icon("\u{E092}")
-}
-
-pub fn club<'a>() -> Text<'a> {
-    icon("\u{E496}")
-}
-
-pub fn code<'a>() -> Text<'a> {
-    icon("\u{E093}")
-}
-
-pub fn code_xml<'a>() -> Text<'a> {
-    icon("\u{E206}")
-}
-
-pub fn codepen<'a>() -> Text<'a> {
-    icon("\u{E094}")
-}
-
-pub fn codesandbox<'a>() -> Text<'a> {
-    icon("\u{E095}")
-}
-
-pub fn coffee<'a>() -> Text<'a> {
-    icon("\u{E096}")
-}
-
-pub fn cog<'a>() -> Text<'a> {
-    icon("\u{E30B}")
-}
-
-pub fn coins<'a>() -> Text<'a> {
-    icon("\u{E097}")
-}
-
-pub fn columns_2<'a>() -> Text<'a> {
-    icon("\u{E098}")
-}
-
-pub fn columns_3<'a>() -> Text<'a> {
-    icon("\u{E099}")
-}
-
-pub fn columns_3_cog<'a>() -> Text<'a> {
-    icon("\u{E661}")
-}
-
-pub fn columns_4<'a>() -> Text<'a> {
-    icon("\u{E589}")
-}
-
-pub fn combine<'a>() -> Text<'a> {
-    icon("\u{E44C}")
-}
-
-pub fn command<'a>() -> Text<'a> {
-    icon("\u{E09A}")
-}
-
-pub fn compass<'a>() -> Text<'a> {
-    icon("\u{E09B}")
-}
-
-pub fn component<'a>() -> Text<'a> {
-    icon("\u{E2AD}")
-}
-
-pub fn computer<'a>() -> Text<'a> {
-    icon("\u{E4E4}")
-}
-
-pub fn concierge_bell<'a>() -> Text<'a> {
-    icon("\u{E378}")
-}
-
-pub fn cone<'a>() -> Text<'a> {
-    icon("\u{E523}")
-}
-
-pub fn construction<'a>() -> Text<'a> {
-    icon("\u{E3B4}")
-}
-
-pub fn contact<'a>() -> Text<'a> {
-    icon("\u{E09C}")
-}
-
-pub fn contact_round<'a>() -> Text<'a> {
-    icon("\u{E463}")
-}
-
-pub fn container<'a>() -> Text<'a> {
-    icon("\u{E4D5}")
-}
-
-pub fn contrast<'a>() -> Text<'a> {
-    icon("\u{E09D}")
-}
-
-pub fn cookie<'a>() -> Text<'a> {
-    icon("\u{E26B}")
-}
-
-pub fn cooking_pot<'a>() -> Text<'a> {
-    icon("\u{E584}")
-}
-
-pub fn copy<'a>() -> Text<'a> {
-    icon("\u{E09E}")
-}
-
-pub fn copy_check<'a>() -> Text<'a> {
-    icon("\u{E3FB}")
-}
-
-pub fn copy_minus<'a>() -> Text<'a> {
-    icon("\u{E3FC}")
-}
-
-pub fn copy_plus<'a>() -> Text<'a> {
-    icon("\u{E3FD}")
-}
-
-pub fn copy_slash<'a>() -> Text<'a> {
-    icon("\u{E3FE}")
-}
-
-pub fn copy_x<'a>() -> Text<'a> {
-    icon("\u{E3FF}")
-}
-
-pub fn copyleft<'a>() -> Text<'a> {
-    icon("\u{E09F}")
-}
-
-pub fn copyright<'a>() -> Text<'a> {
-    icon("\u{E0A0}")
-}
-
-pub fn corner_down_left<'a>() -> Text<'a> {
-    icon("\u{E0A1}")
-}
-
-pub fn corner_down_right<'a>() -> Text<'a> {
-    icon("\u{E0A2}")
-}
-
-pub fn corner_left_down<'a>() -> Text<'a> {
-    icon("\u{E0A3}")
-}
-
-pub fn corner_left_up<'a>() -> Text<'a> {
-    icon("\u{E0A4}")
-}
-
-pub fn corner_right_down<'a>() -> Text<'a> {
-    icon("\u{E0A5}")
-}
-
-pub fn corner_right_up<'a>() -> Text<'a> {
-    icon("\u{E0A6}")
-}
-
-pub fn corner_up_left<'a>() -> Text<'a> {
-    icon("\u{E0A7}")
-}
-
-pub fn corner_up_right<'a>() -> Text<'a> {
-    icon("\u{E0A8}")
-}
-
-pub fn cpu<'a>() -> Text<'a> {
-    icon("\u{E0A9}")
-}
-
-pub fn creative_commons<'a>() -> Text<'a> {
-    icon("\u{E3B2}")
-}
-
-pub fn credit_card<'a>() -> Text<'a> {
-    icon("\u{E0AA}")
-}
-
-pub fn croissant<'a>() -> Text<'a> {
-    icon("\u{E2AE}")
-}
-
-pub fn crop<'a>() -> Text<'a> {
-    icon("\u{E0AB}")
-}
-
-pub fn cross<'a>() -> Text<'a> {
-    icon("\u{E1E5}")
-}
-
-pub fn crosshair<'a>() -> Text<'a> {
-    icon("\u{E0AC}")
-}
-
-pub fn crown<'a>() -> Text<'a> {
-    icon("\u{E1D6}")
-}
-
-pub fn cuboid<'a>() -> Text<'a> {
-    icon("\u{E524}")
-}
-
-pub fn cup_soda<'a>() -> Text<'a> {
-    icon("\u{E2D1}")
-}
-
-pub fn currency<'a>() -> Text<'a> {
-    icon("\u{E230}")
-}
-
-pub fn cylinder<'a>() -> Text<'a> {
-    icon("\u{E525}")
-}
-
-pub fn dam<'a>() -> Text<'a> {
-    icon("\u{E606}")
-}
-
-pub fn database<'a>() -> Text<'a> {
-    icon("\u{E0AD}")
-}
-
-pub fn database_backup<'a>() -> Text<'a> {
-    icon("\u{E3AB}")
-}
-
-pub fn database_search<'a>() -> Text<'a> {
-    icon("\u{E6BC}")
-}
-
-pub fn database_zap<'a>() -> Text<'a> {
-    icon("\u{E50B}")
-}
-
-pub fn decimals_arrow_left<'a>() -> Text<'a> {
-    icon("\u{E65C}")
-}
-
-pub fn decimals_arrow_right<'a>() -> Text<'a> {
-    icon("\u{E65D}")
-}
-
-pub fn delete<'a>() -> Text<'a> {
-    icon("\u{E0AE}")
-}
-
-pub fn dessert<'a>() -> Text<'a> {
-    icon("\u{E4BB}")
-}
-
-pub fn diameter<'a>() -> Text<'a> {
-    icon("\u{E526}")
-}
-
-pub fn diamond<'a>() -> Text<'a> {
-    icon("\u{E2D2}")
-}
-
-pub fn diamond_minus<'a>() -> Text<'a> {
-    icon("\u{E5E1}")
-}
-
-pub fn diamond_percent<'a>() -> Text<'a> {
-    icon("\u{E51B}")
-}
-
-pub fn diamond_plus<'a>() -> Text<'a> {
-    icon("\u{E5E2}")
-}
-
-pub fn dice_1<'a>() -> Text<'a> {
-    icon("\u{E287}")
-}
-
-pub fn dice_2<'a>() -> Text<'a> {
-    icon("\u{E288}")
-}
-
-pub fn dice_3<'a>() -> Text<'a> {
-    icon("\u{E289}")
-}
-
-pub fn dice_4<'a>() -> Text<'a> {
-    icon("\u{E28A}")
-}
-
-pub fn dice_5<'a>() -> Text<'a> {
-    icon("\u{E28B}")
-}
-
-pub fn dice_6<'a>() -> Text<'a> {
-    icon("\u{E28C}")
-}
-
-pub fn dices<'a>() -> Text<'a> {
-    icon("\u{E2C5}")
-}
-
-pub fn diff<'a>() -> Text<'a> {
-    icon("\u{E30C}")
-}
-
-pub fn disc<'a>() -> Text<'a> {
-    icon("\u{E0AF}")
-}
-
-pub fn disc_2<'a>() -> Text<'a> {
-    icon("\u{E3F6}")
-}
-
-pub fn disc_3<'a>() -> Text<'a> {
-    icon("\u{E494}")
-}
-
-pub fn disc_album<'a>() -> Text<'a> {
-    icon("\u{E55C}")
-}
-
-pub fn divide<'a>() -> Text<'a> {
-    icon("\u{E0B0}")
-}
-
-pub fn dna<'a>() -> Text<'a> {
-    icon("\u{E393}")
-}
-
-pub fn dna_off<'a>() -> Text<'a> {
-    icon("\u{E394}")
-}
-
-pub fn dock<'a>() -> Text<'a> {
-    icon("\u{E5D3}")
-}
-
-pub fn dog<'a>() -> Text<'a> {
-    icon("\u{E38D}")
-}
-
-pub fn dollar_sign<'a>() -> Text<'a> {
-    icon("\u{E0B1}")
-}
-
-pub fn donut<'a>() -> Text<'a> {
-    icon("\u{E4BC}")
-}
-
-pub fn door_closed<'a>() -> Text<'a> {
-    icon("\u{E3D5}")
-}
-
-pub fn door_closed_locked<'a>() -> Text<'a> {
-    icon("\u{E664}")
-}
-
-pub fn door_open<'a>() -> Text<'a> {
-    icon("\u{E3D6}")
-}
-
-pub fn dot<'a>() -> Text<'a> {
-    icon("\u{E44F}")
-}
-
-pub fn download<'a>() -> Text<'a> {
-    icon("\u{E0B2}")
-}
-
-pub fn drafting_compass<'a>() -> Text<'a> {
-    icon("\u{E527}")
-}
-
-pub fn drama<'a>() -> Text<'a> {
-    icon("\u{E521}")
-}
-
-pub fn dribbble<'a>() -> Text<'a> {
-    icon("\u{E0B3}")
-}
-
-pub fn drill<'a>() -> Text<'a> {
-    icon("\u{E58D}")
-}
-
-pub fn drone<'a>() -> Text<'a> {
-    icon("\u{E676}")
-}
-
-pub fn droplet<'a>() -> Text<'a> {
-    icon("\u{E0B4}")
-}
-
-pub fn droplet_off<'a>() -> Text<'a> {
-    icon("\u{E638}")
-}
-
-pub fn droplets<'a>() -> Text<'a> {
-    icon("\u{E0B5}")
-}
-
-pub fn drum<'a>() -> Text<'a> {
-    icon("\u{E55D}")
-}
-
-pub fn drumstick<'a>() -> Text<'a> {
-    icon("\u{E25B}")
-}
-
-pub fn dumbbell<'a>() -> Text<'a> {
-    icon("\u{E3A1}")
-}
-
-pub fn ear<'a>() -> Text<'a> {
-    icon("\u{E382}")
-}
-
-pub fn ear_off<'a>() -> Text<'a> {
-    icon("\u{E383}")
-}
-
-pub fn earth<'a>() -> Text<'a> {
-    icon("\u{E1F3}")
-}
-
-pub fn earth_lock<'a>() -> Text<'a> {
-    icon("\u{E5CC}")
-}
-
-pub fn eclipse<'a>() -> Text<'a> {
-    icon("\u{E59D}")
-}
-
-pub fn egg<'a>() -> Text<'a> {
-    icon("\u{E25D}")
-}
-
-pub fn egg_fried<'a>() -> Text<'a> {
-    icon("\u{E351}")
-}
-
-pub fn egg_off<'a>() -> Text<'a> {
-    icon("\u{E395}")
-}
-
-pub fn ellipsis<'a>() -> Text<'a> {
-    icon("\u{E0B6}")
-}
-
-pub fn ellipsis_vertical<'a>() -> Text<'a> {
-    icon("\u{E0B7}")
-}
-
-pub fn equal<'a>() -> Text<'a> {
-    icon("\u{E1BD}")
-}
-
-pub fn equal_approximately<'a>() -> Text<'a> {
-    icon("\u{E634}")
-}
-
-pub fn equal_not<'a>() -> Text<'a> {
-    icon("\u{E1BE}")
-}
-
-pub fn eraser<'a>() -> Text<'a> {
-    icon("\u{E28F}")
-}
-
-pub fn ethernet_port<'a>() -> Text<'a> {
-    icon("\u{E620}")
-}
-
-pub fn euro<'a>() -> Text<'a> {
-    icon("\u{E0B8}")
-}
-
-pub fn ev_charger<'a>() -> Text<'a> {
-    icon("\u{E697}")
-}
-
-pub fn expand<'a>() -> Text<'a> {
-    icon("\u{E21A}")
-}
-
-pub fn external_link<'a>() -> Text<'a> {
-    icon("\u{E0B9}")
-}
-
-pub fn eye<'a>() -> Text<'a> {
-    icon("\u{E0BA}")
-}
-
-pub fn eye_closed<'a>() -> Text<'a> {
-    icon("\u{E62E}")
-}
-
-pub fn eye_off<'a>() -> Text<'a> {
-    icon("\u{E0BB}")
-}
-
-pub fn facebook<'a>() -> Text<'a> {
-    icon("\u{E0BC}")
-}
-
-pub fn factory<'a>() -> Text<'a> {
-    icon("\u{E29F}")
-}
-
-pub fn fan<'a>() -> Text<'a> {
-    icon("\u{E379}")
-}
-
-pub fn fast_forward<'a>() -> Text<'a> {
-    icon("\u{E0BD}")
-}
-
-pub fn feather<'a>() -> Text<'a> {
-    icon("\u{E0BE}")
-}
-
-pub fn fence<'a>() -> Text<'a> {
-    icon("\u{E582}")
-}
-
-pub fn ferris_wheel<'a>() -> Text<'a> {
-    icon("\u{E47F}")
-}
-
-pub fn figma<'a>() -> Text<'a> {
-    icon("\u{E0BF}")
-}
-
-pub fn file<'a>() -> Text<'a> {
-    icon("\u{E0C0}")
-}
-
-pub fn file_archive<'a>() -> Text<'a> {
-    icon("\u{E30D}")
-}
-
-pub fn file_axis_3d<'a>() -> Text<'a> {
-    icon("\u{E30E}")
-}
-
-pub fn file_badge<'a>() -> Text<'a> {
-    icon("\u{E30F}")
-}
-
-pub fn file_box<'a>() -> Text<'a> {
-    icon("\u{E310}")
-}
-
-pub fn file_braces<'a>() -> Text<'a> {
-    icon("\u{E36B}")
-}
-
-pub fn file_braces_corner<'a>() -> Text<'a> {
-    icon("\u{E36C}")
-}
-
-pub fn file_chart_column<'a>() -> Text<'a> {
-    icon("\u{E311}")
-}
-
-pub fn file_chart_column_increasing<'a>() -> Text<'a> {
-    icon("\u{E312}")
-}
-
-pub fn file_chart_line<'a>() -> Text<'a> {
-    icon("\u{E313}")
-}
-
-pub fn file_chart_pie<'a>() -> Text<'a> {
-    icon("\u{E314}")
-}
-
-pub fn file_check<'a>() -> Text<'a> {
-    icon("\u{E0C1}")
-}
-
-pub fn file_check_corner<'a>() -> Text<'a> {
-    icon("\u{E0C2}")
-}
-
-pub fn file_clock<'a>() -> Text<'a> {
-    icon("\u{E315}")
-}
-
-pub fn file_code<'a>() -> Text<'a> {
-    icon("\u{E0C3}")
-}
-
-pub fn file_code_corner<'a>() -> Text<'a> {
-    icon("\u{E45E}")
-}
-
-pub fn file_cog<'a>() -> Text<'a> {
-    icon("\u{E316}")
-}
-
-pub fn file_diff<'a>() -> Text<'a> {
-    icon("\u{E317}")
-}
-
-pub fn file_digit<'a>() -> Text<'a> {
-    icon("\u{E0C4}")
-}
-
-pub fn file_down<'a>() -> Text<'a> {
-    icon("\u{E318}")
-}
-
-pub fn file_exclamation_point<'a>() -> Text<'a> {
-    icon("\u{E319}")
-}
-
-pub fn file_headphone<'a>() -> Text<'a> {
-    icon("\u{E31A}")
-}
-
-pub fn file_heart<'a>() -> Text<'a> {
-    icon("\u{E31B}")
-}
-
-pub fn file_image<'a>() -> Text<'a> {
-    icon("\u{E31C}")
-}
-
-pub fn file_input<'a>() -> Text<'a> {
-    icon("\u{E0C5}")
-}
-
-pub fn file_key<'a>() -> Text<'a> {
-    icon("\u{E31D}")
-}
-
-pub fn file_lock<'a>() -> Text<'a> {
-    icon("\u{E31E}")
-}
-
-pub fn file_minus<'a>() -> Text<'a> {
-    icon("\u{E0C6}")
-}
-
-pub fn file_minus_corner<'a>() -> Text<'a> {
-    icon("\u{E0C7}")
-}
-
-pub fn file_music<'a>() -> Text<'a> {
-    icon("\u{E55E}")
-}
-
-pub fn file_output<'a>() -> Text<'a> {
-    icon("\u{E0C8}")
-}
-
-pub fn file_pen<'a>() -> Text<'a> {
-    icon("\u{E31F}")
-}
-
-pub fn file_pen_line<'a>() -> Text<'a> {
-    icon("\u{E320}")
-}
-
-pub fn file_play<'a>() -> Text<'a> {
-    icon("\u{E321}")
-}
-
-pub fn file_plus<'a>() -> Text<'a> {
-    icon("\u{E0C9}")
-}
-
-pub fn file_plus_corner<'a>() -> Text<'a> {
-    icon("\u{E0CA}")
-}
-
-pub fn file_question_mark<'a>() -> Text<'a> {
-    icon("\u{E322}")
-}
-
-pub fn file_scan<'a>() -> Text<'a> {
-    icon("\u{E323}")
-}
-
-pub fn file_search<'a>() -> Text<'a> {
-    icon("\u{E0CB}")
-}
-
-pub fn file_search_corner<'a>() -> Text<'a> {
-    icon("\u{E324}")
-}
-
-pub fn file_signal<'a>() -> Text<'a> {
-    icon("\u{E325}")
-}
-
-pub fn file_sliders<'a>() -> Text<'a> {
-    icon("\u{E5A0}")
-}
-
-pub fn file_spreadsheet<'a>() -> Text<'a> {
-    icon("\u{E326}")
-}
-
-pub fn file_stack<'a>() -> Text<'a> {
-    icon("\u{E4A1}")
-}
-
-pub fn file_symlink<'a>() -> Text<'a> {
-    icon("\u{E327}")
-}
-
-pub fn file_terminal<'a>() -> Text<'a> {
-    icon("\u{E328}")
-}
-
-pub fn file_text<'a>() -> Text<'a> {
-    icon("\u{E0CC}")
-}
-
-pub fn file_type<'a>() -> Text<'a> {
-    icon("\u{E329}")
-}
-
-pub fn file_type_corner<'a>() -> Text<'a> {
-    icon("\u{E36D}")
-}
-
-pub fn file_up<'a>() -> Text<'a> {
-    icon("\u{E32A}")
-}
-
-pub fn file_user<'a>() -> Text<'a> {
-    icon("\u{E62D}")
-}
-
-pub fn file_video_camera<'a>() -> Text<'a> {
-    icon("\u{E32B}")
-}
-
-pub fn file_volume<'a>() -> Text<'a> {
-    icon("\u{E32C}")
-}
-
-pub fn file_x<'a>() -> Text<'a> {
-    icon("\u{E0CD}")
-}
-
-pub fn file_x_corner<'a>() -> Text<'a> {
-    icon("\u{E0CE}")
-}
-
-pub fn files<'a>() -> Text<'a> {
-    icon("\u{E0CF}")
-}
-
-pub fn film<'a>() -> Text<'a> {
-    icon("\u{E0D0}")
-}
-
-pub fn fingerprint_pattern<'a>() -> Text<'a> {
-    icon("\u{E2CB}")
-}
-
-pub fn fire_extinguisher<'a>() -> Text<'a> {
-    icon("\u{E57E}")
-}
-
-pub fn fish<'a>() -> Text<'a> {
-    icon("\u{E3A6}")
-}
-
-pub fn fish_off<'a>() -> Text<'a> {
-    icon("\u{E3B0}")
-}
-
-pub fn fish_symbol<'a>() -> Text<'a> {
-    icon("\u{E4F4}")
-}
-
-pub fn fishing_hook<'a>() -> Text<'a> {
-    icon("\u{E6B6}")
-}
-
-pub fn flag<'a>() -> Text<'a> {
-    icon("\u{E0D1}")
-}
-
-pub fn flag_off<'a>() -> Text<'a> {
-    icon("\u{E292}")
-}
-
-pub fn flag_triangle_left<'a>() -> Text<'a> {
-    icon("\u{E237}")
-}
-
-pub fn flag_triangle_right<'a>() -> Text<'a> {
-    icon("\u{E238}")
-}
-
-pub fn flame<'a>() -> Text<'a> {
-    icon("\u{E0D2}")
-}
-
-pub fn flame_kindling<'a>() -> Text<'a> {
-    icon("\u{E53A}")
-}
-
-pub fn flashlight<'a>() -> Text<'a> {
-    icon("\u{E0D3}")
-}
-
-pub fn flashlight_off<'a>() -> Text<'a> {
-    icon("\u{E0D4}")
-}
-
-pub fn flask_conical<'a>() -> Text<'a> {
-    icon("\u{E0D5}")
-}
-
-pub fn flask_conical_off<'a>() -> Text<'a> {
-    icon("\u{E396}")
-}
-
-pub fn flask_round<'a>() -> Text<'a> {
-    icon("\u{E0D6}")
-}
-
-pub fn flip_horizontal_2<'a>() -> Text<'a> {
-    icon("\u{E35D}")
-}
-
-pub fn flip_vertical_2<'a>() -> Text<'a> {
-    icon("\u{E35E}")
-}
-
-pub fn flower<'a>() -> Text<'a> {
-    icon("\u{E2D3}")
-}
-
-pub fn flower_2<'a>() -> Text<'a> {
-    icon("\u{E2D4}")
-}
-
-pub fn focus<'a>() -> Text<'a> {
-    icon("\u{E29E}")
-}
-
-pub fn fold_horizontal<'a>() -> Text<'a> {
-    icon("\u{E43B}")
-}
-
-pub fn fold_vertical<'a>() -> Text<'a> {
-    icon("\u{E43C}")
-}
-
-pub fn folder<'a>() -> Text<'a> {
-    icon("\u{E0D7}")
-}
-
-pub fn folder_archive<'a>() -> Text<'a> {
-    icon("\u{E32D}")
-}
-
-pub fn folder_check<'a>() -> Text<'a> {
-    icon("\u{E32E}")
-}
-
-pub fn folder_clock<'a>() -> Text<'a> {
-    icon("\u{E32F}")
-}
-
-pub fn folder_closed<'a>() -> Text<'a> {
-    icon("\u{E330}")
-}
-
-pub fn folder_code<'a>() -> Text<'a> {
-    icon("\u{E5FB}")
-}
-
-pub fn folder_cog<'a>() -> Text<'a> {
-    icon("\u{E331}")
-}
-
-pub fn folder_dot<'a>() -> Text<'a> {
-    icon("\u{E4C5}")
-}
-
-pub fn folder_down<'a>() -> Text<'a> {
-    icon("\u{E332}")
-}
-
-pub fn folder_git<'a>() -> Text<'a> {
-    icon("\u{E409}")
-}
-
-pub fn folder_git_2<'a>() -> Text<'a> {
-    icon("\u{E40A}")
-}
-
-pub fn folder_heart<'a>() -> Text<'a> {
-    icon("\u{E333}")
-}
-
-pub fn folder_input<'a>() -> Text<'a> {
-    icon("\u{E334}")
-}
-
-pub fn folder_kanban<'a>() -> Text<'a> {
-    icon("\u{E4C6}")
-}
-
-pub fn folder_key<'a>() -> Text<'a> {
-    icon("\u{E335}")
-}
-
-pub fn folder_lock<'a>() -> Text<'a> {
-    icon("\u{E336}")
-}
-
-pub fn folder_minus<'a>() -> Text<'a> {
-    icon("\u{E0D8}")
-}
-
-pub fn folder_open<'a>() -> Text<'a> {
-    icon("\u{E247}")
-}
-
-pub fn folder_open_dot<'a>() -> Text<'a> {
-    icon("\u{E4C7}")
-}
-
-pub fn folder_output<'a>() -> Text<'a> {
-    icon("\u{E337}")
-}
-
-pub fn folder_pen<'a>() -> Text<'a> {
-    icon("\u{E338}")
-}
-
-pub fn folder_plus<'a>() -> Text<'a> {
-    icon("\u{E0D9}")
-}
-
-pub fn folder_root<'a>() -> Text<'a> {
-    icon("\u{E4C8}")
-}
-
-pub fn folder_search<'a>() -> Text<'a> {
-    icon("\u{E339}")
-}
-
-pub fn folder_search_2<'a>() -> Text<'a> {
-    icon("\u{E33A}")
-}
-
-pub fn folder_symlink<'a>() -> Text<'a> {
-    icon("\u{E33B}")
-}
-
-pub fn folder_sync<'a>() -> Text<'a> {
-    icon("\u{E4C9}")
-}
-
-pub fn folder_tree<'a>() -> Text<'a> {
-    icon("\u{E33C}")
-}
-
-pub fn folder_up<'a>() -> Text<'a> {
-    icon("\u{E33D}")
-}
-
-pub fn folder_x<'a>() -> Text<'a> {
-    icon("\u{E33E}")
-}
-
-pub fn folders<'a>() -> Text<'a> {
-    icon("\u{E33F}")
-}
-
-pub fn footprints<'a>() -> Text<'a> {
-    icon("\u{E3B9}")
-}
-
-pub fn forklift<'a>() -> Text<'a> {
-    icon("\u{E3C1}")
-}
-
-pub fn form<'a>() -> Text<'a> {
-    icon("\u{E6A8}")
-}
-
-pub fn forward<'a>() -> Text<'a> {
-    icon("\u{E229}")
-}
-
-pub fn frame<'a>() -> Text<'a> {
-    icon("\u{E291}")
-}
-
-pub fn framer<'a>() -> Text<'a> {
-    icon("\u{E0DA}")
-}
-
-pub fn frown<'a>() -> Text<'a> {
-    icon("\u{E0DB}")
-}
-
-pub fn fuel<'a>() -> Text<'a> {
-    icon("\u{E2AF}")
-}
-
-pub fn fullscreen<'a>() -> Text<'a> {
-    icon("\u{E534}")
-}
-
-pub fn funnel<'a>() -> Text<'a> {
-    icon("\u{E0DC}")
-}
-
-pub fn funnel_plus<'a>() -> Text<'a> {
-    icon("\u{E0DD}")
-}
-
-pub fn funnel_x<'a>() -> Text<'a> {
-    icon("\u{E3B5}")
-}
-
-pub fn gallery_horizontal<'a>() -> Text<'a> {
-    icon("\u{E4CE}")
-}
-
-pub fn gallery_horizontal_end<'a>() -> Text<'a> {
-    icon("\u{E4CF}")
-}
-
-pub fn gallery_thumbnails<'a>() -> Text<'a> {
-    icon("\u{E4D0}")
-}
-
-pub fn gallery_vertical<'a>() -> Text<'a> {
-    icon("\u{E4D1}")
-}
-
-pub fn gallery_vertical_end<'a>() -> Text<'a> {
-    icon("\u{E4D2}")
-}
-
-pub fn gamepad<'a>() -> Text<'a> {
-    icon("\u{E0DE}")
-}
-
-pub fn gamepad_2<'a>() -> Text<'a> {
-    icon("\u{E0DF}")
-}
-
-pub fn gamepad_directional<'a>() -> Text<'a> {
-    icon("\u{E69B}")
-}
-
-pub fn gauge<'a>() -> Text<'a> {
-    icon("\u{E1BF}")
-}
-
-pub fn gavel<'a>() -> Text<'a> {
-    icon("\u{E0E0}")
-}
-
-pub fn gem<'a>() -> Text<'a> {
-    icon("\u{E242}")
-}
-
-pub fn georgian_lari<'a>() -> Text<'a> {
-    icon("\u{E678}")
-}
-
-pub fn ghost<'a>() -> Text<'a> {
-    icon("\u{E20E}")
-}
-
-pub fn gift<'a>() -> Text<'a> {
-    icon("\u{E0E1}")
-}
-
-pub fn git_branch<'a>() -> Text<'a> {
-    icon("\u{E0E2}")
-}
-
-pub fn git_branch_minus<'a>() -> Text<'a> {
-    icon("\u{E69C}")
-}
-
-pub fn git_branch_plus<'a>() -> Text<'a> {
-    icon("\u{E1F4}")
-}
-
-pub fn git_commit_horizontal<'a>() -> Text<'a> {
-    icon("\u{E0E3}")
-}
-
-pub fn git_commit_vertical<'a>() -> Text<'a> {
-    icon("\u{E552}")
-}
-
-pub fn git_compare<'a>() -> Text<'a> {
-    icon("\u{E359}")
-}
-
-pub fn git_compare_arrows<'a>() -> Text<'a> {
-    icon("\u{E553}")
-}
-
-pub fn git_fork<'a>() -> Text<'a> {
-    icon("\u{E28D}")
-}
-
-pub fn git_graph<'a>() -> Text<'a> {
-    icon("\u{E554}")
-}
-
-pub fn git_merge<'a>() -> Text<'a> {
-    icon("\u{E0E4}")
-}
-
-pub fn git_merge_conflict<'a>() -> Text<'a> {
-    icon("\u{E6C3}")
-}
-
-pub fn git_pull_request<'a>() -> Text<'a> {
-    icon("\u{E0E5}")
-}
-
-pub fn git_pull_request_arrow<'a>() -> Text<'a> {
-    icon("\u{E555}")
-}
-
-pub fn git_pull_request_closed<'a>() -> Text<'a> {
-    icon("\u{E35A}")
-}
-
-pub fn git_pull_request_create<'a>() -> Text<'a> {
-    icon("\u{E556}")
-}
-
-pub fn git_pull_request_create_arrow<'a>() -> Text<'a> {
-    icon("\u{E557}")
-}
-
-pub fn git_pull_request_draft<'a>() -> Text<'a> {
-    icon("\u{E35B}")
-}
-
-pub fn github<'a>() -> Text<'a> {
-    icon("\u{E0E6}")
-}
-
-pub fn gitlab<'a>() -> Text<'a> {
-    icon("\u{E0E7}")
-}
-
-pub fn glass_water<'a>() -> Text<'a> {
-    icon("\u{E2D5}")
-}
-
-pub fn glasses<'a>() -> Text<'a> {
-    icon("\u{E20D}")
-}
-
-pub fn globe<'a>() -> Text<'a> {
-    icon("\u{E0E8}")
-}
-
-pub fn globe_lock<'a>() -> Text<'a> {
-    icon("\u{E5CD}")
-}
-
-pub fn globe_off<'a>() -> Text<'a> {
-    icon("\u{E6C1}")
-}
-
-pub fn globe_x<'a>() -> Text<'a> {
-    icon("\u{E6BA}")
-}
-
-pub fn goal<'a>() -> Text<'a> {
-    icon("\u{E4A5}")
-}
-
-pub fn gpu<'a>() -> Text<'a> {
-    icon("\u{E66A}")
-}
-
-pub fn graduation_cap<'a>() -> Text<'a> {
-    icon("\u{E234}")
-}
-
-pub fn grape<'a>() -> Text<'a> {
-    icon("\u{E352}")
-}
-
-pub fn grid_2x2<'a>() -> Text<'a> {
-    icon("\u{E4FF}")
-}
-
-pub fn grid_2x2_check<'a>() -> Text<'a> {
-    icon("\u{E5E4}")
-}
-
-pub fn grid_2x2_plus<'a>() -> Text<'a> {
-    icon("\u{E628}")
-}
-
-pub fn grid_2x2_x<'a>() -> Text<'a> {
-    icon("\u{E5E5}")
-}
-
-pub fn grid_3x2<'a>() -> Text<'a> {
-    icon("\u{E66F}")
-}
-
-pub fn grid_3x3<'a>() -> Text<'a> {
-    icon("\u{E0E9}")
-}
-
-pub fn grip<'a>() -> Text<'a> {
-    icon("\u{E3B1}")
-}
-
-pub fn grip_horizontal<'a>() -> Text<'a> {
-    icon("\u{E0EA}")
-}
-
-pub fn grip_vertical<'a>() -> Text<'a> {
-    icon("\u{E0EB}")
-}
-
-pub fn group<'a>() -> Text<'a> {
-    icon("\u{E464}")
-}
-
-pub fn guitar<'a>() -> Text<'a> {
-    icon("\u{E55F}")
-}
-
-pub fn ham<'a>() -> Text<'a> {
-    icon("\u{E5D7}")
-}
-
-pub fn hamburger<'a>() -> Text<'a> {
-    icon("\u{E665}")
-}
-
-pub fn hammer<'a>() -> Text<'a> {
-    icon("\u{E0EC}")
-}
-
-pub fn hand<'a>() -> Text<'a> {
-    icon("\u{E1D7}")
-}
-
-pub fn hand_coins<'a>() -> Text<'a> {
-    icon("\u{E5B8}")
-}
-
-pub fn hand_fist<'a>() -> Text<'a> {
-    icon("\u{E68B}")
-}
-
-pub fn hand_grab<'a>() -> Text<'a> {
-    icon("\u{E1E6}")
-}
-
-pub fn hand_heart<'a>() -> Text<'a> {
-    icon("\u{E5B9}")
-}
-
-pub fn hand_helping<'a>() -> Text<'a> {
-    icon("\u{E3B8}")
-}
-
-pub fn hand_metal<'a>() -> Text<'a> {
-    icon("\u{E22C}")
-}
-
-pub fn hand_platter<'a>() -> Text<'a> {
-    icon("\u{E5BA}")
-}
-
-pub fn handbag<'a>() -> Text<'a> {
-    icon("\u{E689}")
-}
-
-pub fn handshake<'a>() -> Text<'a> {
-    icon("\u{E5C0}")
-}
-
-pub fn hard_drive<'a>() -> Text<'a> {
-    icon("\u{E0ED}")
-}
-
-pub fn hard_drive_download<'a>() -> Text<'a> {
-    icon("\u{E4E5}")
-}
-
-pub fn hard_drive_upload<'a>() -> Text<'a> {
-    icon("\u{E4E6}")
-}
-
-pub fn hard_hat<'a>() -> Text<'a> {
-    icon("\u{E0EE}")
-}
-
-pub fn hash<'a>() -> Text<'a> {
-    icon("\u{E0EF}")
-}
-
-pub fn hat_glasses<'a>() -> Text<'a> {
-    icon("\u{E683}")
-}
-
-pub fn haze<'a>() -> Text<'a> {
-    icon("\u{E0F0}")
-}
-
-pub fn hd<'a>() -> Text<'a> {
-    icon("\u{E6B5}")
-}
-
-pub fn hdmi_port<'a>() -> Text<'a> {
-    icon("\u{E4E7}")
-}
-
-pub fn heading<'a>() -> Text<'a> {
-    icon("\u{E384}")
-}
-
-pub fn heading_1<'a>() -> Text<'a> {
-    icon("\u{E385}")
-}
-
-pub fn heading_2<'a>() -> Text<'a> {
-    icon("\u{E386}")
-}
-
-pub fn heading_3<'a>() -> Text<'a> {
-    icon("\u{E387}")
-}
-
-pub fn heading_4<'a>() -> Text<'a> {
-    icon("\u{E388}")
-}
-
-pub fn heading_5<'a>() -> Text<'a> {
-    icon("\u{E389}")
-}
-
-pub fn heading_6<'a>() -> Text<'a> {
-    icon("\u{E38A}")
-}
-
-pub fn headphone_off<'a>() -> Text<'a> {
-    icon("\u{E629}")
-}
-
-pub fn headphones<'a>() -> Text<'a> {
-    icon("\u{E0F1}")
-}
-
-pub fn headset<'a>() -> Text<'a> {
-    icon("\u{E5BD}")
-}
-
-pub fn heart<'a>() -> Text<'a> {
-    icon("\u{E0F2}")
-}
-
-pub fn heart_crack<'a>() -> Text<'a> {
-    icon("\u{E2D6}")
-}
-
-pub fn heart_handshake<'a>() -> Text<'a> {
-    icon("\u{E2D7}")
-}
-
-pub fn heart_minus<'a>() -> Text<'a> {
-    icon("\u{E651}")
-}
-
-pub fn heart_off<'a>() -> Text<'a> {
-    icon("\u{E295}")
-}
-
-pub fn heart_plus<'a>() -> Text<'a> {
-    icon("\u{E652}")
-}
-
-pub fn heart_pulse<'a>() -> Text<'a> {
-    icon("\u{E36E}")
-}
-
-pub fn heater<'a>() -> Text<'a> {
-    icon("\u{E58E}")
-}
-
-pub fn helicopter<'a>() -> Text<'a> {
-    icon("\u{E69D}")
-}
-
-pub fn hexagon<'a>() -> Text<'a> {
-    icon("\u{E0F3}")
-}
-
-pub fn highlighter<'a>() -> Text<'a> {
-    icon("\u{E0F4}")
-}
-
-pub fn history<'a>() -> Text<'a> {
-    icon("\u{E1F5}")
-}
-
-pub fn hop<'a>() -> Text<'a> {
-    icon("\u{E397}")
-}
-
-pub fn hop_off<'a>() -> Text<'a> {
-    icon("\u{E398}")
-}
-
-pub fn hospital<'a>() -> Text<'a> {
-    icon("\u{E5D8}")
-}
-
-pub fn hotel<'a>() -> Text<'a> {
-    icon("\u{E3E2}")
-}
-
-pub fn hourglass<'a>() -> Text<'a> {
-    icon("\u{E296}")
-}
-
-pub fn house<'a>() -> Text<'a> {
-    icon("\u{E0F5}")
-}
-
-pub fn house_heart<'a>() -> Text<'a> {
-    icon("\u{E695}")
-}
-
-pub fn house_plug<'a>() -> Text<'a> {
-    icon("\u{E5F0}")
-}
-
-pub fn house_plus<'a>() -> Text<'a> {
-    icon("\u{E5F1}")
-}
-
-pub fn house_wifi<'a>() -> Text<'a> {
-    icon("\u{E63C}")
-}
-
-pub fn ice_cream_bowl<'a>() -> Text<'a> {
-    icon("\u{E3A7}")
-}
-
-pub fn ice_cream_cone<'a>() -> Text<'a> {
-    icon("\u{E353}")
-}
-
-pub fn id_card<'a>() -> Text<'a> {
-    icon("\u{E617}")
-}
-
-pub fn id_card_lanyard<'a>() -> Text<'a> {
-    icon("\u{E670}")
-}
-
-pub fn image<'a>() -> Text<'a> {
-    icon("\u{E0F6}")
-}
-
-pub fn image_down<'a>() -> Text<'a> {
-    icon("\u{E53C}")
-}
-
-pub fn image_minus<'a>() -> Text<'a> {
-    icon("\u{E1F6}")
-}
-
-pub fn image_off<'a>() -> Text<'a> {
-    icon("\u{E1C0}")
-}
-
-pub fn image_play<'a>() -> Text<'a> {
-    icon("\u{E5DF}")
-}
-
-pub fn image_plus<'a>() -> Text<'a> {
-    icon("\u{E1F7}")
-}
-
-pub fn image_up<'a>() -> Text<'a> {
-    icon("\u{E5CB}")
-}
-
-pub fn image_upscale<'a>() -> Text<'a> {
-    icon("\u{E637}")
-}
-
-pub fn images<'a>() -> Text<'a> {
-    icon("\u{E5C4}")
-}
-
-pub fn import<'a>() -> Text<'a> {
-    icon("\u{E22F}")
-}
-
-pub fn inbox<'a>() -> Text<'a> {
-    icon("\u{E0F7}")
-}
-
-pub fn indian_rupee<'a>() -> Text<'a> {
-    icon("\u{E0F8}")
-}
-
-pub fn infinity<'a>() -> Text<'a> {
-    icon("\u{E1E7}")
-}
-
-pub fn info<'a>() -> Text<'a> {
-    icon("\u{E0F9}")
-}
-
-pub fn inspection_panel<'a>() -> Text<'a> {
-    icon("\u{E583}")
-}
-
-pub fn instagram<'a>() -> Text<'a> {
-    icon("\u{E0FA}")
-}
-
-pub fn italic<'a>() -> Text<'a> {
-    icon("\u{E0FB}")
-}
-
-pub fn iteration_ccw<'a>() -> Text<'a> {
-    icon("\u{E423}")
-}
-
-pub fn iteration_cw<'a>() -> Text<'a> {
-    icon("\u{E424}")
-}
-
-pub fn japanese_yen<'a>() -> Text<'a> {
-    icon("\u{E0FC}")
-}
-
-pub fn joystick<'a>() -> Text<'a> {
-    icon("\u{E355}")
-}
-
-pub fn kanban<'a>() -> Text<'a> {
-    icon("\u{E4DC}")
-}
-
-pub fn kayak<'a>() -> Text<'a> {
-    icon("\u{E68F}")
-}
-
-pub fn key<'a>() -> Text<'a> {
-    icon("\u{E0FD}")
-}
-
-pub fn key_round<'a>() -> Text<'a> {
-    icon("\u{E4A3}")
-}
-
-pub fn key_square<'a>() -> Text<'a> {
-    icon("\u{E4A4}")
-}
-
-pub fn keyboard<'a>() -> Text<'a> {
-    icon("\u{E284}")
-}
-
-pub fn keyboard_music<'a>() -> Text<'a> {
-    icon("\u{E560}")
-}
-
-pub fn keyboard_off<'a>() -> Text<'a> {
-    icon("\u{E5DE}")
-}
-
-pub fn lamp<'a>() -> Text<'a> {
-    icon("\u{E2D8}")
-}
-
-pub fn lamp_ceiling<'a>() -> Text<'a> {
-    icon("\u{E2D9}")
-}
-
-pub fn lamp_desk<'a>() -> Text<'a> {
-    icon("\u{E2DA}")
-}
-
-pub fn lamp_floor<'a>() -> Text<'a> {
-    icon("\u{E2DB}")
-}
-
-pub fn lamp_wall_down<'a>() -> Text<'a> {
-    icon("\u{E2DC}")
-}
-
-pub fn lamp_wall_up<'a>() -> Text<'a> {
-    icon("\u{E2DD}")
-}
-
-pub fn land_plot<'a>() -> Text<'a> {
-    icon("\u{E528}")
-}
-
-pub fn landmark<'a>() -> Text<'a> {
-    icon("\u{E23A}")
-}
-
-pub fn languages<'a>() -> Text<'a> {
-    icon("\u{E0FE}")
-}
-
-pub fn laptop<'a>() -> Text<'a> {
-    icon("\u{E1CD}")
-}
-
-pub fn laptop_minimal<'a>() -> Text<'a> {
-    icon("\u{E1D8}")
-}
-
-pub fn laptop_minimal_check<'a>() -> Text<'a> {
-    icon("\u{E632}")
-}
-
-pub fn lasso<'a>() -> Text<'a> {
-    icon("\u{E1CE}")
-}
-
-pub fn lasso_select<'a>() -> Text<'a> {
-    icon("\u{E1CF}")
-}
-
-pub fn laugh<'a>() -> Text<'a> {
-    icon("\u{E300}")
-}
-
-pub fn layers<'a>() -> Text<'a> {
-    icon("\u{E529}")
-}
-
-pub fn layers_2<'a>() -> Text<'a> {
-    icon("\u{E52A}")
-}
-
-pub fn layers_plus<'a>() -> Text<'a> {
-    icon("\u{E6B3}")
-}
-
-pub fn layout_dashboard<'a>() -> Text<'a> {
-    icon("\u{E1C1}")
-}
-
-pub fn layout_grid<'a>() -> Text<'a> {
-    icon("\u{E0FF}")
-}
-
-pub fn layout_list<'a>() -> Text<'a> {
-    icon("\u{E1D9}")
-}
-
-pub fn layout_panel_left<'a>() -> Text<'a> {
-    icon("\u{E470}")
-}
-
-pub fn layout_panel_top<'a>() -> Text<'a> {
-    icon("\u{E471}")
-}
-
-pub fn layout_template<'a>() -> Text<'a> {
-    icon("\u{E207}")
-}
-
-pub fn leaf<'a>() -> Text<'a> {
-    icon("\u{E2DE}")
-}
-
-pub fn leafy_green<'a>() -> Text<'a> {
-    icon("\u{E46F}")
-}
-
-pub fn lectern<'a>() -> Text<'a> {
-    icon("\u{E5E9}")
-}
-
-pub fn lens_concave<'a>() -> Text<'a> {
-    icon("\u{E6BF}")
-}
-
-pub fn lens_convex<'a>() -> Text<'a> {
-    icon("\u{E6C0}")
-}
-
-pub fn library<'a>() -> Text<'a> {
-    icon("\u{E100}")
-}
-
-pub fn library_big<'a>() -> Text<'a> {
-    icon("\u{E54E}")
-}
-
-pub fn life_buoy<'a>() -> Text<'a> {
-    icon("\u{E101}")
-}
-
-pub fn ligature<'a>() -> Text<'a> {
-    icon("\u{E43A}")
-}
-
-pub fn lightbulb<'a>() -> Text<'a> {
-    icon("\u{E1C2}")
-}
-
-pub fn lightbulb_off<'a>() -> Text<'a> {
-    icon("\u{E208}")
-}
-
-pub fn line_dot_right_horizontal<'a>() -> Text<'a> {
-    icon("\u{E6C2}")
-}
-
-pub fn line_squiggle<'a>() -> Text<'a> {
-    icon("\u{E67A}")
-}
-
-pub fn link<'a>() -> Text<'a> {
-    icon("\u{E102}")
-}
-
-pub fn link_2<'a>() -> Text<'a> {
-    icon("\u{E103}")
-}
-
-pub fn link_2_off<'a>() -> Text<'a> {
-    icon("\u{E104}")
-}
-
-pub fn linkedin<'a>() -> Text<'a> {
-    icon("\u{E105}")
-}
-
-pub fn list<'a>() -> Text<'a> {
-    icon("\u{E106}")
-}
-
-pub fn list_check<'a>() -> Text<'a> {
-    icon("\u{E5FA}")
-}
-
-pub fn list_checks<'a>() -> Text<'a> {
-    icon("\u{E1D0}")
-}
-
-pub fn list_chevrons_down_up<'a>() -> Text<'a> {
-    icon("\u{E694}")
-}
-
-pub fn list_chevrons_up_down<'a>() -> Text<'a> {
-    icon("\u{E696}")
-}
-
-pub fn list_collapse<'a>() -> Text<'a> {
-    icon("\u{E59B}")
-}
-
-pub fn list_end<'a>() -> Text<'a> {
-    icon("\u{E2DF}")
-}
-
-pub fn list_filter<'a>() -> Text<'a> {
-    icon("\u{E460}")
-}
-
-pub fn list_filter_plus<'a>() -> Text<'a> {
-    icon("\u{E639}")
-}
-
-pub fn list_indent_decrease<'a>() -> Text<'a> {
-    icon("\u{E107}")
-}
-
-pub fn list_indent_increase<'a>() -> Text<'a> {
-    icon("\u{E108}")
-}
-
-pub fn list_minus<'a>() -> Text<'a> {
-    icon("\u{E23E}")
-}
-
-pub fn list_music<'a>() -> Text<'a> {
-    icon("\u{E2E0}")
-}
-
-pub fn list_ordered<'a>() -> Text<'a> {
-    icon("\u{E1D1}")
-}
-
-pub fn list_plus<'a>() -> Text<'a> {
-    icon("\u{E23F}")
-}
-
-pub fn list_restart<'a>() -> Text<'a> {
-    icon("\u{E452}")
-}
-
-pub fn list_start<'a>() -> Text<'a> {
-    icon("\u{E2E1}")
-}
-
-pub fn list_todo<'a>() -> Text<'a> {
-    icon("\u{E4C3}")
-}
-
-pub fn list_tree<'a>() -> Text<'a> {
-    icon("\u{E408}")
-}
-
-pub fn list_video<'a>() -> Text<'a> {
-    icon("\u{E2E2}")
-}
-
-pub fn list_x<'a>() -> Text<'a> {
-    icon("\u{E240}")
-}
-
-pub fn loader<'a>() -> Text<'a> {
-    icon("\u{E109}")
-}
-
-pub fn loader_circle<'a>() -> Text<'a> {
-    icon("\u{E10A}")
-}
-
-pub fn loader_pinwheel<'a>() -> Text<'a> {
-    icon("\u{E5E6}")
-}
-
-pub fn locate<'a>() -> Text<'a> {
-    icon("\u{E1DA}")
-}
-
-pub fn locate_fixed<'a>() -> Text<'a> {
-    icon("\u{E1DB}")
-}
-
-pub fn locate_off<'a>() -> Text<'a> {
-    icon("\u{E282}")
-}
-
-pub fn lock<'a>() -> Text<'a> {
-    icon("\u{E10B}")
-}
-
-pub fn lock_keyhole<'a>() -> Text<'a> {
-    icon("\u{E531}")
-}
-
-pub fn lock_keyhole_open<'a>() -> Text<'a> {
-    icon("\u{E532}")
-}
-
-pub fn lock_open<'a>() -> Text<'a> {
-    icon("\u{E10C}")
-}
-
-pub fn log_in<'a>() -> Text<'a> {
-    icon("\u{E10D}")
-}
-
-pub fn log_out<'a>() -> Text<'a> {
-    icon("\u{E10E}")
-}
-
-pub fn logs<'a>() -> Text<'a> {
-    icon("\u{E5F4}")
-}
-
-pub fn lollipop<'a>() -> Text<'a> {
-    icon("\u{E4BD}")
-}
-
-pub fn luggage<'a>() -> Text<'a> {
-    icon("\u{E2CA}")
-}
-
-pub fn magnet<'a>() -> Text<'a> {
-    icon("\u{E2B5}")
-}
-
-pub fn mail<'a>() -> Text<'a> {
-    icon("\u{E10F}")
-}
-
-pub fn mail_check<'a>() -> Text<'a> {
-    icon("\u{E361}")
-}
-
-pub fn mail_minus<'a>() -> Text<'a> {
-    icon("\u{E362}")
-}
-
-pub fn mail_open<'a>() -> Text<'a> {
-    icon("\u{E363}")
-}
-
-pub fn mail_plus<'a>() -> Text<'a> {
-    icon("\u{E364}")
-}
-
-pub fn mail_question_mark<'a>() -> Text<'a> {
-    icon("\u{E365}")
-}
-
-pub fn mail_search<'a>() -> Text<'a> {
-    icon("\u{E366}")
-}
-
-pub fn mail_warning<'a>() -> Text<'a> {
-    icon("\u{E367}")
-}
-
-pub fn mail_x<'a>() -> Text<'a> {
-    icon("\u{E368}")
-}
-
-pub fn mailbox<'a>() -> Text<'a> {
-    icon("\u{E3D4}")
-}
-
-pub fn mails<'a>() -> Text<'a> {
-    icon("\u{E369}")
-}
-
-pub fn map<'a>() -> Text<'a> {
-    icon("\u{E110}")
-}
-
-pub fn map_minus<'a>() -> Text<'a> {
-    icon("\u{E686}")
-}
-
-pub fn map_pin<'a>() -> Text<'a> {
-    icon("\u{E111}")
-}
-
-pub fn map_pin_check<'a>() -> Text<'a> {
-    icon("\u{E60F}")
-}
-
-pub fn map_pin_check_inside<'a>() -> Text<'a> {
-    icon("\u{E610}")
-}
-
-pub fn map_pin_house<'a>() -> Text<'a> {
-    icon("\u{E61C}")
-}
-
-pub fn map_pin_minus<'a>() -> Text<'a> {
-    icon("\u{E611}")
-}
-
-pub fn map_pin_minus_inside<'a>() -> Text<'a> {
-    icon("\u{E612}")
-}
-
-pub fn map_pin_off<'a>() -> Text<'a> {
-    icon("\u{E2A6}")
-}
-
-pub fn map_pin_pen<'a>() -> Text<'a> {
-    icon("\u{E655}")
-}
-
-pub fn map_pin_plus<'a>() -> Text<'a> {
-    icon("\u{E613}")
-}
-
-pub fn map_pin_plus_inside<'a>() -> Text<'a> {
-    icon("\u{E614}")
-}
-
-pub fn map_pin_x<'a>() -> Text<'a> {
-    icon("\u{E615}")
-}
-
-pub fn map_pin_x_inside<'a>() -> Text<'a> {
-    icon("\u{E616}")
-}
-
-pub fn map_pinned<'a>() -> Text<'a> {
-    icon("\u{E53D}")
-}
-
-pub fn map_plus<'a>() -> Text<'a> {
-    icon("\u{E63F}")
-}
-
-pub fn mars<'a>() -> Text<'a> {
-    icon("\u{E641}")
-}
-
-pub fn mars_stroke<'a>() -> Text<'a> {
-    icon("\u{E642}")
-}
-
-pub fn martini<'a>() -> Text<'a> {
-    icon("\u{E2E3}")
-}
-
-pub fn maximize<'a>() -> Text<'a> {
-    icon("\u{E112}")
-}
-
-pub fn maximize_2<'a>() -> Text<'a> {
-    icon("\u{E113}")
-}
-
-pub fn medal<'a>() -> Text<'a> {
-    icon("\u{E36F}")
-}
-
-pub fn megaphone<'a>() -> Text<'a> {
-    icon("\u{E235}")
-}
-
-pub fn megaphone_off<'a>() -> Text<'a> {
-    icon("\u{E370}")
-}
-
-pub fn meh<'a>() -> Text<'a> {
-    icon("\u{E114}")
-}
-
-pub fn memory_stick<'a>() -> Text<'a> {
-    icon("\u{E445}")
-}
-
-pub fn menu<'a>() -> Text<'a> {
-    icon("\u{E115}")
-}
-
-pub fn merge<'a>() -> Text<'a> {
-    icon("\u{E43F}")
-}
-
-pub fn message_circle<'a>() -> Text<'a> {
-    icon("\u{E116}")
-}
-
-pub fn message_circle_check<'a>() -> Text<'a> {
-    icon("\u{E6C8}")
-}
-
-pub fn message_circle_code<'a>() -> Text<'a> {
-    icon("\u{E562}")
-}
-
-pub fn message_circle_dashed<'a>() -> Text<'a> {
-    icon("\u{E563}")
-}
-
-pub fn message_circle_heart<'a>() -> Text<'a> {
-    icon("\u{E564}")
-}
-
-pub fn message_circle_more<'a>() -> Text<'a> {
-    icon("\u{E565}")
-}
-
-pub fn message_circle_off<'a>() -> Text<'a> {
-    icon("\u{E566}")
-}
-
-pub fn message_circle_plus<'a>() -> Text<'a> {
-    icon("\u{E567}")
-}
-
-pub fn message_circle_question_mark<'a>() -> Text<'a> {
-    icon("\u{E568}")
-}
-
-pub fn message_circle_reply<'a>() -> Text<'a> {
-    icon("\u{E569}")
-}
-
-pub fn message_circle_warning<'a>() -> Text<'a> {
-    icon("\u{E56A}")
-}
-
-pub fn message_circle_x<'a>() -> Text<'a> {
-    icon("\u{E56B}")
-}
-
-pub fn message_square<'a>() -> Text<'a> {
-    icon("\u{E117}")
-}
-
-pub fn message_square_check<'a>() -> Text<'a> {
-    icon("\u{E6CC}")
-}
-
-pub fn message_square_code<'a>() -> Text<'a> {
-    icon("\u{E56C}")
-}
-
-pub fn message_square_dashed<'a>() -> Text<'a> {
-    icon("\u{E40B}")
-}
-
-pub fn message_square_diff<'a>() -> Text<'a> {
-    icon("\u{E56D}")
-}
-
-pub fn message_square_dot<'a>() -> Text<'a> {
-    icon("\u{E56E}")
-}
-
-pub fn message_square_heart<'a>() -> Text<'a> {
-    icon("\u{E56F}")
-}
-
-pub fn message_square_lock<'a>() -> Text<'a> {
-    icon("\u{E62C}")
-}
-
-pub fn message_square_more<'a>() -> Text<'a> {
-    icon("\u{E570}")
-}
-
-pub fn message_square_off<'a>() -> Text<'a> {
-    icon("\u{E571}")
-}
-
-pub fn message_square_plus<'a>() -> Text<'a> {
-    icon("\u{E40C}")
-}
-
-pub fn message_square_quote<'a>() -> Text<'a> {
-    icon("\u{E572}")
-}
-
-pub fn message_square_reply<'a>() -> Text<'a> {
-    icon("\u{E573}")
-}
-
-pub fn message_square_share<'a>() -> Text<'a> {
-    icon("\u{E574}")
-}
-
-pub fn message_square_text<'a>() -> Text<'a> {
-    icon("\u{E575}")
-}
-
-pub fn message_square_warning<'a>() -> Text<'a> {
-    icon("\u{E576}")
-}
-
-pub fn message_square_x<'a>() -> Text<'a> {
-    icon("\u{E577}")
-}
-
-pub fn messages_square<'a>() -> Text<'a> {
-    icon("\u{E40D}")
-}
-
-pub fn metronome<'a>() -> Text<'a> {
-    icon("\u{E6CD}")
-}
-
-pub fn mic<'a>() -> Text<'a> {
-    icon("\u{E118}")
-}
-
-pub fn mic_off<'a>() -> Text<'a> {
-    icon("\u{E119}")
-}
-
-pub fn mic_vocal<'a>() -> Text<'a> {
-    icon("\u{E349}")
-}
-
-pub fn microchip<'a>() -> Text<'a> {
-    icon("\u{E61A}")
-}
-
-pub fn microscope<'a>() -> Text<'a> {
-    icon("\u{E2E4}")
-}
-
-pub fn microwave<'a>() -> Text<'a> {
-    icon("\u{E37A}")
-}
-
-pub fn milestone<'a>() -> Text<'a> {
-    icon("\u{E298}")
-}
-
-pub fn milk<'a>() -> Text<'a> {
-    icon("\u{E399}")
-}
-
-pub fn milk_off<'a>() -> Text<'a> {
-    icon("\u{E39A}")
-}
-
-pub fn minimize<'a>() -> Text<'a> {
-    icon("\u{E11A}")
-}
-
-pub fn minimize_2<'a>() -> Text<'a> {
-    icon("\u{E11B}")
-}
-
-pub fn minus<'a>() -> Text<'a> {
-    icon("\u{E11C}")
-}
-
-pub fn mirror_rectangular<'a>() -> Text<'a> {
-    icon("\u{E6C4}")
-}
-
-pub fn mirror_round<'a>() -> Text<'a> {
-    icon("\u{E6C5}")
-}
-
-pub fn monitor<'a>() -> Text<'a> {
-    icon("\u{E11D}")
-}
-
-pub fn monitor_check<'a>() -> Text<'a> {
-    icon("\u{E482}")
-}
-
-pub fn monitor_cloud<'a>() -> Text<'a> {
-    icon("\u{E699}")
-}
-
-pub fn monitor_cog<'a>() -> Text<'a> {
-    icon("\u{E603}")
-}
-
-pub fn monitor_dot<'a>() -> Text<'a> {
-    icon("\u{E483}")
-}
-
-pub fn monitor_down<'a>() -> Text<'a> {
-    icon("\u{E421}")
-}
-
-pub fn monitor_off<'a>() -> Text<'a> {
-    icon("\u{E1DC}")
-}
-
-pub fn monitor_pause<'a>() -> Text<'a> {
-    icon("\u{E484}")
-}
-
-pub fn monitor_play<'a>() -> Text<'a> {
-    icon("\u{E485}")
-}
-
-pub fn monitor_smartphone<'a>() -> Text<'a> {
-    icon("\u{E3A2}")
-}
-
-pub fn monitor_speaker<'a>() -> Text<'a> {
-    icon("\u{E210}")
-}
-
-pub fn monitor_stop<'a>() -> Text<'a> {
-    icon("\u{E486}")
-}
-
-pub fn monitor_up<'a>() -> Text<'a> {
-    icon("\u{E422}")
-}
-
-pub fn monitor_x<'a>() -> Text<'a> {
-    icon("\u{E487}")
-}
-
-pub fn moon<'a>() -> Text<'a> {
-    icon("\u{E11E}")
-}
-
-pub fn moon_star<'a>() -> Text<'a> {
-    icon("\u{E410}")
-}
-
-pub fn motorbike<'a>() -> Text<'a> {
-    icon("\u{E698}")
-}
-
-pub fn mountain<'a>() -> Text<'a> {
-    icon("\u{E231}")
-}
-
-pub fn mountain_snow<'a>() -> Text<'a> {
-    icon("\u{E232}")
-}
-
-pub fn mouse<'a>() -> Text<'a> {
-    icon("\u{E28E}")
-}
-
-pub fn mouse_left<'a>() -> Text<'a> {
-    icon("\u{E6C9}")
-}
-
-pub fn mouse_off<'a>() -> Text<'a> {
-    icon("\u{E5DB}")
-}
-
-pub fn mouse_pointer<'a>() -> Text<'a> {
-    icon("\u{E11F}")
-}
-
-pub fn mouse_pointer_2<'a>() -> Text<'a> {
-    icon("\u{E1C3}")
-}
-
-pub fn mouse_pointer_2_off<'a>() -> Text<'a> {
-    icon("\u{E6A6}")
-}
-
-pub fn mouse_pointer_ban<'a>() -> Text<'a> {
-    icon("\u{E5E7}")
-}
-
-pub fn mouse_pointer_click<'a>() -> Text<'a> {
-    icon("\u{E120}")
-}
-
-pub fn mouse_right<'a>() -> Text<'a> {
-    icon("\u{E6CA}")
-}
-
-pub fn move_3d<'a>() -> Text<'a> {
-    icon("\u{E2E5}")
-}
-
-pub fn move_diagonal<'a>() -> Text<'a> {
-    icon("\u{E1C4}")
-}
-
-pub fn move_diagonal_2<'a>() -> Text<'a> {
-    icon("\u{E1C5}")
-}
-
-pub fn move_down<'a>() -> Text<'a> {
-    icon("\u{E48C}")
-}
-
-pub fn move_down_left<'a>() -> Text<'a> {
-    icon("\u{E48D}")
-}
-
-pub fn move_down_right<'a>() -> Text<'a> {
-    icon("\u{E48E}")
-}
-
-pub fn move_horizontal<'a>() -> Text<'a> {
-    icon("\u{E1C6}")
-}
-
-pub fn move_icon<'a>() -> Text<'a> {
-    icon("\u{E121}")
-}
-
-pub fn move_left<'a>() -> Text<'a> {
-    icon("\u{E48F}")
-}
-
-pub fn move_right<'a>() -> Text<'a> {
-    icon("\u{E490}")
-}
-
-pub fn move_up<'a>() -> Text<'a> {
-    icon("\u{E491}")
-}
-
-pub fn move_up_left<'a>() -> Text<'a> {
-    icon("\u{E492}")
-}
-
-pub fn move_up_right<'a>() -> Text<'a> {
-    icon("\u{E493}")
-}
-
-pub fn move_vertical<'a>() -> Text<'a> {
-    icon("\u{E1C7}")
-}
-
-pub fn music<'a>() -> Text<'a> {
-    icon("\u{E122}")
-}
-
-pub fn music_2<'a>() -> Text<'a> {
-    icon("\u{E34A}")
-}
-
-pub fn music_3<'a>() -> Text<'a> {
-    icon("\u{E34B}")
-}
-
-pub fn music_4<'a>() -> Text<'a> {
-    icon("\u{E34C}")
-}
-
-pub fn navigation<'a>() -> Text<'a> {
-    icon("\u{E123}")
-}
-
-pub fn navigation_2<'a>() -> Text<'a> {
-    icon("\u{E124}")
-}
-
-pub fn navigation_2_off<'a>() -> Text<'a> {
-    icon("\u{E2A7}")
-}
-
-pub fn navigation_off<'a>() -> Text<'a> {
-    icon("\u{E2A8}")
-}
-
-pub fn network<'a>() -> Text<'a> {
-    icon("\u{E125}")
-}
-
-pub fn newspaper<'a>() -> Text<'a> {
-    icon("\u{E348}")
-}
-
-pub fn nfc<'a>() -> Text<'a> {
-    icon("\u{E3C3}")
-}
-
-pub fn non_binary<'a>() -> Text<'a> {
-    icon("\u{E643}")
-}
-
-pub fn notebook<'a>() -> Text<'a> {
-    icon("\u{E595}")
-}
-
-pub fn notebook_pen<'a>() -> Text<'a> {
-    icon("\u{E596}")
-}
-
-pub fn notebook_tabs<'a>() -> Text<'a> {
-    icon("\u{E597}")
-}
-
-pub fn notebook_text<'a>() -> Text<'a> {
-    icon("\u{E598}")
-}
-
-pub fn notepad_text<'a>() -> Text<'a> {
-    icon("\u{E599}")
-}
-
-pub fn notepad_text_dashed<'a>() -> Text<'a> {
-    icon("\u{E59A}")
-}
-
-pub fn nut<'a>() -> Text<'a> {
-    icon("\u{E39B}")
-}
-
-pub fn nut_off<'a>() -> Text<'a> {
-    icon("\u{E39C}")
-}
-
-pub fn octagon<'a>() -> Text<'a> {
-    icon("\u{E126}")
-}
-
-pub fn octagon_alert<'a>() -> Text<'a> {
-    icon("\u{E127}")
-}
-
-pub fn octagon_minus<'a>() -> Text<'a> {
-    icon("\u{E627}")
-}
-
-pub fn octagon_pause<'a>() -> Text<'a> {
-    icon("\u{E21B}")
-}
-
-pub fn octagon_x<'a>() -> Text<'a> {
-    icon("\u{E128}")
-}
-
-pub fn omega<'a>() -> Text<'a> {
-    icon("\u{E619}")
-}
-
-pub fn option<'a>() -> Text<'a> {
-    icon("\u{E1F8}")
-}
-
-pub fn orbit<'a>() -> Text<'a> {
-    icon("\u{E3E7}")
-}
-
-pub fn origami<'a>() -> Text<'a> {
-    icon("\u{E5E3}")
-}
-
-pub fn package<'a>() -> Text<'a> {
-    icon("\u{E129}")
-}
-
-pub fn package_2<'a>() -> Text<'a> {
-    icon("\u{E340}")
-}
-
-pub fn package_check<'a>() -> Text<'a> {
-    icon("\u{E266}")
-}
-
-pub fn package_minus<'a>() -> Text<'a> {
-    icon("\u{E267}")
-}
-
-pub fn package_open<'a>() -> Text<'a> {
-    icon("\u{E2CC}")
-}
-
-pub fn package_plus<'a>() -> Text<'a> {
-    icon("\u{E268}")
-}
-
-pub fn package_search<'a>() -> Text<'a> {
-    icon("\u{E269}")
-}
-
-pub fn package_x<'a>() -> Text<'a> {
-    icon("\u{E26A}")
-}
-
-pub fn paint_bucket<'a>() -> Text<'a> {
-    icon("\u{E2E6}")
-}
-
-pub fn paint_roller<'a>() -> Text<'a> {
-    icon("\u{E59E}")
-}
-
-pub fn paintbrush<'a>() -> Text<'a> {
-    icon("\u{E2E7}")
-}
-
-pub fn paintbrush_vertical<'a>() -> Text<'a> {
-    icon("\u{E2E8}")
-}
-
-pub fn palette<'a>() -> Text<'a> {
-    icon("\u{E1DD}")
-}
-
-pub fn panda<'a>() -> Text<'a> {
-    icon("\u{E668}")
-}
-
-pub fn panel_bottom<'a>() -> Text<'a> {
-    icon("\u{E42C}")
-}
-
-pub fn panel_bottom_close<'a>() -> Text<'a> {
-    icon("\u{E42D}")
-}
-
-pub fn panel_bottom_dashed<'a>() -> Text<'a> {
-    icon("\u{E42E}")
-}
-
-pub fn panel_bottom_open<'a>() -> Text<'a> {
-    icon("\u{E42F}")
-}
-
-pub fn panel_left<'a>() -> Text<'a> {
-    icon("\u{E12A}")
-}
-
-pub fn panel_left_close<'a>() -> Text<'a> {
-    icon("\u{E21C}")
-}
-
-pub fn panel_left_dashed<'a>() -> Text<'a> {
-    icon("\u{E430}")
-}
-
-pub fn panel_left_open<'a>() -> Text<'a> {
-    icon("\u{E21D}")
-}
-
-pub fn panel_left_right_dashed<'a>() -> Text<'a> {
-    icon("\u{E692}")
-}
-
-pub fn panel_right<'a>() -> Text<'a> {
-    icon("\u{E431}")
-}
-
-pub fn panel_right_close<'a>() -> Text<'a> {
-    icon("\u{E432}")
-}
-
-pub fn panel_right_dashed<'a>() -> Text<'a> {
-    icon("\u{E433}")
-}
-
-pub fn panel_right_open<'a>() -> Text<'a> {
-    icon("\u{E434}")
-}
-
-pub fn panel_top<'a>() -> Text<'a> {
-    icon("\u{E435}")
-}
-
-pub fn panel_top_bottom_dashed<'a>() -> Text<'a> {
-    icon("\u{E693}")
-}
-
-pub fn panel_top_close<'a>() -> Text<'a> {
-    icon("\u{E436}")
-}
-
-pub fn panel_top_dashed<'a>() -> Text<'a> {
-    icon("\u{E437}")
-}
-
-pub fn panel_top_open<'a>() -> Text<'a> {
-    icon("\u{E438}")
-}
-
-pub fn panels_left_bottom<'a>() -> Text<'a> {
-    icon("\u{E12B}")
-}
-
-pub fn panels_right_bottom<'a>() -> Text<'a> {
-    icon("\u{E588}")
-}
-
-pub fn panels_top_left<'a>() -> Text<'a> {
-    icon("\u{E12C}")
-}
-
-pub fn paperclip<'a>() -> Text<'a> {
-    icon("\u{E12D}")
-}
-
-pub fn parentheses<'a>() -> Text<'a> {
-    icon("\u{E444}")
-}
-
-pub fn parking_meter<'a>() -> Text<'a> {
-    icon("\u{E500}")
-}
-
-pub fn party_popper<'a>() -> Text<'a> {
-    icon("\u{E343}")
-}
-
-pub fn pause<'a>() -> Text<'a> {
-    icon("\u{E12E}")
-}
-
-pub fn paw_print<'a>() -> Text<'a> {
-    icon("\u{E4F5}")
-}
-
-pub fn pc_case<'a>() -> Text<'a> {
-    icon("\u{E446}")
-}
-
-pub fn pen<'a>() -> Text<'a> {
-    icon("\u{E12F}")
-}
-
-pub fn pen_line<'a>() -> Text<'a> {
-    icon("\u{E130}")
-}
-
-pub fn pen_off<'a>() -> Text<'a> {
-    icon("\u{E5EE}")
-}
-
-pub fn pen_tool<'a>() -> Text<'a> {
-    icon("\u{E131}")
-}
-
-pub fn pencil<'a>() -> Text<'a> {
-    icon("\u{E1F9}")
-}
-
-pub fn pencil_line<'a>() -> Text<'a> {
-    icon("\u{E4F0}")
-}
-
-pub fn pencil_off<'a>() -> Text<'a> {
-    icon("\u{E5EF}")
-}
-
-pub fn pencil_ruler<'a>() -> Text<'a> {
-    icon("\u{E4F1}")
-}
-
-pub fn pentagon<'a>() -> Text<'a> {
-    icon("\u{E52B}")
-}
-
-pub fn percent<'a>() -> Text<'a> {
-    icon("\u{E132}")
-}
-
-pub fn person_standing<'a>() -> Text<'a> {
-    icon("\u{E21E}")
-}
-
-pub fn philippine_peso<'a>() -> Text<'a> {
-    icon("\u{E604}")
-}
-
-pub fn phone<'a>() -> Text<'a> {
-    icon("\u{E133}")
-}
-
-pub fn phone_call<'a>() -> Text<'a> {
-    icon("\u{E134}")
-}
-
-pub fn phone_forwarded<'a>() -> Text<'a> {
-    icon("\u{E135}")
-}
-
-pub fn phone_incoming<'a>() -> Text<'a> {
-    icon("\u{E136}")
-}
-
-pub fn phone_missed<'a>() -> Text<'a> {
-    icon("\u{E137}")
-}
-
-pub fn phone_off<'a>() -> Text<'a> {
-    icon("\u{E138}")
-}
-
-pub fn phone_outgoing<'a>() -> Text<'a> {
-    icon("\u{E139}")
-}
-
-pub fn pi<'a>() -> Text<'a> {
-    icon("\u{E472}")
-}
-
-pub fn piano<'a>() -> Text<'a> {
-    icon("\u{E561}")
-}
-
-pub fn pickaxe<'a>() -> Text<'a> {
-    icon("\u{E5C6}")
-}
-
-pub fn picture_in_picture<'a>() -> Text<'a> {
-    icon("\u{E3AE}")
-}
-
-pub fn picture_in_picture_2<'a>() -> Text<'a> {
-    icon("\u{E3AF}")
-}
-
-pub fn piggy_bank<'a>() -> Text<'a> {
-    icon("\u{E13A}")
-}
-
-pub fn pilcrow<'a>() -> Text<'a> {
-    icon("\u{E3A3}")
-}
-
-pub fn pilcrow_left<'a>() -> Text<'a> {
-    icon("\u{E5DC}")
-}
-
-pub fn pilcrow_right<'a>() -> Text<'a> {
-    icon("\u{E5DD}")
-}
-
-pub fn pill<'a>() -> Text<'a> {
-    icon("\u{E3BD}")
-}
-
-pub fn pill_bottle<'a>() -> Text<'a> {
-    icon("\u{E5EA}")
-}
-
-pub fn pin<'a>() -> Text<'a> {
-    icon("\u{E259}")
-}
-
-pub fn pin_off<'a>() -> Text<'a> {
-    icon("\u{E2B6}")
-}
-
-pub fn pipette<'a>() -> Text<'a> {
-    icon("\u{E13B}")
-}
-
-pub fn pizza<'a>() -> Text<'a> {
-    icon("\u{E354}")
-}
-
-pub fn plane<'a>() -> Text<'a> {
-    icon("\u{E1DE}")
-}
-
-pub fn plane_landing<'a>() -> Text<'a> {
-    icon("\u{E3CD}")
-}
-
-pub fn plane_takeoff<'a>() -> Text<'a> {
-    icon("\u{E3CE}")
-}
-
-pub fn play<'a>() -> Text<'a> {
-    icon("\u{E13C}")
-}
-
-pub fn plug<'a>() -> Text<'a> {
-    icon("\u{E37F}")
-}
-
-pub fn plug_2<'a>() -> Text<'a> {
-    icon("\u{E380}")
-}
-
-pub fn plug_zap<'a>() -> Text<'a> {
-    icon("\u{E45C}")
-}
-
-pub fn plus<'a>() -> Text<'a> {
-    icon("\u{E13D}")
-}
-
-pub fn pocket<'a>() -> Text<'a> {
-    icon("\u{E13E}")
-}
-
-pub fn pocket_knife<'a>() -> Text<'a> {
-    icon("\u{E4A0}")
-}
-
-pub fn podcast<'a>() -> Text<'a> {
-    icon("\u{E1FA}")
-}
-
-pub fn pointer<'a>() -> Text<'a> {
-    icon("\u{E1E8}")
-}
-
-pub fn pointer_off<'a>() -> Text<'a> {
-    icon("\u{E57F}")
-}
-
-pub fn popcorn<'a>() -> Text<'a> {
-    icon("\u{E4BE}")
-}
-
-pub fn popsicle<'a>() -> Text<'a> {
-    icon("\u{E4BF}")
-}
-
-pub fn pound_sterling<'a>() -> Text<'a> {
-    icon("\u{E13F}")
-}
-
-pub fn power<'a>() -> Text<'a> {
-    icon("\u{E140}")
-}
-
-pub fn power_off<'a>() -> Text<'a> {
-    icon("\u{E209}")
-}
-
-pub fn presentation<'a>() -> Text<'a> {
-    icon("\u{E4AE}")
-}
-
-pub fn printer<'a>() -> Text<'a> {
-    icon("\u{E141}")
-}
-
-pub fn printer_check<'a>() -> Text<'a> {
-    icon("\u{E5F5}")
-}
-
-pub fn printer_x<'a>() -> Text<'a> {
-    icon("\u{E6BB}")
-}
-
-pub fn projector<'a>() -> Text<'a> {
-    icon("\u{E4AF}")
-}
-
-pub fn proportions<'a>() -> Text<'a> {
-    icon("\u{E5CF}")
-}
-
-pub fn puzzle<'a>() -> Text<'a> {
-    icon("\u{E29C}")
-}
-
-pub fn pyramid<'a>() -> Text<'a> {
-    icon("\u{E52C}")
-}
-
-pub fn qr_code<'a>() -> Text<'a> {
-    icon("\u{E1DF}")
-}
-
-pub fn quote<'a>() -> Text<'a> {
-    icon("\u{E239}")
-}
-
-pub fn rabbit<'a>() -> Text<'a> {
-    icon("\u{E4F6}")
-}
-
-pub fn radar<'a>() -> Text<'a> {
-    icon("\u{E497}")
-}
-
-pub fn radiation<'a>() -> Text<'a> {
-    icon("\u{E442}")
-}
-
-pub fn radical<'a>() -> Text<'a> {
-    icon("\u{E5C2}")
-}
-
-pub fn radio<'a>() -> Text<'a> {
-    icon("\u{E142}")
-}
-
-pub fn radio_receiver<'a>() -> Text<'a> {
-    icon("\u{E1FB}")
-}
-
-pub fn radio_tower<'a>() -> Text<'a> {
-    icon("\u{E404}")
-}
-
-pub fn radius<'a>() -> Text<'a> {
-    icon("\u{E52D}")
-}
-
-pub fn rail_symbol<'a>() -> Text<'a> {
-    icon("\u{E501}")
-}
-
-pub fn rainbow<'a>() -> Text<'a> {
-    icon("\u{E4C2}")
-}
-
-pub fn rat<'a>() -> Text<'a> {
-    icon("\u{E3EB}")
-}
-
-pub fn ratio<'a>() -> Text<'a> {
-    icon("\u{E4E8}")
-}
-
-pub fn receipt<'a>() -> Text<'a> {
-    icon("\u{E3D3}")
-}
-
-pub fn receipt_cent<'a>() -> Text<'a> {
-    icon("\u{E5A5}")
-}
-
-pub fn receipt_euro<'a>() -> Text<'a> {
-    icon("\u{E5A6}")
-}
-
-pub fn receipt_indian_rupee<'a>() -> Text<'a> {
-    icon("\u{E5A7}")
-}
-
-pub fn receipt_japanese_yen<'a>() -> Text<'a> {
-    icon("\u{E5A8}")
-}
-
-pub fn receipt_pound_sterling<'a>() -> Text<'a> {
-    icon("\u{E5A9}")
-}
-
-pub fn receipt_russian_ruble<'a>() -> Text<'a> {
-    icon("\u{E5AA}")
-}
-
-pub fn receipt_swiss_franc<'a>() -> Text<'a> {
-    icon("\u{E5AB}")
-}
-
-pub fn receipt_text<'a>() -> Text<'a> {
-    icon("\u{E5AC}")
-}
-
-pub fn receipt_turkish_lira<'a>() -> Text<'a> {
-    icon("\u{E67F}")
-}
-
-pub fn rectangle_circle<'a>() -> Text<'a> {
-    icon("\u{E673}")
-}
-
-pub fn rectangle_ellipsis<'a>() -> Text<'a> {
-    icon("\u{E21F}")
-}
-
-pub fn rectangle_goggles<'a>() -> Text<'a> {
-    icon("\u{E656}")
-}
-
-pub fn rectangle_horizontal<'a>() -> Text<'a> {
-    icon("\u{E376}")
-}
-
-pub fn rectangle_vertical<'a>() -> Text<'a> {
-    icon("\u{E377}")
-}
-
-pub fn recycle<'a>() -> Text<'a> {
-    icon("\u{E2E9}")
-}
-
-pub fn redo<'a>() -> Text<'a> {
-    icon("\u{E143}")
-}
-
-pub fn redo_2<'a>() -> Text<'a> {
-    icon("\u{E2A0}")
-}
-
-pub fn redo_dot<'a>() -> Text<'a> {
-    icon("\u{E450}")
-}
-
-pub fn refresh_ccw<'a>() -> Text<'a> {
-    icon("\u{E144}")
-}
-
-pub fn refresh_ccw_dot<'a>() -> Text<'a> {
-    icon("\u{E4B2}")
-}
-
-pub fn refresh_cw<'a>() -> Text<'a> {
-    icon("\u{E145}")
-}
-
-pub fn refresh_cw_off<'a>() -> Text<'a> {
-    icon("\u{E498}")
-}
-
-pub fn refrigerator<'a>() -> Text<'a> {
-    icon("\u{E37B}")
-}
-
-pub fn regex<'a>() -> Text<'a> {
-    icon("\u{E1FC}")
-}
-
-pub fn remove_formatting<'a>() -> Text<'a> {
-    icon("\u{E3B3}")
-}
-
-pub fn repeat<'a>() -> Text<'a> {
-    icon("\u{E146}")
-}
-
-pub fn repeat_1<'a>() -> Text<'a> {
-    icon("\u{E1FD}")
-}
-
-pub fn repeat_2<'a>() -> Text<'a> {
-    icon("\u{E411}")
-}
-
-pub fn replace<'a>() -> Text<'a> {
-    icon("\u{E3DB}")
-}
-
-pub fn replace_all<'a>() -> Text<'a> {
-    icon("\u{E3DC}")
-}
-
-pub fn reply<'a>() -> Text<'a> {
-    icon("\u{E22A}")
-}
-
-pub fn reply_all<'a>() -> Text<'a> {
-    icon("\u{E22B}")
-}
-
-pub fn rewind<'a>() -> Text<'a> {
-    icon("\u{E147}")
-}
-
-pub fn ribbon<'a>() -> Text<'a> {
-    icon("\u{E558}")
-}
-
-pub fn rocket<'a>() -> Text<'a> {
-    icon("\u{E286}")
-}
-
-pub fn rocking_chair<'a>() -> Text<'a> {
-    icon("\u{E233}")
-}
-
-pub fn roller_coaster<'a>() -> Text<'a> {
-    icon("\u{E480}")
-}
-
-pub fn rose<'a>() -> Text<'a> {
-    icon("\u{E691}")
-}
-
-pub fn rotate_3d<'a>() -> Text<'a> {
-    icon("\u{E2EA}")
-}
-
-pub fn rotate_ccw<'a>() -> Text<'a> {
-    icon("\u{E148}")
-}
-
-pub fn rotate_ccw_key<'a>() -> Text<'a> {
-    icon("\u{E650}")
-}
-
-pub fn rotate_ccw_square<'a>() -> Text<'a> {
-    icon("\u{E5D0}")
-}
-
-pub fn rotate_cw<'a>() -> Text<'a> {
-    icon("\u{E149}")
-}
-
-pub fn rotate_cw_square<'a>() -> Text<'a> {
-    icon("\u{E5D1}")
-}
-
-pub fn route<'a>() -> Text<'a> {
-    icon("\u{E53E}")
-}
-
-pub fn route_off<'a>() -> Text<'a> {
-    icon("\u{E53F}")
-}
-
-pub fn router<'a>() -> Text<'a> {
-    icon("\u{E3BF}")
-}
-
-pub fn rows_2<'a>() -> Text<'a> {
-    icon("\u{E439}")
-}
-
-pub fn rows_3<'a>() -> Text<'a> {
-    icon("\u{E58A}")
-}
-
-pub fn rows_4<'a>() -> Text<'a> {
-    icon("\u{E58B}")
-}
-
-pub fn rss<'a>() -> Text<'a> {
-    icon("\u{E14A}")
-}
-
-pub fn ruler<'a>() -> Text<'a> {
-    icon("\u{E14B}")
-}
-
-pub fn ruler_dimension_line<'a>() -> Text<'a> {
-    icon("\u{E662}")
-}
-
-pub fn russian_ruble<'a>() -> Text<'a> {
-    icon("\u{E14C}")
-}
-
-pub fn sailboat<'a>() -> Text<'a> {
-    icon("\u{E37E}")
-}
-
-pub fn salad<'a>() -> Text<'a> {
-    icon("\u{E3A8}")
-}
-
-pub fn sandwich<'a>() -> Text<'a> {
-    icon("\u{E3A9}")
-}
-
-pub fn satellite<'a>() -> Text<'a> {
-    icon("\u{E447}")
-}
-
-pub fn satellite_dish<'a>() -> Text<'a> {
-    icon("\u{E448}")
-}
-
-pub fn saudi_riyal<'a>() -> Text<'a> {
-    icon("\u{E64B}")
-}
-
-pub fn save<'a>() -> Text<'a> {
-    icon("\u{E14D}")
-}
-
-pub fn save_all<'a>() -> Text<'a> {
-    icon("\u{E40F}")
-}
-
-pub fn save_off<'a>() -> Text<'a> {
-    icon("\u{E5F3}")
-}
-
-pub fn scale<'a>() -> Text<'a> {
-    icon("\u{E212}")
-}
-
-pub fn scale_3d<'a>() -> Text<'a> {
-    icon("\u{E2EB}")
-}
-
-pub fn scaling<'a>() -> Text<'a> {
-    icon("\u{E2EC}")
-}
-
-pub fn scan<'a>() -> Text<'a> {
-    icon("\u{E257}")
-}
-
-pub fn scan_barcode<'a>() -> Text<'a> {
-    icon("\u{E535}")
-}
-
-pub fn scan_eye<'a>() -> Text<'a> {
-    icon("\u{E536}")
-}
-
-pub fn scan_face<'a>() -> Text<'a> {
-    icon("\u{E371}")
-}
-
-pub fn scan_heart<'a>() -> Text<'a> {
-    icon("\u{E63A}")
-}
-
-pub fn scan_line<'a>() -> Text<'a> {
-    icon("\u{E258}")
-}
-
-pub fn scan_qr_code<'a>() -> Text<'a> {
-    icon("\u{E5F6}")
-}
-
-pub fn scan_search<'a>() -> Text<'a> {
-    icon("\u{E537}")
-}
-
-pub fn scan_text<'a>() -> Text<'a> {
-    icon("\u{E538}")
-}
-
-pub fn school<'a>() -> Text<'a> {
-    icon("\u{E3E3}")
-}
-
-pub fn scissors<'a>() -> Text<'a> {
-    icon("\u{E14E}")
-}
-
-pub fn scissors_line_dashed<'a>() -> Text<'a> {
-    icon("\u{E4E9}")
-}
-
-pub fn scooter<'a>() -> Text<'a> {
-    icon("\u{E6AC}")
-}
-
-pub fn screen_share<'a>() -> Text<'a> {
-    icon("\u{E14F}")
-}
-
-pub fn screen_share_off<'a>() -> Text<'a> {
-    icon("\u{E150}")
-}
-
-pub fn scroll<'a>() -> Text<'a> {
-    icon("\u{E2ED}")
-}
-
-pub fn scroll_text<'a>() -> Text<'a> {
-    icon("\u{E45F}")
-}
-
-pub fn search<'a>() -> Text<'a> {
-    icon("\u{E151}")
-}
-
-pub fn search_alert<'a>() -> Text<'a> {
-    icon("\u{E6B4}")
-}
-
-pub fn search_check<'a>() -> Text<'a> {
-    icon("\u{E4AA}")
-}
-
-pub fn search_code<'a>() -> Text<'a> {
-    icon("\u{E4AB}")
-}
-
-pub fn search_slash<'a>() -> Text<'a> {
-    icon("\u{E4AC}")
-}
-
-pub fn search_x<'a>() -> Text<'a> {
-    icon("\u{E4AD}")
-}
-
-pub fn section<'a>() -> Text<'a> {
-    icon("\u{E5E8}")
-}
-
-pub fn send<'a>() -> Text<'a> {
-    icon("\u{E152}")
-}
-
-pub fn send_horizontal<'a>() -> Text<'a> {
-    icon("\u{E4F2}")
-}
-
-pub fn send_to_back<'a>() -> Text<'a> {
-    icon("\u{E4F3}")
-}
-
-pub fn separator_horizontal<'a>() -> Text<'a> {
-    icon("\u{E1C8}")
-}
-
-pub fn separator_vertical<'a>() -> Text<'a> {
-    icon("\u{E1C9}")
-}
-
-pub fn server<'a>() -> Text<'a> {
-    icon("\u{E153}")
-}
-
-pub fn server_cog<'a>() -> Text<'a> {
-    icon("\u{E341}")
-}
-
-pub fn server_crash<'a>() -> Text<'a> {
-    icon("\u{E1E9}")
-}
-
-pub fn server_off<'a>() -> Text<'a> {
-    icon("\u{E1EA}")
-}
-
-pub fn settings<'a>() -> Text<'a> {
-    icon("\u{E154}")
-}
-
-pub fn settings_2<'a>() -> Text<'a> {
-    icon("\u{E245}")
-}
-
-pub fn shapes<'a>() -> Text<'a> {
-    icon("\u{E4B3}")
-}
-
-pub fn share<'a>() -> Text<'a> {
-    icon("\u{E155}")
-}
-
-pub fn share_2<'a>() -> Text<'a> {
-    icon("\u{E156}")
-}
-
-pub fn sheet<'a>() -> Text<'a> {
-    icon("\u{E157}")
-}
-
-pub fn shell<'a>() -> Text<'a> {
-    icon("\u{E4F7}")
-}
-
-pub fn shelving_unit<'a>() -> Text<'a> {
-    icon("\u{E6C7}")
-}
-
-pub fn shield<'a>() -> Text<'a> {
-    icon("\u{E158}")
-}
-
-pub fn shield_alert<'a>() -> Text<'a> {
-    icon("\u{E1FE}")
-}
-
-pub fn shield_ban<'a>() -> Text<'a> {
-    icon("\u{E159}")
-}
-
-pub fn shield_check<'a>() -> Text<'a> {
-    icon("\u{E1FF}")
-}
-
-pub fn shield_ellipsis<'a>() -> Text<'a> {
-    icon("\u{E516}")
-}
-
-pub fn shield_half<'a>() -> Text<'a> {
-    icon("\u{E517}")
-}
-
-pub fn shield_minus<'a>() -> Text<'a> {
-    icon("\u{E518}")
-}
-
-pub fn shield_off<'a>() -> Text<'a> {
-    icon("\u{E15A}")
-}
-
-pub fn shield_plus<'a>() -> Text<'a> {
-    icon("\u{E519}")
-}
-
-pub fn shield_question_mark<'a>() -> Text<'a> {
-    icon("\u{E40E}")
-}
-
-pub fn shield_user<'a>() -> Text<'a> {
-    icon("\u{E647}")
-}
-
-pub fn shield_x<'a>() -> Text<'a> {
-    icon("\u{E200}")
-}
-
-pub fn ship<'a>() -> Text<'a> {
-    icon("\u{E3BA}")
-}
-
-pub fn ship_wheel<'a>() -> Text<'a> {
-    icon("\u{E502}")
-}
-
-pub fn shirt<'a>() -> Text<'a> {
-    icon("\u{E1CA}")
-}
-
-pub fn shopping_bag<'a>() -> Text<'a> {
-    icon("\u{E15B}")
-}
-
-pub fn shopping_basket<'a>() -> Text<'a> {
-    icon("\u{E4EA}")
-}
-
-pub fn shopping_cart<'a>() -> Text<'a> {
-    icon("\u{E15C}")
-}
-
-pub fn shovel<'a>() -> Text<'a> {
-    icon("\u{E15D}")
-}
-
-pub fn shower_head<'a>() -> Text<'a> {
-    icon("\u{E37C}")
-}
-
-pub fn shredder<'a>() -> Text<'a> {
-    icon("\u{E65B}")
-}
-
-pub fn shrimp<'a>() -> Text<'a> {
-    icon("\u{E649}")
-}
-
-pub fn shrink<'a>() -> Text<'a> {
-    icon("\u{E220}")
-}
-
-pub fn shrub<'a>() -> Text<'a> {
-    icon("\u{E2EE}")
-}
-
-pub fn shuffle<'a>() -> Text<'a> {
-    icon("\u{E15E}")
-}
-
-pub fn sigma<'a>() -> Text<'a> {
-    icon("\u{E201}")
-}
-
-pub fn signal<'a>() -> Text<'a> {
-    icon("\u{E25F}")
-}
-
-pub fn signal_high<'a>() -> Text<'a> {
-    icon("\u{E260}")
-}
-
-pub fn signal_low<'a>() -> Text<'a> {
-    icon("\u{E261}")
-}
-
-pub fn signal_medium<'a>() -> Text<'a> {
-    icon("\u{E262}")
-}
-
-pub fn signal_zero<'a>() -> Text<'a> {
-    icon("\u{E263}")
-}
-
-pub fn signature<'a>() -> Text<'a> {
-    icon("\u{E5F2}")
-}
-
-pub fn signpost<'a>() -> Text<'a> {
-    icon("\u{E540}")
-}
-
-pub fn signpost_big<'a>() -> Text<'a> {
-    icon("\u{E541}")
-}
-
-pub fn siren<'a>() -> Text<'a> {
-    icon("\u{E2EF}")
-}
-
-pub fn skip_back<'a>() -> Text<'a> {
-    icon("\u{E15F}")
-}
-
-pub fn skip_forward<'a>() -> Text<'a> {
-    icon("\u{E160}")
-}
-
-pub fn skull<'a>() -> Text<'a> {
-    icon("\u{E221}")
-}
-
-pub fn slack<'a>() -> Text<'a> {
-    icon("\u{E161}")
-}
-
-pub fn slash<'a>() -> Text<'a> {
-    icon("\u{E51D}")
-}
-
-pub fn slice<'a>() -> Text<'a> {
-    icon("\u{E2F0}")
-}
-
-pub fn sliders_horizontal<'a>() -> Text<'a> {
-    icon("\u{E29A}")
-}
-
-pub fn sliders_vertical<'a>() -> Text<'a> {
-    icon("\u{E162}")
-}
-
-pub fn smartphone<'a>() -> Text<'a> {
-    icon("\u{E163}")
-}
-
-pub fn smartphone_charging<'a>() -> Text<'a> {
-    icon("\u{E22E}")
-}
-
-pub fn smartphone_nfc<'a>() -> Text<'a> {
-    icon("\u{E3C4}")
-}
-
-pub fn smile<'a>() -> Text<'a> {
-    icon("\u{E164}")
-}
-
-pub fn smile_plus<'a>() -> Text<'a> {
-    icon("\u{E301}")
-}
-
-pub fn snail<'a>() -> Text<'a> {
-    icon("\u{E4F8}")
-}
-
-pub fn snowflake<'a>() -> Text<'a> {
-    icon("\u{E165}")
-}
-
-pub fn soap_dispenser_droplet<'a>() -> Text<'a> {
-    icon("\u{E669}")
-}
-
-pub fn sofa<'a>() -> Text<'a> {
-    icon("\u{E2C4}")
-}
-
-pub fn solar_panel<'a>() -> Text<'a> {
-    icon("\u{E69F}")
-}
-
-pub fn soup<'a>() -> Text<'a> {
-    icon("\u{E3AA}")
-}
-
-pub fn space<'a>() -> Text<'a> {
-    icon("\u{E3DD}")
-}
-
-pub fn spade<'a>() -> Text<'a> {
-    icon("\u{E499}")
-}
-
-pub fn sparkle<'a>() -> Text<'a> {
-    icon("\u{E47E}")
-}
-
-pub fn sparkles<'a>() -> Text<'a> {
-    icon("\u{E412}")
-}
-
-pub fn speaker<'a>() -> Text<'a> {
-    icon("\u{E166}")
-}
-
-pub fn speech<'a>() -> Text<'a> {
-    icon("\u{E51E}")
-}
-
-pub fn spell_check<'a>() -> Text<'a> {
-    icon("\u{E49A}")
-}
-
-pub fn spell_check_2<'a>() -> Text<'a> {
-    icon("\u{E49B}")
-}
-
-pub fn spline<'a>() -> Text<'a> {
-    icon("\u{E38B}")
-}
-
-pub fn spline_pointer<'a>() -> Text<'a> {
-    icon("\u{E64F}")
-}
-
-pub fn split<'a>() -> Text<'a> {
-    icon("\u{E440}")
-}
-
-pub fn spool<'a>() -> Text<'a> {
-    icon("\u{E677}")
-}
-
-pub fn spotlight<'a>() -> Text<'a> {
-    icon("\u{E682}")
-}
-
-pub fn spray_can<'a>() -> Text<'a> {
-    icon("\u{E495}")
-}
-
-pub fn sprout<'a>() -> Text<'a> {
-    icon("\u{E1EB}")
-}
-
-pub fn square<'a>() -> Text<'a> {
-    icon("\u{E167}")
-}
-
-pub fn square_activity<'a>() -> Text<'a> {
-    icon("\u{E4B4}")
-}
-
-pub fn square_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E427}")
-}
-
-pub fn square_arrow_down_left<'a>() -> Text<'a> {
-    icon("\u{E4B5}")
-}
-
-pub fn square_arrow_down_right<'a>() -> Text<'a> {
-    icon("\u{E4B6}")
-}
-
-pub fn square_arrow_left<'a>() -> Text<'a> {
-    icon("\u{E428}")
-}
-
-pub fn square_arrow_out_down_left<'a>() -> Text<'a> {
-    icon("\u{E5A1}")
-}
-
-pub fn square_arrow_out_down_right<'a>() -> Text<'a> {
-    icon("\u{E5A2}")
-}
-
-pub fn square_arrow_out_up_left<'a>() -> Text<'a> {
-    icon("\u{E5A3}")
-}
-
-pub fn square_arrow_out_up_right<'a>() -> Text<'a> {
-    icon("\u{E5A4}")
-}
-
-pub fn square_arrow_right<'a>() -> Text<'a> {
-    icon("\u{E429}")
-}
-
-pub fn square_arrow_right_enter<'a>() -> Text<'a> {
-    icon("\u{E6CE}")
-}
-
-pub fn square_arrow_right_exit<'a>() -> Text<'a> {
-    icon("\u{E6CF}")
-}
-
-pub fn square_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E42A}")
-}
-
-pub fn square_arrow_up_left<'a>() -> Text<'a> {
-    icon("\u{E4B7}")
-}
-
-pub fn square_arrow_up_right<'a>() -> Text<'a> {
-    icon("\u{E4B8}")
-}
-
-pub fn square_asterisk<'a>() -> Text<'a> {
-    icon("\u{E168}")
-}
-
-pub fn square_bottom_dashed_scissors<'a>() -> Text<'a> {
-    icon("\u{E4EB}")
-}
-
-pub fn square_centerline_dashed_horizontal<'a>() -> Text<'a> {
-    icon("\u{E35F}")
-}
-
-pub fn square_centerline_dashed_vertical<'a>() -> Text<'a> {
-    icon("\u{E360}")
-}
-
-pub fn square_chart_gantt<'a>() -> Text<'a> {
-    icon("\u{E169}")
-}
-
-pub fn square_check<'a>() -> Text<'a> {
-    icon("\u{E559}")
-}
-
-pub fn square_check_big<'a>() -> Text<'a> {
-    icon("\u{E16A}")
-}
-
-pub fn square_chevron_down<'a>() -> Text<'a> {
-    icon("\u{E3CF}")
-}
-
-pub fn square_chevron_left<'a>() -> Text<'a> {
-    icon("\u{E3D0}")
-}
-
-pub fn square_chevron_right<'a>() -> Text<'a> {
-    icon("\u{E3D1}")
-}
-
-pub fn square_chevron_up<'a>() -> Text<'a> {
-    icon("\u{E3D2}")
-}
-
-pub fn square_code<'a>() -> Text<'a> {
-    icon("\u{E16B}")
-}
-
-pub fn square_dashed<'a>() -> Text<'a> {
-    icon("\u{E1CB}")
-}
-
-pub fn square_dashed_bottom<'a>() -> Text<'a> {
-    icon("\u{E4C0}")
-}
-
-pub fn square_dashed_bottom_code<'a>() -> Text<'a> {
-    icon("\u{E4C1}")
-}
-
-pub fn square_dashed_kanban<'a>() -> Text<'a> {
-    icon("\u{E16C}")
-}
-
-pub fn square_dashed_mouse_pointer<'a>() -> Text<'a> {
-    icon("\u{E509}")
-}
-
-pub fn square_dashed_top_solid<'a>() -> Text<'a> {
-    icon("\u{E66C}")
-}
-
-pub fn square_divide<'a>() -> Text<'a> {
-    icon("\u{E16D}")
-}
-
-pub fn square_dot<'a>() -> Text<'a> {
-    icon("\u{E16E}")
-}
-
-pub fn square_equal<'a>() -> Text<'a> {
-    icon("\u{E16F}")
-}
-
-pub fn square_function<'a>() -> Text<'a> {
-    icon("\u{E22D}")
-}
-
-pub fn square_kanban<'a>() -> Text<'a> {
-    icon("\u{E170}")
-}
-
-pub fn square_library<'a>() -> Text<'a> {
-    icon("\u{E54F}")
-}
-
-pub fn square_m<'a>() -> Text<'a> {
-    icon("\u{E503}")
-}
-
-pub fn square_menu<'a>() -> Text<'a> {
-    icon("\u{E453}")
-}
-
-pub fn square_minus<'a>() -> Text<'a> {
-    icon("\u{E171}")
-}
-
-pub fn square_mouse_pointer<'a>() -> Text<'a> {
-    icon("\u{E202}")
-}
-
-pub fn square_parking<'a>() -> Text<'a> {
-    icon("\u{E3CB}")
-}
-
-pub fn square_parking_off<'a>() -> Text<'a> {
-    icon("\u{E3CC}")
-}
-
-pub fn square_pause<'a>() -> Text<'a> {
-    icon("\u{E684}")
-}
-
-pub fn square_pen<'a>() -> Text<'a> {
-    icon("\u{E172}")
-}
-
-pub fn square_percent<'a>() -> Text<'a> {
-    icon("\u{E51C}")
-}
-
-pub fn square_pi<'a>() -> Text<'a> {
-    icon("\u{E488}")
-}
-
-pub fn square_pilcrow<'a>() -> Text<'a> {
-    icon("\u{E48B}")
-}
-
-pub fn square_play<'a>() -> Text<'a> {
-    icon("\u{E481}")
-}
-
-pub fn square_plus<'a>() -> Text<'a> {
-    icon("\u{E173}")
-}
-
-pub fn square_power<'a>() -> Text<'a> {
-    icon("\u{E551}")
-}
-
-pub fn square_radical<'a>() -> Text<'a> {
-    icon("\u{E5C3}")
-}
-
-pub fn square_round_corner<'a>() -> Text<'a> {
-    icon("\u{E648}")
-}
-
-pub fn square_scissors<'a>() -> Text<'a> {
-    icon("\u{E4EC}")
-}
-
-pub fn square_sigma<'a>() -> Text<'a> {
-    icon("\u{E489}")
-}
-
-pub fn square_slash<'a>() -> Text<'a> {
-    icon("\u{E174}")
-}
-
-pub fn square_split_horizontal<'a>() -> Text<'a> {
-    icon("\u{E3B6}")
-}
-
-pub fn square_split_vertical<'a>() -> Text<'a> {
-    icon("\u{E3B7}")
-}
-
-pub fn square_square<'a>() -> Text<'a> {
-    icon("\u{E60E}")
-}
-
-pub fn square_stack<'a>() -> Text<'a> {
-    icon("\u{E4A2}")
-}
-
-pub fn square_star<'a>() -> Text<'a> {
-    icon("\u{E68E}")
-}
-
-pub fn square_stop<'a>() -> Text<'a> {
-    icon("\u{E685}")
-}
-
-pub fn square_terminal<'a>() -> Text<'a> {
-    icon("\u{E20A}")
-}
-
-pub fn square_user<'a>() -> Text<'a> {
-    icon("\u{E465}")
-}
-
-pub fn square_user_round<'a>() -> Text<'a> {
-    icon("\u{E466}")
-}
-
-pub fn square_x<'a>() -> Text<'a> {
-    icon("\u{E175}")
-}
-
-pub fn squares_exclude<'a>() -> Text<'a> {
-    icon("\u{E657}")
-}
-
-pub fn squares_intersect<'a>() -> Text<'a> {
-    icon("\u{E658}")
-}
-
-pub fn squares_subtract<'a>() -> Text<'a> {
-    icon("\u{E659}")
-}
-
-pub fn squares_unite<'a>() -> Text<'a> {
-    icon("\u{E65A}")
-}
-
-pub fn squircle<'a>() -> Text<'a> {
-    icon("\u{E57A}")
-}
-
-pub fn squircle_dashed<'a>() -> Text<'a> {
-    icon("\u{E679}")
-}
-
-pub fn squirrel<'a>() -> Text<'a> {
-    icon("\u{E49F}")
-}
-
-pub fn stamp<'a>() -> Text<'a> {
-    icon("\u{E3BB}")
-}
-
-pub fn star<'a>() -> Text<'a> {
-    icon("\u{E176}")
-}
-
-pub fn star_half<'a>() -> Text<'a> {
-    icon("\u{E20B}")
-}
-
-pub fn star_off<'a>() -> Text<'a> {
-    icon("\u{E2B0}")
-}
-
-pub fn step_back<'a>() -> Text<'a> {
-    icon("\u{E3E9}")
-}
-
-pub fn step_forward<'a>() -> Text<'a> {
-    icon("\u{E3EA}")
-}
-
-pub fn stethoscope<'a>() -> Text<'a> {
-    icon("\u{E2F1}")
-}
-
-pub fn sticker<'a>() -> Text<'a> {
-    icon("\u{E302}")
-}
-
-pub fn sticky_note<'a>() -> Text<'a> {
-    icon("\u{E303}")
-}
-
-pub fn stone<'a>() -> Text<'a> {
-    icon("\u{E6B8}")
-}
-
-pub fn store<'a>() -> Text<'a> {
-    icon("\u{E3E4}")
-}
-
-pub fn stretch_horizontal<'a>() -> Text<'a> {
-    icon("\u{E27C}")
-}
-
-pub fn stretch_vertical<'a>() -> Text<'a> {
-    icon("\u{E27D}")
-}
-
-pub fn strikethrough<'a>() -> Text<'a> {
-    icon("\u{E177}")
-}
-
-pub fn subscript<'a>() -> Text<'a> {
-    icon("\u{E25C}")
-}
-
-pub fn sun<'a>() -> Text<'a> {
-    icon("\u{E178}")
-}
-
-pub fn sun_dim<'a>() -> Text<'a> {
-    icon("\u{E299}")
-}
-
-pub fn sun_medium<'a>() -> Text<'a> {
-    icon("\u{E2B1}")
-}
-
-pub fn sun_moon<'a>() -> Text<'a> {
-    icon("\u{E2B2}")
-}
-
-pub fn sun_snow<'a>() -> Text<'a> {
-    icon("\u{E372}")
-}
-
-pub fn sunrise<'a>() -> Text<'a> {
-    icon("\u{E179}")
-}
-
-pub fn sunset<'a>() -> Text<'a> {
-    icon("\u{E17A}")
-}
-
-pub fn superscript<'a>() -> Text<'a> {
-    icon("\u{E25E}")
-}
-
-pub fn swatch_book<'a>() -> Text<'a> {
-    icon("\u{E59F}")
-}
-
-pub fn swiss_franc<'a>() -> Text<'a> {
-    icon("\u{E17B}")
-}
-
-pub fn switch_camera<'a>() -> Text<'a> {
-    icon("\u{E17C}")
-}
-
-pub fn sword<'a>() -> Text<'a> {
-    icon("\u{E2B3}")
-}
-
-pub fn swords<'a>() -> Text<'a> {
-    icon("\u{E2B4}")
-}
-
-pub fn syringe<'a>() -> Text<'a> {
-    icon("\u{E2F2}")
-}
-
-pub fn table<'a>() -> Text<'a> {
-    icon("\u{E17D}")
-}
-
-pub fn table_2<'a>() -> Text<'a> {
-    icon("\u{E2F9}")
-}
-
-pub fn table_cells_merge<'a>() -> Text<'a> {
-    icon("\u{E5C7}")
-}
-
-pub fn table_cells_split<'a>() -> Text<'a> {
-    icon("\u{E5C8}")
-}
-
-pub fn table_columns_split<'a>() -> Text<'a> {
-    icon("\u{E5C9}")
-}
-
-pub fn table_of_contents<'a>() -> Text<'a> {
-    icon("\u{E61E}")
-}
-
-pub fn table_properties<'a>() -> Text<'a> {
-    icon("\u{E4DB}")
-}
-
-pub fn table_rows_split<'a>() -> Text<'a> {
-    icon("\u{E5CA}")
-}
-
-pub fn tablet<'a>() -> Text<'a> {
-    icon("\u{E17E}")
-}
-
-pub fn tablet_smartphone<'a>() -> Text<'a> {
-    icon("\u{E50A}")
-}
-
-pub fn tablets<'a>() -> Text<'a> {
-    icon("\u{E3BE}")
-}
-
-pub fn tag<'a>() -> Text<'a> {
-    icon("\u{E17F}")
-}
-
-pub fn tags<'a>() -> Text<'a> {
-    icon("\u{E35C}")
-}
-
-pub fn tally_1<'a>() -> Text<'a> {
-    icon("\u{E4D6}")
-}
-
-pub fn tally_2<'a>() -> Text<'a> {
-    icon("\u{E4D7}")
-}
-
-pub fn tally_3<'a>() -> Text<'a> {
-    icon("\u{E4D8}")
-}
-
-pub fn tally_4<'a>() -> Text<'a> {
-    icon("\u{E4D9}")
-}
-
-pub fn tally_5<'a>() -> Text<'a> {
-    icon("\u{E4DA}")
-}
-
-pub fn tangent<'a>() -> Text<'a> {
-    icon("\u{E52E}")
-}
-
-pub fn target<'a>() -> Text<'a> {
-    icon("\u{E180}")
-}
-
-pub fn telescope<'a>() -> Text<'a> {
-    icon("\u{E5C5}")
-}
-
-pub fn tent<'a>() -> Text<'a> {
-    icon("\u{E227}")
-}
-
-pub fn tent_tree<'a>() -> Text<'a> {
-    icon("\u{E53B}")
-}
-
-pub fn terminal<'a>() -> Text<'a> {
-    icon("\u{E181}")
-}
-
-pub fn test_tube<'a>() -> Text<'a> {
-    icon("\u{E405}")
-}
-
-pub fn test_tube_diagonal<'a>() -> Text<'a> {
-    icon("\u{E406}")
-}
-
-pub fn test_tubes<'a>() -> Text<'a> {
-    icon("\u{E407}")
-}
-
-pub fn text_align_center<'a>() -> Text<'a> {
-    icon("\u{E182}")
-}
-
-pub fn text_align_end<'a>() -> Text<'a> {
-    icon("\u{E183}")
-}
-
-pub fn text_align_justify<'a>() -> Text<'a> {
-    icon("\u{E184}")
-}
-
-pub fn text_align_start<'a>() -> Text<'a> {
-    icon("\u{E185}")
-}
-
-pub fn text_cursor<'a>() -> Text<'a> {
-    icon("\u{E264}")
-}
-
-pub fn text_cursor_input<'a>() -> Text<'a> {
-    icon("\u{E265}")
-}
-
-pub fn text_initial<'a>() -> Text<'a> {
-    icon("\u{E605}")
-}
-
-pub fn text_quote<'a>() -> Text<'a> {
-    icon("\u{E49E}")
-}
-
-pub fn text_search<'a>() -> Text<'a> {
-    icon("\u{E5AD}")
-}
-
-pub fn text_select<'a>() -> Text<'a> {
-    icon("\u{E3DE}")
-}
-
-pub fn text_wrap<'a>() -> Text<'a> {
-    icon("\u{E248}")
-}
-
-pub fn theater<'a>() -> Text<'a> {
-    icon("\u{E522}")
-}
-
-pub fn thermometer<'a>() -> Text<'a> {
-    icon("\u{E186}")
-}
-
-pub fn thermometer_snowflake<'a>() -> Text<'a> {
-    icon("\u{E187}")
-}
-
-pub fn thermometer_sun<'a>() -> Text<'a> {
-    icon("\u{E188}")
-}
-
-pub fn thumbs_down<'a>() -> Text<'a> {
-    icon("\u{E189}")
-}
-
-pub fn thumbs_up<'a>() -> Text<'a> {
-    icon("\u{E18A}")
-}
-
-pub fn ticket<'a>() -> Text<'a> {
-    icon("\u{E20F}")
-}
-
-pub fn ticket_check<'a>() -> Text<'a> {
-    icon("\u{E5AE}")
-}
-
-pub fn ticket_minus<'a>() -> Text<'a> {
-    icon("\u{E5AF}")
-}
-
-pub fn ticket_percent<'a>() -> Text<'a> {
-    icon("\u{E5B0}")
-}
-
-pub fn ticket_plus<'a>() -> Text<'a> {
-    icon("\u{E5B1}")
-}
-
-pub fn ticket_slash<'a>() -> Text<'a> {
-    icon("\u{E5B2}")
-}
-
-pub fn ticket_x<'a>() -> Text<'a> {
-    icon("\u{E5B3}")
-}
-
-pub fn tickets<'a>() -> Text<'a> {
-    icon("\u{E622}")
-}
-
-pub fn tickets_plane<'a>() -> Text<'a> {
-    icon("\u{E623}")
-}
-
-pub fn timer<'a>() -> Text<'a> {
-    icon("\u{E1E0}")
-}
-
-pub fn timer_off<'a>() -> Text<'a> {
-    icon("\u{E249}")
-}
-
-pub fn timer_reset<'a>() -> Text<'a> {
-    icon("\u{E236}")
-}
-
-pub fn toggle_left<'a>() -> Text<'a> {
-    icon("\u{E18B}")
-}
-
-pub fn toggle_right<'a>() -> Text<'a> {
-    icon("\u{E18C}")
-}
-
-pub fn toilet<'a>() -> Text<'a> {
-    icon("\u{E635}")
-}
-
-pub fn tool_case<'a>() -> Text<'a> {
-    icon("\u{E67D}")
-}
-
-pub fn toolbox<'a>() -> Text<'a> {
-    icon("\u{E6B9}")
-}
-
-pub fn tornado<'a>() -> Text<'a> {
-    icon("\u{E218}")
-}
-
-pub fn torus<'a>() -> Text<'a> {
-    icon("\u{E52F}")
-}
-
-pub fn touchpad<'a>() -> Text<'a> {
-    icon("\u{E449}")
-}
-
-pub fn touchpad_off<'a>() -> Text<'a> {
-    icon("\u{E44A}")
-}
-
-pub fn towel_rack<'a>() -> Text<'a> {
-    icon("\u{E6C6}")
-}
-
-pub fn tower_control<'a>() -> Text<'a> {
-    icon("\u{E3BC}")
-}
-
-pub fn toy_brick<'a>() -> Text<'a> {
-    icon("\u{E347}")
-}
-
-pub fn tractor<'a>() -> Text<'a> {
-    icon("\u{E504}")
-}
-
-pub fn traffic_cone<'a>() -> Text<'a> {
-    icon("\u{E505}")
-}
-
-pub fn train_front<'a>() -> Text<'a> {
-    icon("\u{E506}")
-}
-
-pub fn train_front_tunnel<'a>() -> Text<'a> {
-    icon("\u{E507}")
-}
-
-pub fn train_track<'a>() -> Text<'a> {
-    icon("\u{E508}")
-}
-
-pub fn tram_front<'a>() -> Text<'a> {
-    icon("\u{E2A9}")
-}
-
-pub fn transgender<'a>() -> Text<'a> {
-    icon("\u{E644}")
-}
-
-pub fn trash<'a>() -> Text<'a> {
-    icon("\u{E18D}")
-}
-
-pub fn trash_2<'a>() -> Text<'a> {
-    icon("\u{E18E}")
-}
-
-pub fn tree_deciduous<'a>() -> Text<'a> {
-    icon("\u{E2F3}")
-}
-
-pub fn tree_palm<'a>() -> Text<'a> {
-    icon("\u{E281}")
-}
-
-pub fn tree_pine<'a>() -> Text<'a> {
-    icon("\u{E2F4}")
-}
-
-pub fn trees<'a>() -> Text<'a> {
-    icon("\u{E2F5}")
-}
-
-pub fn trello<'a>() -> Text<'a> {
-    icon("\u{E18F}")
-}
-
-pub fn trending_down<'a>() -> Text<'a> {
-    icon("\u{E190}")
-}
-
-pub fn trending_up<'a>() -> Text<'a> {
-    icon("\u{E191}")
-}
-
-pub fn trending_up_down<'a>() -> Text<'a> {
-    icon("\u{E625}")
-}
-
-pub fn triangle<'a>() -> Text<'a> {
-    icon("\u{E192}")
-}
-
-pub fn triangle_alert<'a>() -> Text<'a> {
-    icon("\u{E193}")
-}
-
-pub fn triangle_dashed<'a>() -> Text<'a> {
-    icon("\u{E63D}")
-}
-
-pub fn triangle_right<'a>() -> Text<'a> {
-    icon("\u{E4ED}")
-}
-
-pub fn trophy<'a>() -> Text<'a> {
-    icon("\u{E373}")
-}
-
-pub fn truck<'a>() -> Text<'a> {
-    icon("\u{E194}")
-}
-
-pub fn truck_electric<'a>() -> Text<'a> {
-    icon("\u{E65F}")
-}
-
-pub fn turkish_lira<'a>() -> Text<'a> {
-    icon("\u{E680}")
-}
-
-pub fn turntable<'a>() -> Text<'a> {
-    icon("\u{E68C}")
-}
-
-pub fn turtle<'a>() -> Text<'a> {
-    icon("\u{E4F9}")
-}
-
-pub fn tv<'a>() -> Text<'a> {
-    icon("\u{E195}")
-}
-
-pub fn tv_minimal<'a>() -> Text<'a> {
-    icon("\u{E203}")
-}
-
-pub fn tv_minimal_play<'a>() -> Text<'a> {
-    icon("\u{E5EC}")
-}
-
-pub fn twitch<'a>() -> Text<'a> {
-    icon("\u{E196}")
-}
-
-pub fn twitter<'a>() -> Text<'a> {
-    icon("\u{E197}")
-}
-
-pub fn type_icon<'a>() -> Text<'a> {
-    icon("\u{E198}")
-}
-
-pub fn type_outline<'a>() -> Text<'a> {
-    icon("\u{E602}")
-}
-
-pub fn umbrella<'a>() -> Text<'a> {
-    icon("\u{E199}")
-}
-
-pub fn umbrella_off<'a>() -> Text<'a> {
-    icon("\u{E543}")
-}
-
-pub fn underline<'a>() -> Text<'a> {
-    icon("\u{E19A}")
-}
-
-pub fn undo<'a>() -> Text<'a> {
-    icon("\u{E19B}")
-}
-
-pub fn undo_2<'a>() -> Text<'a> {
-    icon("\u{E2A1}")
-}
-
-pub fn undo_dot<'a>() -> Text<'a> {
-    icon("\u{E451}")
-}
-
-pub fn unfold_horizontal<'a>() -> Text<'a> {
-    icon("\u{E43D}")
-}
-
-pub fn unfold_vertical<'a>() -> Text<'a> {
-    icon("\u{E43E}")
-}
-
-pub fn ungroup<'a>() -> Text<'a> {
-    icon("\u{E467}")
-}
-
-pub fn university<'a>() -> Text<'a> {
-    icon("\u{E3E5}")
-}
-
-pub fn unlink<'a>() -> Text<'a> {
-    icon("\u{E19C}")
-}
-
-pub fn unlink_2<'a>() -> Text<'a> {
-    icon("\u{E19D}")
-}
-
-pub fn unplug<'a>() -> Text<'a> {
-    icon("\u{E45D}")
-}
-
-pub fn upload<'a>() -> Text<'a> {
-    icon("\u{E19E}")
-}
-
-pub fn usb<'a>() -> Text<'a> {
-    icon("\u{E356}")
-}
-
-pub fn user<'a>() -> Text<'a> {
-    icon("\u{E19F}")
-}
-
-pub fn user_check<'a>() -> Text<'a> {
-    icon("\u{E1A0}")
-}
-
-pub fn user_cog<'a>() -> Text<'a> {
-    icon("\u{E342}")
-}
-
-pub fn user_key<'a>() -> Text<'a> {
-    icon("\u{E6BD}")
-}
-
-pub fn user_lock<'a>() -> Text<'a> {
-    icon("\u{E660}")
-}
-
-pub fn user_minus<'a>() -> Text<'a> {
-    icon("\u{E1A1}")
-}
-
-pub fn user_pen<'a>() -> Text<'a> {
-    icon("\u{E5FC}")
-}
-
-pub fn user_plus<'a>() -> Text<'a> {
-    icon("\u{E1A2}")
-}
-
-pub fn user_round<'a>() -> Text<'a> {
-    icon("\u{E468}")
-}
-
-pub fn user_round_check<'a>() -> Text<'a> {
-    icon("\u{E469}")
-}
-
-pub fn user_round_cog<'a>() -> Text<'a> {
-    icon("\u{E46A}")
-}
-
-pub fn user_round_key<'a>() -> Text<'a> {
-    icon("\u{E6BE}")
-}
-
-pub fn user_round_minus<'a>() -> Text<'a> {
-    icon("\u{E46B}")
-}
-
-pub fn user_round_pen<'a>() -> Text<'a> {
-    icon("\u{E5FD}")
-}
-
-pub fn user_round_plus<'a>() -> Text<'a> {
-    icon("\u{E46C}")
-}
-
-pub fn user_round_search<'a>() -> Text<'a> {
-    icon("\u{E578}")
-}
-
-pub fn user_round_x<'a>() -> Text<'a> {
-    icon("\u{E46D}")
-}
-
-pub fn user_search<'a>() -> Text<'a> {
-    icon("\u{E579}")
-}
-
-pub fn user_star<'a>() -> Text<'a> {
-    icon("\u{E687}")
-}
-
-pub fn user_x<'a>() -> Text<'a> {
-    icon("\u{E1A3}")
-}
-
-pub fn users<'a>() -> Text<'a> {
-    icon("\u{E1A4}")
-}
-
-pub fn users_round<'a>() -> Text<'a> {
-    icon("\u{E46E}")
-}
-
-pub fn utensils<'a>() -> Text<'a> {
-    icon("\u{E2F6}")
-}
-
-pub fn utensils_crossed<'a>() -> Text<'a> {
-    icon("\u{E2F7}")
-}
-
-pub fn utility_pole<'a>() -> Text<'a> {
-    icon("\u{E3C2}")
-}
-
-pub fn van<'a>() -> Text<'a> {
-    icon("\u{E6AD}")
-}
-
-pub fn variable<'a>() -> Text<'a> {
-    icon("\u{E473}")
-}
-
-pub fn vault<'a>() -> Text<'a> {
-    icon("\u{E58F}")
-}
-
-pub fn vector_square<'a>() -> Text<'a> {
-    icon("\u{E67C}")
-}
-
-pub fn vegan<'a>() -> Text<'a> {
-    icon("\u{E39D}")
-}
-
-pub fn venetian_mask<'a>() -> Text<'a> {
-    icon("\u{E2AA}")
-}
-
-pub fn venus<'a>() -> Text<'a> {
-    icon("\u{E645}")
-}
-
-pub fn venus_and_mars<'a>() -> Text<'a> {
-    icon("\u{E646}")
-}
-
-pub fn vibrate<'a>() -> Text<'a> {
-    icon("\u{E223}")
-}
-
-pub fn vibrate_off<'a>() -> Text<'a> {
-    icon("\u{E29D}")
-}
-
-pub fn video<'a>() -> Text<'a> {
-    icon("\u{E1A5}")
-}
-
-pub fn video_off<'a>() -> Text<'a> {
-    icon("\u{E1A6}")
-}
-
-pub fn videotape<'a>() -> Text<'a> {
-    icon("\u{E4CB}")
-}
-
-pub fn view<'a>() -> Text<'a> {
-    icon("\u{E1A7}")
-}
-
-pub fn voicemail<'a>() -> Text<'a> {
-    icon("\u{E1A8}")
-}
-
-pub fn volleyball<'a>() -> Text<'a> {
-    icon("\u{E62F}")
-}
-
-pub fn volume<'a>() -> Text<'a> {
-    icon("\u{E1A9}")
-}
-
-pub fn volume_1<'a>() -> Text<'a> {
-    icon("\u{E1AA}")
-}
-
-pub fn volume_2<'a>() -> Text<'a> {
-    icon("\u{E1AB}")
-}
-
-pub fn volume_off<'a>() -> Text<'a> {
-    icon("\u{E626}")
-}
-
-pub fn volume_x<'a>() -> Text<'a> {
-    icon("\u{E1AC}")
-}
-
-pub fn vote<'a>() -> Text<'a> {
-    icon("\u{E3AD}")
-}
-
-pub fn wallet<'a>() -> Text<'a> {
-    icon("\u{E204}")
-}
-
-pub fn wallet_cards<'a>() -> Text<'a> {
-    icon("\u{E4CC}")
-}
-
-pub fn wallet_minimal<'a>() -> Text<'a> {
-    icon("\u{E4CD}")
-}
-
-pub fn wallpaper<'a>() -> Text<'a> {
-    icon("\u{E44B}")
-}
-
-pub fn wand<'a>() -> Text<'a> {
-    icon("\u{E246}")
-}
-
-pub fn wand_sparkles<'a>() -> Text<'a> {
-    icon("\u{E357}")
-}
-
-pub fn warehouse<'a>() -> Text<'a> {
-    icon("\u{E3E6}")
-}
-
-pub fn washing_machine<'a>() -> Text<'a> {
-    icon("\u{E590}")
-}
-
-pub fn watch<'a>() -> Text<'a> {
-    icon("\u{E1AD}")
-}
-
-pub fn waves<'a>() -> Text<'a> {
-    icon("\u{E283}")
-}
-
-pub fn waves_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E6A9}")
-}
-
-pub fn waves_arrow_up<'a>() -> Text<'a> {
-    icon("\u{E6AA}")
-}
-
-pub fn waves_ladder<'a>() -> Text<'a> {
-    icon("\u{E63B}")
-}
-
-pub fn waypoints<'a>() -> Text<'a> {
-    icon("\u{E542}")
-}
-
-pub fn webcam<'a>() -> Text<'a> {
-    icon("\u{E205}")
-}
-
-pub fn webhook<'a>() -> Text<'a> {
-    icon("\u{E374}")
-}
-
-pub fn webhook_off<'a>() -> Text<'a> {
-    icon("\u{E5B7}")
-}
-
-pub fn weight<'a>() -> Text<'a> {
-    icon("\u{E530}")
-}
-
-pub fn weight_tilde<'a>() -> Text<'a> {
-    icon("\u{E6AE}")
-}
-
-pub fn wheat<'a>() -> Text<'a> {
-    icon("\u{E39E}")
-}
-
-pub fn wheat_off<'a>() -> Text<'a> {
-    icon("\u{E39F}")
-}
-
-pub fn whole_word<'a>() -> Text<'a> {
-    icon("\u{E3DF}")
-}
-
-pub fn wifi<'a>() -> Text<'a> {
-    icon("\u{E1AE}")
-}
-
-pub fn wifi_cog<'a>() -> Text<'a> {
-    icon("\u{E674}")
-}
-
-pub fn wifi_high<'a>() -> Text<'a> {
-    icon("\u{E5F7}")
-}
-
-pub fn wifi_low<'a>() -> Text<'a> {
-    icon("\u{E5F8}")
-}
-
-pub fn wifi_off<'a>() -> Text<'a> {
-    icon("\u{E1AF}")
-}
-
-pub fn wifi_pen<'a>() -> Text<'a> {
-    icon("\u{E663}")
-}
-
-pub fn wifi_sync<'a>() -> Text<'a> {
-    icon("\u{E681}")
-}
-
-pub fn wifi_zero<'a>() -> Text<'a> {
-    icon("\u{E5F9}")
-}
-
-pub fn wind<'a>() -> Text<'a> {
-    icon("\u{E1B0}")
-}
-
-pub fn wind_arrow_down<'a>() -> Text<'a> {
-    icon("\u{E631}")
-}
-
-pub fn wine<'a>() -> Text<'a> {
-    icon("\u{E2F8}")
-}
-
-pub fn wine_off<'a>() -> Text<'a> {
-    icon("\u{E3A0}")
-}
-
-pub fn workflow<'a>() -> Text<'a> {
-    icon("\u{E425}")
-}
-
-pub fn worm<'a>() -> Text<'a> {
-    icon("\u{E5DA}")
-}
-
-pub fn wrench<'a>() -> Text<'a> {
-    icon("\u{E1B1}")
-}
-
-pub fn x<'a>() -> Text<'a> {
-    icon("\u{E1B2}")
-}
-
-pub fn x_line_top<'a>() -> Text<'a> {
-    icon("\u{E6CB}")
-}
-
-pub fn youtube<'a>() -> Text<'a> {
-    icon("\u{E1B3}")
-}
-
-pub fn zap<'a>() -> Text<'a> {
-    icon("\u{E1B4}")
-}
-
-pub fn zap_off<'a>() -> Text<'a> {
-    icon("\u{E1B5}")
-}
-
-pub fn zoom_in<'a>() -> Text<'a> {
-    icon("\u{E1B6}")
-}
-
-pub fn zoom_out<'a>() -> Text<'a> {
-    icon("\u{E1B7}")
-}
-
-/// Render any Lucide icon by its codepoint string.
-/// Use this together with [`ALL_ICONS`] to display icons dynamically:
+/// The single font this module uses.
+pub const FONT: &[u8] = FONT_LUCIDE;
+
+/// One of the icon sets this module draws from.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Family {
+    /// Identifier, matching [`Icon::family`].
+    pub id: &'static str,
+    /// Human-readable name.
+    pub name: &'static str,
+    /// The `iced_lucide` Cargo feature that provides this set.
+    pub feature: &'static str,
+    /// License the icons are published under.
+    pub license: &'static str,
+    /// Where to browse the set.
+    pub url: &'static str,
+}
+
+/// The icon sets this module draws from.
+///
+/// [`Icon::family`] holds an `id` from this list, so it is both what a
+/// filter UI wants and where an "about" screen finds its attribution.
+#[rustfmt::skip]
+pub const FAMILIES: &[Family] = &[
+    Family { id: "lucide", name: "Lucide", feature: "lucide", license: "ISC", url: "https://lucide.dev/icons" },
+];
+
+const LUCIDE: Font = Font::new("lucide");
+
+/// An icon: its name, the character that draws it, and the font that carries it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Icon {
+    /// The upstream icon name.
+    pub name: &'static str,
+    /// The character to render.
+    pub codepoint: &'static str,
+    /// The font the character belongs to.
+    pub font: Font,
+    /// Identifier of the set this icon came from, matching [`FAMILIES`].
+    pub family: &'static str,
+}
+
+/// Every icon in this module.
+///
+/// Use this with [`render`] to build a picker:
+///
 /// ```ignore
-/// for (name, cp) in ALL_ICONS {
-///     button(render(cp)).on_press(Msg::Pick(name.to_string()))
+/// for icon in ALL_ICONS {
+///     button(render(*icon)).on_press(Message::Pick(icon.name))
 /// }
 /// ```
-pub fn render(codepoint: &str) -> Text<'_> {
-    text(codepoint).font(Font::with_name("lucide"))
+// One icon per line; rustfmt would otherwise explode each struct
+// literal across five lines and make this unreadable.
+#[rustfmt::skip]
+pub const ALL_ICONS: &[Icon] = &[
+    Icon { name: "a-arrow-down", codepoint: "\u{E585}", font: LUCIDE, family: "lucide" },
+    Icon { name: "a-arrow-up", codepoint: "\u{E586}", font: LUCIDE, family: "lucide" },
+    Icon { name: "a-large-small", codepoint: "\u{E587}", font: LUCIDE, family: "lucide" },
+    Icon { name: "accessibility", codepoint: "\u{E297}", font: LUCIDE, family: "lucide" },
+    Icon { name: "activity", codepoint: "\u{E038}", font: LUCIDE, family: "lucide" },
+    Icon { name: "activity-square", codepoint: "\u{E4B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ad", codepoint: "\u{E700}", font: LUCIDE, family: "lucide" },
+    Icon { name: "air-vent", codepoint: "\u{E34D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "airplay", codepoint: "\u{E039}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-check", codepoint: "\u{E1EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-clock", codepoint: "\u{E03A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-clock-check", codepoint: "\u{E1EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-clock-minus", codepoint: "\u{E1ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-clock-off", codepoint: "\u{E23B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-clock-plus", codepoint: "\u{E1EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-minus", codepoint: "\u{E1ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-plus", codepoint: "\u{E1EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alarm-smoke", codepoint: "\u{E57B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "album", codepoint: "\u{E03B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alert-circle", codepoint: "\u{E077}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alert-octagon", codepoint: "\u{E127}", font: LUCIDE, family: "lucide" },
+    Icon { name: "alert-triangle", codepoint: "\u{E193}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-center", codepoint: "\u{E182}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-center-horizontal", codepoint: "\u{E26C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-center-vertical", codepoint: "\u{E26D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-end-horizontal", codepoint: "\u{E26E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-end-vertical", codepoint: "\u{E26F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-distribute-center", codepoint: "\u{E03C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-distribute-end", codepoint: "\u{E03D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-distribute-start", codepoint: "\u{E03E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-justify-center", codepoint: "\u{E272}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-justify-end", codepoint: "\u{E273}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-justify-start", codepoint: "\u{E274}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-space-around", codepoint: "\u{E275}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-horizontal-space-between", codepoint: "\u{E276}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-justify", codepoint: "\u{E184}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-left", codepoint: "\u{E185}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-right", codepoint: "\u{E183}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-start-horizontal", codepoint: "\u{E270}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-start-vertical", codepoint: "\u{E271}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-distribute-center", codepoint: "\u{E27E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-distribute-end", codepoint: "\u{E27F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-distribute-start", codepoint: "\u{E280}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-justify-center", codepoint: "\u{E277}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-justify-end", codepoint: "\u{E278}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-justify-start", codepoint: "\u{E279}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-space-around", codepoint: "\u{E27A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "align-vertical-space-between", codepoint: "\u{E27B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ambulance", codepoint: "\u{E5BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ampersand", codepoint: "\u{E49C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ampersands", codepoint: "\u{E49D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "amphora", codepoint: "\u{E61B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "anchor", codepoint: "\u{E03F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "angle", codepoint: "\u{E732}", font: LUCIDE, family: "lucide" },
+    Icon { name: "angry", codepoint: "\u{E2FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "annoyed", codepoint: "\u{E2FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "antenna", codepoint: "\u{E4E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "anvil", codepoint: "\u{E580}", font: LUCIDE, family: "lucide" },
+    Icon { name: "aperture", codepoint: "\u{E040}", font: LUCIDE, family: "lucide" },
+    Icon { name: "app-window", codepoint: "\u{E426}", font: LUCIDE, family: "lucide" },
+    Icon { name: "app-window-mac", codepoint: "\u{E5D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "apple", codepoint: "\u{E34E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "archive", codepoint: "\u{E041}", font: LUCIDE, family: "lucide" },
+    Icon { name: "archive-restore", codepoint: "\u{E2CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "archive-x", codepoint: "\u{E50C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "area-chart", codepoint: "\u{E4D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "armchair", codepoint: "\u{E2C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-down", codepoint: "\u{E1E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-down-dash", codepoint: "\u{E41D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-left", codepoint: "\u{E1E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-left-dash", codepoint: "\u{E41E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-right", codepoint: "\u{E1E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-right-dash", codepoint: "\u{E41F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-up", codepoint: "\u{E1E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-big-up-dash", codepoint: "\u{E420}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down", codepoint: "\u{E042}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-0-1", codepoint: "\u{E413}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-01", codepoint: "\u{E413}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-1-0", codepoint: "\u{E414}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-10", codepoint: "\u{E414}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-a-z", codepoint: "\u{E415}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-az", codepoint: "\u{E415}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-circle", codepoint: "\u{E078}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-from-line", codepoint: "\u{E454}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-left", codepoint: "\u{E043}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-left-from-circle", codepoint: "\u{E3F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-left-from-square", codepoint: "\u{E5A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-left-square", codepoint: "\u{E4B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-narrow-wide", codepoint: "\u{E044}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-right", codepoint: "\u{E045}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-right-from-circle", codepoint: "\u{E3F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-right-from-square", codepoint: "\u{E5A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-right-square", codepoint: "\u{E4B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-square", codepoint: "\u{E427}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-to-dot", codepoint: "\u{E44D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-to-line", codepoint: "\u{E455}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-up", codepoint: "\u{E046}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-wide-narrow", codepoint: "\u{E047}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-z-a", codepoint: "\u{E416}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-down-za", codepoint: "\u{E416}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left", codepoint: "\u{E048}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left-circle", codepoint: "\u{E079}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left-from-line", codepoint: "\u{E456}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left-right", codepoint: "\u{E24A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left-square", codepoint: "\u{E428}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-left-to-line", codepoint: "\u{E457}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right", codepoint: "\u{E049}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right-circle", codepoint: "\u{E07A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right-from-line", codepoint: "\u{E458}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right-left", codepoint: "\u{E417}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right-square", codepoint: "\u{E429}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-right-to-line", codepoint: "\u{E459}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up", codepoint: "\u{E04A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-0-1", codepoint: "\u{E418}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-01", codepoint: "\u{E418}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-1-0", codepoint: "\u{E419}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-10", codepoint: "\u{E419}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-a-z", codepoint: "\u{E41A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-az", codepoint: "\u{E41A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-circle", codepoint: "\u{E07B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-down", codepoint: "\u{E37D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-from-dot", codepoint: "\u{E44E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-from-line", codepoint: "\u{E45A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-left", codepoint: "\u{E04B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-left-from-circle", codepoint: "\u{E3F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-left-from-square", codepoint: "\u{E5A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-left-square", codepoint: "\u{E4B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-narrow-wide", codepoint: "\u{E04C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-right", codepoint: "\u{E04D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-right-from-circle", codepoint: "\u{E3FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-right-from-square", codepoint: "\u{E5A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-right-square", codepoint: "\u{E4B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-square", codepoint: "\u{E42A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-to-line", codepoint: "\u{E45B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-wide-narrow", codepoint: "\u{E41B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-z-a", codepoint: "\u{E41C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrow-up-za", codepoint: "\u{E41C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "arrows-up-from-line", codepoint: "\u{E4D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "asterisk", codepoint: "\u{E1EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "asterisk-square", codepoint: "\u{E168}", font: LUCIDE, family: "lucide" },
+    Icon { name: "astroid", codepoint: "\u{E6F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "at-sign", codepoint: "\u{E04E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "atom", codepoint: "\u{E3D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "audio-lines", codepoint: "\u{E55A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "audio-lines-off", codepoint: "\u{E737}", font: LUCIDE, family: "lucide" },
+    Icon { name: "audio-lines-x", codepoint: "\u{E72E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "audio-waveform", codepoint: "\u{E55B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "award", codepoint: "\u{E04F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "axe", codepoint: "\u{E050}", font: LUCIDE, family: "lucide" },
+    Icon { name: "axis-3-d", codepoint: "\u{E2FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "axis-3d", codepoint: "\u{E2FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "baby", codepoint: "\u{E2CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "backpack", codepoint: "\u{E2C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge", codepoint: "\u{E474}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-alert", codepoint: "\u{E475}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-cent", codepoint: "\u{E50F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-check", codepoint: "\u{E241}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-dollar-sign", codepoint: "\u{E476}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-euro", codepoint: "\u{E510}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-help", codepoint: "\u{E47B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-indian-rupee", codepoint: "\u{E511}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-info", codepoint: "\u{E477}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-japanese-yen", codepoint: "\u{E512}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-minus", codepoint: "\u{E478}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-percent", codepoint: "\u{E479}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-plus", codepoint: "\u{E47A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-pound-sterling", codepoint: "\u{E513}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-question-mark", codepoint: "\u{E47B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-russian-ruble", codepoint: "\u{E514}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-swiss-franc", codepoint: "\u{E515}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-turkish-lira", codepoint: "\u{E67E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "badge-x", codepoint: "\u{E47C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "baggage-claim", codepoint: "\u{E2C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "balloon", codepoint: "\u{E6AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ban", codepoint: "\u{E051}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banana", codepoint: "\u{E34F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bandage", codepoint: "\u{E61D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banknote", codepoint: "\u{E052}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banknote-arrow-down", codepoint: "\u{E64C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banknote-arrow-up", codepoint: "\u{E64D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banknote-check", codepoint: "\u{E70C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "banknote-x", codepoint: "\u{E64E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart", codepoint: "\u{E06A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-2", codepoint: "\u{E068}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-3", codepoint: "\u{E2A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-4", codepoint: "\u{E2A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-big", codepoint: "\u{E4A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-horizontal", codepoint: "\u{E2A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bar-chart-horizontal-big", codepoint: "\u{E4A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "barcode", codepoint: "\u{E533}", font: LUCIDE, family: "lucide" },
+    Icon { name: "barrel", codepoint: "\u{E675}", font: LUCIDE, family: "lucide" },
+    Icon { name: "baseline", codepoint: "\u{E285}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bath", codepoint: "\u{E2AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery", codepoint: "\u{E053}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-charging", codepoint: "\u{E054}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-full", codepoint: "\u{E055}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-low", codepoint: "\u{E056}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-medium", codepoint: "\u{E057}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-plus", codepoint: "\u{E63E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "battery-warning", codepoint: "\u{E3AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "beaker", codepoint: "\u{E058}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bean", codepoint: "\u{E38F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bean-off", codepoint: "\u{E390}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bed", codepoint: "\u{E2C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bed-double", codepoint: "\u{E2C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bed-single", codepoint: "\u{E2C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "beef", codepoint: "\u{E3A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "beef-off", codepoint: "\u{E6DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "beer", codepoint: "\u{E2CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "beer-off", codepoint: "\u{E5D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell", codepoint: "\u{E059}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-check", codepoint: "\u{E6EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-dot", codepoint: "\u{E42B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-electric", codepoint: "\u{E57C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-minus", codepoint: "\u{E1F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-off", codepoint: "\u{E05A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-plus", codepoint: "\u{E1F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bell-ring", codepoint: "\u{E224}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-horizonal-end", codepoint: "\u{E591}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-horizonal-start", codepoint: "\u{E592}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-horizontal-end", codepoint: "\u{E591}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-horizontal-start", codepoint: "\u{E592}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-vertical-end", codepoint: "\u{E593}", font: LUCIDE, family: "lucide" },
+    Icon { name: "between-vertical-start", codepoint: "\u{E594}", font: LUCIDE, family: "lucide" },
+    Icon { name: "biceps-flexed", codepoint: "\u{E5EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bike", codepoint: "\u{E1D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "binary", codepoint: "\u{E1F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "binoculars", codepoint: "\u{E621}", font: LUCIDE, family: "lucide" },
+    Icon { name: "biohazard", codepoint: "\u{E441}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bird", codepoint: "\u{E3C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "birdhouse", codepoint: "\u{E69A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bitcoin", codepoint: "\u{E05B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "blend", codepoint: "\u{E59C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "blender", codepoint: "\u{E6F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "blinds", codepoint: "\u{E3C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "blocks", codepoint: "\u{E4FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bluetooth", codepoint: "\u{E05C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bluetooth-connected", codepoint: "\u{E1B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bluetooth-off", codepoint: "\u{E1B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bluetooth-searching", codepoint: "\u{E1BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bold", codepoint: "\u{E05D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bolt", codepoint: "\u{E58C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bomb", codepoint: "\u{E2FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bone", codepoint: "\u{E358}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bone-fracture", codepoint: "\u{E715}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book", codepoint: "\u{E05E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-a", codepoint: "\u{E544}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-alert", codepoint: "\u{E672}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-audio", codepoint: "\u{E545}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-check", codepoint: "\u{E546}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-copy", codepoint: "\u{E3EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-dashed", codepoint: "\u{E3ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-down", codepoint: "\u{E3EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-headphones", codepoint: "\u{E547}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-heart", codepoint: "\u{E548}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-image", codepoint: "\u{E549}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-key", codepoint: "\u{E3EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-lock", codepoint: "\u{E3F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-marked", codepoint: "\u{E3F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-minus", codepoint: "\u{E3F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-open", codepoint: "\u{E05F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-open-check", codepoint: "\u{E381}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-open-text", codepoint: "\u{E54A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-plus", codepoint: "\u{E3F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-search", codepoint: "\u{E6AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-template", codepoint: "\u{E3ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-text", codepoint: "\u{E54B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-type", codepoint: "\u{E54C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-up", codepoint: "\u{E3F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-up-2", codepoint: "\u{E4A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-user", codepoint: "\u{E54D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "book-x", codepoint: "\u{E3F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark", codepoint: "\u{E060}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark-check", codepoint: "\u{E51F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark-minus", codepoint: "\u{E23C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark-off", codepoint: "\u{E6DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark-plus", codepoint: "\u{E23D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bookmark-x", codepoint: "\u{E520}", font: LUCIDE, family: "lucide" },
+    Icon { name: "boom-box", codepoint: "\u{E4EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bot", codepoint: "\u{E1BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bot-message-square", codepoint: "\u{E5CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bot-off", codepoint: "\u{E5E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bottle-wine", codepoint: "\u{E67B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bow-arrow", codepoint: "\u{E65E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "box", codepoint: "\u{E061}", font: LUCIDE, family: "lucide" },
+    Icon { name: "box-select", codepoint: "\u{E1CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "boxes", codepoint: "\u{E2D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "braces", codepoint: "\u{E36A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brackets", codepoint: "\u{E443}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brain", codepoint: "\u{E3C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brain-circuit", codepoint: "\u{E3C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brain-cog", codepoint: "\u{E3C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brick-wall", codepoint: "\u{E581}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brick-wall-fire", codepoint: "\u{E653}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brick-wall-shield", codepoint: "\u{E690}", font: LUCIDE, family: "lucide" },
+    Icon { name: "briefcase", codepoint: "\u{E062}", font: LUCIDE, family: "lucide" },
+    Icon { name: "briefcase-business", codepoint: "\u{E5D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "briefcase-conveyor-belt", codepoint: "\u{E62B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "briefcase-medical", codepoint: "\u{E5D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bring-to-front", codepoint: "\u{E4EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "broccoli", codepoint: "\u{E6F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "broom", codepoint: "\u{E730}", font: LUCIDE, family: "lucide" },
+    Icon { name: "broom-sparkles", codepoint: "\u{E72F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brush", codepoint: "\u{E1D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "brush-cleaning", codepoint: "\u{E666}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bubbles", codepoint: "\u{E654}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bug", codepoint: "\u{E20C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bug-off", codepoint: "\u{E50D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bug-play", codepoint: "\u{E50E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "building", codepoint: "\u{E1CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "building-2", codepoint: "\u{E290}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bus", codepoint: "\u{E1D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "bus-front", codepoint: "\u{E4FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cable", codepoint: "\u{E4E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cable-car", codepoint: "\u{E4FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cake", codepoint: "\u{E344}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cake-slice", codepoint: "\u{E4B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calculator", codepoint: "\u{E1BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar", codepoint: "\u{E063}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-1", codepoint: "\u{E630}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-arrow-down", codepoint: "\u{E5FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-arrow-up", codepoint: "\u{E5FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-check", codepoint: "\u{E2B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-check-2", codepoint: "\u{E2B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-clock", codepoint: "\u{E304}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-cog", codepoint: "\u{E5ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-days", codepoint: "\u{E2B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-fold", codepoint: "\u{E5B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-heart", codepoint: "\u{E305}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-minus", codepoint: "\u{E2BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-minus-2", codepoint: "\u{E5B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-off", codepoint: "\u{E2BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-plus", codepoint: "\u{E2BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-plus-2", codepoint: "\u{E5B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-range", codepoint: "\u{E2BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-search", codepoint: "\u{E306}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-sync", codepoint: "\u{E636}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-x", codepoint: "\u{E2BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendar-x-2", codepoint: "\u{E2BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "calendars", codepoint: "\u{E6A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "camera", codepoint: "\u{E064}", font: LUCIDE, family: "lucide" },
+    Icon { name: "camera-off", codepoint: "\u{E065}", font: LUCIDE, family: "lucide" },
+    Icon { name: "candlestick-chart", codepoint: "\u{E4A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "candy", codepoint: "\u{E391}", font: LUCIDE, family: "lucide" },
+    Icon { name: "candy-cane", codepoint: "\u{E4BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "candy-off", codepoint: "\u{E392}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cannabis", codepoint: "\u{E5D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cannabis-off", codepoint: "\u{E6E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "captions", codepoint: "\u{E3A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "captions-off", codepoint: "\u{E5C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "car", codepoint: "\u{E1D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "car-battery", codepoint: "\u{E735}", font: LUCIDE, family: "lucide" },
+    Icon { name: "car-front", codepoint: "\u{E4FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "car-taxi-front", codepoint: "\u{E4FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "caravan", codepoint: "\u{E539}", font: LUCIDE, family: "lucide" },
+    Icon { name: "card-sim", codepoint: "\u{E671}", font: LUCIDE, family: "lucide" },
+    Icon { name: "carrot", codepoint: "\u{E25A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "case-lower", codepoint: "\u{E3D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "case-sensitive", codepoint: "\u{E3D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "case-upper", codepoint: "\u{E3DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cassette-tape", codepoint: "\u{E4CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cast", codepoint: "\u{E066}", font: LUCIDE, family: "lucide" },
+    Icon { name: "castle", codepoint: "\u{E3E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cat", codepoint: "\u{E38C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cctv", codepoint: "\u{E57D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cctv-off", codepoint: "\u{E6D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-area", codepoint: "\u{E4D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-bar", codepoint: "\u{E2A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-bar-big", codepoint: "\u{E4A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-bar-decreasing", codepoint: "\u{E607}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-bar-increasing", codepoint: "\u{E608}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-bar-stacked", codepoint: "\u{E609}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-candlestick", codepoint: "\u{E4A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-column", codepoint: "\u{E2A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-column-big", codepoint: "\u{E4A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-column-decreasing", codepoint: "\u{E067}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-column-increasing", codepoint: "\u{E2A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-column-stacked", codepoint: "\u{E60A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-gantt", codepoint: "\u{E624}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-line", codepoint: "\u{E2A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-network", codepoint: "\u{E60B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-no-axes-column", codepoint: "\u{E068}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-no-axes-column-decreasing", codepoint: "\u{E069}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-no-axes-column-increasing", codepoint: "\u{E06A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-no-axes-combined", codepoint: "\u{E60C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-no-axes-gantt", codepoint: "\u{E4C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-pie", codepoint: "\u{E06B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-scatter", codepoint: "\u{E48A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chart-spline", codepoint: "\u{E60D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check", codepoint: "\u{E06C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-check", codepoint: "\u{E38E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-circle", codepoint: "\u{E07C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-circle-2", codepoint: "\u{E226}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-line", codepoint: "\u{E66B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-square", codepoint: "\u{E16A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "check-square-2", codepoint: "\u{E559}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chef-hat", codepoint: "\u{E2AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cherry", codepoint: "\u{E350}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-bishop", codepoint: "\u{E6A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-king", codepoint: "\u{E6A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-knight", codepoint: "\u{E6A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-pawn", codepoint: "\u{E6A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-queen", codepoint: "\u{E6A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chess-rook", codepoint: "\u{E6A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-down", codepoint: "\u{E06D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-down-circle", codepoint: "\u{E4DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-down-square", codepoint: "\u{E3CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-first", codepoint: "\u{E243}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-last", codepoint: "\u{E244}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-left", codepoint: "\u{E06E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-left-circle", codepoint: "\u{E4DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-left-square", codepoint: "\u{E3D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-right", codepoint: "\u{E06F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-right-circle", codepoint: "\u{E4DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-right-square", codepoint: "\u{E3D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-up", codepoint: "\u{E070}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-up-circle", codepoint: "\u{E4E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevron-up-square", codepoint: "\u{E3D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-down", codepoint: "\u{E071}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-down-up", codepoint: "\u{E228}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-left", codepoint: "\u{E072}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-left-right", codepoint: "\u{E293}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-left-right-ellipsis", codepoint: "\u{E61F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-right", codepoint: "\u{E073}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-right-left", codepoint: "\u{E294}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-up", codepoint: "\u{E074}", font: LUCIDE, family: "lucide" },
+    Icon { name: "chevrons-up-down", codepoint: "\u{E211}", font: LUCIDE, family: "lucide" },
+    Icon { name: "church", codepoint: "\u{E3E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cigarette", codepoint: "\u{E2C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cigarette-off", codepoint: "\u{E2C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle", codepoint: "\u{E076}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-alert", codepoint: "\u{E077}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-down", codepoint: "\u{E078}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-left", codepoint: "\u{E079}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-out-down-left", codepoint: "\u{E3F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-out-down-right", codepoint: "\u{E3F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-out-up-left", codepoint: "\u{E3F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-out-up-right", codepoint: "\u{E3FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-right", codepoint: "\u{E07A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-arrow-up", codepoint: "\u{E07B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-check", codepoint: "\u{E226}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-check-big", codepoint: "\u{E07C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-chevron-down", codepoint: "\u{E4DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-chevron-left", codepoint: "\u{E4DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-chevron-right", codepoint: "\u{E4DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-chevron-up", codepoint: "\u{E4E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-dashed", codepoint: "\u{E4B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-divide", codepoint: "\u{E07D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-dollar-sign", codepoint: "\u{E47D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-dot", codepoint: "\u{E345}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-dot-dashed", codepoint: "\u{E4B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-ellipsis", codepoint: "\u{E346}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-equal", codepoint: "\u{E400}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-euro", codepoint: "\u{E71F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-fading-arrow-up", codepoint: "\u{E618}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-fading-plus", codepoint: "\u{E5BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-gauge", codepoint: "\u{E4E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-help", codepoint: "\u{E082}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-minus", codepoint: "\u{E07E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-off", codepoint: "\u{E401}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-parking", codepoint: "\u{E3C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-parking-off", codepoint: "\u{E3CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-pause", codepoint: "\u{E07F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-percent", codepoint: "\u{E51A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-pile", codepoint: "\u{E6E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-play", codepoint: "\u{E080}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-plus", codepoint: "\u{E081}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-pound-sterling", codepoint: "\u{E66D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-power", codepoint: "\u{E550}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-question-mark", codepoint: "\u{E082}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-slash", codepoint: "\u{E402}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-slash-2", codepoint: "\u{E213}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-slashed", codepoint: "\u{E213}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-small", codepoint: "\u{E640}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-star", codepoint: "\u{E68D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-stop", codepoint: "\u{E083}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-user", codepoint: "\u{E461}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-user-round", codepoint: "\u{E462}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circle-x", codepoint: "\u{E084}", font: LUCIDE, family: "lucide" },
+    Icon { name: "circuit-board", codepoint: "\u{E403}", font: LUCIDE, family: "lucide" },
+    Icon { name: "citrus", codepoint: "\u{E375}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clapperboard", codepoint: "\u{E29B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard", codepoint: "\u{E085}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-check", codepoint: "\u{E219}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-clock", codepoint: "\u{E688}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-copy", codepoint: "\u{E225}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-edit", codepoint: "\u{E307}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-list", codepoint: "\u{E086}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-minus", codepoint: "\u{E5BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-paste", codepoint: "\u{E3E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-pen", codepoint: "\u{E307}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-pen-line", codepoint: "\u{E308}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-plus", codepoint: "\u{E5BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-signature", codepoint: "\u{E308}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-type", codepoint: "\u{E309}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clipboard-x", codepoint: "\u{E222}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock", codepoint: "\u{E087}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-1", codepoint: "\u{E24B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-10", codepoint: "\u{E24C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-11", codepoint: "\u{E24D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-12", codepoint: "\u{E24E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-2", codepoint: "\u{E24F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-3", codepoint: "\u{E250}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-4", codepoint: "\u{E251}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-5", codepoint: "\u{E252}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-6", codepoint: "\u{E253}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-7", codepoint: "\u{E254}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-8", codepoint: "\u{E255}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-9", codepoint: "\u{E256}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-alert", codepoint: "\u{E62A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-arrow-down", codepoint: "\u{E600}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-arrow-left", codepoint: "\u{E70D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-arrow-right", codepoint: "\u{E70E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-arrow-up", codepoint: "\u{E601}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-check", codepoint: "\u{E69E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-fading", codepoint: "\u{E64A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clock-plus", codepoint: "\u{E667}", font: LUCIDE, family: "lucide" },
+    Icon { name: "closed-caption", codepoint: "\u{E68A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud", codepoint: "\u{E088}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-alert", codepoint: "\u{E633}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-backup", codepoint: "\u{E6E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-check", codepoint: "\u{E66E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-cog", codepoint: "\u{E30A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-download", codepoint: "\u{E089}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-drizzle", codepoint: "\u{E08A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-fog", codepoint: "\u{E214}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-hail", codepoint: "\u{E08B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-lightning", codepoint: "\u{E08C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-moon", codepoint: "\u{E215}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-moon-rain", codepoint: "\u{E2FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-off", codepoint: "\u{E08D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-rain", codepoint: "\u{E08E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-rain-wind", codepoint: "\u{E08F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-snow", codepoint: "\u{E090}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-sun", codepoint: "\u{E216}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-sun-rain", codepoint: "\u{E2FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-sync", codepoint: "\u{E6E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloud-upload", codepoint: "\u{E091}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cloudy", codepoint: "\u{E217}", font: LUCIDE, family: "lucide" },
+    Icon { name: "clover", codepoint: "\u{E092}", font: LUCIDE, family: "lucide" },
+    Icon { name: "club", codepoint: "\u{E496}", font: LUCIDE, family: "lucide" },
+    Icon { name: "code", codepoint: "\u{E093}", font: LUCIDE, family: "lucide" },
+    Icon { name: "code-2", codepoint: "\u{E206}", font: LUCIDE, family: "lucide" },
+    Icon { name: "code-square", codepoint: "\u{E16B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "code-xml", codepoint: "\u{E206}", font: LUCIDE, family: "lucide" },
+    Icon { name: "coffee", codepoint: "\u{E096}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cog", codepoint: "\u{E30B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "coins", codepoint: "\u{E097}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns", codepoint: "\u{E098}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns-2", codepoint: "\u{E098}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns-3", codepoint: "\u{E099}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns-3-cog", codepoint: "\u{E661}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns-4", codepoint: "\u{E589}", font: LUCIDE, family: "lucide" },
+    Icon { name: "columns-settings", codepoint: "\u{E661}", font: LUCIDE, family: "lucide" },
+    Icon { name: "combine", codepoint: "\u{E44C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "command", codepoint: "\u{E09A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "compass", codepoint: "\u{E09B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "component", codepoint: "\u{E2AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "computer", codepoint: "\u{E4E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "concierge-bell", codepoint: "\u{E378}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cone", codepoint: "\u{E523}", font: LUCIDE, family: "lucide" },
+    Icon { name: "construction", codepoint: "\u{E3B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "contact", codepoint: "\u{E09C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "contact-2", codepoint: "\u{E463}", font: LUCIDE, family: "lucide" },
+    Icon { name: "contact-round", codepoint: "\u{E463}", font: LUCIDE, family: "lucide" },
+    Icon { name: "container", codepoint: "\u{E4D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "contrast", codepoint: "\u{E09D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cookie", codepoint: "\u{E26B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cooking-pot", codepoint: "\u{E584}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy", codepoint: "\u{E09E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy-check", codepoint: "\u{E3FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy-minus", codepoint: "\u{E3FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy-plus", codepoint: "\u{E3FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy-slash", codepoint: "\u{E3FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copy-x", codepoint: "\u{E3FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copyleft", codepoint: "\u{E09F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "copyright", codepoint: "\u{E0A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-down-left", codepoint: "\u{E0A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-down-right", codepoint: "\u{E0A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-left-down", codepoint: "\u{E0A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-left-up", codepoint: "\u{E0A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-right-down", codepoint: "\u{E0A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-right-up", codepoint: "\u{E0A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-up-left", codepoint: "\u{E0A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "corner-up-right", codepoint: "\u{E0A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cpu", codepoint: "\u{E0A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "creative-commons", codepoint: "\u{E3B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "credit-card", codepoint: "\u{E0AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "credit-card-check", codepoint: "\u{E743}", font: LUCIDE, family: "lucide" },
+    Icon { name: "credit-card-minus", codepoint: "\u{E744}", font: LUCIDE, family: "lucide" },
+    Icon { name: "credit-card-plus", codepoint: "\u{E74B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "credit-card-x", codepoint: "\u{E745}", font: LUCIDE, family: "lucide" },
+    Icon { name: "croissant", codepoint: "\u{E2AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "crop", codepoint: "\u{E0AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cross", codepoint: "\u{E1E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "crosshair", codepoint: "\u{E0AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "crown", codepoint: "\u{E1D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cuboid", codepoint: "\u{E524}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cup-soda", codepoint: "\u{E2D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "curly-braces", codepoint: "\u{E36A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "currency", codepoint: "\u{E230}", font: LUCIDE, family: "lucide" },
+    Icon { name: "cylinder", codepoint: "\u{E525}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dam", codepoint: "\u{E606}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database", codepoint: "\u{E0AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-arrow-down", codepoint: "\u{E716}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-arrow-up", codepoint: "\u{E717}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-backup", codepoint: "\u{E3AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-check", codepoint: "\u{E718}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-minus", codepoint: "\u{E719}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-plus", codepoint: "\u{E71A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-search", codepoint: "\u{E6B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-x", codepoint: "\u{E71B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "database-zap", codepoint: "\u{E50B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "decimals-arrow-left", codepoint: "\u{E65C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "decimals-arrow-right", codepoint: "\u{E65D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "delete", codepoint: "\u{E0AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dessert", codepoint: "\u{E4BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diameter", codepoint: "\u{E526}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diamond", codepoint: "\u{E2D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diamond-minus", codepoint: "\u{E5E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diamond-percent", codepoint: "\u{E51B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diamond-plus", codepoint: "\u{E5E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-1", codepoint: "\u{E287}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-2", codepoint: "\u{E288}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-3", codepoint: "\u{E289}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-4", codepoint: "\u{E28A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-5", codepoint: "\u{E28B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dice-6", codepoint: "\u{E28C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dices", codepoint: "\u{E2C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "diff", codepoint: "\u{E30C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "disc", codepoint: "\u{E0AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "disc-2", codepoint: "\u{E3F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "disc-3", codepoint: "\u{E494}", font: LUCIDE, family: "lucide" },
+    Icon { name: "disc-album", codepoint: "\u{E55C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "divide", codepoint: "\u{E0B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "divide-circle", codepoint: "\u{E07D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "divide-square", codepoint: "\u{E16D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dna", codepoint: "\u{E393}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dna-off", codepoint: "\u{E394}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dock", codepoint: "\u{E5D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dog", codepoint: "\u{E38D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dollar-sign", codepoint: "\u{E0B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "donut", codepoint: "\u{E4BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "door-closed", codepoint: "\u{E3D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "door-closed-locked", codepoint: "\u{E664}", font: LUCIDE, family: "lucide" },
+    Icon { name: "door-open", codepoint: "\u{E3D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dot", codepoint: "\u{E44F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dot-square", codepoint: "\u{E16E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "download", codepoint: "\u{E0B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "download-cloud", codepoint: "\u{E089}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drafting-compass", codepoint: "\u{E527}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drama", codepoint: "\u{E521}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drill", codepoint: "\u{E58D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drone", codepoint: "\u{E676}", font: LUCIDE, family: "lucide" },
+    Icon { name: "droplet", codepoint: "\u{E0B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "droplet-off", codepoint: "\u{E638}", font: LUCIDE, family: "lucide" },
+    Icon { name: "droplets", codepoint: "\u{E0B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drum", codepoint: "\u{E55D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "drumstick", codepoint: "\u{E25B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "dumbbell", codepoint: "\u{E3A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ear", codepoint: "\u{E382}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ear-off", codepoint: "\u{E383}", font: LUCIDE, family: "lucide" },
+    Icon { name: "earth", codepoint: "\u{E1F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "earth-lock", codepoint: "\u{E5CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eclipse", codepoint: "\u{E59D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "edit", codepoint: "\u{E172}", font: LUCIDE, family: "lucide" },
+    Icon { name: "edit-2", codepoint: "\u{E12F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "edit-3", codepoint: "\u{E130}", font: LUCIDE, family: "lucide" },
+    Icon { name: "egg", codepoint: "\u{E25D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "egg-fried", codepoint: "\u{E351}", font: LUCIDE, family: "lucide" },
+    Icon { name: "egg-off", codepoint: "\u{E395}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eject", codepoint: "\u{E733}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ellipse", codepoint: "\u{E6B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ellipsis", codepoint: "\u{E0B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ellipsis-vertical", codepoint: "\u{E0B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "equal", codepoint: "\u{E1BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "equal-approximately", codepoint: "\u{E634}", font: LUCIDE, family: "lucide" },
+    Icon { name: "equal-not", codepoint: "\u{E1BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "equal-square", codepoint: "\u{E16F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eraser", codepoint: "\u{E28F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ethernet-port", codepoint: "\u{E620}", font: LUCIDE, family: "lucide" },
+    Icon { name: "euro", codepoint: "\u{E0B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ev-charger", codepoint: "\u{E697}", font: LUCIDE, family: "lucide" },
+    Icon { name: "expand", codepoint: "\u{E21A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "external-link", codepoint: "\u{E0B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eye", codepoint: "\u{E0BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eye-closed", codepoint: "\u{E62E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eye-dashed", codepoint: "\u{E701}", font: LUCIDE, family: "lucide" },
+    Icon { name: "eye-off", codepoint: "\u{E0BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-angry", codepoint: "\u{E2FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-expressionless", codepoint: "\u{E2FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-grinning", codepoint: "\u{E300}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-neutral", codepoint: "\u{E114}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-slightly-frowning", codepoint: "\u{E0DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-slightly-smiling", codepoint: "\u{E164}", font: LUCIDE, family: "lucide" },
+    Icon { name: "face-slightly-smiling-plus", codepoint: "\u{E301}", font: LUCIDE, family: "lucide" },
+    Icon { name: "factory", codepoint: "\u{E29F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fan", codepoint: "\u{E379}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fast-forward", codepoint: "\u{E0BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "feather", codepoint: "\u{E0BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fence", codepoint: "\u{E582}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ferris-wheel", codepoint: "\u{E47F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file", codepoint: "\u{E0C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-archive", codepoint: "\u{E30D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-audio", codepoint: "\u{E31A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-audio-2", codepoint: "\u{E31A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-axis-3-d", codepoint: "\u{E30E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-axis-3d", codepoint: "\u{E30E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-badge", codepoint: "\u{E30F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-badge-2", codepoint: "\u{E30F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-bar-chart", codepoint: "\u{E312}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-bar-chart-2", codepoint: "\u{E311}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-box", codepoint: "\u{E310}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-braces", codepoint: "\u{E36B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-braces-corner", codepoint: "\u{E36C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-chart-column", codepoint: "\u{E311}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-chart-column-increasing", codepoint: "\u{E312}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-chart-line", codepoint: "\u{E313}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-chart-pie", codepoint: "\u{E314}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-check", codepoint: "\u{E0C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-check-2", codepoint: "\u{E0C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-check-corner", codepoint: "\u{E0C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-clock", codepoint: "\u{E315}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-code", codepoint: "\u{E0C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-code-2", codepoint: "\u{E45E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-code-corner", codepoint: "\u{E45E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-cog", codepoint: "\u{E316}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-cog-2", codepoint: "\u{E316}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-diff", codepoint: "\u{E317}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-digit", codepoint: "\u{E0C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-down", codepoint: "\u{E318}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-edit", codepoint: "\u{E31F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-exclamation-point", codepoint: "\u{E319}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-headphone", codepoint: "\u{E31A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-heart", codepoint: "\u{E31B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-image", codepoint: "\u{E31C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-input", codepoint: "\u{E0C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-json", codepoint: "\u{E36B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-json-2", codepoint: "\u{E36C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-key", codepoint: "\u{E31D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-key-2", codepoint: "\u{E31D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-line-chart", codepoint: "\u{E313}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-lock", codepoint: "\u{E31E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-lock-2", codepoint: "\u{E31E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-minus", codepoint: "\u{E0C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-minus-2", codepoint: "\u{E0C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-minus-corner", codepoint: "\u{E0C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-music", codepoint: "\u{E55E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-output", codepoint: "\u{E0C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-pen", codepoint: "\u{E31F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-pen-line", codepoint: "\u{E320}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-pie-chart", codepoint: "\u{E314}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-play", codepoint: "\u{E321}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-plus", codepoint: "\u{E0C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-plus-2", codepoint: "\u{E0CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-plus-corner", codepoint: "\u{E0CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-question", codepoint: "\u{E322}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-question-mark", codepoint: "\u{E322}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-scan", codepoint: "\u{E323}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-search", codepoint: "\u{E0CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-search-2", codepoint: "\u{E324}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-search-corner", codepoint: "\u{E324}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-signal", codepoint: "\u{E325}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-signature", codepoint: "\u{E320}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-sliders", codepoint: "\u{E5A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-spreadsheet", codepoint: "\u{E326}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-stack", codepoint: "\u{E4A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-symlink", codepoint: "\u{E327}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-terminal", codepoint: "\u{E328}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-text", codepoint: "\u{E0CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-type", codepoint: "\u{E329}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-type-2", codepoint: "\u{E36D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-type-corner", codepoint: "\u{E36D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-up", codepoint: "\u{E32A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-user", codepoint: "\u{E62D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-video", codepoint: "\u{E321}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-video-2", codepoint: "\u{E32B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-video-camera", codepoint: "\u{E32B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-volume", codepoint: "\u{E32C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-volume-2", codepoint: "\u{E325}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-warning", codepoint: "\u{E319}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-x", codepoint: "\u{E0CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-x-2", codepoint: "\u{E0CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "file-x-corner", codepoint: "\u{E0CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "files", codepoint: "\u{E0CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "film", codepoint: "\u{E0D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "filter", codepoint: "\u{E0DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "filter-x", codepoint: "\u{E3B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fingerprint", codepoint: "\u{E2CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fingerprint-pattern", codepoint: "\u{E2CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fire-extinguisher", codepoint: "\u{E57E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fish", codepoint: "\u{E3A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fish-off", codepoint: "\u{E3B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fish-symbol", codepoint: "\u{E4F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fishing-hook", codepoint: "\u{E6E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fishing-rod", codepoint: "\u{E6B3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flag", codepoint: "\u{E0D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flag-off", codepoint: "\u{E292}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flag-triangle-left", codepoint: "\u{E237}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flag-triangle-right", codepoint: "\u{E238}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flame", codepoint: "\u{E0D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flame-kindling", codepoint: "\u{E53A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flashlight", codepoint: "\u{E0D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flashlight-off", codepoint: "\u{E0D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flask-conical", codepoint: "\u{E0D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flask-conical-off", codepoint: "\u{E396}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flask-round", codepoint: "\u{E0D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flip-horizontal", codepoint: "\u{E35D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flip-horizontal-2", codepoint: "\u{E35E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flip-vertical", codepoint: "\u{E35F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flip-vertical-2", codepoint: "\u{E360}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flower", codepoint: "\u{E2D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "flower-2", codepoint: "\u{E2D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "focus", codepoint: "\u{E29E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fold-horizontal", codepoint: "\u{E43B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fold-vertical", codepoint: "\u{E43C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder", codepoint: "\u{E0D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-archive", codepoint: "\u{E32D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-bookmark", codepoint: "\u{E6F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-check", codepoint: "\u{E32E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-clock", codepoint: "\u{E32F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-closed", codepoint: "\u{E330}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-code", codepoint: "\u{E5FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-cog", codepoint: "\u{E331}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-cog-2", codepoint: "\u{E331}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-dot", codepoint: "\u{E4C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-down", codepoint: "\u{E332}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-edit", codepoint: "\u{E338}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-git", codepoint: "\u{E409}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-git-2", codepoint: "\u{E40A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-heart", codepoint: "\u{E333}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-input", codepoint: "\u{E334}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-kanban", codepoint: "\u{E4C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-key", codepoint: "\u{E335}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-lock", codepoint: "\u{E336}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-minus", codepoint: "\u{E0D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-open", codepoint: "\u{E247}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-open-dot", codepoint: "\u{E4C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-output", codepoint: "\u{E337}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-pen", codepoint: "\u{E338}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-plus", codepoint: "\u{E0D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-root", codepoint: "\u{E4C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-search", codepoint: "\u{E339}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-search-2", codepoint: "\u{E33A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-symlink", codepoint: "\u{E33B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-sync", codepoint: "\u{E4C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-tree", codepoint: "\u{E33C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-up", codepoint: "\u{E33D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folder-x", codepoint: "\u{E33E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "folders", codepoint: "\u{E33F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "footprints", codepoint: "\u{E3B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fork-knife", codepoint: "\u{E2F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fork-knife-crossed", codepoint: "\u{E2F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "forklift", codepoint: "\u{E3C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "form", codepoint: "\u{E6A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "form-input", codepoint: "\u{E21F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "forward", codepoint: "\u{E229}", font: LUCIDE, family: "lucide" },
+    Icon { name: "frame", codepoint: "\u{E291}", font: LUCIDE, family: "lucide" },
+    Icon { name: "frown", codepoint: "\u{E0DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fuel", codepoint: "\u{E2AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "fullscreen", codepoint: "\u{E534}", font: LUCIDE, family: "lucide" },
+    Icon { name: "function-square", codepoint: "\u{E22D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "funnel", codepoint: "\u{E0DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "funnel-plus", codepoint: "\u{E0DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "funnel-x", codepoint: "\u{E3B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "galaxy", codepoint: "\u{E73F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gallery-horizontal", codepoint: "\u{E4CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gallery-horizontal-end", codepoint: "\u{E4CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gallery-thumbnails", codepoint: "\u{E4D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gallery-vertical", codepoint: "\u{E4D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gallery-vertical-end", codepoint: "\u{E4D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gamepad", codepoint: "\u{E0DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gamepad-2", codepoint: "\u{E0DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gamepad-directional", codepoint: "\u{E69B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gantt-chart", codepoint: "\u{E4C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gantt-chart-square", codepoint: "\u{E169}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gauge", codepoint: "\u{E1BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gauge-circle", codepoint: "\u{E4E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gavel", codepoint: "\u{E0E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gem", codepoint: "\u{E242}", font: LUCIDE, family: "lucide" },
+    Icon { name: "georgian-lari", codepoint: "\u{E678}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ghost", codepoint: "\u{E20E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gift", codepoint: "\u{E0E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-branch", codepoint: "\u{E0E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-branch-minus", codepoint: "\u{E69C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-branch-plus", codepoint: "\u{E1F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-commit", codepoint: "\u{E0E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-commit-horizontal", codepoint: "\u{E0E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-commit-vertical", codepoint: "\u{E552}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-compare", codepoint: "\u{E359}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-compare-arrows", codepoint: "\u{E553}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-fork", codepoint: "\u{E28D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-graph", codepoint: "\u{E554}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-merge", codepoint: "\u{E0E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-merge-conflict", codepoint: "\u{E6B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request", codepoint: "\u{E0E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request-arrow", codepoint: "\u{E555}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request-closed", codepoint: "\u{E35A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request-create", codepoint: "\u{E556}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request-create-arrow", codepoint: "\u{E557}", font: LUCIDE, family: "lucide" },
+    Icon { name: "git-pull-request-draft", codepoint: "\u{E35B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "glass-water", codepoint: "\u{E2D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "glasses", codepoint: "\u{E20D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe", codepoint: "\u{E0E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe-2", codepoint: "\u{E1F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe-check", codepoint: "\u{E6FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe-lock", codepoint: "\u{E5CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe-off", codepoint: "\u{E6B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "globe-x", codepoint: "\u{E6B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "goal", codepoint: "\u{E4A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "gpu", codepoint: "\u{E66A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grab", codepoint: "\u{E1E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "graduation-cap", codepoint: "\u{E234}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grape", codepoint: "\u{E352}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid", codepoint: "\u{E0E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2-x-2", codepoint: "\u{E4FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2-x-2-check", codepoint: "\u{E5E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2-x-2-plus", codepoint: "\u{E628}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2-x-2-x", codepoint: "\u{E5E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2x2", codepoint: "\u{E4FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2x2-check", codepoint: "\u{E5E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2x2-plus", codepoint: "\u{E628}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-2x2-x", codepoint: "\u{E5E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-3-x-3", codepoint: "\u{E0E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-3x2", codepoint: "\u{E66F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grid-3x3", codepoint: "\u{E0E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grip", codepoint: "\u{E3B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grip-horizontal", codepoint: "\u{E0EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "grip-vertical", codepoint: "\u{E0EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "group", codepoint: "\u{E464}", font: LUCIDE, family: "lucide" },
+    Icon { name: "guitar", codepoint: "\u{E55F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ham", codepoint: "\u{E5D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hamburger", codepoint: "\u{E665}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hammer", codepoint: "\u{E0EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand", codepoint: "\u{E1D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-coins", codepoint: "\u{E5B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-fist", codepoint: "\u{E68B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-grab", codepoint: "\u{E1E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-heart", codepoint: "\u{E5B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-helping", codepoint: "\u{E3B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-metal", codepoint: "\u{E22C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hand-platter", codepoint: "\u{E5BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "handbag", codepoint: "\u{E689}", font: LUCIDE, family: "lucide" },
+    Icon { name: "handshake", codepoint: "\u{E5C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hard-drive", codepoint: "\u{E0ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hard-drive-download", codepoint: "\u{E4E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hard-drive-upload", codepoint: "\u{E4E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hard-hat", codepoint: "\u{E0EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hash", codepoint: "\u{E0EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hat-glasses", codepoint: "\u{E683}", font: LUCIDE, family: "lucide" },
+    Icon { name: "haze", codepoint: "\u{E0F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hd", codepoint: "\u{E6E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hdmi-port", codepoint: "\u{E4E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading", codepoint: "\u{E384}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-1", codepoint: "\u{E385}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-2", codepoint: "\u{E386}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-3", codepoint: "\u{E387}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-4", codepoint: "\u{E388}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-5", codepoint: "\u{E389}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heading-6", codepoint: "\u{E38A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "headphone-off", codepoint: "\u{E629}", font: LUCIDE, family: "lucide" },
+    Icon { name: "headphones", codepoint: "\u{E0F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "headset", codepoint: "\u{E5BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart", codepoint: "\u{E0F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-crack", codepoint: "\u{E2D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-handshake", codepoint: "\u{E2D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-minus", codepoint: "\u{E651}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-off", codepoint: "\u{E295}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-plus", codepoint: "\u{E652}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-pulse", codepoint: "\u{E36E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heart-x", codepoint: "\u{E6ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "heater", codepoint: "\u{E58E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "helicopter", codepoint: "\u{E69D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "help-circle", codepoint: "\u{E082}", font: LUCIDE, family: "lucide" },
+    Icon { name: "helping-hand", codepoint: "\u{E3B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hexagon", codepoint: "\u{E0F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "highlighter", codepoint: "\u{E0F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "history", codepoint: "\u{E1F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "home", codepoint: "\u{E0F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hop", codepoint: "\u{E397}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hop-off", codepoint: "\u{E398}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hospital", codepoint: "\u{E5D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hotel", codepoint: "\u{E3E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "hourglass", codepoint: "\u{E296}", font: LUCIDE, family: "lucide" },
+    Icon { name: "house", codepoint: "\u{E0F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "house-heart", codepoint: "\u{E695}", font: LUCIDE, family: "lucide" },
+    Icon { name: "house-plug", codepoint: "\u{E5F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "house-plus", codepoint: "\u{E5F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "house-wifi", codepoint: "\u{E63C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ice-cream", codepoint: "\u{E353}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ice-cream-2", codepoint: "\u{E3A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ice-cream-bowl", codepoint: "\u{E3A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ice-cream-cone", codepoint: "\u{E353}", font: LUCIDE, family: "lucide" },
+    Icon { name: "id-card", codepoint: "\u{E617}", font: LUCIDE, family: "lucide" },
+    Icon { name: "id-card-lanyard", codepoint: "\u{E670}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image", codepoint: "\u{E0F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-down", codepoint: "\u{E53C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-minus", codepoint: "\u{E1F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-off", codepoint: "\u{E1C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-play", codepoint: "\u{E5DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-plus", codepoint: "\u{E1F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-up", codepoint: "\u{E5CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "image-upscale", codepoint: "\u{E637}", font: LUCIDE, family: "lucide" },
+    Icon { name: "images", codepoint: "\u{E5C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "import", codepoint: "\u{E22F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "inbox", codepoint: "\u{E0F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "indent", codepoint: "\u{E108}", font: LUCIDE, family: "lucide" },
+    Icon { name: "indent-decrease", codepoint: "\u{E107}", font: LUCIDE, family: "lucide" },
+    Icon { name: "indent-increase", codepoint: "\u{E108}", font: LUCIDE, family: "lucide" },
+    Icon { name: "indian-rupee", codepoint: "\u{E0F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "infinity", codepoint: "\u{E1E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "info", codepoint: "\u{E0F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "inspect", codepoint: "\u{E202}", font: LUCIDE, family: "lucide" },
+    Icon { name: "inspection-panel", codepoint: "\u{E583}", font: LUCIDE, family: "lucide" },
+    Icon { name: "italic", codepoint: "\u{E0FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "iteration-ccw", codepoint: "\u{E423}", font: LUCIDE, family: "lucide" },
+    Icon { name: "iteration-cw", codepoint: "\u{E424}", font: LUCIDE, family: "lucide" },
+    Icon { name: "japanese-yen", codepoint: "\u{E0FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "joystick", codepoint: "\u{E355}", font: LUCIDE, family: "lucide" },
+    Icon { name: "kanban", codepoint: "\u{E4DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "kanban-square", codepoint: "\u{E170}", font: LUCIDE, family: "lucide" },
+    Icon { name: "kanban-square-dashed", codepoint: "\u{E16C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "kayak", codepoint: "\u{E68F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "key", codepoint: "\u{E0FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "key-round", codepoint: "\u{E4A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "key-square", codepoint: "\u{E4A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "keyboard", codepoint: "\u{E284}", font: LUCIDE, family: "lucide" },
+    Icon { name: "keyboard-music", codepoint: "\u{E560}", font: LUCIDE, family: "lucide" },
+    Icon { name: "keyboard-off", codepoint: "\u{E5DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp", codepoint: "\u{E2D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp-ceiling", codepoint: "\u{E2D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp-desk", codepoint: "\u{E2DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp-floor", codepoint: "\u{E2DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp-wall-down", codepoint: "\u{E2DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lamp-wall-up", codepoint: "\u{E2DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "land-plot", codepoint: "\u{E528}", font: LUCIDE, family: "lucide" },
+    Icon { name: "landmark", codepoint: "\u{E23A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "languages", codepoint: "\u{E0FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "laptop", codepoint: "\u{E1CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "laptop-2", codepoint: "\u{E1D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "laptop-minimal", codepoint: "\u{E1D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "laptop-minimal-check", codepoint: "\u{E632}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lasso", codepoint: "\u{E1CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lasso-select", codepoint: "\u{E1CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "laugh", codepoint: "\u{E300}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layer-arrow-down", codepoint: "\u{E72A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layer-arrow-up", codepoint: "\u{E72B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers", codepoint: "\u{E529}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-2", codepoint: "\u{E52A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-3", codepoint: "\u{E529}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-arrow-down", codepoint: "\u{E72C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-arrow-up", codepoint: "\u{E72D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-minus", codepoint: "\u{E6EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layers-plus", codepoint: "\u{E6E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout", codepoint: "\u{E12C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-dashboard", codepoint: "\u{E1C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-freeform", codepoint: "\u{E723}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-grid", codepoint: "\u{E0FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-list", codepoint: "\u{E1D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-panel-left", codepoint: "\u{E470}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-panel-top", codepoint: "\u{E471}", font: LUCIDE, family: "lucide" },
+    Icon { name: "layout-template", codepoint: "\u{E207}", font: LUCIDE, family: "lucide" },
+    Icon { name: "leaf", codepoint: "\u{E2DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "leafy-green", codepoint: "\u{E46F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lectern", codepoint: "\u{E5E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lens-concave", codepoint: "\u{E6B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lens-convex", codepoint: "\u{E6B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "letter-text", codepoint: "\u{E605}", font: LUCIDE, family: "lucide" },
+    Icon { name: "library", codepoint: "\u{E100}", font: LUCIDE, family: "lucide" },
+    Icon { name: "library-big", codepoint: "\u{E54E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "library-square", codepoint: "\u{E54F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "life-buoy", codepoint: "\u{E101}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ligature", codepoint: "\u{E43A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lightbulb", codepoint: "\u{E1C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lightbulb-off", codepoint: "\u{E208}", font: LUCIDE, family: "lucide" },
+    Icon { name: "line-chart", codepoint: "\u{E2A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "line-dot-right-horizontal", codepoint: "\u{E6B9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "line-squiggle", codepoint: "\u{E67A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "line-style", codepoint: "\u{E6DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "link", codepoint: "\u{E102}", font: LUCIDE, family: "lucide" },
+    Icon { name: "link-2", codepoint: "\u{E103}", font: LUCIDE, family: "lucide" },
+    Icon { name: "link-2-off", codepoint: "\u{E104}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list", codepoint: "\u{E106}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-check", codepoint: "\u{E5FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-checks", codepoint: "\u{E1D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-chevrons-down-up", codepoint: "\u{E694}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-chevrons-up-down", codepoint: "\u{E696}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-clock", codepoint: "\u{E738}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-collapse", codepoint: "\u{E59B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-end", codepoint: "\u{E2DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-filter", codepoint: "\u{E460}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-filter-plus", codepoint: "\u{E639}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-indent-decrease", codepoint: "\u{E107}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-indent-increase", codepoint: "\u{E108}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-minus", codepoint: "\u{E23E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-music", codepoint: "\u{E2E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-ordered", codepoint: "\u{E1D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-plus", codepoint: "\u{E23F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-restart", codepoint: "\u{E452}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-sort-ascending", codepoint: "\u{E702}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-sort-descending", codepoint: "\u{E703}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-start", codepoint: "\u{E2E1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-todo", codepoint: "\u{E4C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-tree", codepoint: "\u{E408}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-video", codepoint: "\u{E2E2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "list-x", codepoint: "\u{E240}", font: LUCIDE, family: "lucide" },
+    Icon { name: "loader", codepoint: "\u{E109}", font: LUCIDE, family: "lucide" },
+    Icon { name: "loader-2", codepoint: "\u{E10A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "loader-circle", codepoint: "\u{E10A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "loader-pinwheel", codepoint: "\u{E5E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "locate", codepoint: "\u{E1DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "locate-fixed", codepoint: "\u{E1DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "locate-off", codepoint: "\u{E282}", font: LUCIDE, family: "lucide" },
+    Icon { name: "location-edit", codepoint: "\u{E655}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lock", codepoint: "\u{E10B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lock-keyhole", codepoint: "\u{E531}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lock-keyhole-open", codepoint: "\u{E532}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lock-open", codepoint: "\u{E10C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "log-in", codepoint: "\u{E10D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "log-out", codepoint: "\u{E10E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "logs", codepoint: "\u{E5F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "lollipop", codepoint: "\u{E4BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "luggage", codepoint: "\u{E2CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "m-square", codepoint: "\u{E503}", font: LUCIDE, family: "lucide" },
+    Icon { name: "magnet", codepoint: "\u{E2B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail", codepoint: "\u{E10F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-badge", codepoint: "\u{E734}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-check", codepoint: "\u{E361}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-clock", codepoint: "\u{E73E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-minus", codepoint: "\u{E362}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-open", codepoint: "\u{E363}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-plus", codepoint: "\u{E364}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-question", codepoint: "\u{E365}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-question-mark", codepoint: "\u{E365}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-search", codepoint: "\u{E366}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-warning", codepoint: "\u{E367}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mail-x", codepoint: "\u{E368}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mailbox", codepoint: "\u{E3D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mails", codepoint: "\u{E369}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map", codepoint: "\u{E110}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-minus", codepoint: "\u{E686}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin", codepoint: "\u{E111}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-check", codepoint: "\u{E60F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-check-inside", codepoint: "\u{E610}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-house", codepoint: "\u{E61C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-minus", codepoint: "\u{E611}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-minus-inside", codepoint: "\u{E612}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-off", codepoint: "\u{E2A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-pen", codepoint: "\u{E655}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-plus", codepoint: "\u{E613}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-plus-inside", codepoint: "\u{E614}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-search", codepoint: "\u{E6DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-x", codepoint: "\u{E615}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pin-x-inside", codepoint: "\u{E616}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-pinned", codepoint: "\u{E53D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "map-plus", codepoint: "\u{E63F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mars", codepoint: "\u{E641}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mars-stroke", codepoint: "\u{E642}", font: LUCIDE, family: "lucide" },
+    Icon { name: "martini", codepoint: "\u{E2E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "maximize", codepoint: "\u{E112}", font: LUCIDE, family: "lucide" },
+    Icon { name: "maximize-2", codepoint: "\u{E113}", font: LUCIDE, family: "lucide" },
+    Icon { name: "medal", codepoint: "\u{E36F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "megaphone", codepoint: "\u{E235}", font: LUCIDE, family: "lucide" },
+    Icon { name: "megaphone-off", codepoint: "\u{E370}", font: LUCIDE, family: "lucide" },
+    Icon { name: "meh", codepoint: "\u{E114}", font: LUCIDE, family: "lucide" },
+    Icon { name: "memory-stick", codepoint: "\u{E445}", font: LUCIDE, family: "lucide" },
+    Icon { name: "menu", codepoint: "\u{E115}", font: LUCIDE, family: "lucide" },
+    Icon { name: "menu-square", codepoint: "\u{E453}", font: LUCIDE, family: "lucide" },
+    Icon { name: "merge", codepoint: "\u{E43F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle", codepoint: "\u{E116}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-check", codepoint: "\u{E6BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-code", codepoint: "\u{E562}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-dashed", codepoint: "\u{E563}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-dashed-check", codepoint: "\u{E746}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-heart", codepoint: "\u{E564}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-more", codepoint: "\u{E565}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-off", codepoint: "\u{E566}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-plus", codepoint: "\u{E567}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-question", codepoint: "\u{E568}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-question-mark", codepoint: "\u{E568}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-reply", codepoint: "\u{E569}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-warning", codepoint: "\u{E56A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-circle-x", codepoint: "\u{E56B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square", codepoint: "\u{E117}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-check", codepoint: "\u{E6BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-code", codepoint: "\u{E56C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-dashed", codepoint: "\u{E40B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-diff", codepoint: "\u{E56D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-dot", codepoint: "\u{E56E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-heart", codepoint: "\u{E56F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-lock", codepoint: "\u{E62C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-more", codepoint: "\u{E570}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-off", codepoint: "\u{E571}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-plus", codepoint: "\u{E40C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-quote", codepoint: "\u{E572}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-reply", codepoint: "\u{E573}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-share", codepoint: "\u{E574}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-text", codepoint: "\u{E575}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-warning", codepoint: "\u{E576}", font: LUCIDE, family: "lucide" },
+    Icon { name: "message-square-x", codepoint: "\u{E577}", font: LUCIDE, family: "lucide" },
+    Icon { name: "messages-square", codepoint: "\u{E40D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "metronome", codepoint: "\u{E6BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic", codepoint: "\u{E118}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic-2", codepoint: "\u{E349}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic-audio-lines", codepoint: "\u{E724}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic-off", codepoint: "\u{E119}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic-signal", codepoint: "\u{E1FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mic-vocal", codepoint: "\u{E349}", font: LUCIDE, family: "lucide" },
+    Icon { name: "microchip", codepoint: "\u{E61A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "microscope", codepoint: "\u{E2E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "microwave", codepoint: "\u{E37A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "midi-port", codepoint: "\u{E739}", font: LUCIDE, family: "lucide" },
+    Icon { name: "milestone", codepoint: "\u{E298}", font: LUCIDE, family: "lucide" },
+    Icon { name: "milk", codepoint: "\u{E399}", font: LUCIDE, family: "lucide" },
+    Icon { name: "milk-off", codepoint: "\u{E39A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "minimize", codepoint: "\u{E11A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "minimize-2", codepoint: "\u{E11B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "minus", codepoint: "\u{E11C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "minus-circle", codepoint: "\u{E07E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "minus-square", codepoint: "\u{E171}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mirror-rectangular", codepoint: "\u{E6BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mirror-round", codepoint: "\u{E6BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor", codepoint: "\u{E11D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-check", codepoint: "\u{E482}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-cloud", codepoint: "\u{E699}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-cog", codepoint: "\u{E603}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-dot", codepoint: "\u{E483}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-down", codepoint: "\u{E421}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-off", codepoint: "\u{E1DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-pause", codepoint: "\u{E484}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-play", codepoint: "\u{E485}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-smartphone", codepoint: "\u{E3A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-speaker", codepoint: "\u{E210}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-stop", codepoint: "\u{E486}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-up", codepoint: "\u{E422}", font: LUCIDE, family: "lucide" },
+    Icon { name: "monitor-x", codepoint: "\u{E487}", font: LUCIDE, family: "lucide" },
+    Icon { name: "moon", codepoint: "\u{E11E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "moon-star", codepoint: "\u{E410}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mop", codepoint: "\u{E73B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mop-sparkles", codepoint: "\u{E73A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "more-horizontal", codepoint: "\u{E0B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "more-vertical", codepoint: "\u{E0B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mosque", codepoint: "\u{E725}", font: LUCIDE, family: "lucide" },
+    Icon { name: "motorbike", codepoint: "\u{E698}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mountain", codepoint: "\u{E231}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mountain-snow", codepoint: "\u{E232}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse", codepoint: "\u{E28E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-left", codepoint: "\u{E6BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-off", codepoint: "\u{E5DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer", codepoint: "\u{E11F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer-2", codepoint: "\u{E1C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer-2-off", codepoint: "\u{E6A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer-ban", codepoint: "\u{E5E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer-click", codepoint: "\u{E120}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-pointer-square-dashed", codepoint: "\u{E509}", font: LUCIDE, family: "lucide" },
+    Icon { name: "mouse-right", codepoint: "\u{E6C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move", codepoint: "\u{E121}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-3-d", codepoint: "\u{E2E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-3d", codepoint: "\u{E2E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-diagonal", codepoint: "\u{E1C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-diagonal-2", codepoint: "\u{E1C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-down", codepoint: "\u{E48C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-down-left", codepoint: "\u{E48D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-down-right", codepoint: "\u{E48E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-horizontal", codepoint: "\u{E1C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-left", codepoint: "\u{E48F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-right", codepoint: "\u{E490}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-up", codepoint: "\u{E491}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-up-left", codepoint: "\u{E492}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-up-right", codepoint: "\u{E493}", font: LUCIDE, family: "lucide" },
+    Icon { name: "move-vertical", codepoint: "\u{E1C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "music", codepoint: "\u{E122}", font: LUCIDE, family: "lucide" },
+    Icon { name: "music-2", codepoint: "\u{E34A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "music-3", codepoint: "\u{E34B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "music-4", codepoint: "\u{E34C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "navigation", codepoint: "\u{E123}", font: LUCIDE, family: "lucide" },
+    Icon { name: "navigation-2", codepoint: "\u{E124}", font: LUCIDE, family: "lucide" },
+    Icon { name: "navigation-2-off", codepoint: "\u{E2A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "navigation-off", codepoint: "\u{E2A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "network", codepoint: "\u{E125}", font: LUCIDE, family: "lucide" },
+    Icon { name: "newspaper", codepoint: "\u{E348}", font: LUCIDE, family: "lucide" },
+    Icon { name: "nfc", codepoint: "\u{E3C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "non-binary", codepoint: "\u{E643}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notebook", codepoint: "\u{E595}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notebook-pen", codepoint: "\u{E596}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notebook-tabs", codepoint: "\u{E597}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notebook-text", codepoint: "\u{E598}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notepad-text", codepoint: "\u{E599}", font: LUCIDE, family: "lucide" },
+    Icon { name: "notepad-text-dashed", codepoint: "\u{E59A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "nut", codepoint: "\u{E39B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "nut-off", codepoint: "\u{E39C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "octagon", codepoint: "\u{E126}", font: LUCIDE, family: "lucide" },
+    Icon { name: "octagon-alert", codepoint: "\u{E127}", font: LUCIDE, family: "lucide" },
+    Icon { name: "octagon-minus", codepoint: "\u{E627}", font: LUCIDE, family: "lucide" },
+    Icon { name: "octagon-pause", codepoint: "\u{E21B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "octagon-x", codepoint: "\u{E128}", font: LUCIDE, family: "lucide" },
+    Icon { name: "omega", codepoint: "\u{E619}", font: LUCIDE, family: "lucide" },
+    Icon { name: "option", codepoint: "\u{E1F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "orbit", codepoint: "\u{E3E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "origami", codepoint: "\u{E5E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "outdent", codepoint: "\u{E107}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package", codepoint: "\u{E129}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-2", codepoint: "\u{E340}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-check", codepoint: "\u{E266}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-minus", codepoint: "\u{E267}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-open", codepoint: "\u{E2CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-plus", codepoint: "\u{E268}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-search", codepoint: "\u{E269}", font: LUCIDE, family: "lucide" },
+    Icon { name: "package-x", codepoint: "\u{E26A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paint-bucket", codepoint: "\u{E2E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paint-roller", codepoint: "\u{E59E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paintbrush", codepoint: "\u{E2E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paintbrush-2", codepoint: "\u{E2E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paintbrush-vertical", codepoint: "\u{E2E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "palette", codepoint: "\u{E1DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "palmtree", codepoint: "\u{E281}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panda", codepoint: "\u{E668}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-bottom", codepoint: "\u{E42C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-bottom-close", codepoint: "\u{E42D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-bottom-dashed", codepoint: "\u{E42E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-bottom-inactive", codepoint: "\u{E42E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-bottom-open", codepoint: "\u{E42F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left", codepoint: "\u{E12A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left-close", codepoint: "\u{E21C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left-dashed", codepoint: "\u{E430}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left-inactive", codepoint: "\u{E430}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left-open", codepoint: "\u{E21D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-left-right-dashed", codepoint: "\u{E692}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-right", codepoint: "\u{E431}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-right-close", codepoint: "\u{E432}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-right-dashed", codepoint: "\u{E433}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-right-inactive", codepoint: "\u{E433}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-right-open", codepoint: "\u{E434}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top", codepoint: "\u{E435}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top-bottom-dashed", codepoint: "\u{E693}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top-close", codepoint: "\u{E436}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top-dashed", codepoint: "\u{E437}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top-inactive", codepoint: "\u{E437}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panel-top-open", codepoint: "\u{E438}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panels-left-bottom", codepoint: "\u{E12B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panels-left-right", codepoint: "\u{E099}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panels-right-bottom", codepoint: "\u{E588}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panels-top-bottom", codepoint: "\u{E58A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "panels-top-left", codepoint: "\u{E12C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paper-bag", codepoint: "\u{E71D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paperclip", codepoint: "\u{E12D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parasol", codepoint: "\u{E6FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parentheses", codepoint: "\u{E444}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parking-circle", codepoint: "\u{E3C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parking-circle-off", codepoint: "\u{E3CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parking-meter", codepoint: "\u{E500}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parking-square", codepoint: "\u{E3CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "parking-square-off", codepoint: "\u{E3CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "party-popper", codepoint: "\u{E343}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pause", codepoint: "\u{E12E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pause-circle", codepoint: "\u{E07F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pause-octagon", codepoint: "\u{E21B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "paw-print", codepoint: "\u{E4F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pc-case", codepoint: "\u{E446}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen", codepoint: "\u{E12F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen-box", codepoint: "\u{E172}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen-line", codepoint: "\u{E130}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen-off", codepoint: "\u{E5EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen-square", codepoint: "\u{E172}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pen-tool", codepoint: "\u{E131}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pencil", codepoint: "\u{E1F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pencil-line", codepoint: "\u{E4F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pencil-off", codepoint: "\u{E5EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pencil-ruler", codepoint: "\u{E4F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pencil-sparkles", codepoint: "\u{E70F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pentagon", codepoint: "\u{E52B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "percent", codepoint: "\u{E132}", font: LUCIDE, family: "lucide" },
+    Icon { name: "percent-circle", codepoint: "\u{E51A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "percent-diamond", codepoint: "\u{E51B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "percent-square", codepoint: "\u{E51C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "person-standing", codepoint: "\u{E21E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phi", codepoint: "\u{E71C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "philippine-peso", codepoint: "\u{E604}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone", codepoint: "\u{E133}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-call", codepoint: "\u{E134}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-forwarded", codepoint: "\u{E135}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-incoming", codepoint: "\u{E136}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-missed", codepoint: "\u{E137}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-off", codepoint: "\u{E138}", font: LUCIDE, family: "lucide" },
+    Icon { name: "phone-outgoing", codepoint: "\u{E139}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pi", codepoint: "\u{E472}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pi-square", codepoint: "\u{E488}", font: LUCIDE, family: "lucide" },
+    Icon { name: "piano", codepoint: "\u{E561}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pickaxe", codepoint: "\u{E5C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "picture-in-picture", codepoint: "\u{E3AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "picture-in-picture-2", codepoint: "\u{E3AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pie-chart", codepoint: "\u{E06B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "piggy-bank", codepoint: "\u{E13A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pilcrow", codepoint: "\u{E3A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pilcrow-left", codepoint: "\u{E5DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pilcrow-right", codepoint: "\u{E5DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pilcrow-square", codepoint: "\u{E48B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pill", codepoint: "\u{E3BD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pill-bottle", codepoint: "\u{E5EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pin", codepoint: "\u{E259}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pin-off", codepoint: "\u{E2B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pipette", codepoint: "\u{E13B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pizza", codepoint: "\u{E354}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plane", codepoint: "\u{E1DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plane-landing", codepoint: "\u{E3CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plane-takeoff", codepoint: "\u{E3CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "play", codepoint: "\u{E13C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "play-circle", codepoint: "\u{E080}", font: LUCIDE, family: "lucide" },
+    Icon { name: "play-off", codepoint: "\u{E6FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "play-square", codepoint: "\u{E481}", font: LUCIDE, family: "lucide" },
+    Icon { name: "playing-card", codepoint: "\u{E747}", font: LUCIDE, family: "lucide" },
+    Icon { name: "playing-cards", codepoint: "\u{E749}", font: LUCIDE, family: "lucide" },
+    Icon { name: "playing-cards-fan", codepoint: "\u{E748}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plug", codepoint: "\u{E37F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plug-2", codepoint: "\u{E380}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plug-zap", codepoint: "\u{E45C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plug-zap-2", codepoint: "\u{E45C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plus", codepoint: "\u{E13D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plus-circle", codepoint: "\u{E081}", font: LUCIDE, family: "lucide" },
+    Icon { name: "plus-square", codepoint: "\u{E173}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pocket-knife", codepoint: "\u{E4A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "podcast", codepoint: "\u{E1FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "podium", codepoint: "\u{E704}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pointer", codepoint: "\u{E1E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pointer-off", codepoint: "\u{E57F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "popcorn", codepoint: "\u{E4BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "popsicle", codepoint: "\u{E4BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pound-sterling", codepoint: "\u{E13F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "power", codepoint: "\u{E140}", font: LUCIDE, family: "lucide" },
+    Icon { name: "power-circle", codepoint: "\u{E550}", font: LUCIDE, family: "lucide" },
+    Icon { name: "power-off", codepoint: "\u{E209}", font: LUCIDE, family: "lucide" },
+    Icon { name: "power-square", codepoint: "\u{E551}", font: LUCIDE, family: "lucide" },
+    Icon { name: "presentation", codepoint: "\u{E4AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "printer", codepoint: "\u{E141}", font: LUCIDE, family: "lucide" },
+    Icon { name: "printer-check", codepoint: "\u{E5F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "printer-x", codepoint: "\u{E6C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "projector", codepoint: "\u{E4AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "proportions", codepoint: "\u{E5CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "puzzle", codepoint: "\u{E29C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "pyramid", codepoint: "\u{E52C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "qr-code", codepoint: "\u{E1DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "quote", codepoint: "\u{E239}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rabbit", codepoint: "\u{E4F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radar", codepoint: "\u{E497}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radiation", codepoint: "\u{E442}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radical", codepoint: "\u{E5C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radio", codepoint: "\u{E142}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radio-off", codepoint: "\u{E6DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radio-receiver", codepoint: "\u{E1FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radio-tower", codepoint: "\u{E404}", font: LUCIDE, family: "lucide" },
+    Icon { name: "radius", codepoint: "\u{E52D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rainbow", codepoint: "\u{E4C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rat", codepoint: "\u{E3EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ratio", codepoint: "\u{E4E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt", codepoint: "\u{E3D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-cent", codepoint: "\u{E5A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-euro", codepoint: "\u{E5A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-indian-rupee", codepoint: "\u{E5A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-japanese-yen", codepoint: "\u{E5A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-pound-sterling", codepoint: "\u{E5A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-russian-ruble", codepoint: "\u{E5AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-swiss-franc", codepoint: "\u{E5AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-text", codepoint: "\u{E5AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "receipt-turkish-lira", codepoint: "\u{E67F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rectangle-circle", codepoint: "\u{E673}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rectangle-ellipsis", codepoint: "\u{E21F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rectangle-goggles", codepoint: "\u{E656}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rectangle-horizontal", codepoint: "\u{E376}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rectangle-vertical", codepoint: "\u{E377}", font: LUCIDE, family: "lucide" },
+    Icon { name: "recycle", codepoint: "\u{E2E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "redo", codepoint: "\u{E143}", font: LUCIDE, family: "lucide" },
+    Icon { name: "redo-2", codepoint: "\u{E2A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "redo-dot", codepoint: "\u{E450}", font: LUCIDE, family: "lucide" },
+    Icon { name: "refresh-ccw", codepoint: "\u{E144}", font: LUCIDE, family: "lucide" },
+    Icon { name: "refresh-ccw-dot", codepoint: "\u{E4B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "refresh-cw", codepoint: "\u{E145}", font: LUCIDE, family: "lucide" },
+    Icon { name: "refresh-cw-off", codepoint: "\u{E498}", font: LUCIDE, family: "lucide" },
+    Icon { name: "refrigerator", codepoint: "\u{E37B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "regex", codepoint: "\u{E1FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "remove-formatting", codepoint: "\u{E3B3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "repeat", codepoint: "\u{E146}", font: LUCIDE, family: "lucide" },
+    Icon { name: "repeat-1", codepoint: "\u{E1FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "repeat-2", codepoint: "\u{E411}", font: LUCIDE, family: "lucide" },
+    Icon { name: "repeat-off", codepoint: "\u{E6F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "replace", codepoint: "\u{E3DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "replace-all", codepoint: "\u{E3DC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "reply", codepoint: "\u{E22A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "reply-all", codepoint: "\u{E22B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rewind", codepoint: "\u{E147}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ribbon", codepoint: "\u{E558}", font: LUCIDE, family: "lucide" },
+    Icon { name: "road", codepoint: "\u{E6D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "robot-arm", codepoint: "\u{E740}", font: LUCIDE, family: "lucide" },
+    Icon { name: "robot-vacuum", codepoint: "\u{E74A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rocket", codepoint: "\u{E286}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rocking-chair", codepoint: "\u{E233}", font: LUCIDE, family: "lucide" },
+    Icon { name: "roller-coaster", codepoint: "\u{E480}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rose", codepoint: "\u{E691}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-3-d", codepoint: "\u{E2EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-3d", codepoint: "\u{E2EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-ccw", codepoint: "\u{E148}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-ccw-clock", codepoint: "\u{E1F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-ccw-key", codepoint: "\u{E650}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-ccw-square", codepoint: "\u{E5D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-cw", codepoint: "\u{E149}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-cw-fading-clock", codepoint: "\u{E726}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rotate-cw-square", codepoint: "\u{E5D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "route", codepoint: "\u{E53E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "route-off", codepoint: "\u{E53F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "router", codepoint: "\u{E3BF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rows", codepoint: "\u{E439}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rows-2", codepoint: "\u{E439}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rows-3", codepoint: "\u{E58A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rows-4", codepoint: "\u{E58B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "rss", codepoint: "\u{E14A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ruler", codepoint: "\u{E14B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ruler-dimension-line", codepoint: "\u{E662}", font: LUCIDE, family: "lucide" },
+    Icon { name: "russian-ruble", codepoint: "\u{E14C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sailboat", codepoint: "\u{E37E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "salad", codepoint: "\u{E3A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sandwich", codepoint: "\u{E3A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "satellite", codepoint: "\u{E447}", font: LUCIDE, family: "lucide" },
+    Icon { name: "satellite-dish", codepoint: "\u{E448}", font: LUCIDE, family: "lucide" },
+    Icon { name: "saudi-riyal", codepoint: "\u{E64B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save", codepoint: "\u{E14D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save-all", codepoint: "\u{E40F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save-check", codepoint: "\u{E710}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save-off", codepoint: "\u{E5F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save-pen", codepoint: "\u{E705}", font: LUCIDE, family: "lucide" },
+    Icon { name: "save-plus", codepoint: "\u{E706}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scale", codepoint: "\u{E212}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scale-3-d", codepoint: "\u{E2EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scale-3d", codepoint: "\u{E2EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scaling", codepoint: "\u{E2EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan", codepoint: "\u{E257}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-barcode", codepoint: "\u{E535}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-box", codepoint: "\u{E720}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-eye", codepoint: "\u{E536}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-face", codepoint: "\u{E371}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-heart", codepoint: "\u{E63A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-line", codepoint: "\u{E258}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-qr-code", codepoint: "\u{E5F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-search", codepoint: "\u{E537}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-square", codepoint: "\u{E727}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scan-text", codepoint: "\u{E538}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scatter-chart", codepoint: "\u{E48A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "school", codepoint: "\u{E3E3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "school-2", codepoint: "\u{E3E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scissors", codepoint: "\u{E14E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scissors-line-dashed", codepoint: "\u{E4E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scissors-square", codepoint: "\u{E4EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scissors-square-dashed-bottom", codepoint: "\u{E4EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scooter", codepoint: "\u{E6AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "screen-share", codepoint: "\u{E14F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "screen-share-off", codepoint: "\u{E150}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scroll", codepoint: "\u{E2ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "scroll-text", codepoint: "\u{E45F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search", codepoint: "\u{E151}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search-alert", codepoint: "\u{E6E7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search-check", codepoint: "\u{E4AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search-code", codepoint: "\u{E4AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search-slash", codepoint: "\u{E4AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "search-x", codepoint: "\u{E4AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "section", codepoint: "\u{E5E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "send", codepoint: "\u{E152}", font: LUCIDE, family: "lucide" },
+    Icon { name: "send-horizonal", codepoint: "\u{E4F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "send-horizontal", codepoint: "\u{E4F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "send-to-back", codepoint: "\u{E4F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "separator-horizontal", codepoint: "\u{E1C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "separator-vertical", codepoint: "\u{E1C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "server", codepoint: "\u{E153}", font: LUCIDE, family: "lucide" },
+    Icon { name: "server-cog", codepoint: "\u{E341}", font: LUCIDE, family: "lucide" },
+    Icon { name: "server-crash", codepoint: "\u{E1E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "server-off", codepoint: "\u{E1EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "server-plus", codepoint: "\u{E721}", font: LUCIDE, family: "lucide" },
+    Icon { name: "settings", codepoint: "\u{E154}", font: LUCIDE, family: "lucide" },
+    Icon { name: "settings-2", codepoint: "\u{E245}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shapes", codepoint: "\u{E4B3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "share", codepoint: "\u{E155}", font: LUCIDE, family: "lucide" },
+    Icon { name: "share-2", codepoint: "\u{E156}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sheet", codepoint: "\u{E157}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shell", codepoint: "\u{E4F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shelving-unit", codepoint: "\u{E6C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield", codepoint: "\u{E158}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-alert", codepoint: "\u{E1FE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-ban", codepoint: "\u{E159}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-check", codepoint: "\u{E1FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-close", codepoint: "\u{E200}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-cog", codepoint: "\u{E6E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-cog-corner", codepoint: "\u{E6E8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-ellipsis", codepoint: "\u{E516}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-half", codepoint: "\u{E517}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-keyhole", codepoint: "\u{E722}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-lock", codepoint: "\u{E731}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-minus", codepoint: "\u{E518}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-off", codepoint: "\u{E15A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-plus", codepoint: "\u{E519}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-question", codepoint: "\u{E40E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-question-mark", codepoint: "\u{E40E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-user", codepoint: "\u{E647}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shield-x", codepoint: "\u{E200}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ship", codepoint: "\u{E3BA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ship-cargo", codepoint: "\u{E741}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ship-wheel", codepoint: "\u{E502}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shirt", codepoint: "\u{E1CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shopping-bag", codepoint: "\u{E15B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shopping-basket", codepoint: "\u{E4EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shopping-cart", codepoint: "\u{E15C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shovel", codepoint: "\u{E15D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shower-head", codepoint: "\u{E37C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shredder", codepoint: "\u{E65B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shrimp", codepoint: "\u{E649}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shrink", codepoint: "\u{E220}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shrub", codepoint: "\u{E2EE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "shuffle", codepoint: "\u{E15E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sidebar", codepoint: "\u{E12A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sidebar-close", codepoint: "\u{E21C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sidebar-open", codepoint: "\u{E21D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sigma", codepoint: "\u{E201}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sigma-square", codepoint: "\u{E489}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signal", codepoint: "\u{E25F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signal-high", codepoint: "\u{E260}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signal-low", codepoint: "\u{E261}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signal-medium", codepoint: "\u{E262}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signal-zero", codepoint: "\u{E263}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signature", codepoint: "\u{E5F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signpost", codepoint: "\u{E540}", font: LUCIDE, family: "lucide" },
+    Icon { name: "signpost-big", codepoint: "\u{E541}", font: LUCIDE, family: "lucide" },
+    Icon { name: "siren", codepoint: "\u{E2EF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "skip-back", codepoint: "\u{E15F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "skip-forward", codepoint: "\u{E160}", font: LUCIDE, family: "lucide" },
+    Icon { name: "skull", codepoint: "\u{E221}", font: LUCIDE, family: "lucide" },
+    Icon { name: "slash", codepoint: "\u{E51D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "slash-square", codepoint: "\u{E174}", font: LUCIDE, family: "lucide" },
+    Icon { name: "slice", codepoint: "\u{E2F0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sliders", codepoint: "\u{E162}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sliders-horizontal", codepoint: "\u{E29A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sliders-vertical", codepoint: "\u{E162}", font: LUCIDE, family: "lucide" },
+    Icon { name: "smartphone", codepoint: "\u{E163}", font: LUCIDE, family: "lucide" },
+    Icon { name: "smartphone-charging", codepoint: "\u{E22E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "smartphone-nfc", codepoint: "\u{E3C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "smile", codepoint: "\u{E164}", font: LUCIDE, family: "lucide" },
+    Icon { name: "smile-plus", codepoint: "\u{E301}", font: LUCIDE, family: "lucide" },
+    Icon { name: "snail", codepoint: "\u{E4F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "snowflake", codepoint: "\u{E165}", font: LUCIDE, family: "lucide" },
+    Icon { name: "soap-dispenser-droplet", codepoint: "\u{E669}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sofa", codepoint: "\u{E2C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "solar-panel", codepoint: "\u{E69F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sort-asc", codepoint: "\u{E04C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sort-desc", codepoint: "\u{E047}", font: LUCIDE, family: "lucide" },
+    Icon { name: "soup", codepoint: "\u{E3AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "space", codepoint: "\u{E3DD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spade", codepoint: "\u{E499}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sparkle", codepoint: "\u{E47E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sparkles", codepoint: "\u{E412}", font: LUCIDE, family: "lucide" },
+    Icon { name: "speaker", codepoint: "\u{E166}", font: LUCIDE, family: "lucide" },
+    Icon { name: "speech", codepoint: "\u{E51E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spell-check", codepoint: "\u{E49A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spell-check-2", codepoint: "\u{E49B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spline", codepoint: "\u{E38B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spline-pointer", codepoint: "\u{E64F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "split", codepoint: "\u{E440}", font: LUCIDE, family: "lucide" },
+    Icon { name: "split-square-horizontal", codepoint: "\u{E3B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "split-square-vertical", codepoint: "\u{E3B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spool", codepoint: "\u{E677}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sport-shoe", codepoint: "\u{E6DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spotlight", codepoint: "\u{E682}", font: LUCIDE, family: "lucide" },
+    Icon { name: "spray-can", codepoint: "\u{E495}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sprout", codepoint: "\u{E1EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square", codepoint: "\u{E167}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-activity", codepoint: "\u{E4B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-down", codepoint: "\u{E427}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-down-left", codepoint: "\u{E4B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-down-right", codepoint: "\u{E4B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-left", codepoint: "\u{E428}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-out-down-left", codepoint: "\u{E5A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-out-down-right", codepoint: "\u{E5A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-out-up-left", codepoint: "\u{E5A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-out-up-right", codepoint: "\u{E5A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-right", codepoint: "\u{E429}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-right-enter", codepoint: "\u{E6C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-right-exit", codepoint: "\u{E6C4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-up", codepoint: "\u{E42A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-up-left", codepoint: "\u{E4B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-arrow-up-right", codepoint: "\u{E4B8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-asterisk", codepoint: "\u{E168}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-bottom-dashed-scissors", codepoint: "\u{E4EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-centerline-dashed-horizontal", codepoint: "\u{E6C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-centerline-dashed-vertical", codepoint: "\u{E6C6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-chart-gantt", codepoint: "\u{E169}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-check", codepoint: "\u{E559}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-check-big", codepoint: "\u{E16A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-chevron-down", codepoint: "\u{E3CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-chevron-left", codepoint: "\u{E3D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-chevron-right", codepoint: "\u{E3D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-chevron-up", codepoint: "\u{E3D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-code", codepoint: "\u{E16B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed", codepoint: "\u{E1CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-bottom", codepoint: "\u{E4C0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-bottom-code", codepoint: "\u{E4C1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-kanban", codepoint: "\u{E16C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-mouse-pointer", codepoint: "\u{E509}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-text", codepoint: "\u{E6EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dashed-top-solid", codepoint: "\u{E66C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dimensions", codepoint: "\u{E73C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-divide", codepoint: "\u{E16D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-dot", codepoint: "\u{E16E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-equal", codepoint: "\u{E16F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-function", codepoint: "\u{E22D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-gantt-chart", codepoint: "\u{E169}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-kanban", codepoint: "\u{E170}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-library", codepoint: "\u{E54F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-m", codepoint: "\u{E503}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-menu", codepoint: "\u{E453}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-minus", codepoint: "\u{E171}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-mouse-pointer", codepoint: "\u{E202}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-off", codepoint: "\u{E728}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-parking", codepoint: "\u{E3CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-parking-off", codepoint: "\u{E3CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-pause", codepoint: "\u{E684}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-pen", codepoint: "\u{E172}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-percent", codepoint: "\u{E51C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-pi", codepoint: "\u{E488}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-pilcrow", codepoint: "\u{E48B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-play", codepoint: "\u{E481}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-plus", codepoint: "\u{E173}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-power", codepoint: "\u{E551}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-radical", codepoint: "\u{E5C3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-round-corner", codepoint: "\u{E648}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-scissors", codepoint: "\u{E4EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-sigma", codepoint: "\u{E489}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-slash", codepoint: "\u{E174}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-split-horizontal", codepoint: "\u{E3B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-split-vertical", codepoint: "\u{E3B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-square", codepoint: "\u{E60E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-stack", codepoint: "\u{E4A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-star", codepoint: "\u{E68E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-stop", codepoint: "\u{E685}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-terminal", codepoint: "\u{E20A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-text", codepoint: "\u{E736}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-user", codepoint: "\u{E465}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-user-round", codepoint: "\u{E466}", font: LUCIDE, family: "lucide" },
+    Icon { name: "square-x", codepoint: "\u{E175}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squares-exclude", codepoint: "\u{E657}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squares-intersect", codepoint: "\u{E658}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squares-subtract", codepoint: "\u{E659}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squares-unite", codepoint: "\u{E65A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squircle", codepoint: "\u{E57A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squircle-dashed", codepoint: "\u{E679}", font: LUCIDE, family: "lucide" },
+    Icon { name: "squirrel", codepoint: "\u{E49F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stamp", codepoint: "\u{E3BB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star", codepoint: "\u{E176}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-check", codepoint: "\u{E707}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-half", codepoint: "\u{E20B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-minus", codepoint: "\u{E708}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-off", codepoint: "\u{E2B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-plus", codepoint: "\u{E709}", font: LUCIDE, family: "lucide" },
+    Icon { name: "star-x", codepoint: "\u{E70A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stars", codepoint: "\u{E412}", font: LUCIDE, family: "lucide" },
+    Icon { name: "step-back", codepoint: "\u{E3E9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "step-forward", codepoint: "\u{E3EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stethoscope", codepoint: "\u{E2F1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticker", codepoint: "\u{E302}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note", codepoint: "\u{E303}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note-check", codepoint: "\u{E6F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note-minus", codepoint: "\u{E6F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note-off", codepoint: "\u{E6F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note-plus", codepoint: "\u{E6F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-note-x", codepoint: "\u{E6FA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sticky-notes", codepoint: "\u{E6FB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stone", codepoint: "\u{E6EB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stop-circle", codepoint: "\u{E083}", font: LUCIDE, family: "lucide" },
+    Icon { name: "store", codepoint: "\u{E3E4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stretch-horizontal", codepoint: "\u{E27C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "stretch-vertical", codepoint: "\u{E27D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "strikethrough", codepoint: "\u{E177}", font: LUCIDE, family: "lucide" },
+    Icon { name: "subscript", codepoint: "\u{E25C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "subtitles", codepoint: "\u{E3A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "summary", codepoint: "\u{E711}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sun", codepoint: "\u{E178}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sun-dim", codepoint: "\u{E299}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sun-medium", codepoint: "\u{E2B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sun-moon", codepoint: "\u{E2B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sun-snow", codepoint: "\u{E372}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sunrise", codepoint: "\u{E179}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sunset", codepoint: "\u{E17A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "superscript", codepoint: "\u{E25E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "swatch-book", codepoint: "\u{E59F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "swiss-franc", codepoint: "\u{E17B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "switch-camera", codepoint: "\u{E17C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "sword", codepoint: "\u{E2B3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "swords", codepoint: "\u{E2B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "syringe", codepoint: "\u{E2F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table", codepoint: "\u{E17D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-2", codepoint: "\u{E2F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-cells-merge", codepoint: "\u{E5C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-cells-split", codepoint: "\u{E5C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-columns-split", codepoint: "\u{E5C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-config", codepoint: "\u{E661}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-of-contents", codepoint: "\u{E61E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-properties", codepoint: "\u{E4DB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "table-rows-split", codepoint: "\u{E5CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tablet", codepoint: "\u{E17E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tablet-smartphone", codepoint: "\u{E50A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tablets", codepoint: "\u{E3BE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tag", codepoint: "\u{E17F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tag-plus", codepoint: "\u{E712}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tag-x", codepoint: "\u{E713}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tags", codepoint: "\u{E35C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tally-1", codepoint: "\u{E4D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tally-2", codepoint: "\u{E4D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tally-3", codepoint: "\u{E4D8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tally-4", codepoint: "\u{E4D9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tally-5", codepoint: "\u{E4DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tangent", codepoint: "\u{E52E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "target", codepoint: "\u{E180}", font: LUCIDE, family: "lucide" },
+    Icon { name: "telescope", codepoint: "\u{E5C5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tent", codepoint: "\u{E227}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tent-tree", codepoint: "\u{E53B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "terminal", codepoint: "\u{E181}", font: LUCIDE, family: "lucide" },
+    Icon { name: "terminal-square", codepoint: "\u{E20A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "test-tube", codepoint: "\u{E405}", font: LUCIDE, family: "lucide" },
+    Icon { name: "test-tube-2", codepoint: "\u{E406}", font: LUCIDE, family: "lucide" },
+    Icon { name: "test-tube-diagonal", codepoint: "\u{E406}", font: LUCIDE, family: "lucide" },
+    Icon { name: "test-tubes", codepoint: "\u{E407}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text", codepoint: "\u{E185}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-align-center", codepoint: "\u{E182}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-align-end", codepoint: "\u{E183}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-align-justify", codepoint: "\u{E184}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-align-start", codepoint: "\u{E185}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-cursor", codepoint: "\u{E264}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-cursor-input", codepoint: "\u{E265}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-initial", codepoint: "\u{E605}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-quote", codepoint: "\u{E49E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-search", codepoint: "\u{E5AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-select", codepoint: "\u{E6EA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-selection", codepoint: "\u{E3DE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "text-wrap", codepoint: "\u{E248}", font: LUCIDE, family: "lucide" },
+    Icon { name: "theater", codepoint: "\u{E522}", font: LUCIDE, family: "lucide" },
+    Icon { name: "thermometer", codepoint: "\u{E186}", font: LUCIDE, family: "lucide" },
+    Icon { name: "thermometer-snowflake", codepoint: "\u{E187}", font: LUCIDE, family: "lucide" },
+    Icon { name: "thermometer-sun", codepoint: "\u{E188}", font: LUCIDE, family: "lucide" },
+    Icon { name: "thumbs-down", codepoint: "\u{E189}", font: LUCIDE, family: "lucide" },
+    Icon { name: "thumbs-up", codepoint: "\u{E18A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket", codepoint: "\u{E20F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-check", codepoint: "\u{E5AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-minus", codepoint: "\u{E5AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-percent", codepoint: "\u{E5B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-plus", codepoint: "\u{E5B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-slash", codepoint: "\u{E5B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ticket-x", codepoint: "\u{E5B3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tickets", codepoint: "\u{E622}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tickets-plane", codepoint: "\u{E623}", font: LUCIDE, family: "lucide" },
+    Icon { name: "timeline", codepoint: "\u{E6EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "timer", codepoint: "\u{E1E0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "timer-off", codepoint: "\u{E249}", font: LUCIDE, family: "lucide" },
+    Icon { name: "timer-reset", codepoint: "\u{E236}", font: LUCIDE, family: "lucide" },
+    Icon { name: "toggle-left", codepoint: "\u{E18B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "toggle-right", codepoint: "\u{E18C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "toilet", codepoint: "\u{E635}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tool-case", codepoint: "\u{E67D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "toolbox", codepoint: "\u{E6B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tornado", codepoint: "\u{E218}", font: LUCIDE, family: "lucide" },
+    Icon { name: "torus", codepoint: "\u{E52F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "touchpad", codepoint: "\u{E449}", font: LUCIDE, family: "lucide" },
+    Icon { name: "touchpad-off", codepoint: "\u{E44A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "towel-rack", codepoint: "\u{E6C7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tower-control", codepoint: "\u{E3BC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "toy-brick", codepoint: "\u{E347}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tractor", codepoint: "\u{E504}", font: LUCIDE, family: "lucide" },
+    Icon { name: "traffic-cone", codepoint: "\u{E505}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trailer", codepoint: "\u{E742}", font: LUCIDE, family: "lucide" },
+    Icon { name: "train", codepoint: "\u{E2A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "train-front", codepoint: "\u{E506}", font: LUCIDE, family: "lucide" },
+    Icon { name: "train-front-tunnel", codepoint: "\u{E507}", font: LUCIDE, family: "lucide" },
+    Icon { name: "train-track", codepoint: "\u{E508}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tram-front", codepoint: "\u{E2A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "transgender", codepoint: "\u{E644}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trash", codepoint: "\u{E18D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trash-2", codepoint: "\u{E18E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tree-deciduous", codepoint: "\u{E2F3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tree-palm", codepoint: "\u{E281}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tree-pine", codepoint: "\u{E2F4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trees", codepoint: "\u{E2F5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trending-down", codepoint: "\u{E190}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trending-up", codepoint: "\u{E191}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trending-up-down", codepoint: "\u{E625}", font: LUCIDE, family: "lucide" },
+    Icon { name: "triangle", codepoint: "\u{E192}", font: LUCIDE, family: "lucide" },
+    Icon { name: "triangle-alert", codepoint: "\u{E193}", font: LUCIDE, family: "lucide" },
+    Icon { name: "triangle-dashed", codepoint: "\u{E63D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "triangle-right", codepoint: "\u{E4ED}", font: LUCIDE, family: "lucide" },
+    Icon { name: "trophy", codepoint: "\u{E373}", font: LUCIDE, family: "lucide" },
+    Icon { name: "truck", codepoint: "\u{E194}", font: LUCIDE, family: "lucide" },
+    Icon { name: "truck-electric", codepoint: "\u{E65F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "turkish-lira", codepoint: "\u{E680}", font: LUCIDE, family: "lucide" },
+    Icon { name: "turntable", codepoint: "\u{E68C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "turtle", codepoint: "\u{E4F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tv", codepoint: "\u{E195}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tv-2", codepoint: "\u{E203}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tv-minimal", codepoint: "\u{E203}", font: LUCIDE, family: "lucide" },
+    Icon { name: "tv-minimal-play", codepoint: "\u{E5EC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "type", codepoint: "\u{E198}", font: LUCIDE, family: "lucide" },
+    Icon { name: "type-outline", codepoint: "\u{E602}", font: LUCIDE, family: "lucide" },
+    Icon { name: "umbrella", codepoint: "\u{E199}", font: LUCIDE, family: "lucide" },
+    Icon { name: "umbrella-off", codepoint: "\u{E543}", font: LUCIDE, family: "lucide" },
+    Icon { name: "underline", codepoint: "\u{E19A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "undo", codepoint: "\u{E19B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "undo-2", codepoint: "\u{E2A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "undo-dot", codepoint: "\u{E451}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unfold-horizontal", codepoint: "\u{E43D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unfold-vertical", codepoint: "\u{E43E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "ungroup", codepoint: "\u{E467}", font: LUCIDE, family: "lucide" },
+    Icon { name: "university", codepoint: "\u{E3E5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unlink", codepoint: "\u{E19C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unlink-2", codepoint: "\u{E19D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unlock", codepoint: "\u{E10C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unlock-keyhole", codepoint: "\u{E532}", font: LUCIDE, family: "lucide" },
+    Icon { name: "unplug", codepoint: "\u{E45D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "upload", codepoint: "\u{E19E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "upload-cloud", codepoint: "\u{E091}", font: LUCIDE, family: "lucide" },
+    Icon { name: "usb", codepoint: "\u{E356}", font: LUCIDE, family: "lucide" },
+    Icon { name: "usb-c-port", codepoint: "\u{E73D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user", codepoint: "\u{E19F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-2", codepoint: "\u{E468}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-check", codepoint: "\u{E1A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-check-2", codepoint: "\u{E469}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-circle", codepoint: "\u{E461}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-circle-2", codepoint: "\u{E462}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-cog", codepoint: "\u{E342}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-cog-2", codepoint: "\u{E46A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-key", codepoint: "\u{E6C8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-lock", codepoint: "\u{E660}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-minus", codepoint: "\u{E1A1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-minus-2", codepoint: "\u{E46B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-pen", codepoint: "\u{E5FC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-plus", codepoint: "\u{E1A2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-plus-2", codepoint: "\u{E46C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round", codepoint: "\u{E468}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-arrow-left", codepoint: "\u{E714}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-check", codepoint: "\u{E469}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-cog", codepoint: "\u{E46A}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-key", codepoint: "\u{E6C9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-minus", codepoint: "\u{E46B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-pen", codepoint: "\u{E5FD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-plus", codepoint: "\u{E46C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-search", codepoint: "\u{E578}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-round-x", codepoint: "\u{E46D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-search", codepoint: "\u{E579}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-shield", codepoint: "\u{E729}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-square", codepoint: "\u{E465}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-square-2", codepoint: "\u{E466}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-star", codepoint: "\u{E687}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-x", codepoint: "\u{E1A3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "user-x-2", codepoint: "\u{E46D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "users", codepoint: "\u{E1A4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "users-2", codepoint: "\u{E46E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "users-round", codepoint: "\u{E46E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "utensils", codepoint: "\u{E2F6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "utensils-crossed", codepoint: "\u{E2F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "utility-pole", codepoint: "\u{E3C2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "van", codepoint: "\u{E6AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "variable", codepoint: "\u{E473}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vault", codepoint: "\u{E58F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vector-square", codepoint: "\u{E67C}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vegan", codepoint: "\u{E39D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "venetian-mask", codepoint: "\u{E2AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "venus", codepoint: "\u{E645}", font: LUCIDE, family: "lucide" },
+    Icon { name: "venus-and-mars", codepoint: "\u{E646}", font: LUCIDE, family: "lucide" },
+    Icon { name: "verified", codepoint: "\u{E241}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vibrate", codepoint: "\u{E223}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vibrate-off", codepoint: "\u{E29D}", font: LUCIDE, family: "lucide" },
+    Icon { name: "video", codepoint: "\u{E1A5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "video-off", codepoint: "\u{E1A6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "videotape", codepoint: "\u{E4CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "view", codepoint: "\u{E1A7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "voicemail", codepoint: "\u{E1A8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volleyball", codepoint: "\u{E62F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volume", codepoint: "\u{E1A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volume-1", codepoint: "\u{E1AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volume-2", codepoint: "\u{E1AB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volume-off", codepoint: "\u{E626}", font: LUCIDE, family: "lucide" },
+    Icon { name: "volume-x", codepoint: "\u{E1AC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "vote", codepoint: "\u{E3AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wallet", codepoint: "\u{E204}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wallet-2", codepoint: "\u{E4CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wallet-cards", codepoint: "\u{E4CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wallet-minimal", codepoint: "\u{E4CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wallpaper", codepoint: "\u{E44B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wand", codepoint: "\u{E246}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wand-2", codepoint: "\u{E357}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wand-sparkles", codepoint: "\u{E357}", font: LUCIDE, family: "lucide" },
+    Icon { name: "warehouse", codepoint: "\u{E3E6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "washing-machine", codepoint: "\u{E590}", font: LUCIDE, family: "lucide" },
+    Icon { name: "watch", codepoint: "\u{E1AD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves", codepoint: "\u{E283}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves-arrow-down", codepoint: "\u{E6A9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves-arrow-up", codepoint: "\u{E6AA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves-horizontal", codepoint: "\u{E283}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves-ladder", codepoint: "\u{E63B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waves-vertical", codepoint: "\u{E6F2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "waypoints", codepoint: "\u{E542}", font: LUCIDE, family: "lucide" },
+    Icon { name: "webcam", codepoint: "\u{E205}", font: LUCIDE, family: "lucide" },
+    Icon { name: "webcam-off", codepoint: "\u{E6FF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "webhook", codepoint: "\u{E374}", font: LUCIDE, family: "lucide" },
+    Icon { name: "webhook-off", codepoint: "\u{E5B7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "weight", codepoint: "\u{E530}", font: LUCIDE, family: "lucide" },
+    Icon { name: "weight-tilde", codepoint: "\u{E6AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wheat", codepoint: "\u{E39E}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wheat-off", codepoint: "\u{E39F}", font: LUCIDE, family: "lucide" },
+    Icon { name: "whole-word", codepoint: "\u{E3DF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi", codepoint: "\u{E1AE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-cog", codepoint: "\u{E674}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-high", codepoint: "\u{E5F7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-low", codepoint: "\u{E5F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-off", codepoint: "\u{E1AF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-pen", codepoint: "\u{E663}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-sync", codepoint: "\u{E681}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wifi-zero", codepoint: "\u{E5F9}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wind", codepoint: "\u{E1B0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wind-arrow-down", codepoint: "\u{E631}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wine", codepoint: "\u{E2F8}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wine-off", codepoint: "\u{E3A0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "workflow", codepoint: "\u{E425}", font: LUCIDE, family: "lucide" },
+    Icon { name: "worm", codepoint: "\u{E5DA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wrap-text", codepoint: "\u{E248}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wrench", codepoint: "\u{E1B1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "wrench-off", codepoint: "\u{E70B}", font: LUCIDE, family: "lucide" },
+    Icon { name: "x", codepoint: "\u{E1B2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "x-circle", codepoint: "\u{E084}", font: LUCIDE, family: "lucide" },
+    Icon { name: "x-line-top", codepoint: "\u{E6CA}", font: LUCIDE, family: "lucide" },
+    Icon { name: "x-octagon", codepoint: "\u{E128}", font: LUCIDE, family: "lucide" },
+    Icon { name: "x-square", codepoint: "\u{E175}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zap", codepoint: "\u{E1B4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zap-off", codepoint: "\u{E1B5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-aquarius", codepoint: "\u{E6CB}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-aries", codepoint: "\u{E6CC}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-cancer", codepoint: "\u{E6CD}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-capricorn", codepoint: "\u{E6CE}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-gemini", codepoint: "\u{E6CF}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-leo", codepoint: "\u{E6D0}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-libra", codepoint: "\u{E6D1}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-ophiuchus", codepoint: "\u{E6D2}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-pisces", codepoint: "\u{E6D3}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-sagittarius", codepoint: "\u{E6D4}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-scorpio", codepoint: "\u{E6D5}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-taurus", codepoint: "\u{E6D6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zodiac-virgo", codepoint: "\u{E6D7}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zoom-in", codepoint: "\u{E1B6}", font: LUCIDE, family: "lucide" },
+    Icon { name: "zoom-out", codepoint: "\u{E1B7}", font: LUCIDE, family: "lucide" },
+];
+
+/// `a-arrow-down` from Lucide.
+pub fn a_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E585}").font(LUCIDE)
 }
 
-fn icon(codepoint: &str) -> Text<'_> {
-    render(codepoint)
+/// `a-arrow-up` from Lucide.
+pub fn a_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E586}").font(LUCIDE)
+}
+
+/// `a-large-small` from Lucide.
+pub fn a_large_small<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E587}").font(LUCIDE)
+}
+
+/// `accessibility` from Lucide.
+pub fn accessibility<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E297}").font(LUCIDE)
+}
+
+/// `activity` from Lucide.
+pub fn activity<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E038}").font(LUCIDE)
+}
+
+/// `activity-square` from Lucide.
+pub fn activity_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B4}").font(LUCIDE)
+}
+
+/// `ad` from Lucide.
+pub fn ad<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E700}").font(LUCIDE)
+}
+
+/// `air-vent` from Lucide.
+pub fn air_vent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34D}").font(LUCIDE)
+}
+
+/// `airplay` from Lucide.
+pub fn airplay<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E039}").font(LUCIDE)
+}
+
+/// `alarm-check` from Lucide.
+pub fn alarm_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EC}").font(LUCIDE)
+}
+
+/// `alarm-clock` from Lucide.
+pub fn alarm_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03A}").font(LUCIDE)
+}
+
+/// `alarm-clock-check` from Lucide.
+pub fn alarm_clock_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EC}").font(LUCIDE)
+}
+
+/// `alarm-clock-minus` from Lucide.
+pub fn alarm_clock_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1ED}").font(LUCIDE)
+}
+
+/// `alarm-clock-off` from Lucide.
+pub fn alarm_clock_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23B}").font(LUCIDE)
+}
+
+/// `alarm-clock-plus` from Lucide.
+pub fn alarm_clock_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EE}").font(LUCIDE)
+}
+
+/// `alarm-minus` from Lucide.
+pub fn alarm_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1ED}").font(LUCIDE)
+}
+
+/// `alarm-plus` from Lucide.
+pub fn alarm_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EE}").font(LUCIDE)
+}
+
+/// `alarm-smoke` from Lucide.
+pub fn alarm_smoke<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57B}").font(LUCIDE)
+}
+
+/// `album` from Lucide.
+pub fn album<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03B}").font(LUCIDE)
+}
+
+/// `alert-circle` from Lucide.
+pub fn alert_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E077}").font(LUCIDE)
+}
+
+/// `alert-octagon` from Lucide.
+pub fn alert_octagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E127}").font(LUCIDE)
+}
+
+/// `alert-triangle` from Lucide.
+pub fn alert_triangle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E193}").font(LUCIDE)
+}
+
+/// `align-center` from Lucide.
+pub fn align_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E182}").font(LUCIDE)
+}
+
+/// `align-center-horizontal` from Lucide.
+pub fn align_center_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26C}").font(LUCIDE)
+}
+
+/// `align-center-vertical` from Lucide.
+pub fn align_center_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26D}").font(LUCIDE)
+}
+
+/// `align-end-horizontal` from Lucide.
+pub fn align_end_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26E}").font(LUCIDE)
+}
+
+/// `align-end-vertical` from Lucide.
+pub fn align_end_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26F}").font(LUCIDE)
+}
+
+/// `align-horizontal-distribute-center` from Lucide.
+pub fn align_horizontal_distribute_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03C}").font(LUCIDE)
+}
+
+/// `align-horizontal-distribute-end` from Lucide.
+pub fn align_horizontal_distribute_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03D}").font(LUCIDE)
+}
+
+/// `align-horizontal-distribute-start` from Lucide.
+pub fn align_horizontal_distribute_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03E}").font(LUCIDE)
+}
+
+/// `align-horizontal-justify-center` from Lucide.
+pub fn align_horizontal_justify_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E272}").font(LUCIDE)
+}
+
+/// `align-horizontal-justify-end` from Lucide.
+pub fn align_horizontal_justify_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E273}").font(LUCIDE)
+}
+
+/// `align-horizontal-justify-start` from Lucide.
+pub fn align_horizontal_justify_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E274}").font(LUCIDE)
+}
+
+/// `align-horizontal-space-around` from Lucide.
+pub fn align_horizontal_space_around<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E275}").font(LUCIDE)
+}
+
+/// `align-horizontal-space-between` from Lucide.
+pub fn align_horizontal_space_between<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E276}").font(LUCIDE)
+}
+
+/// `align-justify` from Lucide.
+pub fn align_justify<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E184}").font(LUCIDE)
+}
+
+/// `align-left` from Lucide.
+pub fn align_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E185}").font(LUCIDE)
+}
+
+/// `align-right` from Lucide.
+pub fn align_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E183}").font(LUCIDE)
+}
+
+/// `align-start-horizontal` from Lucide.
+pub fn align_start_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E270}").font(LUCIDE)
+}
+
+/// `align-start-vertical` from Lucide.
+pub fn align_start_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E271}").font(LUCIDE)
+}
+
+/// `align-vertical-distribute-center` from Lucide.
+pub fn align_vertical_distribute_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27E}").font(LUCIDE)
+}
+
+/// `align-vertical-distribute-end` from Lucide.
+pub fn align_vertical_distribute_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27F}").font(LUCIDE)
+}
+
+/// `align-vertical-distribute-start` from Lucide.
+pub fn align_vertical_distribute_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E280}").font(LUCIDE)
+}
+
+/// `align-vertical-justify-center` from Lucide.
+pub fn align_vertical_justify_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E277}").font(LUCIDE)
+}
+
+/// `align-vertical-justify-end` from Lucide.
+pub fn align_vertical_justify_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E278}").font(LUCIDE)
+}
+
+/// `align-vertical-justify-start` from Lucide.
+pub fn align_vertical_justify_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E279}").font(LUCIDE)
+}
+
+/// `align-vertical-space-around` from Lucide.
+pub fn align_vertical_space_around<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27A}").font(LUCIDE)
+}
+
+/// `align-vertical-space-between` from Lucide.
+pub fn align_vertical_space_between<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27B}").font(LUCIDE)
+}
+
+/// `ambulance` from Lucide.
+pub fn ambulance<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BB}").font(LUCIDE)
+}
+
+/// `ampersand` from Lucide.
+pub fn ampersand<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49C}").font(LUCIDE)
+}
+
+/// `ampersands` from Lucide.
+pub fn ampersands<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49D}").font(LUCIDE)
+}
+
+/// `amphora` from Lucide.
+pub fn amphora<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61B}").font(LUCIDE)
+}
+
+/// `anchor` from Lucide.
+pub fn anchor<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E03F}").font(LUCIDE)
+}
+
+/// `angle` from Lucide.
+pub fn angle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E732}").font(LUCIDE)
+}
+
+/// `angry` from Lucide.
+pub fn angry<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FC}").font(LUCIDE)
+}
+
+/// `annoyed` from Lucide.
+pub fn annoyed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FD}").font(LUCIDE)
+}
+
+/// `antenna` from Lucide.
+pub fn antenna<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E2}").font(LUCIDE)
+}
+
+/// `anvil` from Lucide.
+pub fn anvil<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E580}").font(LUCIDE)
+}
+
+/// `aperture` from Lucide.
+pub fn aperture<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E040}").font(LUCIDE)
+}
+
+/// `app-window` from Lucide.
+pub fn app_window<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E426}").font(LUCIDE)
+}
+
+/// `app-window-mac` from Lucide.
+pub fn app_window_mac<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D2}").font(LUCIDE)
+}
+
+/// `apple` from Lucide.
+pub fn apple<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34E}").font(LUCIDE)
+}
+
+/// `archive` from Lucide.
+pub fn archive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E041}").font(LUCIDE)
+}
+
+/// `archive-restore` from Lucide.
+pub fn archive_restore<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CD}").font(LUCIDE)
+}
+
+/// `archive-x` from Lucide.
+pub fn archive_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50C}").font(LUCIDE)
+}
+
+/// `area-chart` from Lucide.
+pub fn area_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D3}").font(LUCIDE)
+}
+
+/// `armchair` from Lucide.
+pub fn armchair<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C0}").font(LUCIDE)
+}
+
+/// `arrow-big-down` from Lucide.
+pub fn arrow_big_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E1}").font(LUCIDE)
+}
+
+/// `arrow-big-down-dash` from Lucide.
+pub fn arrow_big_down_dash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41D}").font(LUCIDE)
+}
+
+/// `arrow-big-left` from Lucide.
+pub fn arrow_big_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E2}").font(LUCIDE)
+}
+
+/// `arrow-big-left-dash` from Lucide.
+pub fn arrow_big_left_dash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41E}").font(LUCIDE)
+}
+
+/// `arrow-big-right` from Lucide.
+pub fn arrow_big_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E3}").font(LUCIDE)
+}
+
+/// `arrow-big-right-dash` from Lucide.
+pub fn arrow_big_right_dash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41F}").font(LUCIDE)
+}
+
+/// `arrow-big-up` from Lucide.
+pub fn arrow_big_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E4}").font(LUCIDE)
+}
+
+/// `arrow-big-up-dash` from Lucide.
+pub fn arrow_big_up_dash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E420}").font(LUCIDE)
+}
+
+/// `arrow-down` from Lucide.
+pub fn arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E042}").font(LUCIDE)
+}
+
+/// `arrow-down-0-1` from Lucide.
+pub fn arrow_down_0_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E413}").font(LUCIDE)
+}
+
+/// `arrow-down-01` from Lucide.
+pub fn arrow_down_01<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E413}").font(LUCIDE)
+}
+
+/// `arrow-down-1-0` from Lucide.
+pub fn arrow_down_1_0<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E414}").font(LUCIDE)
+}
+
+/// `arrow-down-10` from Lucide.
+pub fn arrow_down_10<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E414}").font(LUCIDE)
+}
+
+/// `arrow-down-a-z` from Lucide.
+pub fn arrow_down_a_z<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E415}").font(LUCIDE)
+}
+
+/// `arrow-down-az` from Lucide.
+pub fn arrow_down_az<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E415}").font(LUCIDE)
+}
+
+/// `arrow-down-circle` from Lucide.
+pub fn arrow_down_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E078}").font(LUCIDE)
+}
+
+/// `arrow-down-from-line` from Lucide.
+pub fn arrow_down_from_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E454}").font(LUCIDE)
+}
+
+/// `arrow-down-left` from Lucide.
+pub fn arrow_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E043}").font(LUCIDE)
+}
+
+/// `arrow-down-left-from-circle` from Lucide.
+pub fn arrow_down_left_from_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F7}").font(LUCIDE)
+}
+
+/// `arrow-down-left-from-square` from Lucide.
+pub fn arrow_down_left_from_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A1}").font(LUCIDE)
+}
+
+/// `arrow-down-left-square` from Lucide.
+pub fn arrow_down_left_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B5}").font(LUCIDE)
+}
+
+/// `arrow-down-narrow-wide` from Lucide.
+pub fn arrow_down_narrow_wide<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E044}").font(LUCIDE)
+}
+
+/// `arrow-down-right` from Lucide.
+pub fn arrow_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E045}").font(LUCIDE)
+}
+
+/// `arrow-down-right-from-circle` from Lucide.
+pub fn arrow_down_right_from_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F8}").font(LUCIDE)
+}
+
+/// `arrow-down-right-from-square` from Lucide.
+pub fn arrow_down_right_from_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A2}").font(LUCIDE)
+}
+
+/// `arrow-down-right-square` from Lucide.
+pub fn arrow_down_right_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B6}").font(LUCIDE)
+}
+
+/// `arrow-down-square` from Lucide.
+pub fn arrow_down_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E427}").font(LUCIDE)
+}
+
+/// `arrow-down-to-dot` from Lucide.
+pub fn arrow_down_to_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44D}").font(LUCIDE)
+}
+
+/// `arrow-down-to-line` from Lucide.
+pub fn arrow_down_to_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E455}").font(LUCIDE)
+}
+
+/// `arrow-down-up` from Lucide.
+pub fn arrow_down_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E046}").font(LUCIDE)
+}
+
+/// `arrow-down-wide-narrow` from Lucide.
+pub fn arrow_down_wide_narrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E047}").font(LUCIDE)
+}
+
+/// `arrow-down-z-a` from Lucide.
+pub fn arrow_down_z_a<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E416}").font(LUCIDE)
+}
+
+/// `arrow-down-za` from Lucide.
+pub fn arrow_down_za<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E416}").font(LUCIDE)
+}
+
+/// `arrow-left` from Lucide.
+pub fn arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E048}").font(LUCIDE)
+}
+
+/// `arrow-left-circle` from Lucide.
+pub fn arrow_left_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E079}").font(LUCIDE)
+}
+
+/// `arrow-left-from-line` from Lucide.
+pub fn arrow_left_from_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E456}").font(LUCIDE)
+}
+
+/// `arrow-left-right` from Lucide.
+pub fn arrow_left_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24A}").font(LUCIDE)
+}
+
+/// `arrow-left-square` from Lucide.
+pub fn arrow_left_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E428}").font(LUCIDE)
+}
+
+/// `arrow-left-to-line` from Lucide.
+pub fn arrow_left_to_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E457}").font(LUCIDE)
+}
+
+/// `arrow-right` from Lucide.
+pub fn arrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E049}").font(LUCIDE)
+}
+
+/// `arrow-right-circle` from Lucide.
+pub fn arrow_right_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07A}").font(LUCIDE)
+}
+
+/// `arrow-right-from-line` from Lucide.
+pub fn arrow_right_from_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E458}").font(LUCIDE)
+}
+
+/// `arrow-right-left` from Lucide.
+pub fn arrow_right_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E417}").font(LUCIDE)
+}
+
+/// `arrow-right-square` from Lucide.
+pub fn arrow_right_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E429}").font(LUCIDE)
+}
+
+/// `arrow-right-to-line` from Lucide.
+pub fn arrow_right_to_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E459}").font(LUCIDE)
+}
+
+/// `arrow-up` from Lucide.
+pub fn arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04A}").font(LUCIDE)
+}
+
+/// `arrow-up-0-1` from Lucide.
+pub fn arrow_up_0_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E418}").font(LUCIDE)
+}
+
+/// `arrow-up-01` from Lucide.
+pub fn arrow_up_01<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E418}").font(LUCIDE)
+}
+
+/// `arrow-up-1-0` from Lucide.
+pub fn arrow_up_1_0<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E419}").font(LUCIDE)
+}
+
+/// `arrow-up-10` from Lucide.
+pub fn arrow_up_10<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E419}").font(LUCIDE)
+}
+
+/// `arrow-up-a-z` from Lucide.
+pub fn arrow_up_a_z<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41A}").font(LUCIDE)
+}
+
+/// `arrow-up-az` from Lucide.
+pub fn arrow_up_az<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41A}").font(LUCIDE)
+}
+
+/// `arrow-up-circle` from Lucide.
+pub fn arrow_up_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07B}").font(LUCIDE)
+}
+
+/// `arrow-up-down` from Lucide.
+pub fn arrow_up_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37D}").font(LUCIDE)
+}
+
+/// `arrow-up-from-dot` from Lucide.
+pub fn arrow_up_from_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44E}").font(LUCIDE)
+}
+
+/// `arrow-up-from-line` from Lucide.
+pub fn arrow_up_from_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45A}").font(LUCIDE)
+}
+
+/// `arrow-up-left` from Lucide.
+pub fn arrow_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04B}").font(LUCIDE)
+}
+
+/// `arrow-up-left-from-circle` from Lucide.
+pub fn arrow_up_left_from_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F9}").font(LUCIDE)
+}
+
+/// `arrow-up-left-from-square` from Lucide.
+pub fn arrow_up_left_from_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A3}").font(LUCIDE)
+}
+
+/// `arrow-up-left-square` from Lucide.
+pub fn arrow_up_left_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B7}").font(LUCIDE)
+}
+
+/// `arrow-up-narrow-wide` from Lucide.
+pub fn arrow_up_narrow_wide<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04C}").font(LUCIDE)
+}
+
+/// `arrow-up-right` from Lucide.
+pub fn arrow_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04D}").font(LUCIDE)
+}
+
+/// `arrow-up-right-from-circle` from Lucide.
+pub fn arrow_up_right_from_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FA}").font(LUCIDE)
+}
+
+/// `arrow-up-right-from-square` from Lucide.
+pub fn arrow_up_right_from_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A4}").font(LUCIDE)
+}
+
+/// `arrow-up-right-square` from Lucide.
+pub fn arrow_up_right_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B8}").font(LUCIDE)
+}
+
+/// `arrow-up-square` from Lucide.
+pub fn arrow_up_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42A}").font(LUCIDE)
+}
+
+/// `arrow-up-to-line` from Lucide.
+pub fn arrow_up_to_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45B}").font(LUCIDE)
+}
+
+/// `arrow-up-wide-narrow` from Lucide.
+pub fn arrow_up_wide_narrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41B}").font(LUCIDE)
+}
+
+/// `arrow-up-z-a` from Lucide.
+pub fn arrow_up_z_a<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41C}").font(LUCIDE)
+}
+
+/// `arrow-up-za` from Lucide.
+pub fn arrow_up_za<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E41C}").font(LUCIDE)
+}
+
+/// `arrows-up-from-line` from Lucide.
+pub fn arrows_up_from_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D4}").font(LUCIDE)
+}
+
+/// `asterisk` from Lucide.
+pub fn asterisk<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EF}").font(LUCIDE)
+}
+
+/// `asterisk-square` from Lucide.
+pub fn asterisk_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E168}").font(LUCIDE)
+}
+
+/// `astroid` from Lucide.
+pub fn astroid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F0}").font(LUCIDE)
+}
+
+/// `at-sign` from Lucide.
+pub fn at_sign<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04E}").font(LUCIDE)
+}
+
+/// `atom` from Lucide.
+pub fn atom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D7}").font(LUCIDE)
+}
+
+/// `audio-lines` from Lucide.
+pub fn audio_lines<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55A}").font(LUCIDE)
+}
+
+/// `audio-lines-off` from Lucide.
+pub fn audio_lines_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E737}").font(LUCIDE)
+}
+
+/// `audio-lines-x` from Lucide.
+pub fn audio_lines_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72E}").font(LUCIDE)
+}
+
+/// `audio-waveform` from Lucide.
+pub fn audio_waveform<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55B}").font(LUCIDE)
+}
+
+/// `award` from Lucide.
+pub fn award<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04F}").font(LUCIDE)
+}
+
+/// `axe` from Lucide.
+pub fn axe<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E050}").font(LUCIDE)
+}
+
+/// `axis-3-d` from Lucide.
+pub fn axis_3_d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FE}").font(LUCIDE)
+}
+
+/// `axis-3d` from Lucide.
+pub fn axis_3d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FE}").font(LUCIDE)
+}
+
+/// `baby` from Lucide.
+pub fn baby<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CE}").font(LUCIDE)
+}
+
+/// `backpack` from Lucide.
+pub fn backpack<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C8}").font(LUCIDE)
+}
+
+/// `badge` from Lucide.
+pub fn badge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E474}").font(LUCIDE)
+}
+
+/// `badge-alert` from Lucide.
+pub fn badge_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E475}").font(LUCIDE)
+}
+
+/// `badge-cent` from Lucide.
+pub fn badge_cent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50F}").font(LUCIDE)
+}
+
+/// `badge-check` from Lucide.
+pub fn badge_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E241}").font(LUCIDE)
+}
+
+/// `badge-dollar-sign` from Lucide.
+pub fn badge_dollar_sign<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E476}").font(LUCIDE)
+}
+
+/// `badge-euro` from Lucide.
+pub fn badge_euro<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E510}").font(LUCIDE)
+}
+
+/// `badge-help` from Lucide.
+pub fn badge_help<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47B}").font(LUCIDE)
+}
+
+/// `badge-indian-rupee` from Lucide.
+pub fn badge_indian_rupee<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E511}").font(LUCIDE)
+}
+
+/// `badge-info` from Lucide.
+pub fn badge_info<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E477}").font(LUCIDE)
+}
+
+/// `badge-japanese-yen` from Lucide.
+pub fn badge_japanese_yen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E512}").font(LUCIDE)
+}
+
+/// `badge-minus` from Lucide.
+pub fn badge_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E478}").font(LUCIDE)
+}
+
+/// `badge-percent` from Lucide.
+pub fn badge_percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E479}").font(LUCIDE)
+}
+
+/// `badge-plus` from Lucide.
+pub fn badge_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47A}").font(LUCIDE)
+}
+
+/// `badge-pound-sterling` from Lucide.
+pub fn badge_pound_sterling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E513}").font(LUCIDE)
+}
+
+/// `badge-question-mark` from Lucide.
+pub fn badge_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47B}").font(LUCIDE)
+}
+
+/// `badge-russian-ruble` from Lucide.
+pub fn badge_russian_ruble<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E514}").font(LUCIDE)
+}
+
+/// `badge-swiss-franc` from Lucide.
+pub fn badge_swiss_franc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E515}").font(LUCIDE)
+}
+
+/// `badge-turkish-lira` from Lucide.
+pub fn badge_turkish_lira<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67E}").font(LUCIDE)
+}
+
+/// `badge-x` from Lucide.
+pub fn badge_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47C}").font(LUCIDE)
+}
+
+/// `baggage-claim` from Lucide.
+pub fn baggage_claim<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C9}").font(LUCIDE)
+}
+
+/// `balloon` from Lucide.
+pub fn balloon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AF}").font(LUCIDE)
+}
+
+/// `ban` from Lucide.
+pub fn ban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E051}").font(LUCIDE)
+}
+
+/// `banana` from Lucide.
+pub fn banana<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34F}").font(LUCIDE)
+}
+
+/// `bandage` from Lucide.
+pub fn bandage<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61D}").font(LUCIDE)
+}
+
+/// `banknote` from Lucide.
+pub fn banknote<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E052}").font(LUCIDE)
+}
+
+/// `banknote-arrow-down` from Lucide.
+pub fn banknote_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64C}").font(LUCIDE)
+}
+
+/// `banknote-arrow-up` from Lucide.
+pub fn banknote_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64D}").font(LUCIDE)
+}
+
+/// `banknote-check` from Lucide.
+pub fn banknote_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70C}").font(LUCIDE)
+}
+
+/// `banknote-x` from Lucide.
+pub fn banknote_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64E}").font(LUCIDE)
+}
+
+/// `bar-chart` from Lucide.
+pub fn bar_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06A}").font(LUCIDE)
+}
+
+/// `bar-chart-2` from Lucide.
+pub fn bar_chart_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E068}").font(LUCIDE)
+}
+
+/// `bar-chart-3` from Lucide.
+pub fn bar_chart_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A3}").font(LUCIDE)
+}
+
+/// `bar-chart-4` from Lucide.
+pub fn bar_chart_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A4}").font(LUCIDE)
+}
+
+/// `bar-chart-big` from Lucide.
+pub fn bar_chart_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A9}").font(LUCIDE)
+}
+
+/// `bar-chart-horizontal` from Lucide.
+pub fn bar_chart_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A2}").font(LUCIDE)
+}
+
+/// `bar-chart-horizontal-big` from Lucide.
+pub fn bar_chart_horizontal_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A7}").font(LUCIDE)
+}
+
+/// `barcode` from Lucide.
+pub fn barcode<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E533}").font(LUCIDE)
+}
+
+/// `barrel` from Lucide.
+pub fn barrel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E675}").font(LUCIDE)
+}
+
+/// `baseline` from Lucide.
+pub fn baseline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E285}").font(LUCIDE)
+}
+
+/// `bath` from Lucide.
+pub fn bath<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AB}").font(LUCIDE)
+}
+
+/// `battery` from Lucide.
+pub fn battery<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E053}").font(LUCIDE)
+}
+
+/// `battery-charging` from Lucide.
+pub fn battery_charging<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E054}").font(LUCIDE)
+}
+
+/// `battery-full` from Lucide.
+pub fn battery_full<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E055}").font(LUCIDE)
+}
+
+/// `battery-low` from Lucide.
+pub fn battery_low<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E056}").font(LUCIDE)
+}
+
+/// `battery-medium` from Lucide.
+pub fn battery_medium<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E057}").font(LUCIDE)
+}
+
+/// `battery-plus` from Lucide.
+pub fn battery_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63E}").font(LUCIDE)
+}
+
+/// `battery-warning` from Lucide.
+pub fn battery_warning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AC}").font(LUCIDE)
+}
+
+/// `beaker` from Lucide.
+pub fn beaker<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E058}").font(LUCIDE)
+}
+
+/// `bean` from Lucide.
+pub fn bean<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38F}").font(LUCIDE)
+}
+
+/// `bean-off` from Lucide.
+pub fn bean_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E390}").font(LUCIDE)
+}
+
+/// `bed` from Lucide.
+pub fn bed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C1}").font(LUCIDE)
+}
+
+/// `bed-double` from Lucide.
+pub fn bed_double<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C2}").font(LUCIDE)
+}
+
+/// `bed-single` from Lucide.
+pub fn bed_single<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C3}").font(LUCIDE)
+}
+
+/// `beef` from Lucide.
+pub fn beef<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A5}").font(LUCIDE)
+}
+
+/// `beef-off` from Lucide.
+pub fn beef_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DC}").font(LUCIDE)
+}
+
+/// `beer` from Lucide.
+pub fn beer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CF}").font(LUCIDE)
+}
+
+/// `beer-off` from Lucide.
+pub fn beer_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D9}").font(LUCIDE)
+}
+
+/// `bell` from Lucide.
+pub fn bell<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E059}").font(LUCIDE)
+}
+
+/// `bell-check` from Lucide.
+pub fn bell_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EF}").font(LUCIDE)
+}
+
+/// `bell-dot` from Lucide.
+pub fn bell_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42B}").font(LUCIDE)
+}
+
+/// `bell-electric` from Lucide.
+pub fn bell_electric<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57C}").font(LUCIDE)
+}
+
+/// `bell-minus` from Lucide.
+pub fn bell_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F0}").font(LUCIDE)
+}
+
+/// `bell-off` from Lucide.
+pub fn bell_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05A}").font(LUCIDE)
+}
+
+/// `bell-plus` from Lucide.
+pub fn bell_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F1}").font(LUCIDE)
+}
+
+/// `bell-ring` from Lucide.
+pub fn bell_ring<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E224}").font(LUCIDE)
+}
+
+/// `between-horizonal-end` from Lucide.
+pub fn between_horizonal_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E591}").font(LUCIDE)
+}
+
+/// `between-horizonal-start` from Lucide.
+pub fn between_horizonal_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E592}").font(LUCIDE)
+}
+
+/// `between-horizontal-end` from Lucide.
+pub fn between_horizontal_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E591}").font(LUCIDE)
+}
+
+/// `between-horizontal-start` from Lucide.
+pub fn between_horizontal_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E592}").font(LUCIDE)
+}
+
+/// `between-vertical-end` from Lucide.
+pub fn between_vertical_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E593}").font(LUCIDE)
+}
+
+/// `between-vertical-start` from Lucide.
+pub fn between_vertical_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E594}").font(LUCIDE)
+}
+
+/// `biceps-flexed` from Lucide.
+pub fn biceps_flexed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5EB}").font(LUCIDE)
+}
+
+/// `bike` from Lucide.
+pub fn bike<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D2}").font(LUCIDE)
+}
+
+/// `binary` from Lucide.
+pub fn binary<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F2}").font(LUCIDE)
+}
+
+/// `binoculars` from Lucide.
+pub fn binoculars<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E621}").font(LUCIDE)
+}
+
+/// `biohazard` from Lucide.
+pub fn biohazard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E441}").font(LUCIDE)
+}
+
+/// `bird` from Lucide.
+pub fn bird<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C5}").font(LUCIDE)
+}
+
+/// `birdhouse` from Lucide.
+pub fn birdhouse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69A}").font(LUCIDE)
+}
+
+/// `bitcoin` from Lucide.
+pub fn bitcoin<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05B}").font(LUCIDE)
+}
+
+/// `blend` from Lucide.
+pub fn blend<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59C}").font(LUCIDE)
+}
+
+/// `blender` from Lucide.
+pub fn blender<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F4}").font(LUCIDE)
+}
+
+/// `blinds` from Lucide.
+pub fn blinds<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C0}").font(LUCIDE)
+}
+
+/// `blocks` from Lucide.
+pub fn blocks<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FA}").font(LUCIDE)
+}
+
+/// `bluetooth` from Lucide.
+pub fn bluetooth<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05C}").font(LUCIDE)
+}
+
+/// `bluetooth-connected` from Lucide.
+pub fn bluetooth_connected<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B8}").font(LUCIDE)
+}
+
+/// `bluetooth-off` from Lucide.
+pub fn bluetooth_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B9}").font(LUCIDE)
+}
+
+/// `bluetooth-searching` from Lucide.
+pub fn bluetooth_searching<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BA}").font(LUCIDE)
+}
+
+/// `bold` from Lucide.
+pub fn bold<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05D}").font(LUCIDE)
+}
+
+/// `bolt` from Lucide.
+pub fn bolt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58C}").font(LUCIDE)
+}
+
+/// `bomb` from Lucide.
+pub fn bomb<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FF}").font(LUCIDE)
+}
+
+/// `bone` from Lucide.
+pub fn bone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E358}").font(LUCIDE)
+}
+
+/// `bone-fracture` from Lucide.
+pub fn bone_fracture<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E715}").font(LUCIDE)
+}
+
+/// `book` from Lucide.
+pub fn book<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05E}").font(LUCIDE)
+}
+
+/// `book-a` from Lucide.
+pub fn book_a<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E544}").font(LUCIDE)
+}
+
+/// `book-alert` from Lucide.
+pub fn book_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E672}").font(LUCIDE)
+}
+
+/// `book-audio` from Lucide.
+pub fn book_audio<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E545}").font(LUCIDE)
+}
+
+/// `book-check` from Lucide.
+pub fn book_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E546}").font(LUCIDE)
+}
+
+/// `book-copy` from Lucide.
+pub fn book_copy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3EC}").font(LUCIDE)
+}
+
+/// `book-dashed` from Lucide.
+pub fn book_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3ED}").font(LUCIDE)
+}
+
+/// `book-down` from Lucide.
+pub fn book_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3EE}").font(LUCIDE)
+}
+
+/// `book-headphones` from Lucide.
+pub fn book_headphones<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E547}").font(LUCIDE)
+}
+
+/// `book-heart` from Lucide.
+pub fn book_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E548}").font(LUCIDE)
+}
+
+/// `book-image` from Lucide.
+pub fn book_image<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E549}").font(LUCIDE)
+}
+
+/// `book-key` from Lucide.
+pub fn book_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3EF}").font(LUCIDE)
+}
+
+/// `book-lock` from Lucide.
+pub fn book_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F0}").font(LUCIDE)
+}
+
+/// `book-marked` from Lucide.
+pub fn book_marked<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F1}").font(LUCIDE)
+}
+
+/// `book-minus` from Lucide.
+pub fn book_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F2}").font(LUCIDE)
+}
+
+/// `book-open` from Lucide.
+pub fn book_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E05F}").font(LUCIDE)
+}
+
+/// `book-open-check` from Lucide.
+pub fn book_open_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E381}").font(LUCIDE)
+}
+
+/// `book-open-text` from Lucide.
+pub fn book_open_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54A}").font(LUCIDE)
+}
+
+/// `book-plus` from Lucide.
+pub fn book_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F3}").font(LUCIDE)
+}
+
+/// `book-search` from Lucide.
+pub fn book_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AB}").font(LUCIDE)
+}
+
+/// `book-template` from Lucide.
+pub fn book_template<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3ED}").font(LUCIDE)
+}
+
+/// `book-text` from Lucide.
+pub fn book_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54B}").font(LUCIDE)
+}
+
+/// `book-type` from Lucide.
+pub fn book_type<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54C}").font(LUCIDE)
+}
+
+/// `book-up` from Lucide.
+pub fn book_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F4}").font(LUCIDE)
+}
+
+/// `book-up-2` from Lucide.
+pub fn book_up_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A6}").font(LUCIDE)
+}
+
+/// `book-user` from Lucide.
+pub fn book_user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54D}").font(LUCIDE)
+}
+
+/// `book-x` from Lucide.
+pub fn book_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F5}").font(LUCIDE)
+}
+
+/// `bookmark` from Lucide.
+pub fn bookmark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E060}").font(LUCIDE)
+}
+
+/// `bookmark-check` from Lucide.
+pub fn bookmark_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51F}").font(LUCIDE)
+}
+
+/// `bookmark-minus` from Lucide.
+pub fn bookmark_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23C}").font(LUCIDE)
+}
+
+/// `bookmark-off` from Lucide.
+pub fn bookmark_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DF}").font(LUCIDE)
+}
+
+/// `bookmark-plus` from Lucide.
+pub fn bookmark_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23D}").font(LUCIDE)
+}
+
+/// `bookmark-x` from Lucide.
+pub fn bookmark_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E520}").font(LUCIDE)
+}
+
+/// `boom-box` from Lucide.
+pub fn boom_box<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EE}").font(LUCIDE)
+}
+
+/// `bot` from Lucide.
+pub fn bot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BB}").font(LUCIDE)
+}
+
+/// `bot-message-square` from Lucide.
+pub fn bot_message_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CE}").font(LUCIDE)
+}
+
+/// `bot-off` from Lucide.
+pub fn bot_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E0}").font(LUCIDE)
+}
+
+/// `bottle-wine` from Lucide.
+pub fn bottle_wine<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67B}").font(LUCIDE)
+}
+
+/// `bow-arrow` from Lucide.
+pub fn bow_arrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65E}").font(LUCIDE)
+}
+
+/// `box` from Lucide.
+pub fn box_icon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E061}").font(LUCIDE)
+}
+
+/// `box-select` from Lucide.
+pub fn box_select<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CB}").font(LUCIDE)
+}
+
+/// `boxes` from Lucide.
+pub fn boxes<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D0}").font(LUCIDE)
+}
+
+/// `braces` from Lucide.
+pub fn braces<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36A}").font(LUCIDE)
+}
+
+/// `brackets` from Lucide.
+pub fn brackets<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E443}").font(LUCIDE)
+}
+
+/// `brain` from Lucide.
+pub fn brain<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C6}").font(LUCIDE)
+}
+
+/// `brain-circuit` from Lucide.
+pub fn brain_circuit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C7}").font(LUCIDE)
+}
+
+/// `brain-cog` from Lucide.
+pub fn brain_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C8}").font(LUCIDE)
+}
+
+/// `brick-wall` from Lucide.
+pub fn brick_wall<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E581}").font(LUCIDE)
+}
+
+/// `brick-wall-fire` from Lucide.
+pub fn brick_wall_fire<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E653}").font(LUCIDE)
+}
+
+/// `brick-wall-shield` from Lucide.
+pub fn brick_wall_shield<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E690}").font(LUCIDE)
+}
+
+/// `briefcase` from Lucide.
+pub fn briefcase<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E062}").font(LUCIDE)
+}
+
+/// `briefcase-business` from Lucide.
+pub fn briefcase_business<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D5}").font(LUCIDE)
+}
+
+/// `briefcase-conveyor-belt` from Lucide.
+pub fn briefcase_conveyor_belt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62B}").font(LUCIDE)
+}
+
+/// `briefcase-medical` from Lucide.
+pub fn briefcase_medical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D6}").font(LUCIDE)
+}
+
+/// `bring-to-front` from Lucide.
+pub fn bring_to_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EF}").font(LUCIDE)
+}
+
+/// `broccoli` from Lucide.
+pub fn broccoli<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F5}").font(LUCIDE)
+}
+
+/// `broom` from Lucide.
+pub fn broom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E730}").font(LUCIDE)
+}
+
+/// `broom-sparkles` from Lucide.
+pub fn broom_sparkles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72F}").font(LUCIDE)
+}
+
+/// `brush` from Lucide.
+pub fn brush<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D3}").font(LUCIDE)
+}
+
+/// `brush-cleaning` from Lucide.
+pub fn brush_cleaning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E666}").font(LUCIDE)
+}
+
+/// `bubbles` from Lucide.
+pub fn bubbles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E654}").font(LUCIDE)
+}
+
+/// `bug` from Lucide.
+pub fn bug<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20C}").font(LUCIDE)
+}
+
+/// `bug-off` from Lucide.
+pub fn bug_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50D}").font(LUCIDE)
+}
+
+/// `bug-play` from Lucide.
+pub fn bug_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50E}").font(LUCIDE)
+}
+
+/// `building` from Lucide.
+pub fn building<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CC}").font(LUCIDE)
+}
+
+/// `building-2` from Lucide.
+pub fn building_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E290}").font(LUCIDE)
+}
+
+/// `bus` from Lucide.
+pub fn bus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D4}").font(LUCIDE)
+}
+
+/// `bus-front` from Lucide.
+pub fn bus_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FB}").font(LUCIDE)
+}
+
+/// `cable` from Lucide.
+pub fn cable<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E3}").font(LUCIDE)
+}
+
+/// `cable-car` from Lucide.
+pub fn cable_car<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FC}").font(LUCIDE)
+}
+
+/// `cake` from Lucide.
+pub fn cake<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E344}").font(LUCIDE)
+}
+
+/// `cake-slice` from Lucide.
+pub fn cake_slice<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B9}").font(LUCIDE)
+}
+
+/// `calculator` from Lucide.
+pub fn calculator<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BC}").font(LUCIDE)
+}
+
+/// `calendar` from Lucide.
+pub fn calendar<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E063}").font(LUCIDE)
+}
+
+/// `calendar-1` from Lucide.
+pub fn calendar_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E630}").font(LUCIDE)
+}
+
+/// `calendar-arrow-down` from Lucide.
+pub fn calendar_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FE}").font(LUCIDE)
+}
+
+/// `calendar-arrow-up` from Lucide.
+pub fn calendar_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FF}").font(LUCIDE)
+}
+
+/// `calendar-check` from Lucide.
+pub fn calendar_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B7}").font(LUCIDE)
+}
+
+/// `calendar-check-2` from Lucide.
+pub fn calendar_check_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B8}").font(LUCIDE)
+}
+
+/// `calendar-clock` from Lucide.
+pub fn calendar_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E304}").font(LUCIDE)
+}
+
+/// `calendar-cog` from Lucide.
+pub fn calendar_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5ED}").font(LUCIDE)
+}
+
+/// `calendar-days` from Lucide.
+pub fn calendar_days<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B9}").font(LUCIDE)
+}
+
+/// `calendar-fold` from Lucide.
+pub fn calendar_fold<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B4}").font(LUCIDE)
+}
+
+/// `calendar-heart` from Lucide.
+pub fn calendar_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E305}").font(LUCIDE)
+}
+
+/// `calendar-minus` from Lucide.
+pub fn calendar_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BA}").font(LUCIDE)
+}
+
+/// `calendar-minus-2` from Lucide.
+pub fn calendar_minus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B5}").font(LUCIDE)
+}
+
+/// `calendar-off` from Lucide.
+pub fn calendar_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BB}").font(LUCIDE)
+}
+
+/// `calendar-plus` from Lucide.
+pub fn calendar_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BC}").font(LUCIDE)
+}
+
+/// `calendar-plus-2` from Lucide.
+pub fn calendar_plus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B6}").font(LUCIDE)
+}
+
+/// `calendar-range` from Lucide.
+pub fn calendar_range<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BD}").font(LUCIDE)
+}
+
+/// `calendar-search` from Lucide.
+pub fn calendar_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E306}").font(LUCIDE)
+}
+
+/// `calendar-sync` from Lucide.
+pub fn calendar_sync<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E636}").font(LUCIDE)
+}
+
+/// `calendar-x` from Lucide.
+pub fn calendar_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BE}").font(LUCIDE)
+}
+
+/// `calendar-x-2` from Lucide.
+pub fn calendar_x_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2BF}").font(LUCIDE)
+}
+
+/// `calendars` from Lucide.
+pub fn calendars<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A7}").font(LUCIDE)
+}
+
+/// `camera` from Lucide.
+pub fn camera<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E064}").font(LUCIDE)
+}
+
+/// `camera-off` from Lucide.
+pub fn camera_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E065}").font(LUCIDE)
+}
+
+/// `candlestick-chart` from Lucide.
+pub fn candlestick_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A8}").font(LUCIDE)
+}
+
+/// `candy` from Lucide.
+pub fn candy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E391}").font(LUCIDE)
+}
+
+/// `candy-cane` from Lucide.
+pub fn candy_cane<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BA}").font(LUCIDE)
+}
+
+/// `candy-off` from Lucide.
+pub fn candy_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E392}").font(LUCIDE)
+}
+
+/// `cannabis` from Lucide.
+pub fn cannabis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D4}").font(LUCIDE)
+}
+
+/// `cannabis-off` from Lucide.
+pub fn cannabis_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E0}").font(LUCIDE)
+}
+
+/// `captions` from Lucide.
+pub fn captions<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A4}").font(LUCIDE)
+}
+
+/// `captions-off` from Lucide.
+pub fn captions_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C1}").font(LUCIDE)
+}
+
+/// `car` from Lucide.
+pub fn car<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D5}").font(LUCIDE)
+}
+
+/// `car-battery` from Lucide.
+pub fn car_battery<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E735}").font(LUCIDE)
+}
+
+/// `car-front` from Lucide.
+pub fn car_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FD}").font(LUCIDE)
+}
+
+/// `car-taxi-front` from Lucide.
+pub fn car_taxi_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FE}").font(LUCIDE)
+}
+
+/// `caravan` from Lucide.
+pub fn caravan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E539}").font(LUCIDE)
+}
+
+/// `card-sim` from Lucide.
+pub fn card_sim<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E671}").font(LUCIDE)
+}
+
+/// `carrot` from Lucide.
+pub fn carrot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25A}").font(LUCIDE)
+}
+
+/// `case-lower` from Lucide.
+pub fn case_lower<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D8}").font(LUCIDE)
+}
+
+/// `case-sensitive` from Lucide.
+pub fn case_sensitive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D9}").font(LUCIDE)
+}
+
+/// `case-upper` from Lucide.
+pub fn case_upper<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DA}").font(LUCIDE)
+}
+
+/// `cassette-tape` from Lucide.
+pub fn cassette_tape<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CA}").font(LUCIDE)
+}
+
+/// `cast` from Lucide.
+pub fn cast<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E066}").font(LUCIDE)
+}
+
+/// `castle` from Lucide.
+pub fn castle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E0}").font(LUCIDE)
+}
+
+/// `cat` from Lucide.
+pub fn cat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38C}").font(LUCIDE)
+}
+
+/// `cctv` from Lucide.
+pub fn cctv<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57D}").font(LUCIDE)
+}
+
+/// `cctv-off` from Lucide.
+pub fn cctv_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D8}").font(LUCIDE)
+}
+
+/// `chart-area` from Lucide.
+pub fn chart_area<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D3}").font(LUCIDE)
+}
+
+/// `chart-bar` from Lucide.
+pub fn chart_bar<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A2}").font(LUCIDE)
+}
+
+/// `chart-bar-big` from Lucide.
+pub fn chart_bar_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A7}").font(LUCIDE)
+}
+
+/// `chart-bar-decreasing` from Lucide.
+pub fn chart_bar_decreasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E607}").font(LUCIDE)
+}
+
+/// `chart-bar-increasing` from Lucide.
+pub fn chart_bar_increasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E608}").font(LUCIDE)
+}
+
+/// `chart-bar-stacked` from Lucide.
+pub fn chart_bar_stacked<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E609}").font(LUCIDE)
+}
+
+/// `chart-candlestick` from Lucide.
+pub fn chart_candlestick<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A8}").font(LUCIDE)
+}
+
+/// `chart-column` from Lucide.
+pub fn chart_column<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A3}").font(LUCIDE)
+}
+
+/// `chart-column-big` from Lucide.
+pub fn chart_column_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A9}").font(LUCIDE)
+}
+
+/// `chart-column-decreasing` from Lucide.
+pub fn chart_column_decreasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E067}").font(LUCIDE)
+}
+
+/// `chart-column-increasing` from Lucide.
+pub fn chart_column_increasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A4}").font(LUCIDE)
+}
+
+/// `chart-column-stacked` from Lucide.
+pub fn chart_column_stacked<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60A}").font(LUCIDE)
+}
+
+/// `chart-gantt` from Lucide.
+pub fn chart_gantt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E624}").font(LUCIDE)
+}
+
+/// `chart-line` from Lucide.
+pub fn chart_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A5}").font(LUCIDE)
+}
+
+/// `chart-network` from Lucide.
+pub fn chart_network<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60B}").font(LUCIDE)
+}
+
+/// `chart-no-axes-column` from Lucide.
+pub fn chart_no_axes_column<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E068}").font(LUCIDE)
+}
+
+/// `chart-no-axes-column-decreasing` from Lucide.
+pub fn chart_no_axes_column_decreasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E069}").font(LUCIDE)
+}
+
+/// `chart-no-axes-column-increasing` from Lucide.
+pub fn chart_no_axes_column_increasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06A}").font(LUCIDE)
+}
+
+/// `chart-no-axes-combined` from Lucide.
+pub fn chart_no_axes_combined<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60C}").font(LUCIDE)
+}
+
+/// `chart-no-axes-gantt` from Lucide.
+pub fn chart_no_axes_gantt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C4}").font(LUCIDE)
+}
+
+/// `chart-pie` from Lucide.
+pub fn chart_pie<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06B}").font(LUCIDE)
+}
+
+/// `chart-scatter` from Lucide.
+pub fn chart_scatter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48A}").font(LUCIDE)
+}
+
+/// `chart-spline` from Lucide.
+pub fn chart_spline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60D}").font(LUCIDE)
+}
+
+/// `check` from Lucide.
+pub fn check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06C}").font(LUCIDE)
+}
+
+/// `check-check` from Lucide.
+pub fn check_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38E}").font(LUCIDE)
+}
+
+/// `check-circle` from Lucide.
+pub fn check_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07C}").font(LUCIDE)
+}
+
+/// `check-circle-2` from Lucide.
+pub fn check_circle_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E226}").font(LUCIDE)
+}
+
+/// `check-line` from Lucide.
+pub fn check_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66B}").font(LUCIDE)
+}
+
+/// `check-square` from Lucide.
+pub fn check_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16A}").font(LUCIDE)
+}
+
+/// `check-square-2` from Lucide.
+pub fn check_square_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E559}").font(LUCIDE)
+}
+
+/// `chef-hat` from Lucide.
+pub fn chef_hat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AC}").font(LUCIDE)
+}
+
+/// `cherry` from Lucide.
+pub fn cherry<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E350}").font(LUCIDE)
+}
+
+/// `chess-bishop` from Lucide.
+pub fn chess_bishop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A0}").font(LUCIDE)
+}
+
+/// `chess-king` from Lucide.
+pub fn chess_king<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A1}").font(LUCIDE)
+}
+
+/// `chess-knight` from Lucide.
+pub fn chess_knight<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A2}").font(LUCIDE)
+}
+
+/// `chess-pawn` from Lucide.
+pub fn chess_pawn<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A3}").font(LUCIDE)
+}
+
+/// `chess-queen` from Lucide.
+pub fn chess_queen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A4}").font(LUCIDE)
+}
+
+/// `chess-rook` from Lucide.
+pub fn chess_rook<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A5}").font(LUCIDE)
+}
+
+/// `chevron-down` from Lucide.
+pub fn chevron_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06D}").font(LUCIDE)
+}
+
+/// `chevron-down-circle` from Lucide.
+pub fn chevron_down_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DD}").font(LUCIDE)
+}
+
+/// `chevron-down-square` from Lucide.
+pub fn chevron_down_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CF}").font(LUCIDE)
+}
+
+/// `chevron-first` from Lucide.
+pub fn chevron_first<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E243}").font(LUCIDE)
+}
+
+/// `chevron-last` from Lucide.
+pub fn chevron_last<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E244}").font(LUCIDE)
+}
+
+/// `chevron-left` from Lucide.
+pub fn chevron_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06E}").font(LUCIDE)
+}
+
+/// `chevron-left-circle` from Lucide.
+pub fn chevron_left_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DE}").font(LUCIDE)
+}
+
+/// `chevron-left-square` from Lucide.
+pub fn chevron_left_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D0}").font(LUCIDE)
+}
+
+/// `chevron-right` from Lucide.
+pub fn chevron_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06F}").font(LUCIDE)
+}
+
+/// `chevron-right-circle` from Lucide.
+pub fn chevron_right_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DF}").font(LUCIDE)
+}
+
+/// `chevron-right-square` from Lucide.
+pub fn chevron_right_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D1}").font(LUCIDE)
+}
+
+/// `chevron-up` from Lucide.
+pub fn chevron_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E070}").font(LUCIDE)
+}
+
+/// `chevron-up-circle` from Lucide.
+pub fn chevron_up_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E0}").font(LUCIDE)
+}
+
+/// `chevron-up-square` from Lucide.
+pub fn chevron_up_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D2}").font(LUCIDE)
+}
+
+/// `chevrons-down` from Lucide.
+pub fn chevrons_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E071}").font(LUCIDE)
+}
+
+/// `chevrons-down-up` from Lucide.
+pub fn chevrons_down_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E228}").font(LUCIDE)
+}
+
+/// `chevrons-left` from Lucide.
+pub fn chevrons_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E072}").font(LUCIDE)
+}
+
+/// `chevrons-left-right` from Lucide.
+pub fn chevrons_left_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E293}").font(LUCIDE)
+}
+
+/// `chevrons-left-right-ellipsis` from Lucide.
+pub fn chevrons_left_right_ellipsis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61F}").font(LUCIDE)
+}
+
+/// `chevrons-right` from Lucide.
+pub fn chevrons_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E073}").font(LUCIDE)
+}
+
+/// `chevrons-right-left` from Lucide.
+pub fn chevrons_right_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E294}").font(LUCIDE)
+}
+
+/// `chevrons-up` from Lucide.
+pub fn chevrons_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E074}").font(LUCIDE)
+}
+
+/// `chevrons-up-down` from Lucide.
+pub fn chevrons_up_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E211}").font(LUCIDE)
+}
+
+/// `church` from Lucide.
+pub fn church<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E1}").font(LUCIDE)
+}
+
+/// `cigarette` from Lucide.
+pub fn cigarette<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C6}").font(LUCIDE)
+}
+
+/// `cigarette-off` from Lucide.
+pub fn cigarette_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C7}").font(LUCIDE)
+}
+
+/// `circle` from Lucide.
+pub fn circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E076}").font(LUCIDE)
+}
+
+/// `circle-alert` from Lucide.
+pub fn circle_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E077}").font(LUCIDE)
+}
+
+/// `circle-arrow-down` from Lucide.
+pub fn circle_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E078}").font(LUCIDE)
+}
+
+/// `circle-arrow-left` from Lucide.
+pub fn circle_arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E079}").font(LUCIDE)
+}
+
+/// `circle-arrow-out-down-left` from Lucide.
+pub fn circle_arrow_out_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F7}").font(LUCIDE)
+}
+
+/// `circle-arrow-out-down-right` from Lucide.
+pub fn circle_arrow_out_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F8}").font(LUCIDE)
+}
+
+/// `circle-arrow-out-up-left` from Lucide.
+pub fn circle_arrow_out_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F9}").font(LUCIDE)
+}
+
+/// `circle-arrow-out-up-right` from Lucide.
+pub fn circle_arrow_out_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FA}").font(LUCIDE)
+}
+
+/// `circle-arrow-right` from Lucide.
+pub fn circle_arrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07A}").font(LUCIDE)
+}
+
+/// `circle-arrow-up` from Lucide.
+pub fn circle_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07B}").font(LUCIDE)
+}
+
+/// `circle-check` from Lucide.
+pub fn circle_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E226}").font(LUCIDE)
+}
+
+/// `circle-check-big` from Lucide.
+pub fn circle_check_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07C}").font(LUCIDE)
+}
+
+/// `circle-chevron-down` from Lucide.
+pub fn circle_chevron_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DD}").font(LUCIDE)
+}
+
+/// `circle-chevron-left` from Lucide.
+pub fn circle_chevron_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DE}").font(LUCIDE)
+}
+
+/// `circle-chevron-right` from Lucide.
+pub fn circle_chevron_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DF}").font(LUCIDE)
+}
+
+/// `circle-chevron-up` from Lucide.
+pub fn circle_chevron_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E0}").font(LUCIDE)
+}
+
+/// `circle-dashed` from Lucide.
+pub fn circle_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B0}").font(LUCIDE)
+}
+
+/// `circle-divide` from Lucide.
+pub fn circle_divide<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07D}").font(LUCIDE)
+}
+
+/// `circle-dollar-sign` from Lucide.
+pub fn circle_dollar_sign<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47D}").font(LUCIDE)
+}
+
+/// `circle-dot` from Lucide.
+pub fn circle_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E345}").font(LUCIDE)
+}
+
+/// `circle-dot-dashed` from Lucide.
+pub fn circle_dot_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B1}").font(LUCIDE)
+}
+
+/// `circle-ellipsis` from Lucide.
+pub fn circle_ellipsis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E346}").font(LUCIDE)
+}
+
+/// `circle-equal` from Lucide.
+pub fn circle_equal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E400}").font(LUCIDE)
+}
+
+/// `circle-euro` from Lucide.
+pub fn circle_euro<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E71F}").font(LUCIDE)
+}
+
+/// `circle-fading-arrow-up` from Lucide.
+pub fn circle_fading_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E618}").font(LUCIDE)
+}
+
+/// `circle-fading-plus` from Lucide.
+pub fn circle_fading_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BC}").font(LUCIDE)
+}
+
+/// `circle-gauge` from Lucide.
+pub fn circle_gauge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E1}").font(LUCIDE)
+}
+
+/// `circle-help` from Lucide.
+pub fn circle_help<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E082}").font(LUCIDE)
+}
+
+/// `circle-minus` from Lucide.
+pub fn circle_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07E}").font(LUCIDE)
+}
+
+/// `circle-off` from Lucide.
+pub fn circle_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E401}").font(LUCIDE)
+}
+
+/// `circle-parking` from Lucide.
+pub fn circle_parking<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C9}").font(LUCIDE)
+}
+
+/// `circle-parking-off` from Lucide.
+pub fn circle_parking_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CA}").font(LUCIDE)
+}
+
+/// `circle-pause` from Lucide.
+pub fn circle_pause<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07F}").font(LUCIDE)
+}
+
+/// `circle-percent` from Lucide.
+pub fn circle_percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51A}").font(LUCIDE)
+}
+
+/// `circle-pile` from Lucide.
+pub fn circle_pile<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E1}").font(LUCIDE)
+}
+
+/// `circle-play` from Lucide.
+pub fn circle_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E080}").font(LUCIDE)
+}
+
+/// `circle-plus` from Lucide.
+pub fn circle_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E081}").font(LUCIDE)
+}
+
+/// `circle-pound-sterling` from Lucide.
+pub fn circle_pound_sterling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66D}").font(LUCIDE)
+}
+
+/// `circle-power` from Lucide.
+pub fn circle_power<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E550}").font(LUCIDE)
+}
+
+/// `circle-question-mark` from Lucide.
+pub fn circle_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E082}").font(LUCIDE)
+}
+
+/// `circle-slash` from Lucide.
+pub fn circle_slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E402}").font(LUCIDE)
+}
+
+/// `circle-slash-2` from Lucide.
+pub fn circle_slash_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E213}").font(LUCIDE)
+}
+
+/// `circle-slashed` from Lucide.
+pub fn circle_slashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E213}").font(LUCIDE)
+}
+
+/// `circle-small` from Lucide.
+pub fn circle_small<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E640}").font(LUCIDE)
+}
+
+/// `circle-star` from Lucide.
+pub fn circle_star<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68D}").font(LUCIDE)
+}
+
+/// `circle-stop` from Lucide.
+pub fn circle_stop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E083}").font(LUCIDE)
+}
+
+/// `circle-user` from Lucide.
+pub fn circle_user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E461}").font(LUCIDE)
+}
+
+/// `circle-user-round` from Lucide.
+pub fn circle_user_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E462}").font(LUCIDE)
+}
+
+/// `circle-x` from Lucide.
+pub fn circle_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E084}").font(LUCIDE)
+}
+
+/// `circuit-board` from Lucide.
+pub fn circuit_board<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E403}").font(LUCIDE)
+}
+
+/// `citrus` from Lucide.
+pub fn citrus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E375}").font(LUCIDE)
+}
+
+/// `clapperboard` from Lucide.
+pub fn clapperboard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29B}").font(LUCIDE)
+}
+
+/// `clipboard` from Lucide.
+pub fn clipboard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E085}").font(LUCIDE)
+}
+
+/// `clipboard-check` from Lucide.
+pub fn clipboard_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E219}").font(LUCIDE)
+}
+
+/// `clipboard-clock` from Lucide.
+pub fn clipboard_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E688}").font(LUCIDE)
+}
+
+/// `clipboard-copy` from Lucide.
+pub fn clipboard_copy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E225}").font(LUCIDE)
+}
+
+/// `clipboard-edit` from Lucide.
+pub fn clipboard_edit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E307}").font(LUCIDE)
+}
+
+/// `clipboard-list` from Lucide.
+pub fn clipboard_list<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E086}").font(LUCIDE)
+}
+
+/// `clipboard-minus` from Lucide.
+pub fn clipboard_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BE}").font(LUCIDE)
+}
+
+/// `clipboard-paste` from Lucide.
+pub fn clipboard_paste<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E8}").font(LUCIDE)
+}
+
+/// `clipboard-pen` from Lucide.
+pub fn clipboard_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E307}").font(LUCIDE)
+}
+
+/// `clipboard-pen-line` from Lucide.
+pub fn clipboard_pen_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E308}").font(LUCIDE)
+}
+
+/// `clipboard-plus` from Lucide.
+pub fn clipboard_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BF}").font(LUCIDE)
+}
+
+/// `clipboard-signature` from Lucide.
+pub fn clipboard_signature<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E308}").font(LUCIDE)
+}
+
+/// `clipboard-type` from Lucide.
+pub fn clipboard_type<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E309}").font(LUCIDE)
+}
+
+/// `clipboard-x` from Lucide.
+pub fn clipboard_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E222}").font(LUCIDE)
+}
+
+/// `clock` from Lucide.
+pub fn clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E087}").font(LUCIDE)
+}
+
+/// `clock-1` from Lucide.
+pub fn clock_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24B}").font(LUCIDE)
+}
+
+/// `clock-10` from Lucide.
+pub fn clock_10<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24C}").font(LUCIDE)
+}
+
+/// `clock-11` from Lucide.
+pub fn clock_11<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24D}").font(LUCIDE)
+}
+
+/// `clock-12` from Lucide.
+pub fn clock_12<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24E}").font(LUCIDE)
+}
+
+/// `clock-2` from Lucide.
+pub fn clock_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E24F}").font(LUCIDE)
+}
+
+/// `clock-3` from Lucide.
+pub fn clock_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E250}").font(LUCIDE)
+}
+
+/// `clock-4` from Lucide.
+pub fn clock_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E251}").font(LUCIDE)
+}
+
+/// `clock-5` from Lucide.
+pub fn clock_5<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E252}").font(LUCIDE)
+}
+
+/// `clock-6` from Lucide.
+pub fn clock_6<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E253}").font(LUCIDE)
+}
+
+/// `clock-7` from Lucide.
+pub fn clock_7<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E254}").font(LUCIDE)
+}
+
+/// `clock-8` from Lucide.
+pub fn clock_8<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E255}").font(LUCIDE)
+}
+
+/// `clock-9` from Lucide.
+pub fn clock_9<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E256}").font(LUCIDE)
+}
+
+/// `clock-alert` from Lucide.
+pub fn clock_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62A}").font(LUCIDE)
+}
+
+/// `clock-arrow-down` from Lucide.
+pub fn clock_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E600}").font(LUCIDE)
+}
+
+/// `clock-arrow-left` from Lucide.
+pub fn clock_arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70D}").font(LUCIDE)
+}
+
+/// `clock-arrow-right` from Lucide.
+pub fn clock_arrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70E}").font(LUCIDE)
+}
+
+/// `clock-arrow-up` from Lucide.
+pub fn clock_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E601}").font(LUCIDE)
+}
+
+/// `clock-check` from Lucide.
+pub fn clock_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69E}").font(LUCIDE)
+}
+
+/// `clock-fading` from Lucide.
+pub fn clock_fading<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64A}").font(LUCIDE)
+}
+
+/// `clock-plus` from Lucide.
+pub fn clock_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E667}").font(LUCIDE)
+}
+
+/// `closed-caption` from Lucide.
+pub fn closed_caption<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68A}").font(LUCIDE)
+}
+
+/// `cloud` from Lucide.
+pub fn cloud<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E088}").font(LUCIDE)
+}
+
+/// `cloud-alert` from Lucide.
+pub fn cloud_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E633}").font(LUCIDE)
+}
+
+/// `cloud-backup` from Lucide.
+pub fn cloud_backup<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E2}").font(LUCIDE)
+}
+
+/// `cloud-check` from Lucide.
+pub fn cloud_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66E}").font(LUCIDE)
+}
+
+/// `cloud-cog` from Lucide.
+pub fn cloud_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30A}").font(LUCIDE)
+}
+
+/// `cloud-download` from Lucide.
+pub fn cloud_download<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E089}").font(LUCIDE)
+}
+
+/// `cloud-drizzle` from Lucide.
+pub fn cloud_drizzle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08A}").font(LUCIDE)
+}
+
+/// `cloud-fog` from Lucide.
+pub fn cloud_fog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E214}").font(LUCIDE)
+}
+
+/// `cloud-hail` from Lucide.
+pub fn cloud_hail<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08B}").font(LUCIDE)
+}
+
+/// `cloud-lightning` from Lucide.
+pub fn cloud_lightning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08C}").font(LUCIDE)
+}
+
+/// `cloud-moon` from Lucide.
+pub fn cloud_moon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E215}").font(LUCIDE)
+}
+
+/// `cloud-moon-rain` from Lucide.
+pub fn cloud_moon_rain<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FA}").font(LUCIDE)
+}
+
+/// `cloud-off` from Lucide.
+pub fn cloud_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08D}").font(LUCIDE)
+}
+
+/// `cloud-rain` from Lucide.
+pub fn cloud_rain<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08E}").font(LUCIDE)
+}
+
+/// `cloud-rain-wind` from Lucide.
+pub fn cloud_rain_wind<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E08F}").font(LUCIDE)
+}
+
+/// `cloud-snow` from Lucide.
+pub fn cloud_snow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E090}").font(LUCIDE)
+}
+
+/// `cloud-sun` from Lucide.
+pub fn cloud_sun<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E216}").font(LUCIDE)
+}
+
+/// `cloud-sun-rain` from Lucide.
+pub fn cloud_sun_rain<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FB}").font(LUCIDE)
+}
+
+/// `cloud-sync` from Lucide.
+pub fn cloud_sync<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E3}").font(LUCIDE)
+}
+
+/// `cloud-upload` from Lucide.
+pub fn cloud_upload<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E091}").font(LUCIDE)
+}
+
+/// `cloudy` from Lucide.
+pub fn cloudy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E217}").font(LUCIDE)
+}
+
+/// `clover` from Lucide.
+pub fn clover<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E092}").font(LUCIDE)
+}
+
+/// `club` from Lucide.
+pub fn club<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E496}").font(LUCIDE)
+}
+
+/// `code` from Lucide.
+pub fn code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E093}").font(LUCIDE)
+}
+
+/// `code-2` from Lucide.
+pub fn code_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E206}").font(LUCIDE)
+}
+
+/// `code-square` from Lucide.
+pub fn code_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16B}").font(LUCIDE)
+}
+
+/// `code-xml` from Lucide.
+pub fn code_xml<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E206}").font(LUCIDE)
+}
+
+/// `coffee` from Lucide.
+pub fn coffee<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E096}").font(LUCIDE)
+}
+
+/// `cog` from Lucide.
+pub fn cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30B}").font(LUCIDE)
+}
+
+/// `coins` from Lucide.
+pub fn coins<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E097}").font(LUCIDE)
+}
+
+/// `columns` from Lucide.
+pub fn columns<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E098}").font(LUCIDE)
+}
+
+/// `columns-2` from Lucide.
+pub fn columns_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E098}").font(LUCIDE)
+}
+
+/// `columns-3` from Lucide.
+pub fn columns_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E099}").font(LUCIDE)
+}
+
+/// `columns-3-cog` from Lucide.
+pub fn columns_3_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E661}").font(LUCIDE)
+}
+
+/// `columns-4` from Lucide.
+pub fn columns_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E589}").font(LUCIDE)
+}
+
+/// `columns-settings` from Lucide.
+pub fn columns_settings<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E661}").font(LUCIDE)
+}
+
+/// `combine` from Lucide.
+pub fn combine<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44C}").font(LUCIDE)
+}
+
+/// `command` from Lucide.
+pub fn command<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09A}").font(LUCIDE)
+}
+
+/// `compass` from Lucide.
+pub fn compass<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09B}").font(LUCIDE)
+}
+
+/// `component` from Lucide.
+pub fn component<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AD}").font(LUCIDE)
+}
+
+/// `computer` from Lucide.
+pub fn computer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E4}").font(LUCIDE)
+}
+
+/// `concierge-bell` from Lucide.
+pub fn concierge_bell<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E378}").font(LUCIDE)
+}
+
+/// `cone` from Lucide.
+pub fn cone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E523}").font(LUCIDE)
+}
+
+/// `construction` from Lucide.
+pub fn construction<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B4}").font(LUCIDE)
+}
+
+/// `contact` from Lucide.
+pub fn contact<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09C}").font(LUCIDE)
+}
+
+/// `contact-2` from Lucide.
+pub fn contact_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E463}").font(LUCIDE)
+}
+
+/// `contact-round` from Lucide.
+pub fn contact_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E463}").font(LUCIDE)
+}
+
+/// `container` from Lucide.
+pub fn container<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D5}").font(LUCIDE)
+}
+
+/// `contrast` from Lucide.
+pub fn contrast<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09D}").font(LUCIDE)
+}
+
+/// `cookie` from Lucide.
+pub fn cookie<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26B}").font(LUCIDE)
+}
+
+/// `cooking-pot` from Lucide.
+pub fn cooking_pot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E584}").font(LUCIDE)
+}
+
+/// `copy` from Lucide.
+pub fn copy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09E}").font(LUCIDE)
+}
+
+/// `copy-check` from Lucide.
+pub fn copy_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FB}").font(LUCIDE)
+}
+
+/// `copy-minus` from Lucide.
+pub fn copy_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FC}").font(LUCIDE)
+}
+
+/// `copy-plus` from Lucide.
+pub fn copy_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FD}").font(LUCIDE)
+}
+
+/// `copy-slash` from Lucide.
+pub fn copy_slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FE}").font(LUCIDE)
+}
+
+/// `copy-x` from Lucide.
+pub fn copy_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3FF}").font(LUCIDE)
+}
+
+/// `copyleft` from Lucide.
+pub fn copyleft<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E09F}").font(LUCIDE)
+}
+
+/// `copyright` from Lucide.
+pub fn copyright<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A0}").font(LUCIDE)
+}
+
+/// `corner-down-left` from Lucide.
+pub fn corner_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A1}").font(LUCIDE)
+}
+
+/// `corner-down-right` from Lucide.
+pub fn corner_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A2}").font(LUCIDE)
+}
+
+/// `corner-left-down` from Lucide.
+pub fn corner_left_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A3}").font(LUCIDE)
+}
+
+/// `corner-left-up` from Lucide.
+pub fn corner_left_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A4}").font(LUCIDE)
+}
+
+/// `corner-right-down` from Lucide.
+pub fn corner_right_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A5}").font(LUCIDE)
+}
+
+/// `corner-right-up` from Lucide.
+pub fn corner_right_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A6}").font(LUCIDE)
+}
+
+/// `corner-up-left` from Lucide.
+pub fn corner_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A7}").font(LUCIDE)
+}
+
+/// `corner-up-right` from Lucide.
+pub fn corner_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A8}").font(LUCIDE)
+}
+
+/// `cpu` from Lucide.
+pub fn cpu<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0A9}").font(LUCIDE)
+}
+
+/// `creative-commons` from Lucide.
+pub fn creative_commons<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B2}").font(LUCIDE)
+}
+
+/// `credit-card` from Lucide.
+pub fn credit_card<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AA}").font(LUCIDE)
+}
+
+/// `credit-card-check` from Lucide.
+pub fn credit_card_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E743}").font(LUCIDE)
+}
+
+/// `credit-card-minus` from Lucide.
+pub fn credit_card_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E744}").font(LUCIDE)
+}
+
+/// `credit-card-plus` from Lucide.
+pub fn credit_card_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E74B}").font(LUCIDE)
+}
+
+/// `credit-card-x` from Lucide.
+pub fn credit_card_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E745}").font(LUCIDE)
+}
+
+/// `croissant` from Lucide.
+pub fn croissant<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AE}").font(LUCIDE)
+}
+
+/// `crop` from Lucide.
+pub fn crop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AB}").font(LUCIDE)
+}
+
+/// `cross` from Lucide.
+pub fn cross<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E5}").font(LUCIDE)
+}
+
+/// `crosshair` from Lucide.
+pub fn crosshair<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AC}").font(LUCIDE)
+}
+
+/// `crown` from Lucide.
+pub fn crown<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D6}").font(LUCIDE)
+}
+
+/// `cuboid` from Lucide.
+pub fn cuboid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E524}").font(LUCIDE)
+}
+
+/// `cup-soda` from Lucide.
+pub fn cup_soda<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D1}").font(LUCIDE)
+}
+
+/// `curly-braces` from Lucide.
+pub fn curly_braces<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36A}").font(LUCIDE)
+}
+
+/// `currency` from Lucide.
+pub fn currency<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E230}").font(LUCIDE)
+}
+
+/// `cylinder` from Lucide.
+pub fn cylinder<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E525}").font(LUCIDE)
+}
+
+/// `dam` from Lucide.
+pub fn dam<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E606}").font(LUCIDE)
+}
+
+/// `database` from Lucide.
+pub fn database<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AD}").font(LUCIDE)
+}
+
+/// `database-arrow-down` from Lucide.
+pub fn database_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E716}").font(LUCIDE)
+}
+
+/// `database-arrow-up` from Lucide.
+pub fn database_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E717}").font(LUCIDE)
+}
+
+/// `database-backup` from Lucide.
+pub fn database_backup<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AB}").font(LUCIDE)
+}
+
+/// `database-check` from Lucide.
+pub fn database_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E718}").font(LUCIDE)
+}
+
+/// `database-minus` from Lucide.
+pub fn database_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E719}").font(LUCIDE)
+}
+
+/// `database-plus` from Lucide.
+pub fn database_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E71A}").font(LUCIDE)
+}
+
+/// `database-search` from Lucide.
+pub fn database_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B1}").font(LUCIDE)
+}
+
+/// `database-x` from Lucide.
+pub fn database_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E71B}").font(LUCIDE)
+}
+
+/// `database-zap` from Lucide.
+pub fn database_zap<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50B}").font(LUCIDE)
+}
+
+/// `decimals-arrow-left` from Lucide.
+pub fn decimals_arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65C}").font(LUCIDE)
+}
+
+/// `decimals-arrow-right` from Lucide.
+pub fn decimals_arrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65D}").font(LUCIDE)
+}
+
+/// `delete` from Lucide.
+pub fn delete<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AE}").font(LUCIDE)
+}
+
+/// `dessert` from Lucide.
+pub fn dessert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BB}").font(LUCIDE)
+}
+
+/// `diameter` from Lucide.
+pub fn diameter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E526}").font(LUCIDE)
+}
+
+/// `diamond` from Lucide.
+pub fn diamond<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D2}").font(LUCIDE)
+}
+
+/// `diamond-minus` from Lucide.
+pub fn diamond_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E1}").font(LUCIDE)
+}
+
+/// `diamond-percent` from Lucide.
+pub fn diamond_percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51B}").font(LUCIDE)
+}
+
+/// `diamond-plus` from Lucide.
+pub fn diamond_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E2}").font(LUCIDE)
+}
+
+/// `dice-1` from Lucide.
+pub fn dice_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E287}").font(LUCIDE)
+}
+
+/// `dice-2` from Lucide.
+pub fn dice_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E288}").font(LUCIDE)
+}
+
+/// `dice-3` from Lucide.
+pub fn dice_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E289}").font(LUCIDE)
+}
+
+/// `dice-4` from Lucide.
+pub fn dice_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28A}").font(LUCIDE)
+}
+
+/// `dice-5` from Lucide.
+pub fn dice_5<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28B}").font(LUCIDE)
+}
+
+/// `dice-6` from Lucide.
+pub fn dice_6<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28C}").font(LUCIDE)
+}
+
+/// `dices` from Lucide.
+pub fn dices<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C5}").font(LUCIDE)
+}
+
+/// `diff` from Lucide.
+pub fn diff<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30C}").font(LUCIDE)
+}
+
+/// `disc` from Lucide.
+pub fn disc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0AF}").font(LUCIDE)
+}
+
+/// `disc-2` from Lucide.
+pub fn disc_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3F6}").font(LUCIDE)
+}
+
+/// `disc-3` from Lucide.
+pub fn disc_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E494}").font(LUCIDE)
+}
+
+/// `disc-album` from Lucide.
+pub fn disc_album<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55C}").font(LUCIDE)
+}
+
+/// `divide` from Lucide.
+pub fn divide<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B0}").font(LUCIDE)
+}
+
+/// `divide-circle` from Lucide.
+pub fn divide_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07D}").font(LUCIDE)
+}
+
+/// `divide-square` from Lucide.
+pub fn divide_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16D}").font(LUCIDE)
+}
+
+/// `dna` from Lucide.
+pub fn dna<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E393}").font(LUCIDE)
+}
+
+/// `dna-off` from Lucide.
+pub fn dna_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E394}").font(LUCIDE)
+}
+
+/// `dock` from Lucide.
+pub fn dock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D3}").font(LUCIDE)
+}
+
+/// `dog` from Lucide.
+pub fn dog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38D}").font(LUCIDE)
+}
+
+/// `dollar-sign` from Lucide.
+pub fn dollar_sign<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B1}").font(LUCIDE)
+}
+
+/// `donut` from Lucide.
+pub fn donut<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BC}").font(LUCIDE)
+}
+
+/// `door-closed` from Lucide.
+pub fn door_closed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D5}").font(LUCIDE)
+}
+
+/// `door-closed-locked` from Lucide.
+pub fn door_closed_locked<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E664}").font(LUCIDE)
+}
+
+/// `door-open` from Lucide.
+pub fn door_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D6}").font(LUCIDE)
+}
+
+/// `dot` from Lucide.
+pub fn dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44F}").font(LUCIDE)
+}
+
+/// `dot-square` from Lucide.
+pub fn dot_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16E}").font(LUCIDE)
+}
+
+/// `download` from Lucide.
+pub fn download<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B2}").font(LUCIDE)
+}
+
+/// `download-cloud` from Lucide.
+pub fn download_cloud<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E089}").font(LUCIDE)
+}
+
+/// `drafting-compass` from Lucide.
+pub fn drafting_compass<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E527}").font(LUCIDE)
+}
+
+/// `drama` from Lucide.
+pub fn drama<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E521}").font(LUCIDE)
+}
+
+/// `drill` from Lucide.
+pub fn drill<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58D}").font(LUCIDE)
+}
+
+/// `drone` from Lucide.
+pub fn drone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E676}").font(LUCIDE)
+}
+
+/// `droplet` from Lucide.
+pub fn droplet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B4}").font(LUCIDE)
+}
+
+/// `droplet-off` from Lucide.
+pub fn droplet_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E638}").font(LUCIDE)
+}
+
+/// `droplets` from Lucide.
+pub fn droplets<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B5}").font(LUCIDE)
+}
+
+/// `drum` from Lucide.
+pub fn drum<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55D}").font(LUCIDE)
+}
+
+/// `drumstick` from Lucide.
+pub fn drumstick<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25B}").font(LUCIDE)
+}
+
+/// `dumbbell` from Lucide.
+pub fn dumbbell<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A1}").font(LUCIDE)
+}
+
+/// `ear` from Lucide.
+pub fn ear<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E382}").font(LUCIDE)
+}
+
+/// `ear-off` from Lucide.
+pub fn ear_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E383}").font(LUCIDE)
+}
+
+/// `earth` from Lucide.
+pub fn earth<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F3}").font(LUCIDE)
+}
+
+/// `earth-lock` from Lucide.
+pub fn earth_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CC}").font(LUCIDE)
+}
+
+/// `eclipse` from Lucide.
+pub fn eclipse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59D}").font(LUCIDE)
+}
+
+/// `edit` from Lucide.
+pub fn edit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E172}").font(LUCIDE)
+}
+
+/// `edit-2` from Lucide.
+pub fn edit_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12F}").font(LUCIDE)
+}
+
+/// `edit-3` from Lucide.
+pub fn edit_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E130}").font(LUCIDE)
+}
+
+/// `egg` from Lucide.
+pub fn egg<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25D}").font(LUCIDE)
+}
+
+/// `egg-fried` from Lucide.
+pub fn egg_fried<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E351}").font(LUCIDE)
+}
+
+/// `egg-off` from Lucide.
+pub fn egg_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E395}").font(LUCIDE)
+}
+
+/// `eject` from Lucide.
+pub fn eject<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E733}").font(LUCIDE)
+}
+
+/// `ellipse` from Lucide.
+pub fn ellipse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B2}").font(LUCIDE)
+}
+
+/// `ellipsis` from Lucide.
+pub fn ellipsis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B6}").font(LUCIDE)
+}
+
+/// `ellipsis-vertical` from Lucide.
+pub fn ellipsis_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B7}").font(LUCIDE)
+}
+
+/// `equal` from Lucide.
+pub fn equal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BD}").font(LUCIDE)
+}
+
+/// `equal-approximately` from Lucide.
+pub fn equal_approximately<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E634}").font(LUCIDE)
+}
+
+/// `equal-not` from Lucide.
+pub fn equal_not<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BE}").font(LUCIDE)
+}
+
+/// `equal-square` from Lucide.
+pub fn equal_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16F}").font(LUCIDE)
+}
+
+/// `eraser` from Lucide.
+pub fn eraser<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28F}").font(LUCIDE)
+}
+
+/// `ethernet-port` from Lucide.
+pub fn ethernet_port<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E620}").font(LUCIDE)
+}
+
+/// `euro` from Lucide.
+pub fn euro<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B8}").font(LUCIDE)
+}
+
+/// `ev-charger` from Lucide.
+pub fn ev_charger<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E697}").font(LUCIDE)
+}
+
+/// `expand` from Lucide.
+pub fn expand<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21A}").font(LUCIDE)
+}
+
+/// `external-link` from Lucide.
+pub fn external_link<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B9}").font(LUCIDE)
+}
+
+/// `eye` from Lucide.
+pub fn eye<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0BA}").font(LUCIDE)
+}
+
+/// `eye-closed` from Lucide.
+pub fn eye_closed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62E}").font(LUCIDE)
+}
+
+/// `eye-dashed` from Lucide.
+pub fn eye_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E701}").font(LUCIDE)
+}
+
+/// `eye-off` from Lucide.
+pub fn eye_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0BB}").font(LUCIDE)
+}
+
+/// `face-angry` from Lucide.
+pub fn face_angry<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FC}").font(LUCIDE)
+}
+
+/// `face-expressionless` from Lucide.
+pub fn face_expressionless<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2FD}").font(LUCIDE)
+}
+
+/// `face-grinning` from Lucide.
+pub fn face_grinning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E300}").font(LUCIDE)
+}
+
+/// `face-neutral` from Lucide.
+pub fn face_neutral<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E114}").font(LUCIDE)
+}
+
+/// `face-slightly-frowning` from Lucide.
+pub fn face_slightly_frowning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DB}").font(LUCIDE)
+}
+
+/// `face-slightly-smiling` from Lucide.
+pub fn face_slightly_smiling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E164}").font(LUCIDE)
+}
+
+/// `face-slightly-smiling-plus` from Lucide.
+pub fn face_slightly_smiling_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E301}").font(LUCIDE)
+}
+
+/// `factory` from Lucide.
+pub fn factory<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29F}").font(LUCIDE)
+}
+
+/// `fan` from Lucide.
+pub fn fan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E379}").font(LUCIDE)
+}
+
+/// `fast-forward` from Lucide.
+pub fn fast_forward<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0BD}").font(LUCIDE)
+}
+
+/// `feather` from Lucide.
+pub fn feather<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0BE}").font(LUCIDE)
+}
+
+/// `fence` from Lucide.
+pub fn fence<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E582}").font(LUCIDE)
+}
+
+/// `ferris-wheel` from Lucide.
+pub fn ferris_wheel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47F}").font(LUCIDE)
+}
+
+/// `file` from Lucide.
+pub fn file<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C0}").font(LUCIDE)
+}
+
+/// `file-archive` from Lucide.
+pub fn file_archive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30D}").font(LUCIDE)
+}
+
+/// `file-audio` from Lucide.
+pub fn file_audio<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31A}").font(LUCIDE)
+}
+
+/// `file-audio-2` from Lucide.
+pub fn file_audio_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31A}").font(LUCIDE)
+}
+
+/// `file-axis-3-d` from Lucide.
+pub fn file_axis_3_d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30E}").font(LUCIDE)
+}
+
+/// `file-axis-3d` from Lucide.
+pub fn file_axis_3d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30E}").font(LUCIDE)
+}
+
+/// `file-badge` from Lucide.
+pub fn file_badge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30F}").font(LUCIDE)
+}
+
+/// `file-badge-2` from Lucide.
+pub fn file_badge_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E30F}").font(LUCIDE)
+}
+
+/// `file-bar-chart` from Lucide.
+pub fn file_bar_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E312}").font(LUCIDE)
+}
+
+/// `file-bar-chart-2` from Lucide.
+pub fn file_bar_chart_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E311}").font(LUCIDE)
+}
+
+/// `file-box` from Lucide.
+pub fn file_box<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E310}").font(LUCIDE)
+}
+
+/// `file-braces` from Lucide.
+pub fn file_braces<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36B}").font(LUCIDE)
+}
+
+/// `file-braces-corner` from Lucide.
+pub fn file_braces_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36C}").font(LUCIDE)
+}
+
+/// `file-chart-column` from Lucide.
+pub fn file_chart_column<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E311}").font(LUCIDE)
+}
+
+/// `file-chart-column-increasing` from Lucide.
+pub fn file_chart_column_increasing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E312}").font(LUCIDE)
+}
+
+/// `file-chart-line` from Lucide.
+pub fn file_chart_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E313}").font(LUCIDE)
+}
+
+/// `file-chart-pie` from Lucide.
+pub fn file_chart_pie<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E314}").font(LUCIDE)
+}
+
+/// `file-check` from Lucide.
+pub fn file_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C1}").font(LUCIDE)
+}
+
+/// `file-check-2` from Lucide.
+pub fn file_check_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C2}").font(LUCIDE)
+}
+
+/// `file-check-corner` from Lucide.
+pub fn file_check_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C2}").font(LUCIDE)
+}
+
+/// `file-clock` from Lucide.
+pub fn file_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E315}").font(LUCIDE)
+}
+
+/// `file-code` from Lucide.
+pub fn file_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C3}").font(LUCIDE)
+}
+
+/// `file-code-2` from Lucide.
+pub fn file_code_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45E}").font(LUCIDE)
+}
+
+/// `file-code-corner` from Lucide.
+pub fn file_code_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45E}").font(LUCIDE)
+}
+
+/// `file-cog` from Lucide.
+pub fn file_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E316}").font(LUCIDE)
+}
+
+/// `file-cog-2` from Lucide.
+pub fn file_cog_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E316}").font(LUCIDE)
+}
+
+/// `file-diff` from Lucide.
+pub fn file_diff<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E317}").font(LUCIDE)
+}
+
+/// `file-digit` from Lucide.
+pub fn file_digit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C4}").font(LUCIDE)
+}
+
+/// `file-down` from Lucide.
+pub fn file_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E318}").font(LUCIDE)
+}
+
+/// `file-edit` from Lucide.
+pub fn file_edit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31F}").font(LUCIDE)
+}
+
+/// `file-exclamation-point` from Lucide.
+pub fn file_exclamation_point<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E319}").font(LUCIDE)
+}
+
+/// `file-headphone` from Lucide.
+pub fn file_headphone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31A}").font(LUCIDE)
+}
+
+/// `file-heart` from Lucide.
+pub fn file_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31B}").font(LUCIDE)
+}
+
+/// `file-image` from Lucide.
+pub fn file_image<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31C}").font(LUCIDE)
+}
+
+/// `file-input` from Lucide.
+pub fn file_input<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C5}").font(LUCIDE)
+}
+
+/// `file-json` from Lucide.
+pub fn file_json<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36B}").font(LUCIDE)
+}
+
+/// `file-json-2` from Lucide.
+pub fn file_json_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36C}").font(LUCIDE)
+}
+
+/// `file-key` from Lucide.
+pub fn file_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31D}").font(LUCIDE)
+}
+
+/// `file-key-2` from Lucide.
+pub fn file_key_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31D}").font(LUCIDE)
+}
+
+/// `file-line-chart` from Lucide.
+pub fn file_line_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E313}").font(LUCIDE)
+}
+
+/// `file-lock` from Lucide.
+pub fn file_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31E}").font(LUCIDE)
+}
+
+/// `file-lock-2` from Lucide.
+pub fn file_lock_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31E}").font(LUCIDE)
+}
+
+/// `file-minus` from Lucide.
+pub fn file_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C6}").font(LUCIDE)
+}
+
+/// `file-minus-2` from Lucide.
+pub fn file_minus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C7}").font(LUCIDE)
+}
+
+/// `file-minus-corner` from Lucide.
+pub fn file_minus_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C7}").font(LUCIDE)
+}
+
+/// `file-music` from Lucide.
+pub fn file_music<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55E}").font(LUCIDE)
+}
+
+/// `file-output` from Lucide.
+pub fn file_output<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C8}").font(LUCIDE)
+}
+
+/// `file-pen` from Lucide.
+pub fn file_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E31F}").font(LUCIDE)
+}
+
+/// `file-pen-line` from Lucide.
+pub fn file_pen_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E320}").font(LUCIDE)
+}
+
+/// `file-pie-chart` from Lucide.
+pub fn file_pie_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E314}").font(LUCIDE)
+}
+
+/// `file-play` from Lucide.
+pub fn file_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E321}").font(LUCIDE)
+}
+
+/// `file-plus` from Lucide.
+pub fn file_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0C9}").font(LUCIDE)
+}
+
+/// `file-plus-2` from Lucide.
+pub fn file_plus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CA}").font(LUCIDE)
+}
+
+/// `file-plus-corner` from Lucide.
+pub fn file_plus_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CA}").font(LUCIDE)
+}
+
+/// `file-question` from Lucide.
+pub fn file_question<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E322}").font(LUCIDE)
+}
+
+/// `file-question-mark` from Lucide.
+pub fn file_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E322}").font(LUCIDE)
+}
+
+/// `file-scan` from Lucide.
+pub fn file_scan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E323}").font(LUCIDE)
+}
+
+/// `file-search` from Lucide.
+pub fn file_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CB}").font(LUCIDE)
+}
+
+/// `file-search-2` from Lucide.
+pub fn file_search_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E324}").font(LUCIDE)
+}
+
+/// `file-search-corner` from Lucide.
+pub fn file_search_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E324}").font(LUCIDE)
+}
+
+/// `file-signal` from Lucide.
+pub fn file_signal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E325}").font(LUCIDE)
+}
+
+/// `file-signature` from Lucide.
+pub fn file_signature<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E320}").font(LUCIDE)
+}
+
+/// `file-sliders` from Lucide.
+pub fn file_sliders<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A0}").font(LUCIDE)
+}
+
+/// `file-spreadsheet` from Lucide.
+pub fn file_spreadsheet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E326}").font(LUCIDE)
+}
+
+/// `file-stack` from Lucide.
+pub fn file_stack<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A1}").font(LUCIDE)
+}
+
+/// `file-symlink` from Lucide.
+pub fn file_symlink<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E327}").font(LUCIDE)
+}
+
+/// `file-terminal` from Lucide.
+pub fn file_terminal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E328}").font(LUCIDE)
+}
+
+/// `file-text` from Lucide.
+pub fn file_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CC}").font(LUCIDE)
+}
+
+/// `file-type` from Lucide.
+pub fn file_type<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E329}").font(LUCIDE)
+}
+
+/// `file-type-2` from Lucide.
+pub fn file_type_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36D}").font(LUCIDE)
+}
+
+/// `file-type-corner` from Lucide.
+pub fn file_type_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36D}").font(LUCIDE)
+}
+
+/// `file-up` from Lucide.
+pub fn file_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32A}").font(LUCIDE)
+}
+
+/// `file-user` from Lucide.
+pub fn file_user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62D}").font(LUCIDE)
+}
+
+/// `file-video` from Lucide.
+pub fn file_video<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E321}").font(LUCIDE)
+}
+
+/// `file-video-2` from Lucide.
+pub fn file_video_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32B}").font(LUCIDE)
+}
+
+/// `file-video-camera` from Lucide.
+pub fn file_video_camera<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32B}").font(LUCIDE)
+}
+
+/// `file-volume` from Lucide.
+pub fn file_volume<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32C}").font(LUCIDE)
+}
+
+/// `file-volume-2` from Lucide.
+pub fn file_volume_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E325}").font(LUCIDE)
+}
+
+/// `file-warning` from Lucide.
+pub fn file_warning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E319}").font(LUCIDE)
+}
+
+/// `file-x` from Lucide.
+pub fn file_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CD}").font(LUCIDE)
+}
+
+/// `file-x-2` from Lucide.
+pub fn file_x_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CE}").font(LUCIDE)
+}
+
+/// `file-x-corner` from Lucide.
+pub fn file_x_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CE}").font(LUCIDE)
+}
+
+/// `files` from Lucide.
+pub fn files<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0CF}").font(LUCIDE)
+}
+
+/// `film` from Lucide.
+pub fn film<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D0}").font(LUCIDE)
+}
+
+/// `filter` from Lucide.
+pub fn filter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DC}").font(LUCIDE)
+}
+
+/// `filter-x` from Lucide.
+pub fn filter_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B5}").font(LUCIDE)
+}
+
+/// `fingerprint` from Lucide.
+pub fn fingerprint<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CB}").font(LUCIDE)
+}
+
+/// `fingerprint-pattern` from Lucide.
+pub fn fingerprint_pattern<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CB}").font(LUCIDE)
+}
+
+/// `fire-extinguisher` from Lucide.
+pub fn fire_extinguisher<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57E}").font(LUCIDE)
+}
+
+/// `fish` from Lucide.
+pub fn fish<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A6}").font(LUCIDE)
+}
+
+/// `fish-off` from Lucide.
+pub fn fish_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B0}").font(LUCIDE)
+}
+
+/// `fish-symbol` from Lucide.
+pub fn fish_symbol<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F4}").font(LUCIDE)
+}
+
+/// `fishing-hook` from Lucide.
+pub fn fishing_hook<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E4}").font(LUCIDE)
+}
+
+/// `fishing-rod` from Lucide.
+pub fn fishing_rod<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B3}").font(LUCIDE)
+}
+
+/// `flag` from Lucide.
+pub fn flag<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D1}").font(LUCIDE)
+}
+
+/// `flag-off` from Lucide.
+pub fn flag_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E292}").font(LUCIDE)
+}
+
+/// `flag-triangle-left` from Lucide.
+pub fn flag_triangle_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E237}").font(LUCIDE)
+}
+
+/// `flag-triangle-right` from Lucide.
+pub fn flag_triangle_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E238}").font(LUCIDE)
+}
+
+/// `flame` from Lucide.
+pub fn flame<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D2}").font(LUCIDE)
+}
+
+/// `flame-kindling` from Lucide.
+pub fn flame_kindling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53A}").font(LUCIDE)
+}
+
+/// `flashlight` from Lucide.
+pub fn flashlight<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D3}").font(LUCIDE)
+}
+
+/// `flashlight-off` from Lucide.
+pub fn flashlight_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D4}").font(LUCIDE)
+}
+
+/// `flask-conical` from Lucide.
+pub fn flask_conical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D5}").font(LUCIDE)
+}
+
+/// `flask-conical-off` from Lucide.
+pub fn flask_conical_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E396}").font(LUCIDE)
+}
+
+/// `flask-round` from Lucide.
+pub fn flask_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D6}").font(LUCIDE)
+}
+
+/// `flip-horizontal` from Lucide.
+pub fn flip_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35D}").font(LUCIDE)
+}
+
+/// `flip-horizontal-2` from Lucide.
+pub fn flip_horizontal_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35E}").font(LUCIDE)
+}
+
+/// `flip-vertical` from Lucide.
+pub fn flip_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35F}").font(LUCIDE)
+}
+
+/// `flip-vertical-2` from Lucide.
+pub fn flip_vertical_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E360}").font(LUCIDE)
+}
+
+/// `flower` from Lucide.
+pub fn flower<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D3}").font(LUCIDE)
+}
+
+/// `flower-2` from Lucide.
+pub fn flower_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D4}").font(LUCIDE)
+}
+
+/// `focus` from Lucide.
+pub fn focus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29E}").font(LUCIDE)
+}
+
+/// `fold-horizontal` from Lucide.
+pub fn fold_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43B}").font(LUCIDE)
+}
+
+/// `fold-vertical` from Lucide.
+pub fn fold_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43C}").font(LUCIDE)
+}
+
+/// `folder` from Lucide.
+pub fn folder<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D7}").font(LUCIDE)
+}
+
+/// `folder-archive` from Lucide.
+pub fn folder_archive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32D}").font(LUCIDE)
+}
+
+/// `folder-bookmark` from Lucide.
+pub fn folder_bookmark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F1}").font(LUCIDE)
+}
+
+/// `folder-check` from Lucide.
+pub fn folder_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32E}").font(LUCIDE)
+}
+
+/// `folder-clock` from Lucide.
+pub fn folder_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E32F}").font(LUCIDE)
+}
+
+/// `folder-closed` from Lucide.
+pub fn folder_closed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E330}").font(LUCIDE)
+}
+
+/// `folder-code` from Lucide.
+pub fn folder_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FB}").font(LUCIDE)
+}
+
+/// `folder-cog` from Lucide.
+pub fn folder_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E331}").font(LUCIDE)
+}
+
+/// `folder-cog-2` from Lucide.
+pub fn folder_cog_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E331}").font(LUCIDE)
+}
+
+/// `folder-dot` from Lucide.
+pub fn folder_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C5}").font(LUCIDE)
+}
+
+/// `folder-down` from Lucide.
+pub fn folder_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E332}").font(LUCIDE)
+}
+
+/// `folder-edit` from Lucide.
+pub fn folder_edit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E338}").font(LUCIDE)
+}
+
+/// `folder-git` from Lucide.
+pub fn folder_git<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E409}").font(LUCIDE)
+}
+
+/// `folder-git-2` from Lucide.
+pub fn folder_git_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40A}").font(LUCIDE)
+}
+
+/// `folder-heart` from Lucide.
+pub fn folder_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E333}").font(LUCIDE)
+}
+
+/// `folder-input` from Lucide.
+pub fn folder_input<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E334}").font(LUCIDE)
+}
+
+/// `folder-kanban` from Lucide.
+pub fn folder_kanban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C6}").font(LUCIDE)
+}
+
+/// `folder-key` from Lucide.
+pub fn folder_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E335}").font(LUCIDE)
+}
+
+/// `folder-lock` from Lucide.
+pub fn folder_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E336}").font(LUCIDE)
+}
+
+/// `folder-minus` from Lucide.
+pub fn folder_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D8}").font(LUCIDE)
+}
+
+/// `folder-open` from Lucide.
+pub fn folder_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E247}").font(LUCIDE)
+}
+
+/// `folder-open-dot` from Lucide.
+pub fn folder_open_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C7}").font(LUCIDE)
+}
+
+/// `folder-output` from Lucide.
+pub fn folder_output<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E337}").font(LUCIDE)
+}
+
+/// `folder-pen` from Lucide.
+pub fn folder_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E338}").font(LUCIDE)
+}
+
+/// `folder-plus` from Lucide.
+pub fn folder_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0D9}").font(LUCIDE)
+}
+
+/// `folder-root` from Lucide.
+pub fn folder_root<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C8}").font(LUCIDE)
+}
+
+/// `folder-search` from Lucide.
+pub fn folder_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E339}").font(LUCIDE)
+}
+
+/// `folder-search-2` from Lucide.
+pub fn folder_search_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33A}").font(LUCIDE)
+}
+
+/// `folder-symlink` from Lucide.
+pub fn folder_symlink<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33B}").font(LUCIDE)
+}
+
+/// `folder-sync` from Lucide.
+pub fn folder_sync<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C9}").font(LUCIDE)
+}
+
+/// `folder-tree` from Lucide.
+pub fn folder_tree<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33C}").font(LUCIDE)
+}
+
+/// `folder-up` from Lucide.
+pub fn folder_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33D}").font(LUCIDE)
+}
+
+/// `folder-x` from Lucide.
+pub fn folder_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33E}").font(LUCIDE)
+}
+
+/// `folders` from Lucide.
+pub fn folders<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E33F}").font(LUCIDE)
+}
+
+/// `footprints` from Lucide.
+pub fn footprints<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B9}").font(LUCIDE)
+}
+
+/// `fork-knife` from Lucide.
+pub fn fork_knife<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F6}").font(LUCIDE)
+}
+
+/// `fork-knife-crossed` from Lucide.
+pub fn fork_knife_crossed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F7}").font(LUCIDE)
+}
+
+/// `forklift` from Lucide.
+pub fn forklift<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C1}").font(LUCIDE)
+}
+
+/// `form` from Lucide.
+pub fn form<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A8}").font(LUCIDE)
+}
+
+/// `form-input` from Lucide.
+pub fn form_input<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21F}").font(LUCIDE)
+}
+
+/// `forward` from Lucide.
+pub fn forward<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E229}").font(LUCIDE)
+}
+
+/// `frame` from Lucide.
+pub fn frame<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E291}").font(LUCIDE)
+}
+
+/// `frown` from Lucide.
+pub fn frown<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DB}").font(LUCIDE)
+}
+
+/// `fuel` from Lucide.
+pub fn fuel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AF}").font(LUCIDE)
+}
+
+/// `fullscreen` from Lucide.
+pub fn fullscreen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E534}").font(LUCIDE)
+}
+
+/// `function-square` from Lucide.
+pub fn function_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22D}").font(LUCIDE)
+}
+
+/// `funnel` from Lucide.
+pub fn funnel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DC}").font(LUCIDE)
+}
+
+/// `funnel-plus` from Lucide.
+pub fn funnel_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DD}").font(LUCIDE)
+}
+
+/// `funnel-x` from Lucide.
+pub fn funnel_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B5}").font(LUCIDE)
+}
+
+/// `galaxy` from Lucide.
+pub fn galaxy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73F}").font(LUCIDE)
+}
+
+/// `gallery-horizontal` from Lucide.
+pub fn gallery_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CE}").font(LUCIDE)
+}
+
+/// `gallery-horizontal-end` from Lucide.
+pub fn gallery_horizontal_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CF}").font(LUCIDE)
+}
+
+/// `gallery-thumbnails` from Lucide.
+pub fn gallery_thumbnails<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D0}").font(LUCIDE)
+}
+
+/// `gallery-vertical` from Lucide.
+pub fn gallery_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D1}").font(LUCIDE)
+}
+
+/// `gallery-vertical-end` from Lucide.
+pub fn gallery_vertical_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D2}").font(LUCIDE)
+}
+
+/// `gamepad` from Lucide.
+pub fn gamepad<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DE}").font(LUCIDE)
+}
+
+/// `gamepad-2` from Lucide.
+pub fn gamepad_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0DF}").font(LUCIDE)
+}
+
+/// `gamepad-directional` from Lucide.
+pub fn gamepad_directional<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69B}").font(LUCIDE)
+}
+
+/// `gantt-chart` from Lucide.
+pub fn gantt_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C4}").font(LUCIDE)
+}
+
+/// `gantt-chart-square` from Lucide.
+pub fn gantt_chart_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E169}").font(LUCIDE)
+}
+
+/// `gauge` from Lucide.
+pub fn gauge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1BF}").font(LUCIDE)
+}
+
+/// `gauge-circle` from Lucide.
+pub fn gauge_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E1}").font(LUCIDE)
+}
+
+/// `gavel` from Lucide.
+pub fn gavel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E0}").font(LUCIDE)
+}
+
+/// `gem` from Lucide.
+pub fn gem<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E242}").font(LUCIDE)
+}
+
+/// `georgian-lari` from Lucide.
+pub fn georgian_lari<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E678}").font(LUCIDE)
+}
+
+/// `ghost` from Lucide.
+pub fn ghost<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20E}").font(LUCIDE)
+}
+
+/// `gift` from Lucide.
+pub fn gift<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E1}").font(LUCIDE)
+}
+
+/// `git-branch` from Lucide.
+pub fn git_branch<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E2}").font(LUCIDE)
+}
+
+/// `git-branch-minus` from Lucide.
+pub fn git_branch_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69C}").font(LUCIDE)
+}
+
+/// `git-branch-plus` from Lucide.
+pub fn git_branch_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F4}").font(LUCIDE)
+}
+
+/// `git-commit` from Lucide.
+pub fn git_commit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E3}").font(LUCIDE)
+}
+
+/// `git-commit-horizontal` from Lucide.
+pub fn git_commit_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E3}").font(LUCIDE)
+}
+
+/// `git-commit-vertical` from Lucide.
+pub fn git_commit_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E552}").font(LUCIDE)
+}
+
+/// `git-compare` from Lucide.
+pub fn git_compare<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E359}").font(LUCIDE)
+}
+
+/// `git-compare-arrows` from Lucide.
+pub fn git_compare_arrows<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E553}").font(LUCIDE)
+}
+
+/// `git-fork` from Lucide.
+pub fn git_fork<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28D}").font(LUCIDE)
+}
+
+/// `git-graph` from Lucide.
+pub fn git_graph<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E554}").font(LUCIDE)
+}
+
+/// `git-merge` from Lucide.
+pub fn git_merge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E4}").font(LUCIDE)
+}
+
+/// `git-merge-conflict` from Lucide.
+pub fn git_merge_conflict<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B4}").font(LUCIDE)
+}
+
+/// `git-pull-request` from Lucide.
+pub fn git_pull_request<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E5}").font(LUCIDE)
+}
+
+/// `git-pull-request-arrow` from Lucide.
+pub fn git_pull_request_arrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E555}").font(LUCIDE)
+}
+
+/// `git-pull-request-closed` from Lucide.
+pub fn git_pull_request_closed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35A}").font(LUCIDE)
+}
+
+/// `git-pull-request-create` from Lucide.
+pub fn git_pull_request_create<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E556}").font(LUCIDE)
+}
+
+/// `git-pull-request-create-arrow` from Lucide.
+pub fn git_pull_request_create_arrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E557}").font(LUCIDE)
+}
+
+/// `git-pull-request-draft` from Lucide.
+pub fn git_pull_request_draft<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35B}").font(LUCIDE)
+}
+
+/// `glass-water` from Lucide.
+pub fn glass_water<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D5}").font(LUCIDE)
+}
+
+/// `glasses` from Lucide.
+pub fn glasses<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20D}").font(LUCIDE)
+}
+
+/// `globe` from Lucide.
+pub fn globe<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E8}").font(LUCIDE)
+}
+
+/// `globe-2` from Lucide.
+pub fn globe_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F3}").font(LUCIDE)
+}
+
+/// `globe-check` from Lucide.
+pub fn globe_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FC}").font(LUCIDE)
+}
+
+/// `globe-lock` from Lucide.
+pub fn globe_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CD}").font(LUCIDE)
+}
+
+/// `globe-off` from Lucide.
+pub fn globe_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B5}").font(LUCIDE)
+}
+
+/// `globe-x` from Lucide.
+pub fn globe_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B6}").font(LUCIDE)
+}
+
+/// `goal` from Lucide.
+pub fn goal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A5}").font(LUCIDE)
+}
+
+/// `gpu` from Lucide.
+pub fn gpu<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66A}").font(LUCIDE)
+}
+
+/// `grab` from Lucide.
+pub fn grab<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E6}").font(LUCIDE)
+}
+
+/// `graduation-cap` from Lucide.
+pub fn graduation_cap<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E234}").font(LUCIDE)
+}
+
+/// `grape` from Lucide.
+pub fn grape<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E352}").font(LUCIDE)
+}
+
+/// `grid` from Lucide.
+pub fn grid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E9}").font(LUCIDE)
+}
+
+/// `grid-2-x-2` from Lucide.
+pub fn grid_2_x_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FF}").font(LUCIDE)
+}
+
+/// `grid-2-x-2-check` from Lucide.
+pub fn grid_2_x_2_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E4}").font(LUCIDE)
+}
+
+/// `grid-2-x-2-plus` from Lucide.
+pub fn grid_2_x_2_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E628}").font(LUCIDE)
+}
+
+/// `grid-2-x-2-x` from Lucide.
+pub fn grid_2_x_2_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E5}").font(LUCIDE)
+}
+
+/// `grid-2x2` from Lucide.
+pub fn grid_2x2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4FF}").font(LUCIDE)
+}
+
+/// `grid-2x2-check` from Lucide.
+pub fn grid_2x2_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E4}").font(LUCIDE)
+}
+
+/// `grid-2x2-plus` from Lucide.
+pub fn grid_2x2_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E628}").font(LUCIDE)
+}
+
+/// `grid-2x2-x` from Lucide.
+pub fn grid_2x2_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E5}").font(LUCIDE)
+}
+
+/// `grid-3-x-3` from Lucide.
+pub fn grid_3_x_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E9}").font(LUCIDE)
+}
+
+/// `grid-3x2` from Lucide.
+pub fn grid_3x2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66F}").font(LUCIDE)
+}
+
+/// `grid-3x3` from Lucide.
+pub fn grid_3x3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0E9}").font(LUCIDE)
+}
+
+/// `grip` from Lucide.
+pub fn grip<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B1}").font(LUCIDE)
+}
+
+/// `grip-horizontal` from Lucide.
+pub fn grip_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0EA}").font(LUCIDE)
+}
+
+/// `grip-vertical` from Lucide.
+pub fn grip_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0EB}").font(LUCIDE)
+}
+
+/// `group` from Lucide.
+pub fn group<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E464}").font(LUCIDE)
+}
+
+/// `guitar` from Lucide.
+pub fn guitar<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E55F}").font(LUCIDE)
+}
+
+/// `ham` from Lucide.
+pub fn ham<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D7}").font(LUCIDE)
+}
+
+/// `hamburger` from Lucide.
+pub fn hamburger<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E665}").font(LUCIDE)
+}
+
+/// `hammer` from Lucide.
+pub fn hammer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0EC}").font(LUCIDE)
+}
+
+/// `hand` from Lucide.
+pub fn hand<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D7}").font(LUCIDE)
+}
+
+/// `hand-coins` from Lucide.
+pub fn hand_coins<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B8}").font(LUCIDE)
+}
+
+/// `hand-fist` from Lucide.
+pub fn hand_fist<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68B}").font(LUCIDE)
+}
+
+/// `hand-grab` from Lucide.
+pub fn hand_grab<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E6}").font(LUCIDE)
+}
+
+/// `hand-heart` from Lucide.
+pub fn hand_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B9}").font(LUCIDE)
+}
+
+/// `hand-helping` from Lucide.
+pub fn hand_helping<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B8}").font(LUCIDE)
+}
+
+/// `hand-metal` from Lucide.
+pub fn hand_metal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22C}").font(LUCIDE)
+}
+
+/// `hand-platter` from Lucide.
+pub fn hand_platter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BA}").font(LUCIDE)
+}
+
+/// `handbag` from Lucide.
+pub fn handbag<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E689}").font(LUCIDE)
+}
+
+/// `handshake` from Lucide.
+pub fn handshake<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C0}").font(LUCIDE)
+}
+
+/// `hard-drive` from Lucide.
+pub fn hard_drive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0ED}").font(LUCIDE)
+}
+
+/// `hard-drive-download` from Lucide.
+pub fn hard_drive_download<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E5}").font(LUCIDE)
+}
+
+/// `hard-drive-upload` from Lucide.
+pub fn hard_drive_upload<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E6}").font(LUCIDE)
+}
+
+/// `hard-hat` from Lucide.
+pub fn hard_hat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0EE}").font(LUCIDE)
+}
+
+/// `hash` from Lucide.
+pub fn hash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0EF}").font(LUCIDE)
+}
+
+/// `hat-glasses` from Lucide.
+pub fn hat_glasses<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E683}").font(LUCIDE)
+}
+
+/// `haze` from Lucide.
+pub fn haze<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F0}").font(LUCIDE)
+}
+
+/// `hd` from Lucide.
+pub fn hd<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E5}").font(LUCIDE)
+}
+
+/// `hdmi-port` from Lucide.
+pub fn hdmi_port<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E7}").font(LUCIDE)
+}
+
+/// `heading` from Lucide.
+pub fn heading<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E384}").font(LUCIDE)
+}
+
+/// `heading-1` from Lucide.
+pub fn heading_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E385}").font(LUCIDE)
+}
+
+/// `heading-2` from Lucide.
+pub fn heading_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E386}").font(LUCIDE)
+}
+
+/// `heading-3` from Lucide.
+pub fn heading_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E387}").font(LUCIDE)
+}
+
+/// `heading-4` from Lucide.
+pub fn heading_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E388}").font(LUCIDE)
+}
+
+/// `heading-5` from Lucide.
+pub fn heading_5<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E389}").font(LUCIDE)
+}
+
+/// `heading-6` from Lucide.
+pub fn heading_6<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38A}").font(LUCIDE)
+}
+
+/// `headphone-off` from Lucide.
+pub fn headphone_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E629}").font(LUCIDE)
+}
+
+/// `headphones` from Lucide.
+pub fn headphones<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F1}").font(LUCIDE)
+}
+
+/// `headset` from Lucide.
+pub fn headset<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5BD}").font(LUCIDE)
+}
+
+/// `heart` from Lucide.
+pub fn heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F2}").font(LUCIDE)
+}
+
+/// `heart-crack` from Lucide.
+pub fn heart_crack<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D6}").font(LUCIDE)
+}
+
+/// `heart-handshake` from Lucide.
+pub fn heart_handshake<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D7}").font(LUCIDE)
+}
+
+/// `heart-minus` from Lucide.
+pub fn heart_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E651}").font(LUCIDE)
+}
+
+/// `heart-off` from Lucide.
+pub fn heart_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E295}").font(LUCIDE)
+}
+
+/// `heart-plus` from Lucide.
+pub fn heart_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E652}").font(LUCIDE)
+}
+
+/// `heart-pulse` from Lucide.
+pub fn heart_pulse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36E}").font(LUCIDE)
+}
+
+/// `heart-x` from Lucide.
+pub fn heart_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6ED}").font(LUCIDE)
+}
+
+/// `heater` from Lucide.
+pub fn heater<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58E}").font(LUCIDE)
+}
+
+/// `helicopter` from Lucide.
+pub fn helicopter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69D}").font(LUCIDE)
+}
+
+/// `help-circle` from Lucide.
+pub fn help_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E082}").font(LUCIDE)
+}
+
+/// `helping-hand` from Lucide.
+pub fn helping_hand<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B8}").font(LUCIDE)
+}
+
+/// `hexagon` from Lucide.
+pub fn hexagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F3}").font(LUCIDE)
+}
+
+/// `highlighter` from Lucide.
+pub fn highlighter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F4}").font(LUCIDE)
+}
+
+/// `history` from Lucide.
+pub fn history<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F5}").font(LUCIDE)
+}
+
+/// `home` from Lucide.
+pub fn home<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F5}").font(LUCIDE)
+}
+
+/// `hop` from Lucide.
+pub fn hop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E397}").font(LUCIDE)
+}
+
+/// `hop-off` from Lucide.
+pub fn hop_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E398}").font(LUCIDE)
+}
+
+/// `hospital` from Lucide.
+pub fn hospital<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D8}").font(LUCIDE)
+}
+
+/// `hotel` from Lucide.
+pub fn hotel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E2}").font(LUCIDE)
+}
+
+/// `hourglass` from Lucide.
+pub fn hourglass<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E296}").font(LUCIDE)
+}
+
+/// `house` from Lucide.
+pub fn house<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F5}").font(LUCIDE)
+}
+
+/// `house-heart` from Lucide.
+pub fn house_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E695}").font(LUCIDE)
+}
+
+/// `house-plug` from Lucide.
+pub fn house_plug<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F0}").font(LUCIDE)
+}
+
+/// `house-plus` from Lucide.
+pub fn house_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F1}").font(LUCIDE)
+}
+
+/// `house-wifi` from Lucide.
+pub fn house_wifi<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63C}").font(LUCIDE)
+}
+
+/// `ice-cream` from Lucide.
+pub fn ice_cream<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E353}").font(LUCIDE)
+}
+
+/// `ice-cream-2` from Lucide.
+pub fn ice_cream_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A7}").font(LUCIDE)
+}
+
+/// `ice-cream-bowl` from Lucide.
+pub fn ice_cream_bowl<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A7}").font(LUCIDE)
+}
+
+/// `ice-cream-cone` from Lucide.
+pub fn ice_cream_cone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E353}").font(LUCIDE)
+}
+
+/// `id-card` from Lucide.
+pub fn id_card<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E617}").font(LUCIDE)
+}
+
+/// `id-card-lanyard` from Lucide.
+pub fn id_card_lanyard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E670}").font(LUCIDE)
+}
+
+/// `image` from Lucide.
+pub fn image<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F6}").font(LUCIDE)
+}
+
+/// `image-down` from Lucide.
+pub fn image_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53C}").font(LUCIDE)
+}
+
+/// `image-minus` from Lucide.
+pub fn image_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F6}").font(LUCIDE)
+}
+
+/// `image-off` from Lucide.
+pub fn image_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C0}").font(LUCIDE)
+}
+
+/// `image-play` from Lucide.
+pub fn image_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DF}").font(LUCIDE)
+}
+
+/// `image-plus` from Lucide.
+pub fn image_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F7}").font(LUCIDE)
+}
+
+/// `image-up` from Lucide.
+pub fn image_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CB}").font(LUCIDE)
+}
+
+/// `image-upscale` from Lucide.
+pub fn image_upscale<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E637}").font(LUCIDE)
+}
+
+/// `images` from Lucide.
+pub fn images<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C4}").font(LUCIDE)
+}
+
+/// `import` from Lucide.
+pub fn import<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22F}").font(LUCIDE)
+}
+
+/// `inbox` from Lucide.
+pub fn inbox<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F7}").font(LUCIDE)
+}
+
+/// `indent` from Lucide.
+pub fn indent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E108}").font(LUCIDE)
+}
+
+/// `indent-decrease` from Lucide.
+pub fn indent_decrease<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E107}").font(LUCIDE)
+}
+
+/// `indent-increase` from Lucide.
+pub fn indent_increase<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E108}").font(LUCIDE)
+}
+
+/// `indian-rupee` from Lucide.
+pub fn indian_rupee<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F8}").font(LUCIDE)
+}
+
+/// `infinity` from Lucide.
+pub fn infinity<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E7}").font(LUCIDE)
+}
+
+/// `info` from Lucide.
+pub fn info<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0F9}").font(LUCIDE)
+}
+
+/// `inspect` from Lucide.
+pub fn inspect<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E202}").font(LUCIDE)
+}
+
+/// `inspection-panel` from Lucide.
+pub fn inspection_panel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E583}").font(LUCIDE)
+}
+
+/// `italic` from Lucide.
+pub fn italic<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0FB}").font(LUCIDE)
+}
+
+/// `iteration-ccw` from Lucide.
+pub fn iteration_ccw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E423}").font(LUCIDE)
+}
+
+/// `iteration-cw` from Lucide.
+pub fn iteration_cw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E424}").font(LUCIDE)
+}
+
+/// `japanese-yen` from Lucide.
+pub fn japanese_yen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0FC}").font(LUCIDE)
+}
+
+/// `joystick` from Lucide.
+pub fn joystick<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E355}").font(LUCIDE)
+}
+
+/// `kanban` from Lucide.
+pub fn kanban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DC}").font(LUCIDE)
+}
+
+/// `kanban-square` from Lucide.
+pub fn kanban_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E170}").font(LUCIDE)
+}
+
+/// `kanban-square-dashed` from Lucide.
+pub fn kanban_square_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16C}").font(LUCIDE)
+}
+
+/// `kayak` from Lucide.
+pub fn kayak<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68F}").font(LUCIDE)
+}
+
+/// `key` from Lucide.
+pub fn key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0FD}").font(LUCIDE)
+}
+
+/// `key-round` from Lucide.
+pub fn key_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A3}").font(LUCIDE)
+}
+
+/// `key-square` from Lucide.
+pub fn key_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A4}").font(LUCIDE)
+}
+
+/// `keyboard` from Lucide.
+pub fn keyboard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E284}").font(LUCIDE)
+}
+
+/// `keyboard-music` from Lucide.
+pub fn keyboard_music<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E560}").font(LUCIDE)
+}
+
+/// `keyboard-off` from Lucide.
+pub fn keyboard_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DE}").font(LUCIDE)
+}
+
+/// `lamp` from Lucide.
+pub fn lamp<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D8}").font(LUCIDE)
+}
+
+/// `lamp-ceiling` from Lucide.
+pub fn lamp_ceiling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2D9}").font(LUCIDE)
+}
+
+/// `lamp-desk` from Lucide.
+pub fn lamp_desk<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DA}").font(LUCIDE)
+}
+
+/// `lamp-floor` from Lucide.
+pub fn lamp_floor<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DB}").font(LUCIDE)
+}
+
+/// `lamp-wall-down` from Lucide.
+pub fn lamp_wall_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DC}").font(LUCIDE)
+}
+
+/// `lamp-wall-up` from Lucide.
+pub fn lamp_wall_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DD}").font(LUCIDE)
+}
+
+/// `land-plot` from Lucide.
+pub fn land_plot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E528}").font(LUCIDE)
+}
+
+/// `landmark` from Lucide.
+pub fn landmark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23A}").font(LUCIDE)
+}
+
+/// `languages` from Lucide.
+pub fn languages<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0FE}").font(LUCIDE)
+}
+
+/// `laptop` from Lucide.
+pub fn laptop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CD}").font(LUCIDE)
+}
+
+/// `laptop-2` from Lucide.
+pub fn laptop_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D8}").font(LUCIDE)
+}
+
+/// `laptop-minimal` from Lucide.
+pub fn laptop_minimal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D8}").font(LUCIDE)
+}
+
+/// `laptop-minimal-check` from Lucide.
+pub fn laptop_minimal_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E632}").font(LUCIDE)
+}
+
+/// `lasso` from Lucide.
+pub fn lasso<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CE}").font(LUCIDE)
+}
+
+/// `lasso-select` from Lucide.
+pub fn lasso_select<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CF}").font(LUCIDE)
+}
+
+/// `laugh` from Lucide.
+pub fn laugh<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E300}").font(LUCIDE)
+}
+
+/// `layer-arrow-down` from Lucide.
+pub fn layer_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72A}").font(LUCIDE)
+}
+
+/// `layer-arrow-up` from Lucide.
+pub fn layer_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72B}").font(LUCIDE)
+}
+
+/// `layers` from Lucide.
+pub fn layers<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E529}").font(LUCIDE)
+}
+
+/// `layers-2` from Lucide.
+pub fn layers_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52A}").font(LUCIDE)
+}
+
+/// `layers-3` from Lucide.
+pub fn layers_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E529}").font(LUCIDE)
+}
+
+/// `layers-arrow-down` from Lucide.
+pub fn layers_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72C}").font(LUCIDE)
+}
+
+/// `layers-arrow-up` from Lucide.
+pub fn layers_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E72D}").font(LUCIDE)
+}
+
+/// `layers-minus` from Lucide.
+pub fn layers_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EE}").font(LUCIDE)
+}
+
+/// `layers-plus` from Lucide.
+pub fn layers_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E6}").font(LUCIDE)
+}
+
+/// `layout` from Lucide.
+pub fn layout<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12C}").font(LUCIDE)
+}
+
+/// `layout-dashboard` from Lucide.
+pub fn layout_dashboard<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C1}").font(LUCIDE)
+}
+
+/// `layout-freeform` from Lucide.
+pub fn layout_freeform<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E723}").font(LUCIDE)
+}
+
+/// `layout-grid` from Lucide.
+pub fn layout_grid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0FF}").font(LUCIDE)
+}
+
+/// `layout-list` from Lucide.
+pub fn layout_list<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D9}").font(LUCIDE)
+}
+
+/// `layout-panel-left` from Lucide.
+pub fn layout_panel_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E470}").font(LUCIDE)
+}
+
+/// `layout-panel-top` from Lucide.
+pub fn layout_panel_top<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E471}").font(LUCIDE)
+}
+
+/// `layout-template` from Lucide.
+pub fn layout_template<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E207}").font(LUCIDE)
+}
+
+/// `leaf` from Lucide.
+pub fn leaf<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DE}").font(LUCIDE)
+}
+
+/// `leafy-green` from Lucide.
+pub fn leafy_green<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46F}").font(LUCIDE)
+}
+
+/// `lectern` from Lucide.
+pub fn lectern<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E9}").font(LUCIDE)
+}
+
+/// `lens-concave` from Lucide.
+pub fn lens_concave<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B7}").font(LUCIDE)
+}
+
+/// `lens-convex` from Lucide.
+pub fn lens_convex<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B8}").font(LUCIDE)
+}
+
+/// `letter-text` from Lucide.
+pub fn letter_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E605}").font(LUCIDE)
+}
+
+/// `library` from Lucide.
+pub fn library<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E100}").font(LUCIDE)
+}
+
+/// `library-big` from Lucide.
+pub fn library_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54E}").font(LUCIDE)
+}
+
+/// `library-square` from Lucide.
+pub fn library_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54F}").font(LUCIDE)
+}
+
+/// `life-buoy` from Lucide.
+pub fn life_buoy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E101}").font(LUCIDE)
+}
+
+/// `ligature` from Lucide.
+pub fn ligature<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43A}").font(LUCIDE)
+}
+
+/// `lightbulb` from Lucide.
+pub fn lightbulb<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C2}").font(LUCIDE)
+}
+
+/// `lightbulb-off` from Lucide.
+pub fn lightbulb_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E208}").font(LUCIDE)
+}
+
+/// `line-chart` from Lucide.
+pub fn line_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A5}").font(LUCIDE)
+}
+
+/// `line-dot-right-horizontal` from Lucide.
+pub fn line_dot_right_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B9}").font(LUCIDE)
+}
+
+/// `line-squiggle` from Lucide.
+pub fn line_squiggle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67A}").font(LUCIDE)
+}
+
+/// `line-style` from Lucide.
+pub fn line_style<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DA}").font(LUCIDE)
+}
+
+/// `link` from Lucide.
+pub fn link<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E102}").font(LUCIDE)
+}
+
+/// `link-2` from Lucide.
+pub fn link_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E103}").font(LUCIDE)
+}
+
+/// `link-2-off` from Lucide.
+pub fn link_2_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E104}").font(LUCIDE)
+}
+
+/// `list` from Lucide.
+pub fn list<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E106}").font(LUCIDE)
+}
+
+/// `list-check` from Lucide.
+pub fn list_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FA}").font(LUCIDE)
+}
+
+/// `list-checks` from Lucide.
+pub fn list_checks<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D0}").font(LUCIDE)
+}
+
+/// `list-chevrons-down-up` from Lucide.
+pub fn list_chevrons_down_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E694}").font(LUCIDE)
+}
+
+/// `list-chevrons-up-down` from Lucide.
+pub fn list_chevrons_up_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E696}").font(LUCIDE)
+}
+
+/// `list-clock` from Lucide.
+pub fn list_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E738}").font(LUCIDE)
+}
+
+/// `list-collapse` from Lucide.
+pub fn list_collapse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59B}").font(LUCIDE)
+}
+
+/// `list-end` from Lucide.
+pub fn list_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2DF}").font(LUCIDE)
+}
+
+/// `list-filter` from Lucide.
+pub fn list_filter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E460}").font(LUCIDE)
+}
+
+/// `list-filter-plus` from Lucide.
+pub fn list_filter_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E639}").font(LUCIDE)
+}
+
+/// `list-indent-decrease` from Lucide.
+pub fn list_indent_decrease<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E107}").font(LUCIDE)
+}
+
+/// `list-indent-increase` from Lucide.
+pub fn list_indent_increase<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E108}").font(LUCIDE)
+}
+
+/// `list-minus` from Lucide.
+pub fn list_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23E}").font(LUCIDE)
+}
+
+/// `list-music` from Lucide.
+pub fn list_music<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E0}").font(LUCIDE)
+}
+
+/// `list-ordered` from Lucide.
+pub fn list_ordered<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1D1}").font(LUCIDE)
+}
+
+/// `list-plus` from Lucide.
+pub fn list_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E23F}").font(LUCIDE)
+}
+
+/// `list-restart` from Lucide.
+pub fn list_restart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E452}").font(LUCIDE)
+}
+
+/// `list-sort-ascending` from Lucide.
+pub fn list_sort_ascending<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E702}").font(LUCIDE)
+}
+
+/// `list-sort-descending` from Lucide.
+pub fn list_sort_descending<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E703}").font(LUCIDE)
+}
+
+/// `list-start` from Lucide.
+pub fn list_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E1}").font(LUCIDE)
+}
+
+/// `list-todo` from Lucide.
+pub fn list_todo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C3}").font(LUCIDE)
+}
+
+/// `list-tree` from Lucide.
+pub fn list_tree<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E408}").font(LUCIDE)
+}
+
+/// `list-video` from Lucide.
+pub fn list_video<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E2}").font(LUCIDE)
+}
+
+/// `list-x` from Lucide.
+pub fn list_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E240}").font(LUCIDE)
+}
+
+/// `loader` from Lucide.
+pub fn loader<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E109}").font(LUCIDE)
+}
+
+/// `loader-2` from Lucide.
+pub fn loader_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10A}").font(LUCIDE)
+}
+
+/// `loader-circle` from Lucide.
+pub fn loader_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10A}").font(LUCIDE)
+}
+
+/// `loader-pinwheel` from Lucide.
+pub fn loader_pinwheel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E6}").font(LUCIDE)
+}
+
+/// `locate` from Lucide.
+pub fn locate<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DA}").font(LUCIDE)
+}
+
+/// `locate-fixed` from Lucide.
+pub fn locate_fixed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DB}").font(LUCIDE)
+}
+
+/// `locate-off` from Lucide.
+pub fn locate_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E282}").font(LUCIDE)
+}
+
+/// `location-edit` from Lucide.
+pub fn location_edit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E655}").font(LUCIDE)
+}
+
+/// `lock` from Lucide.
+pub fn lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10B}").font(LUCIDE)
+}
+
+/// `lock-keyhole` from Lucide.
+pub fn lock_keyhole<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E531}").font(LUCIDE)
+}
+
+/// `lock-keyhole-open` from Lucide.
+pub fn lock_keyhole_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E532}").font(LUCIDE)
+}
+
+/// `lock-open` from Lucide.
+pub fn lock_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10C}").font(LUCIDE)
+}
+
+/// `log-in` from Lucide.
+pub fn log_in<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10D}").font(LUCIDE)
+}
+
+/// `log-out` from Lucide.
+pub fn log_out<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10E}").font(LUCIDE)
+}
+
+/// `logs` from Lucide.
+pub fn logs<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F4}").font(LUCIDE)
+}
+
+/// `lollipop` from Lucide.
+pub fn lollipop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BD}").font(LUCIDE)
+}
+
+/// `luggage` from Lucide.
+pub fn luggage<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CA}").font(LUCIDE)
+}
+
+/// `m-square` from Lucide.
+pub fn m_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E503}").font(LUCIDE)
+}
+
+/// `magnet` from Lucide.
+pub fn magnet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B5}").font(LUCIDE)
+}
+
+/// `mail` from Lucide.
+pub fn mail<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10F}").font(LUCIDE)
+}
+
+/// `mail-badge` from Lucide.
+pub fn mail_badge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E734}").font(LUCIDE)
+}
+
+/// `mail-check` from Lucide.
+pub fn mail_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E361}").font(LUCIDE)
+}
+
+/// `mail-clock` from Lucide.
+pub fn mail_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73E}").font(LUCIDE)
+}
+
+/// `mail-minus` from Lucide.
+pub fn mail_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E362}").font(LUCIDE)
+}
+
+/// `mail-open` from Lucide.
+pub fn mail_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E363}").font(LUCIDE)
+}
+
+/// `mail-plus` from Lucide.
+pub fn mail_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E364}").font(LUCIDE)
+}
+
+/// `mail-question` from Lucide.
+pub fn mail_question<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E365}").font(LUCIDE)
+}
+
+/// `mail-question-mark` from Lucide.
+pub fn mail_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E365}").font(LUCIDE)
+}
+
+/// `mail-search` from Lucide.
+pub fn mail_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E366}").font(LUCIDE)
+}
+
+/// `mail-warning` from Lucide.
+pub fn mail_warning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E367}").font(LUCIDE)
+}
+
+/// `mail-x` from Lucide.
+pub fn mail_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E368}").font(LUCIDE)
+}
+
+/// `mailbox` from Lucide.
+pub fn mailbox<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D4}").font(LUCIDE)
+}
+
+/// `mails` from Lucide.
+pub fn mails<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E369}").font(LUCIDE)
+}
+
+/// `map` from Lucide.
+pub fn map<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E110}").font(LUCIDE)
+}
+
+/// `map-minus` from Lucide.
+pub fn map_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E686}").font(LUCIDE)
+}
+
+/// `map-pin` from Lucide.
+pub fn map_pin<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E111}").font(LUCIDE)
+}
+
+/// `map-pin-check` from Lucide.
+pub fn map_pin_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60F}").font(LUCIDE)
+}
+
+/// `map-pin-check-inside` from Lucide.
+pub fn map_pin_check_inside<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E610}").font(LUCIDE)
+}
+
+/// `map-pin-house` from Lucide.
+pub fn map_pin_house<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61C}").font(LUCIDE)
+}
+
+/// `map-pin-minus` from Lucide.
+pub fn map_pin_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E611}").font(LUCIDE)
+}
+
+/// `map-pin-minus-inside` from Lucide.
+pub fn map_pin_minus_inside<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E612}").font(LUCIDE)
+}
+
+/// `map-pin-off` from Lucide.
+pub fn map_pin_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A6}").font(LUCIDE)
+}
+
+/// `map-pin-pen` from Lucide.
+pub fn map_pin_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E655}").font(LUCIDE)
+}
+
+/// `map-pin-plus` from Lucide.
+pub fn map_pin_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E613}").font(LUCIDE)
+}
+
+/// `map-pin-plus-inside` from Lucide.
+pub fn map_pin_plus_inside<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E614}").font(LUCIDE)
+}
+
+/// `map-pin-search` from Lucide.
+pub fn map_pin_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DE}").font(LUCIDE)
+}
+
+/// `map-pin-x` from Lucide.
+pub fn map_pin_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E615}").font(LUCIDE)
+}
+
+/// `map-pin-x-inside` from Lucide.
+pub fn map_pin_x_inside<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E616}").font(LUCIDE)
+}
+
+/// `map-pinned` from Lucide.
+pub fn map_pinned<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53D}").font(LUCIDE)
+}
+
+/// `map-plus` from Lucide.
+pub fn map_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63F}").font(LUCIDE)
+}
+
+/// `mars` from Lucide.
+pub fn mars<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E641}").font(LUCIDE)
+}
+
+/// `mars-stroke` from Lucide.
+pub fn mars_stroke<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E642}").font(LUCIDE)
+}
+
+/// `martini` from Lucide.
+pub fn martini<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E3}").font(LUCIDE)
+}
+
+/// `maximize` from Lucide.
+pub fn maximize<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E112}").font(LUCIDE)
+}
+
+/// `maximize-2` from Lucide.
+pub fn maximize_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E113}").font(LUCIDE)
+}
+
+/// `medal` from Lucide.
+pub fn medal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E36F}").font(LUCIDE)
+}
+
+/// `megaphone` from Lucide.
+pub fn megaphone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E235}").font(LUCIDE)
+}
+
+/// `megaphone-off` from Lucide.
+pub fn megaphone_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E370}").font(LUCIDE)
+}
+
+/// `meh` from Lucide.
+pub fn meh<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E114}").font(LUCIDE)
+}
+
+/// `memory-stick` from Lucide.
+pub fn memory_stick<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E445}").font(LUCIDE)
+}
+
+/// `menu` from Lucide.
+pub fn menu<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E115}").font(LUCIDE)
+}
+
+/// `menu-square` from Lucide.
+pub fn menu_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E453}").font(LUCIDE)
+}
+
+/// `merge` from Lucide.
+pub fn merge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43F}").font(LUCIDE)
+}
+
+/// `message-circle` from Lucide.
+pub fn message_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E116}").font(LUCIDE)
+}
+
+/// `message-circle-check` from Lucide.
+pub fn message_circle_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BA}").font(LUCIDE)
+}
+
+/// `message-circle-code` from Lucide.
+pub fn message_circle_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E562}").font(LUCIDE)
+}
+
+/// `message-circle-dashed` from Lucide.
+pub fn message_circle_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E563}").font(LUCIDE)
+}
+
+/// `message-circle-dashed-check` from Lucide.
+pub fn message_circle_dashed_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E746}").font(LUCIDE)
+}
+
+/// `message-circle-heart` from Lucide.
+pub fn message_circle_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E564}").font(LUCIDE)
+}
+
+/// `message-circle-more` from Lucide.
+pub fn message_circle_more<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E565}").font(LUCIDE)
+}
+
+/// `message-circle-off` from Lucide.
+pub fn message_circle_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E566}").font(LUCIDE)
+}
+
+/// `message-circle-plus` from Lucide.
+pub fn message_circle_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E567}").font(LUCIDE)
+}
+
+/// `message-circle-question` from Lucide.
+pub fn message_circle_question<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E568}").font(LUCIDE)
+}
+
+/// `message-circle-question-mark` from Lucide.
+pub fn message_circle_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E568}").font(LUCIDE)
+}
+
+/// `message-circle-reply` from Lucide.
+pub fn message_circle_reply<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E569}").font(LUCIDE)
+}
+
+/// `message-circle-warning` from Lucide.
+pub fn message_circle_warning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56A}").font(LUCIDE)
+}
+
+/// `message-circle-x` from Lucide.
+pub fn message_circle_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56B}").font(LUCIDE)
+}
+
+/// `message-square` from Lucide.
+pub fn message_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E117}").font(LUCIDE)
+}
+
+/// `message-square-check` from Lucide.
+pub fn message_square_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BB}").font(LUCIDE)
+}
+
+/// `message-square-code` from Lucide.
+pub fn message_square_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56C}").font(LUCIDE)
+}
+
+/// `message-square-dashed` from Lucide.
+pub fn message_square_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40B}").font(LUCIDE)
+}
+
+/// `message-square-diff` from Lucide.
+pub fn message_square_diff<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56D}").font(LUCIDE)
+}
+
+/// `message-square-dot` from Lucide.
+pub fn message_square_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56E}").font(LUCIDE)
+}
+
+/// `message-square-heart` from Lucide.
+pub fn message_square_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E56F}").font(LUCIDE)
+}
+
+/// `message-square-lock` from Lucide.
+pub fn message_square_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62C}").font(LUCIDE)
+}
+
+/// `message-square-more` from Lucide.
+pub fn message_square_more<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E570}").font(LUCIDE)
+}
+
+/// `message-square-off` from Lucide.
+pub fn message_square_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E571}").font(LUCIDE)
+}
+
+/// `message-square-plus` from Lucide.
+pub fn message_square_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40C}").font(LUCIDE)
+}
+
+/// `message-square-quote` from Lucide.
+pub fn message_square_quote<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E572}").font(LUCIDE)
+}
+
+/// `message-square-reply` from Lucide.
+pub fn message_square_reply<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E573}").font(LUCIDE)
+}
+
+/// `message-square-share` from Lucide.
+pub fn message_square_share<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E574}").font(LUCIDE)
+}
+
+/// `message-square-text` from Lucide.
+pub fn message_square_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E575}").font(LUCIDE)
+}
+
+/// `message-square-warning` from Lucide.
+pub fn message_square_warning<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E576}").font(LUCIDE)
+}
+
+/// `message-square-x` from Lucide.
+pub fn message_square_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E577}").font(LUCIDE)
+}
+
+/// `messages-square` from Lucide.
+pub fn messages_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40D}").font(LUCIDE)
+}
+
+/// `metronome` from Lucide.
+pub fn metronome<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BC}").font(LUCIDE)
+}
+
+/// `mic` from Lucide.
+pub fn mic<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E118}").font(LUCIDE)
+}
+
+/// `mic-2` from Lucide.
+pub fn mic_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E349}").font(LUCIDE)
+}
+
+/// `mic-audio-lines` from Lucide.
+pub fn mic_audio_lines<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E724}").font(LUCIDE)
+}
+
+/// `mic-off` from Lucide.
+pub fn mic_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E119}").font(LUCIDE)
+}
+
+/// `mic-signal` from Lucide.
+pub fn mic_signal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FA}").font(LUCIDE)
+}
+
+/// `mic-vocal` from Lucide.
+pub fn mic_vocal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E349}").font(LUCIDE)
+}
+
+/// `microchip` from Lucide.
+pub fn microchip<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61A}").font(LUCIDE)
+}
+
+/// `microscope` from Lucide.
+pub fn microscope<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E4}").font(LUCIDE)
+}
+
+/// `microwave` from Lucide.
+pub fn microwave<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37A}").font(LUCIDE)
+}
+
+/// `midi-port` from Lucide.
+pub fn midi_port<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E739}").font(LUCIDE)
+}
+
+/// `milestone` from Lucide.
+pub fn milestone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E298}").font(LUCIDE)
+}
+
+/// `milk` from Lucide.
+pub fn milk<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E399}").font(LUCIDE)
+}
+
+/// `milk-off` from Lucide.
+pub fn milk_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39A}").font(LUCIDE)
+}
+
+/// `minimize` from Lucide.
+pub fn minimize<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11A}").font(LUCIDE)
+}
+
+/// `minimize-2` from Lucide.
+pub fn minimize_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11B}").font(LUCIDE)
+}
+
+/// `minus` from Lucide.
+pub fn minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11C}").font(LUCIDE)
+}
+
+/// `minus-circle` from Lucide.
+pub fn minus_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07E}").font(LUCIDE)
+}
+
+/// `minus-square` from Lucide.
+pub fn minus_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E171}").font(LUCIDE)
+}
+
+/// `mirror-rectangular` from Lucide.
+pub fn mirror_rectangular<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BD}").font(LUCIDE)
+}
+
+/// `mirror-round` from Lucide.
+pub fn mirror_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BE}").font(LUCIDE)
+}
+
+/// `monitor` from Lucide.
+pub fn monitor<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11D}").font(LUCIDE)
+}
+
+/// `monitor-check` from Lucide.
+pub fn monitor_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E482}").font(LUCIDE)
+}
+
+/// `monitor-cloud` from Lucide.
+pub fn monitor_cloud<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E699}").font(LUCIDE)
+}
+
+/// `monitor-cog` from Lucide.
+pub fn monitor_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E603}").font(LUCIDE)
+}
+
+/// `monitor-dot` from Lucide.
+pub fn monitor_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E483}").font(LUCIDE)
+}
+
+/// `monitor-down` from Lucide.
+pub fn monitor_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E421}").font(LUCIDE)
+}
+
+/// `monitor-off` from Lucide.
+pub fn monitor_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DC}").font(LUCIDE)
+}
+
+/// `monitor-pause` from Lucide.
+pub fn monitor_pause<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E484}").font(LUCIDE)
+}
+
+/// `monitor-play` from Lucide.
+pub fn monitor_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E485}").font(LUCIDE)
+}
+
+/// `monitor-smartphone` from Lucide.
+pub fn monitor_smartphone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A2}").font(LUCIDE)
+}
+
+/// `monitor-speaker` from Lucide.
+pub fn monitor_speaker<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E210}").font(LUCIDE)
+}
+
+/// `monitor-stop` from Lucide.
+pub fn monitor_stop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E486}").font(LUCIDE)
+}
+
+/// `monitor-up` from Lucide.
+pub fn monitor_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E422}").font(LUCIDE)
+}
+
+/// `monitor-x` from Lucide.
+pub fn monitor_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E487}").font(LUCIDE)
+}
+
+/// `moon` from Lucide.
+pub fn moon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11E}").font(LUCIDE)
+}
+
+/// `moon-star` from Lucide.
+pub fn moon_star<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E410}").font(LUCIDE)
+}
+
+/// `mop` from Lucide.
+pub fn mop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73B}").font(LUCIDE)
+}
+
+/// `mop-sparkles` from Lucide.
+pub fn mop_sparkles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73A}").font(LUCIDE)
+}
+
+/// `more-horizontal` from Lucide.
+pub fn more_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B6}").font(LUCIDE)
+}
+
+/// `more-vertical` from Lucide.
+pub fn more_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E0B7}").font(LUCIDE)
+}
+
+/// `mosque` from Lucide.
+pub fn mosque<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E725}").font(LUCIDE)
+}
+
+/// `motorbike` from Lucide.
+pub fn motorbike<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E698}").font(LUCIDE)
+}
+
+/// `mountain` from Lucide.
+pub fn mountain<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E231}").font(LUCIDE)
+}
+
+/// `mountain-snow` from Lucide.
+pub fn mountain_snow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E232}").font(LUCIDE)
+}
+
+/// `mouse` from Lucide.
+pub fn mouse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E28E}").font(LUCIDE)
+}
+
+/// `mouse-left` from Lucide.
+pub fn mouse_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6BF}").font(LUCIDE)
+}
+
+/// `mouse-off` from Lucide.
+pub fn mouse_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DB}").font(LUCIDE)
+}
+
+/// `mouse-pointer` from Lucide.
+pub fn mouse_pointer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E11F}").font(LUCIDE)
+}
+
+/// `mouse-pointer-2` from Lucide.
+pub fn mouse_pointer_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C3}").font(LUCIDE)
+}
+
+/// `mouse-pointer-2-off` from Lucide.
+pub fn mouse_pointer_2_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A6}").font(LUCIDE)
+}
+
+/// `mouse-pointer-ban` from Lucide.
+pub fn mouse_pointer_ban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E7}").font(LUCIDE)
+}
+
+/// `mouse-pointer-click` from Lucide.
+pub fn mouse_pointer_click<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E120}").font(LUCIDE)
+}
+
+/// `mouse-pointer-square-dashed` from Lucide.
+pub fn mouse_pointer_square_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E509}").font(LUCIDE)
+}
+
+/// `mouse-right` from Lucide.
+pub fn mouse_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C0}").font(LUCIDE)
+}
+
+/// `move` from Lucide.
+pub fn move_icon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E121}").font(LUCIDE)
+}
+
+/// `move-3-d` from Lucide.
+pub fn move_3_d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E5}").font(LUCIDE)
+}
+
+/// `move-3d` from Lucide.
+pub fn move_3d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E5}").font(LUCIDE)
+}
+
+/// `move-diagonal` from Lucide.
+pub fn move_diagonal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C4}").font(LUCIDE)
+}
+
+/// `move-diagonal-2` from Lucide.
+pub fn move_diagonal_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C5}").font(LUCIDE)
+}
+
+/// `move-down` from Lucide.
+pub fn move_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48C}").font(LUCIDE)
+}
+
+/// `move-down-left` from Lucide.
+pub fn move_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48D}").font(LUCIDE)
+}
+
+/// `move-down-right` from Lucide.
+pub fn move_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48E}").font(LUCIDE)
+}
+
+/// `move-horizontal` from Lucide.
+pub fn move_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C6}").font(LUCIDE)
+}
+
+/// `move-left` from Lucide.
+pub fn move_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48F}").font(LUCIDE)
+}
+
+/// `move-right` from Lucide.
+pub fn move_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E490}").font(LUCIDE)
+}
+
+/// `move-up` from Lucide.
+pub fn move_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E491}").font(LUCIDE)
+}
+
+/// `move-up-left` from Lucide.
+pub fn move_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E492}").font(LUCIDE)
+}
+
+/// `move-up-right` from Lucide.
+pub fn move_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E493}").font(LUCIDE)
+}
+
+/// `move-vertical` from Lucide.
+pub fn move_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C7}").font(LUCIDE)
+}
+
+/// `music` from Lucide.
+pub fn music<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E122}").font(LUCIDE)
+}
+
+/// `music-2` from Lucide.
+pub fn music_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34A}").font(LUCIDE)
+}
+
+/// `music-3` from Lucide.
+pub fn music_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34B}").font(LUCIDE)
+}
+
+/// `music-4` from Lucide.
+pub fn music_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E34C}").font(LUCIDE)
+}
+
+/// `navigation` from Lucide.
+pub fn navigation<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E123}").font(LUCIDE)
+}
+
+/// `navigation-2` from Lucide.
+pub fn navigation_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E124}").font(LUCIDE)
+}
+
+/// `navigation-2-off` from Lucide.
+pub fn navigation_2_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A7}").font(LUCIDE)
+}
+
+/// `navigation-off` from Lucide.
+pub fn navigation_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A8}").font(LUCIDE)
+}
+
+/// `network` from Lucide.
+pub fn network<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E125}").font(LUCIDE)
+}
+
+/// `newspaper` from Lucide.
+pub fn newspaper<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E348}").font(LUCIDE)
+}
+
+/// `nfc` from Lucide.
+pub fn nfc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C3}").font(LUCIDE)
+}
+
+/// `non-binary` from Lucide.
+pub fn non_binary<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E643}").font(LUCIDE)
+}
+
+/// `notebook` from Lucide.
+pub fn notebook<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E595}").font(LUCIDE)
+}
+
+/// `notebook-pen` from Lucide.
+pub fn notebook_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E596}").font(LUCIDE)
+}
+
+/// `notebook-tabs` from Lucide.
+pub fn notebook_tabs<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E597}").font(LUCIDE)
+}
+
+/// `notebook-text` from Lucide.
+pub fn notebook_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E598}").font(LUCIDE)
+}
+
+/// `notepad-text` from Lucide.
+pub fn notepad_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E599}").font(LUCIDE)
+}
+
+/// `notepad-text-dashed` from Lucide.
+pub fn notepad_text_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59A}").font(LUCIDE)
+}
+
+/// `nut` from Lucide.
+pub fn nut<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39B}").font(LUCIDE)
+}
+
+/// `nut-off` from Lucide.
+pub fn nut_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39C}").font(LUCIDE)
+}
+
+/// `octagon` from Lucide.
+pub fn octagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E126}").font(LUCIDE)
+}
+
+/// `octagon-alert` from Lucide.
+pub fn octagon_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E127}").font(LUCIDE)
+}
+
+/// `octagon-minus` from Lucide.
+pub fn octagon_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E627}").font(LUCIDE)
+}
+
+/// `octagon-pause` from Lucide.
+pub fn octagon_pause<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21B}").font(LUCIDE)
+}
+
+/// `octagon-x` from Lucide.
+pub fn octagon_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E128}").font(LUCIDE)
+}
+
+/// `omega` from Lucide.
+pub fn omega<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E619}").font(LUCIDE)
+}
+
+/// `option` from Lucide.
+pub fn option<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F8}").font(LUCIDE)
+}
+
+/// `orbit` from Lucide.
+pub fn orbit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E7}").font(LUCIDE)
+}
+
+/// `origami` from Lucide.
+pub fn origami<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E3}").font(LUCIDE)
+}
+
+/// `outdent` from Lucide.
+pub fn outdent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E107}").font(LUCIDE)
+}
+
+/// `package` from Lucide.
+pub fn package<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E129}").font(LUCIDE)
+}
+
+/// `package-2` from Lucide.
+pub fn package_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E340}").font(LUCIDE)
+}
+
+/// `package-check` from Lucide.
+pub fn package_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E266}").font(LUCIDE)
+}
+
+/// `package-minus` from Lucide.
+pub fn package_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E267}").font(LUCIDE)
+}
+
+/// `package-open` from Lucide.
+pub fn package_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2CC}").font(LUCIDE)
+}
+
+/// `package-plus` from Lucide.
+pub fn package_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E268}").font(LUCIDE)
+}
+
+/// `package-search` from Lucide.
+pub fn package_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E269}").font(LUCIDE)
+}
+
+/// `package-x` from Lucide.
+pub fn package_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E26A}").font(LUCIDE)
+}
+
+/// `paint-bucket` from Lucide.
+pub fn paint_bucket<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E6}").font(LUCIDE)
+}
+
+/// `paint-roller` from Lucide.
+pub fn paint_roller<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59E}").font(LUCIDE)
+}
+
+/// `paintbrush` from Lucide.
+pub fn paintbrush<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E7}").font(LUCIDE)
+}
+
+/// `paintbrush-2` from Lucide.
+pub fn paintbrush_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E8}").font(LUCIDE)
+}
+
+/// `paintbrush-vertical` from Lucide.
+pub fn paintbrush_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E8}").font(LUCIDE)
+}
+
+/// `palette` from Lucide.
+pub fn palette<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DD}").font(LUCIDE)
+}
+
+/// `palmtree` from Lucide.
+pub fn palmtree<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E281}").font(LUCIDE)
+}
+
+/// `panda` from Lucide.
+pub fn panda<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E668}").font(LUCIDE)
+}
+
+/// `panel-bottom` from Lucide.
+pub fn panel_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42C}").font(LUCIDE)
+}
+
+/// `panel-bottom-close` from Lucide.
+pub fn panel_bottom_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42D}").font(LUCIDE)
+}
+
+/// `panel-bottom-dashed` from Lucide.
+pub fn panel_bottom_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42E}").font(LUCIDE)
+}
+
+/// `panel-bottom-inactive` from Lucide.
+pub fn panel_bottom_inactive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42E}").font(LUCIDE)
+}
+
+/// `panel-bottom-open` from Lucide.
+pub fn panel_bottom_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42F}").font(LUCIDE)
+}
+
+/// `panel-left` from Lucide.
+pub fn panel_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12A}").font(LUCIDE)
+}
+
+/// `panel-left-close` from Lucide.
+pub fn panel_left_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21C}").font(LUCIDE)
+}
+
+/// `panel-left-dashed` from Lucide.
+pub fn panel_left_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E430}").font(LUCIDE)
+}
+
+/// `panel-left-inactive` from Lucide.
+pub fn panel_left_inactive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E430}").font(LUCIDE)
+}
+
+/// `panel-left-open` from Lucide.
+pub fn panel_left_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21D}").font(LUCIDE)
+}
+
+/// `panel-left-right-dashed` from Lucide.
+pub fn panel_left_right_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E692}").font(LUCIDE)
+}
+
+/// `panel-right` from Lucide.
+pub fn panel_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E431}").font(LUCIDE)
+}
+
+/// `panel-right-close` from Lucide.
+pub fn panel_right_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E432}").font(LUCIDE)
+}
+
+/// `panel-right-dashed` from Lucide.
+pub fn panel_right_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E433}").font(LUCIDE)
+}
+
+/// `panel-right-inactive` from Lucide.
+pub fn panel_right_inactive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E433}").font(LUCIDE)
+}
+
+/// `panel-right-open` from Lucide.
+pub fn panel_right_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E434}").font(LUCIDE)
+}
+
+/// `panel-top` from Lucide.
+pub fn panel_top<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E435}").font(LUCIDE)
+}
+
+/// `panel-top-bottom-dashed` from Lucide.
+pub fn panel_top_bottom_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E693}").font(LUCIDE)
+}
+
+/// `panel-top-close` from Lucide.
+pub fn panel_top_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E436}").font(LUCIDE)
+}
+
+/// `panel-top-dashed` from Lucide.
+pub fn panel_top_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E437}").font(LUCIDE)
+}
+
+/// `panel-top-inactive` from Lucide.
+pub fn panel_top_inactive<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E437}").font(LUCIDE)
+}
+
+/// `panel-top-open` from Lucide.
+pub fn panel_top_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E438}").font(LUCIDE)
+}
+
+/// `panels-left-bottom` from Lucide.
+pub fn panels_left_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12B}").font(LUCIDE)
+}
+
+/// `panels-left-right` from Lucide.
+pub fn panels_left_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E099}").font(LUCIDE)
+}
+
+/// `panels-right-bottom` from Lucide.
+pub fn panels_right_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E588}").font(LUCIDE)
+}
+
+/// `panels-top-bottom` from Lucide.
+pub fn panels_top_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58A}").font(LUCIDE)
+}
+
+/// `panels-top-left` from Lucide.
+pub fn panels_top_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12C}").font(LUCIDE)
+}
+
+/// `paper-bag` from Lucide.
+pub fn paper_bag<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E71D}").font(LUCIDE)
+}
+
+/// `paperclip` from Lucide.
+pub fn paperclip<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12D}").font(LUCIDE)
+}
+
+/// `parasol` from Lucide.
+pub fn parasol<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FD}").font(LUCIDE)
+}
+
+/// `parentheses` from Lucide.
+pub fn parentheses<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E444}").font(LUCIDE)
+}
+
+/// `parking-circle` from Lucide.
+pub fn parking_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C9}").font(LUCIDE)
+}
+
+/// `parking-circle-off` from Lucide.
+pub fn parking_circle_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CA}").font(LUCIDE)
+}
+
+/// `parking-meter` from Lucide.
+pub fn parking_meter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E500}").font(LUCIDE)
+}
+
+/// `parking-square` from Lucide.
+pub fn parking_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CB}").font(LUCIDE)
+}
+
+/// `parking-square-off` from Lucide.
+pub fn parking_square_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CC}").font(LUCIDE)
+}
+
+/// `party-popper` from Lucide.
+pub fn party_popper<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E343}").font(LUCIDE)
+}
+
+/// `pause` from Lucide.
+pub fn pause<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12E}").font(LUCIDE)
+}
+
+/// `pause-circle` from Lucide.
+pub fn pause_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E07F}").font(LUCIDE)
+}
+
+/// `pause-octagon` from Lucide.
+pub fn pause_octagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21B}").font(LUCIDE)
+}
+
+/// `paw-print` from Lucide.
+pub fn paw_print<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F5}").font(LUCIDE)
+}
+
+/// `pc-case` from Lucide.
+pub fn pc_case<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E446}").font(LUCIDE)
+}
+
+/// `pen` from Lucide.
+pub fn pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12F}").font(LUCIDE)
+}
+
+/// `pen-box` from Lucide.
+pub fn pen_box<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E172}").font(LUCIDE)
+}
+
+/// `pen-line` from Lucide.
+pub fn pen_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E130}").font(LUCIDE)
+}
+
+/// `pen-off` from Lucide.
+pub fn pen_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5EE}").font(LUCIDE)
+}
+
+/// `pen-square` from Lucide.
+pub fn pen_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E172}").font(LUCIDE)
+}
+
+/// `pen-tool` from Lucide.
+pub fn pen_tool<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E131}").font(LUCIDE)
+}
+
+/// `pencil` from Lucide.
+pub fn pencil<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F9}").font(LUCIDE)
+}
+
+/// `pencil-line` from Lucide.
+pub fn pencil_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F0}").font(LUCIDE)
+}
+
+/// `pencil-off` from Lucide.
+pub fn pencil_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5EF}").font(LUCIDE)
+}
+
+/// `pencil-ruler` from Lucide.
+pub fn pencil_ruler<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F1}").font(LUCIDE)
+}
+
+/// `pencil-sparkles` from Lucide.
+pub fn pencil_sparkles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70F}").font(LUCIDE)
+}
+
+/// `pentagon` from Lucide.
+pub fn pentagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52B}").font(LUCIDE)
+}
+
+/// `percent` from Lucide.
+pub fn percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E132}").font(LUCIDE)
+}
+
+/// `percent-circle` from Lucide.
+pub fn percent_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51A}").font(LUCIDE)
+}
+
+/// `percent-diamond` from Lucide.
+pub fn percent_diamond<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51B}").font(LUCIDE)
+}
+
+/// `percent-square` from Lucide.
+pub fn percent_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51C}").font(LUCIDE)
+}
+
+/// `person-standing` from Lucide.
+pub fn person_standing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21E}").font(LUCIDE)
+}
+
+/// `phi` from Lucide.
+pub fn phi<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E71C}").font(LUCIDE)
+}
+
+/// `philippine-peso` from Lucide.
+pub fn philippine_peso<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E604}").font(LUCIDE)
+}
+
+/// `phone` from Lucide.
+pub fn phone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E133}").font(LUCIDE)
+}
+
+/// `phone-call` from Lucide.
+pub fn phone_call<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E134}").font(LUCIDE)
+}
+
+/// `phone-forwarded` from Lucide.
+pub fn phone_forwarded<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E135}").font(LUCIDE)
+}
+
+/// `phone-incoming` from Lucide.
+pub fn phone_incoming<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E136}").font(LUCIDE)
+}
+
+/// `phone-missed` from Lucide.
+pub fn phone_missed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E137}").font(LUCIDE)
+}
+
+/// `phone-off` from Lucide.
+pub fn phone_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E138}").font(LUCIDE)
+}
+
+/// `phone-outgoing` from Lucide.
+pub fn phone_outgoing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E139}").font(LUCIDE)
+}
+
+/// `pi` from Lucide.
+pub fn pi<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E472}").font(LUCIDE)
+}
+
+/// `pi-square` from Lucide.
+pub fn pi_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E488}").font(LUCIDE)
+}
+
+/// `piano` from Lucide.
+pub fn piano<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E561}").font(LUCIDE)
+}
+
+/// `pickaxe` from Lucide.
+pub fn pickaxe<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C6}").font(LUCIDE)
+}
+
+/// `picture-in-picture` from Lucide.
+pub fn picture_in_picture<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AE}").font(LUCIDE)
+}
+
+/// `picture-in-picture-2` from Lucide.
+pub fn picture_in_picture_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AF}").font(LUCIDE)
+}
+
+/// `pie-chart` from Lucide.
+pub fn pie_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E06B}").font(LUCIDE)
+}
+
+/// `piggy-bank` from Lucide.
+pub fn piggy_bank<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E13A}").font(LUCIDE)
+}
+
+/// `pilcrow` from Lucide.
+pub fn pilcrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A3}").font(LUCIDE)
+}
+
+/// `pilcrow-left` from Lucide.
+pub fn pilcrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DC}").font(LUCIDE)
+}
+
+/// `pilcrow-right` from Lucide.
+pub fn pilcrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DD}").font(LUCIDE)
+}
+
+/// `pilcrow-square` from Lucide.
+pub fn pilcrow_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48B}").font(LUCIDE)
+}
+
+/// `pill` from Lucide.
+pub fn pill<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BD}").font(LUCIDE)
+}
+
+/// `pill-bottle` from Lucide.
+pub fn pill_bottle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5EA}").font(LUCIDE)
+}
+
+/// `pin` from Lucide.
+pub fn pin<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E259}").font(LUCIDE)
+}
+
+/// `pin-off` from Lucide.
+pub fn pin_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B6}").font(LUCIDE)
+}
+
+/// `pipette` from Lucide.
+pub fn pipette<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E13B}").font(LUCIDE)
+}
+
+/// `pizza` from Lucide.
+pub fn pizza<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E354}").font(LUCIDE)
+}
+
+/// `plane` from Lucide.
+pub fn plane<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DE}").font(LUCIDE)
+}
+
+/// `plane-landing` from Lucide.
+pub fn plane_landing<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CD}").font(LUCIDE)
+}
+
+/// `plane-takeoff` from Lucide.
+pub fn plane_takeoff<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CE}").font(LUCIDE)
+}
+
+/// `play` from Lucide.
+pub fn play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E13C}").font(LUCIDE)
+}
+
+/// `play-circle` from Lucide.
+pub fn play_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E080}").font(LUCIDE)
+}
+
+/// `play-off` from Lucide.
+pub fn play_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FE}").font(LUCIDE)
+}
+
+/// `play-square` from Lucide.
+pub fn play_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E481}").font(LUCIDE)
+}
+
+/// `playing-card` from Lucide.
+pub fn playing_card<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E747}").font(LUCIDE)
+}
+
+/// `playing-cards` from Lucide.
+pub fn playing_cards<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E749}").font(LUCIDE)
+}
+
+/// `playing-cards-fan` from Lucide.
+pub fn playing_cards_fan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E748}").font(LUCIDE)
+}
+
+/// `plug` from Lucide.
+pub fn plug<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37F}").font(LUCIDE)
+}
+
+/// `plug-2` from Lucide.
+pub fn plug_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E380}").font(LUCIDE)
+}
+
+/// `plug-zap` from Lucide.
+pub fn plug_zap<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45C}").font(LUCIDE)
+}
+
+/// `plug-zap-2` from Lucide.
+pub fn plug_zap_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45C}").font(LUCIDE)
+}
+
+/// `plus` from Lucide.
+pub fn plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E13D}").font(LUCIDE)
+}
+
+/// `plus-circle` from Lucide.
+pub fn plus_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E081}").font(LUCIDE)
+}
+
+/// `plus-square` from Lucide.
+pub fn plus_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E173}").font(LUCIDE)
+}
+
+/// `pocket-knife` from Lucide.
+pub fn pocket_knife<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A0}").font(LUCIDE)
+}
+
+/// `podcast` from Lucide.
+pub fn podcast<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FA}").font(LUCIDE)
+}
+
+/// `podium` from Lucide.
+pub fn podium<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E704}").font(LUCIDE)
+}
+
+/// `pointer` from Lucide.
+pub fn pointer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E8}").font(LUCIDE)
+}
+
+/// `pointer-off` from Lucide.
+pub fn pointer_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57F}").font(LUCIDE)
+}
+
+/// `popcorn` from Lucide.
+pub fn popcorn<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BE}").font(LUCIDE)
+}
+
+/// `popsicle` from Lucide.
+pub fn popsicle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4BF}").font(LUCIDE)
+}
+
+/// `pound-sterling` from Lucide.
+pub fn pound_sterling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E13F}").font(LUCIDE)
+}
+
+/// `power` from Lucide.
+pub fn power<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E140}").font(LUCIDE)
+}
+
+/// `power-circle` from Lucide.
+pub fn power_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E550}").font(LUCIDE)
+}
+
+/// `power-off` from Lucide.
+pub fn power_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E209}").font(LUCIDE)
+}
+
+/// `power-square` from Lucide.
+pub fn power_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E551}").font(LUCIDE)
+}
+
+/// `presentation` from Lucide.
+pub fn presentation<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AE}").font(LUCIDE)
+}
+
+/// `printer` from Lucide.
+pub fn printer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E141}").font(LUCIDE)
+}
+
+/// `printer-check` from Lucide.
+pub fn printer_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F5}").font(LUCIDE)
+}
+
+/// `printer-x` from Lucide.
+pub fn printer_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C1}").font(LUCIDE)
+}
+
+/// `projector` from Lucide.
+pub fn projector<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AF}").font(LUCIDE)
+}
+
+/// `proportions` from Lucide.
+pub fn proportions<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CF}").font(LUCIDE)
+}
+
+/// `puzzle` from Lucide.
+pub fn puzzle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29C}").font(LUCIDE)
+}
+
+/// `pyramid` from Lucide.
+pub fn pyramid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52C}").font(LUCIDE)
+}
+
+/// `qr-code` from Lucide.
+pub fn qr_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1DF}").font(LUCIDE)
+}
+
+/// `quote` from Lucide.
+pub fn quote<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E239}").font(LUCIDE)
+}
+
+/// `rabbit` from Lucide.
+pub fn rabbit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F6}").font(LUCIDE)
+}
+
+/// `radar` from Lucide.
+pub fn radar<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E497}").font(LUCIDE)
+}
+
+/// `radiation` from Lucide.
+pub fn radiation<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E442}").font(LUCIDE)
+}
+
+/// `radical` from Lucide.
+pub fn radical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C2}").font(LUCIDE)
+}
+
+/// `radio` from Lucide.
+pub fn radio<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E142}").font(LUCIDE)
+}
+
+/// `radio-off` from Lucide.
+pub fn radio_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DD}").font(LUCIDE)
+}
+
+/// `radio-receiver` from Lucide.
+pub fn radio_receiver<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FB}").font(LUCIDE)
+}
+
+/// `radio-tower` from Lucide.
+pub fn radio_tower<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E404}").font(LUCIDE)
+}
+
+/// `radius` from Lucide.
+pub fn radius<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52D}").font(LUCIDE)
+}
+
+/// `rainbow` from Lucide.
+pub fn rainbow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C2}").font(LUCIDE)
+}
+
+/// `rat` from Lucide.
+pub fn rat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3EB}").font(LUCIDE)
+}
+
+/// `ratio` from Lucide.
+pub fn ratio<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E8}").font(LUCIDE)
+}
+
+/// `receipt` from Lucide.
+pub fn receipt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D3}").font(LUCIDE)
+}
+
+/// `receipt-cent` from Lucide.
+pub fn receipt_cent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A5}").font(LUCIDE)
+}
+
+/// `receipt-euro` from Lucide.
+pub fn receipt_euro<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A6}").font(LUCIDE)
+}
+
+/// `receipt-indian-rupee` from Lucide.
+pub fn receipt_indian_rupee<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A7}").font(LUCIDE)
+}
+
+/// `receipt-japanese-yen` from Lucide.
+pub fn receipt_japanese_yen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A8}").font(LUCIDE)
+}
+
+/// `receipt-pound-sterling` from Lucide.
+pub fn receipt_pound_sterling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A9}").font(LUCIDE)
+}
+
+/// `receipt-russian-ruble` from Lucide.
+pub fn receipt_russian_ruble<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AA}").font(LUCIDE)
+}
+
+/// `receipt-swiss-franc` from Lucide.
+pub fn receipt_swiss_franc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AB}").font(LUCIDE)
+}
+
+/// `receipt-text` from Lucide.
+pub fn receipt_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AC}").font(LUCIDE)
+}
+
+/// `receipt-turkish-lira` from Lucide.
+pub fn receipt_turkish_lira<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67F}").font(LUCIDE)
+}
+
+/// `rectangle-circle` from Lucide.
+pub fn rectangle_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E673}").font(LUCIDE)
+}
+
+/// `rectangle-ellipsis` from Lucide.
+pub fn rectangle_ellipsis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21F}").font(LUCIDE)
+}
+
+/// `rectangle-goggles` from Lucide.
+pub fn rectangle_goggles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E656}").font(LUCIDE)
+}
+
+/// `rectangle-horizontal` from Lucide.
+pub fn rectangle_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E376}").font(LUCIDE)
+}
+
+/// `rectangle-vertical` from Lucide.
+pub fn rectangle_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E377}").font(LUCIDE)
+}
+
+/// `recycle` from Lucide.
+pub fn recycle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2E9}").font(LUCIDE)
+}
+
+/// `redo` from Lucide.
+pub fn redo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E143}").font(LUCIDE)
+}
+
+/// `redo-2` from Lucide.
+pub fn redo_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A0}").font(LUCIDE)
+}
+
+/// `redo-dot` from Lucide.
+pub fn redo_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E450}").font(LUCIDE)
+}
+
+/// `refresh-ccw` from Lucide.
+pub fn refresh_ccw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E144}").font(LUCIDE)
+}
+
+/// `refresh-ccw-dot` from Lucide.
+pub fn refresh_ccw_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B2}").font(LUCIDE)
+}
+
+/// `refresh-cw` from Lucide.
+pub fn refresh_cw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E145}").font(LUCIDE)
+}
+
+/// `refresh-cw-off` from Lucide.
+pub fn refresh_cw_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E498}").font(LUCIDE)
+}
+
+/// `refrigerator` from Lucide.
+pub fn refrigerator<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37B}").font(LUCIDE)
+}
+
+/// `regex` from Lucide.
+pub fn regex<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FC}").font(LUCIDE)
+}
+
+/// `remove-formatting` from Lucide.
+pub fn remove_formatting<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B3}").font(LUCIDE)
+}
+
+/// `repeat` from Lucide.
+pub fn repeat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E146}").font(LUCIDE)
+}
+
+/// `repeat-1` from Lucide.
+pub fn repeat_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FD}").font(LUCIDE)
+}
+
+/// `repeat-2` from Lucide.
+pub fn repeat_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E411}").font(LUCIDE)
+}
+
+/// `repeat-off` from Lucide.
+pub fn repeat_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F3}").font(LUCIDE)
+}
+
+/// `replace` from Lucide.
+pub fn replace<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DB}").font(LUCIDE)
+}
+
+/// `replace-all` from Lucide.
+pub fn replace_all<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DC}").font(LUCIDE)
+}
+
+/// `reply` from Lucide.
+pub fn reply<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22A}").font(LUCIDE)
+}
+
+/// `reply-all` from Lucide.
+pub fn reply_all<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22B}").font(LUCIDE)
+}
+
+/// `rewind` from Lucide.
+pub fn rewind<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E147}").font(LUCIDE)
+}
+
+/// `ribbon` from Lucide.
+pub fn ribbon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E558}").font(LUCIDE)
+}
+
+/// `road` from Lucide.
+pub fn road<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D9}").font(LUCIDE)
+}
+
+/// `robot-arm` from Lucide.
+pub fn robot_arm<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E740}").font(LUCIDE)
+}
+
+/// `robot-vacuum` from Lucide.
+pub fn robot_vacuum<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E74A}").font(LUCIDE)
+}
+
+/// `rocket` from Lucide.
+pub fn rocket<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E286}").font(LUCIDE)
+}
+
+/// `rocking-chair` from Lucide.
+pub fn rocking_chair<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E233}").font(LUCIDE)
+}
+
+/// `roller-coaster` from Lucide.
+pub fn roller_coaster<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E480}").font(LUCIDE)
+}
+
+/// `rose` from Lucide.
+pub fn rose<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E691}").font(LUCIDE)
+}
+
+/// `rotate-3-d` from Lucide.
+pub fn rotate_3_d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EA}").font(LUCIDE)
+}
+
+/// `rotate-3d` from Lucide.
+pub fn rotate_3d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EA}").font(LUCIDE)
+}
+
+/// `rotate-ccw` from Lucide.
+pub fn rotate_ccw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E148}").font(LUCIDE)
+}
+
+/// `rotate-ccw-clock` from Lucide.
+pub fn rotate_ccw_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1F5}").font(LUCIDE)
+}
+
+/// `rotate-ccw-key` from Lucide.
+pub fn rotate_ccw_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E650}").font(LUCIDE)
+}
+
+/// `rotate-ccw-square` from Lucide.
+pub fn rotate_ccw_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D0}").font(LUCIDE)
+}
+
+/// `rotate-cw` from Lucide.
+pub fn rotate_cw<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E149}").font(LUCIDE)
+}
+
+/// `rotate-cw-fading-clock` from Lucide.
+pub fn rotate_cw_fading_clock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E726}").font(LUCIDE)
+}
+
+/// `rotate-cw-square` from Lucide.
+pub fn rotate_cw_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5D1}").font(LUCIDE)
+}
+
+/// `route` from Lucide.
+pub fn route<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53E}").font(LUCIDE)
+}
+
+/// `route-off` from Lucide.
+pub fn route_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53F}").font(LUCIDE)
+}
+
+/// `router` from Lucide.
+pub fn router<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BF}").font(LUCIDE)
+}
+
+/// `rows` from Lucide.
+pub fn rows<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E439}").font(LUCIDE)
+}
+
+/// `rows-2` from Lucide.
+pub fn rows_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E439}").font(LUCIDE)
+}
+
+/// `rows-3` from Lucide.
+pub fn rows_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58A}").font(LUCIDE)
+}
+
+/// `rows-4` from Lucide.
+pub fn rows_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58B}").font(LUCIDE)
+}
+
+/// `rss` from Lucide.
+pub fn rss<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14A}").font(LUCIDE)
+}
+
+/// `ruler` from Lucide.
+pub fn ruler<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14B}").font(LUCIDE)
+}
+
+/// `ruler-dimension-line` from Lucide.
+pub fn ruler_dimension_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E662}").font(LUCIDE)
+}
+
+/// `russian-ruble` from Lucide.
+pub fn russian_ruble<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14C}").font(LUCIDE)
+}
+
+/// `sailboat` from Lucide.
+pub fn sailboat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37E}").font(LUCIDE)
+}
+
+/// `salad` from Lucide.
+pub fn salad<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A8}").font(LUCIDE)
+}
+
+/// `sandwich` from Lucide.
+pub fn sandwich<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A9}").font(LUCIDE)
+}
+
+/// `satellite` from Lucide.
+pub fn satellite<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E447}").font(LUCIDE)
+}
+
+/// `satellite-dish` from Lucide.
+pub fn satellite_dish<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E448}").font(LUCIDE)
+}
+
+/// `saudi-riyal` from Lucide.
+pub fn saudi_riyal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64B}").font(LUCIDE)
+}
+
+/// `save` from Lucide.
+pub fn save<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14D}").font(LUCIDE)
+}
+
+/// `save-all` from Lucide.
+pub fn save_all<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40F}").font(LUCIDE)
+}
+
+/// `save-check` from Lucide.
+pub fn save_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E710}").font(LUCIDE)
+}
+
+/// `save-off` from Lucide.
+pub fn save_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F3}").font(LUCIDE)
+}
+
+/// `save-pen` from Lucide.
+pub fn save_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E705}").font(LUCIDE)
+}
+
+/// `save-plus` from Lucide.
+pub fn save_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E706}").font(LUCIDE)
+}
+
+/// `scale` from Lucide.
+pub fn scale<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E212}").font(LUCIDE)
+}
+
+/// `scale-3-d` from Lucide.
+pub fn scale_3_d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EB}").font(LUCIDE)
+}
+
+/// `scale-3d` from Lucide.
+pub fn scale_3d<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EB}").font(LUCIDE)
+}
+
+/// `scaling` from Lucide.
+pub fn scaling<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EC}").font(LUCIDE)
+}
+
+/// `scan` from Lucide.
+pub fn scan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E257}").font(LUCIDE)
+}
+
+/// `scan-barcode` from Lucide.
+pub fn scan_barcode<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E535}").font(LUCIDE)
+}
+
+/// `scan-box` from Lucide.
+pub fn scan_box<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E720}").font(LUCIDE)
+}
+
+/// `scan-eye` from Lucide.
+pub fn scan_eye<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E536}").font(LUCIDE)
+}
+
+/// `scan-face` from Lucide.
+pub fn scan_face<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E371}").font(LUCIDE)
+}
+
+/// `scan-heart` from Lucide.
+pub fn scan_heart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63A}").font(LUCIDE)
+}
+
+/// `scan-line` from Lucide.
+pub fn scan_line<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E258}").font(LUCIDE)
+}
+
+/// `scan-qr-code` from Lucide.
+pub fn scan_qr_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F6}").font(LUCIDE)
+}
+
+/// `scan-search` from Lucide.
+pub fn scan_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E537}").font(LUCIDE)
+}
+
+/// `scan-square` from Lucide.
+pub fn scan_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E727}").font(LUCIDE)
+}
+
+/// `scan-text` from Lucide.
+pub fn scan_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E538}").font(LUCIDE)
+}
+
+/// `scatter-chart` from Lucide.
+pub fn scatter_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48A}").font(LUCIDE)
+}
+
+/// `school` from Lucide.
+pub fn school<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E3}").font(LUCIDE)
+}
+
+/// `school-2` from Lucide.
+pub fn school_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E5}").font(LUCIDE)
+}
+
+/// `scissors` from Lucide.
+pub fn scissors<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14E}").font(LUCIDE)
+}
+
+/// `scissors-line-dashed` from Lucide.
+pub fn scissors_line_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4E9}").font(LUCIDE)
+}
+
+/// `scissors-square` from Lucide.
+pub fn scissors_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EC}").font(LUCIDE)
+}
+
+/// `scissors-square-dashed-bottom` from Lucide.
+pub fn scissors_square_dashed_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EB}").font(LUCIDE)
+}
+
+/// `scooter` from Lucide.
+pub fn scooter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AC}").font(LUCIDE)
+}
+
+/// `screen-share` from Lucide.
+pub fn screen_share<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E14F}").font(LUCIDE)
+}
+
+/// `screen-share-off` from Lucide.
+pub fn screen_share_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E150}").font(LUCIDE)
+}
+
+/// `scroll` from Lucide.
+pub fn scroll<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2ED}").font(LUCIDE)
+}
+
+/// `scroll-text` from Lucide.
+pub fn scroll_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45F}").font(LUCIDE)
+}
+
+/// `search` from Lucide.
+pub fn search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E151}").font(LUCIDE)
+}
+
+/// `search-alert` from Lucide.
+pub fn search_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E7}").font(LUCIDE)
+}
+
+/// `search-check` from Lucide.
+pub fn search_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AA}").font(LUCIDE)
+}
+
+/// `search-code` from Lucide.
+pub fn search_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AB}").font(LUCIDE)
+}
+
+/// `search-slash` from Lucide.
+pub fn search_slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AC}").font(LUCIDE)
+}
+
+/// `search-x` from Lucide.
+pub fn search_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4AD}").font(LUCIDE)
+}
+
+/// `section` from Lucide.
+pub fn section<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5E8}").font(LUCIDE)
+}
+
+/// `send` from Lucide.
+pub fn send<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E152}").font(LUCIDE)
+}
+
+/// `send-horizonal` from Lucide.
+pub fn send_horizonal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F2}").font(LUCIDE)
+}
+
+/// `send-horizontal` from Lucide.
+pub fn send_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F2}").font(LUCIDE)
+}
+
+/// `send-to-back` from Lucide.
+pub fn send_to_back<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F3}").font(LUCIDE)
+}
+
+/// `separator-horizontal` from Lucide.
+pub fn separator_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C8}").font(LUCIDE)
+}
+
+/// `separator-vertical` from Lucide.
+pub fn separator_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1C9}").font(LUCIDE)
+}
+
+/// `server` from Lucide.
+pub fn server<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E153}").font(LUCIDE)
+}
+
+/// `server-cog` from Lucide.
+pub fn server_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E341}").font(LUCIDE)
+}
+
+/// `server-crash` from Lucide.
+pub fn server_crash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E9}").font(LUCIDE)
+}
+
+/// `server-off` from Lucide.
+pub fn server_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EA}").font(LUCIDE)
+}
+
+/// `server-plus` from Lucide.
+pub fn server_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E721}").font(LUCIDE)
+}
+
+/// `settings` from Lucide.
+pub fn settings<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E154}").font(LUCIDE)
+}
+
+/// `settings-2` from Lucide.
+pub fn settings_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E245}").font(LUCIDE)
+}
+
+/// `shapes` from Lucide.
+pub fn shapes<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B3}").font(LUCIDE)
+}
+
+/// `share` from Lucide.
+pub fn share<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E155}").font(LUCIDE)
+}
+
+/// `share-2` from Lucide.
+pub fn share_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E156}").font(LUCIDE)
+}
+
+/// `sheet` from Lucide.
+pub fn sheet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E157}").font(LUCIDE)
+}
+
+/// `shell` from Lucide.
+pub fn shell<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F7}").font(LUCIDE)
+}
+
+/// `shelving-unit` from Lucide.
+pub fn shelving_unit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C2}").font(LUCIDE)
+}
+
+/// `shield` from Lucide.
+pub fn shield<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E158}").font(LUCIDE)
+}
+
+/// `shield-alert` from Lucide.
+pub fn shield_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FE}").font(LUCIDE)
+}
+
+/// `shield-ban` from Lucide.
+pub fn shield_ban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E159}").font(LUCIDE)
+}
+
+/// `shield-check` from Lucide.
+pub fn shield_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1FF}").font(LUCIDE)
+}
+
+/// `shield-close` from Lucide.
+pub fn shield_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E200}").font(LUCIDE)
+}
+
+/// `shield-cog` from Lucide.
+pub fn shield_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E9}").font(LUCIDE)
+}
+
+/// `shield-cog-corner` from Lucide.
+pub fn shield_cog_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6E8}").font(LUCIDE)
+}
+
+/// `shield-ellipsis` from Lucide.
+pub fn shield_ellipsis<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E516}").font(LUCIDE)
+}
+
+/// `shield-half` from Lucide.
+pub fn shield_half<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E517}").font(LUCIDE)
+}
+
+/// `shield-keyhole` from Lucide.
+pub fn shield_keyhole<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E722}").font(LUCIDE)
+}
+
+/// `shield-lock` from Lucide.
+pub fn shield_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E731}").font(LUCIDE)
+}
+
+/// `shield-minus` from Lucide.
+pub fn shield_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E518}").font(LUCIDE)
+}
+
+/// `shield-off` from Lucide.
+pub fn shield_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15A}").font(LUCIDE)
+}
+
+/// `shield-plus` from Lucide.
+pub fn shield_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E519}").font(LUCIDE)
+}
+
+/// `shield-question` from Lucide.
+pub fn shield_question<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40E}").font(LUCIDE)
+}
+
+/// `shield-question-mark` from Lucide.
+pub fn shield_question_mark<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E40E}").font(LUCIDE)
+}
+
+/// `shield-user` from Lucide.
+pub fn shield_user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E647}").font(LUCIDE)
+}
+
+/// `shield-x` from Lucide.
+pub fn shield_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E200}").font(LUCIDE)
+}
+
+/// `ship` from Lucide.
+pub fn ship<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BA}").font(LUCIDE)
+}
+
+/// `ship-cargo` from Lucide.
+pub fn ship_cargo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E741}").font(LUCIDE)
+}
+
+/// `ship-wheel` from Lucide.
+pub fn ship_wheel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E502}").font(LUCIDE)
+}
+
+/// `shirt` from Lucide.
+pub fn shirt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CA}").font(LUCIDE)
+}
+
+/// `shopping-bag` from Lucide.
+pub fn shopping_bag<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15B}").font(LUCIDE)
+}
+
+/// `shopping-basket` from Lucide.
+pub fn shopping_basket<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EA}").font(LUCIDE)
+}
+
+/// `shopping-cart` from Lucide.
+pub fn shopping_cart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15C}").font(LUCIDE)
+}
+
+/// `shovel` from Lucide.
+pub fn shovel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15D}").font(LUCIDE)
+}
+
+/// `shower-head` from Lucide.
+pub fn shower_head<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E37C}").font(LUCIDE)
+}
+
+/// `shredder` from Lucide.
+pub fn shredder<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65B}").font(LUCIDE)
+}
+
+/// `shrimp` from Lucide.
+pub fn shrimp<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E649}").font(LUCIDE)
+}
+
+/// `shrink` from Lucide.
+pub fn shrink<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E220}").font(LUCIDE)
+}
+
+/// `shrub` from Lucide.
+pub fn shrub<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EE}").font(LUCIDE)
+}
+
+/// `shuffle` from Lucide.
+pub fn shuffle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15E}").font(LUCIDE)
+}
+
+/// `sidebar` from Lucide.
+pub fn sidebar<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E12A}").font(LUCIDE)
+}
+
+/// `sidebar-close` from Lucide.
+pub fn sidebar_close<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21C}").font(LUCIDE)
+}
+
+/// `sidebar-open` from Lucide.
+pub fn sidebar_open<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E21D}").font(LUCIDE)
+}
+
+/// `sigma` from Lucide.
+pub fn sigma<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E201}").font(LUCIDE)
+}
+
+/// `sigma-square` from Lucide.
+pub fn sigma_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E489}").font(LUCIDE)
+}
+
+/// `signal` from Lucide.
+pub fn signal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25F}").font(LUCIDE)
+}
+
+/// `signal-high` from Lucide.
+pub fn signal_high<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E260}").font(LUCIDE)
+}
+
+/// `signal-low` from Lucide.
+pub fn signal_low<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E261}").font(LUCIDE)
+}
+
+/// `signal-medium` from Lucide.
+pub fn signal_medium<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E262}").font(LUCIDE)
+}
+
+/// `signal-zero` from Lucide.
+pub fn signal_zero<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E263}").font(LUCIDE)
+}
+
+/// `signature` from Lucide.
+pub fn signature<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F2}").font(LUCIDE)
+}
+
+/// `signpost` from Lucide.
+pub fn signpost<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E540}").font(LUCIDE)
+}
+
+/// `signpost-big` from Lucide.
+pub fn signpost_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E541}").font(LUCIDE)
+}
+
+/// `siren` from Lucide.
+pub fn siren<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2EF}").font(LUCIDE)
+}
+
+/// `skip-back` from Lucide.
+pub fn skip_back<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E15F}").font(LUCIDE)
+}
+
+/// `skip-forward` from Lucide.
+pub fn skip_forward<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E160}").font(LUCIDE)
+}
+
+/// `skull` from Lucide.
+pub fn skull<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E221}").font(LUCIDE)
+}
+
+/// `slash` from Lucide.
+pub fn slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51D}").font(LUCIDE)
+}
+
+/// `slash-square` from Lucide.
+pub fn slash_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E174}").font(LUCIDE)
+}
+
+/// `slice` from Lucide.
+pub fn slice<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F0}").font(LUCIDE)
+}
+
+/// `sliders` from Lucide.
+pub fn sliders<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E162}").font(LUCIDE)
+}
+
+/// `sliders-horizontal` from Lucide.
+pub fn sliders_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29A}").font(LUCIDE)
+}
+
+/// `sliders-vertical` from Lucide.
+pub fn sliders_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E162}").font(LUCIDE)
+}
+
+/// `smartphone` from Lucide.
+pub fn smartphone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E163}").font(LUCIDE)
+}
+
+/// `smartphone-charging` from Lucide.
+pub fn smartphone_charging<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22E}").font(LUCIDE)
+}
+
+/// `smartphone-nfc` from Lucide.
+pub fn smartphone_nfc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C4}").font(LUCIDE)
+}
+
+/// `smile` from Lucide.
+pub fn smile<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E164}").font(LUCIDE)
+}
+
+/// `smile-plus` from Lucide.
+pub fn smile_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E301}").font(LUCIDE)
+}
+
+/// `snail` from Lucide.
+pub fn snail<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F8}").font(LUCIDE)
+}
+
+/// `snowflake` from Lucide.
+pub fn snowflake<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E165}").font(LUCIDE)
+}
+
+/// `soap-dispenser-droplet` from Lucide.
+pub fn soap_dispenser_droplet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E669}").font(LUCIDE)
+}
+
+/// `sofa` from Lucide.
+pub fn sofa<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2C4}").font(LUCIDE)
+}
+
+/// `solar-panel` from Lucide.
+pub fn solar_panel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E69F}").font(LUCIDE)
+}
+
+/// `sort-asc` from Lucide.
+pub fn sort_asc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E04C}").font(LUCIDE)
+}
+
+/// `sort-desc` from Lucide.
+pub fn sort_desc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E047}").font(LUCIDE)
+}
+
+/// `soup` from Lucide.
+pub fn soup<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AA}").font(LUCIDE)
+}
+
+/// `space` from Lucide.
+pub fn space<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DD}").font(LUCIDE)
+}
+
+/// `spade` from Lucide.
+pub fn spade<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E499}").font(LUCIDE)
+}
+
+/// `sparkle` from Lucide.
+pub fn sparkle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E47E}").font(LUCIDE)
+}
+
+/// `sparkles` from Lucide.
+pub fn sparkles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E412}").font(LUCIDE)
+}
+
+/// `speaker` from Lucide.
+pub fn speaker<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E166}").font(LUCIDE)
+}
+
+/// `speech` from Lucide.
+pub fn speech<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51E}").font(LUCIDE)
+}
+
+/// `spell-check` from Lucide.
+pub fn spell_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49A}").font(LUCIDE)
+}
+
+/// `spell-check-2` from Lucide.
+pub fn spell_check_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49B}").font(LUCIDE)
+}
+
+/// `spline` from Lucide.
+pub fn spline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E38B}").font(LUCIDE)
+}
+
+/// `spline-pointer` from Lucide.
+pub fn spline_pointer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E64F}").font(LUCIDE)
+}
+
+/// `split` from Lucide.
+pub fn split<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E440}").font(LUCIDE)
+}
+
+/// `split-square-horizontal` from Lucide.
+pub fn split_square_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B6}").font(LUCIDE)
+}
+
+/// `split-square-vertical` from Lucide.
+pub fn split_square_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B7}").font(LUCIDE)
+}
+
+/// `spool` from Lucide.
+pub fn spool<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E677}").font(LUCIDE)
+}
+
+/// `sport-shoe` from Lucide.
+pub fn sport_shoe<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6DB}").font(LUCIDE)
+}
+
+/// `spotlight` from Lucide.
+pub fn spotlight<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E682}").font(LUCIDE)
+}
+
+/// `spray-can` from Lucide.
+pub fn spray_can<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E495}").font(LUCIDE)
+}
+
+/// `sprout` from Lucide.
+pub fn sprout<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1EB}").font(LUCIDE)
+}
+
+/// `square` from Lucide.
+pub fn square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E167}").font(LUCIDE)
+}
+
+/// `square-activity` from Lucide.
+pub fn square_activity<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B4}").font(LUCIDE)
+}
+
+/// `square-arrow-down` from Lucide.
+pub fn square_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E427}").font(LUCIDE)
+}
+
+/// `square-arrow-down-left` from Lucide.
+pub fn square_arrow_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B5}").font(LUCIDE)
+}
+
+/// `square-arrow-down-right` from Lucide.
+pub fn square_arrow_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B6}").font(LUCIDE)
+}
+
+/// `square-arrow-left` from Lucide.
+pub fn square_arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E428}").font(LUCIDE)
+}
+
+/// `square-arrow-out-down-left` from Lucide.
+pub fn square_arrow_out_down_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A1}").font(LUCIDE)
+}
+
+/// `square-arrow-out-down-right` from Lucide.
+pub fn square_arrow_out_down_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A2}").font(LUCIDE)
+}
+
+/// `square-arrow-out-up-left` from Lucide.
+pub fn square_arrow_out_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A3}").font(LUCIDE)
+}
+
+/// `square-arrow-out-up-right` from Lucide.
+pub fn square_arrow_out_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5A4}").font(LUCIDE)
+}
+
+/// `square-arrow-right` from Lucide.
+pub fn square_arrow_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E429}").font(LUCIDE)
+}
+
+/// `square-arrow-right-enter` from Lucide.
+pub fn square_arrow_right_enter<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C3}").font(LUCIDE)
+}
+
+/// `square-arrow-right-exit` from Lucide.
+pub fn square_arrow_right_exit<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C4}").font(LUCIDE)
+}
+
+/// `square-arrow-up` from Lucide.
+pub fn square_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E42A}").font(LUCIDE)
+}
+
+/// `square-arrow-up-left` from Lucide.
+pub fn square_arrow_up_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B7}").font(LUCIDE)
+}
+
+/// `square-arrow-up-right` from Lucide.
+pub fn square_arrow_up_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4B8}").font(LUCIDE)
+}
+
+/// `square-asterisk` from Lucide.
+pub fn square_asterisk<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E168}").font(LUCIDE)
+}
+
+/// `square-bottom-dashed-scissors` from Lucide.
+pub fn square_bottom_dashed_scissors<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EB}").font(LUCIDE)
+}
+
+/// `square-centerline-dashed-horizontal` from Lucide.
+pub fn square_centerline_dashed_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C5}").font(LUCIDE)
+}
+
+/// `square-centerline-dashed-vertical` from Lucide.
+pub fn square_centerline_dashed_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C6}").font(LUCIDE)
+}
+
+/// `square-chart-gantt` from Lucide.
+pub fn square_chart_gantt<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E169}").font(LUCIDE)
+}
+
+/// `square-check` from Lucide.
+pub fn square_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E559}").font(LUCIDE)
+}
+
+/// `square-check-big` from Lucide.
+pub fn square_check_big<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16A}").font(LUCIDE)
+}
+
+/// `square-chevron-down` from Lucide.
+pub fn square_chevron_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CF}").font(LUCIDE)
+}
+
+/// `square-chevron-left` from Lucide.
+pub fn square_chevron_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D0}").font(LUCIDE)
+}
+
+/// `square-chevron-right` from Lucide.
+pub fn square_chevron_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D1}").font(LUCIDE)
+}
+
+/// `square-chevron-up` from Lucide.
+pub fn square_chevron_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3D2}").font(LUCIDE)
+}
+
+/// `square-code` from Lucide.
+pub fn square_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16B}").font(LUCIDE)
+}
+
+/// `square-dashed` from Lucide.
+pub fn square_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1CB}").font(LUCIDE)
+}
+
+/// `square-dashed-bottom` from Lucide.
+pub fn square_dashed_bottom<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C0}").font(LUCIDE)
+}
+
+/// `square-dashed-bottom-code` from Lucide.
+pub fn square_dashed_bottom_code<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4C1}").font(LUCIDE)
+}
+
+/// `square-dashed-kanban` from Lucide.
+pub fn square_dashed_kanban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16C}").font(LUCIDE)
+}
+
+/// `square-dashed-mouse-pointer` from Lucide.
+pub fn square_dashed_mouse_pointer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E509}").font(LUCIDE)
+}
+
+/// `square-dashed-text` from Lucide.
+pub fn square_dashed_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EA}").font(LUCIDE)
+}
+
+/// `square-dashed-top-solid` from Lucide.
+pub fn square_dashed_top_solid<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E66C}").font(LUCIDE)
+}
+
+/// `square-dimensions` from Lucide.
+pub fn square_dimensions<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73C}").font(LUCIDE)
+}
+
+/// `square-divide` from Lucide.
+pub fn square_divide<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16D}").font(LUCIDE)
+}
+
+/// `square-dot` from Lucide.
+pub fn square_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16E}").font(LUCIDE)
+}
+
+/// `square-equal` from Lucide.
+pub fn square_equal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E16F}").font(LUCIDE)
+}
+
+/// `square-function` from Lucide.
+pub fn square_function<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E22D}").font(LUCIDE)
+}
+
+/// `square-gantt-chart` from Lucide.
+pub fn square_gantt_chart<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E169}").font(LUCIDE)
+}
+
+/// `square-kanban` from Lucide.
+pub fn square_kanban<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E170}").font(LUCIDE)
+}
+
+/// `square-library` from Lucide.
+pub fn square_library<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E54F}").font(LUCIDE)
+}
+
+/// `square-m` from Lucide.
+pub fn square_m<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E503}").font(LUCIDE)
+}
+
+/// `square-menu` from Lucide.
+pub fn square_menu<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E453}").font(LUCIDE)
+}
+
+/// `square-minus` from Lucide.
+pub fn square_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E171}").font(LUCIDE)
+}
+
+/// `square-mouse-pointer` from Lucide.
+pub fn square_mouse_pointer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E202}").font(LUCIDE)
+}
+
+/// `square-off` from Lucide.
+pub fn square_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E728}").font(LUCIDE)
+}
+
+/// `square-parking` from Lucide.
+pub fn square_parking<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CB}").font(LUCIDE)
+}
+
+/// `square-parking-off` from Lucide.
+pub fn square_parking_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3CC}").font(LUCIDE)
+}
+
+/// `square-pause` from Lucide.
+pub fn square_pause<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E684}").font(LUCIDE)
+}
+
+/// `square-pen` from Lucide.
+pub fn square_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E172}").font(LUCIDE)
+}
+
+/// `square-percent` from Lucide.
+pub fn square_percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E51C}").font(LUCIDE)
+}
+
+/// `square-pi` from Lucide.
+pub fn square_pi<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E488}").font(LUCIDE)
+}
+
+/// `square-pilcrow` from Lucide.
+pub fn square_pilcrow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E48B}").font(LUCIDE)
+}
+
+/// `square-play` from Lucide.
+pub fn square_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E481}").font(LUCIDE)
+}
+
+/// `square-plus` from Lucide.
+pub fn square_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E173}").font(LUCIDE)
+}
+
+/// `square-power` from Lucide.
+pub fn square_power<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E551}").font(LUCIDE)
+}
+
+/// `square-radical` from Lucide.
+pub fn square_radical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C3}").font(LUCIDE)
+}
+
+/// `square-round-corner` from Lucide.
+pub fn square_round_corner<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E648}").font(LUCIDE)
+}
+
+/// `square-scissors` from Lucide.
+pub fn square_scissors<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4EC}").font(LUCIDE)
+}
+
+/// `square-sigma` from Lucide.
+pub fn square_sigma<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E489}").font(LUCIDE)
+}
+
+/// `square-slash` from Lucide.
+pub fn square_slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E174}").font(LUCIDE)
+}
+
+/// `square-split-horizontal` from Lucide.
+pub fn square_split_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B6}").font(LUCIDE)
+}
+
+/// `square-split-vertical` from Lucide.
+pub fn square_split_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3B7}").font(LUCIDE)
+}
+
+/// `square-square` from Lucide.
+pub fn square_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E60E}").font(LUCIDE)
+}
+
+/// `square-stack` from Lucide.
+pub fn square_stack<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4A2}").font(LUCIDE)
+}
+
+/// `square-star` from Lucide.
+pub fn square_star<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68E}").font(LUCIDE)
+}
+
+/// `square-stop` from Lucide.
+pub fn square_stop<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E685}").font(LUCIDE)
+}
+
+/// `square-terminal` from Lucide.
+pub fn square_terminal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20A}").font(LUCIDE)
+}
+
+/// `square-text` from Lucide.
+pub fn square_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E736}").font(LUCIDE)
+}
+
+/// `square-user` from Lucide.
+pub fn square_user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E465}").font(LUCIDE)
+}
+
+/// `square-user-round` from Lucide.
+pub fn square_user_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E466}").font(LUCIDE)
+}
+
+/// `square-x` from Lucide.
+pub fn square_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E175}").font(LUCIDE)
+}
+
+/// `squares-exclude` from Lucide.
+pub fn squares_exclude<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E657}").font(LUCIDE)
+}
+
+/// `squares-intersect` from Lucide.
+pub fn squares_intersect<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E658}").font(LUCIDE)
+}
+
+/// `squares-subtract` from Lucide.
+pub fn squares_subtract<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E659}").font(LUCIDE)
+}
+
+/// `squares-unite` from Lucide.
+pub fn squares_unite<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65A}").font(LUCIDE)
+}
+
+/// `squircle` from Lucide.
+pub fn squircle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E57A}").font(LUCIDE)
+}
+
+/// `squircle-dashed` from Lucide.
+pub fn squircle_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E679}").font(LUCIDE)
+}
+
+/// `squirrel` from Lucide.
+pub fn squirrel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49F}").font(LUCIDE)
+}
+
+/// `stamp` from Lucide.
+pub fn stamp<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BB}").font(LUCIDE)
+}
+
+/// `star` from Lucide.
+pub fn star<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E176}").font(LUCIDE)
+}
+
+/// `star-check` from Lucide.
+pub fn star_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E707}").font(LUCIDE)
+}
+
+/// `star-half` from Lucide.
+pub fn star_half<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20B}").font(LUCIDE)
+}
+
+/// `star-minus` from Lucide.
+pub fn star_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E708}").font(LUCIDE)
+}
+
+/// `star-off` from Lucide.
+pub fn star_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B0}").font(LUCIDE)
+}
+
+/// `star-plus` from Lucide.
+pub fn star_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E709}").font(LUCIDE)
+}
+
+/// `star-x` from Lucide.
+pub fn star_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70A}").font(LUCIDE)
+}
+
+/// `stars` from Lucide.
+pub fn stars<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E412}").font(LUCIDE)
+}
+
+/// `step-back` from Lucide.
+pub fn step_back<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E9}").font(LUCIDE)
+}
+
+/// `step-forward` from Lucide.
+pub fn step_forward<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3EA}").font(LUCIDE)
+}
+
+/// `stethoscope` from Lucide.
+pub fn stethoscope<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F1}").font(LUCIDE)
+}
+
+/// `sticker` from Lucide.
+pub fn sticker<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E302}").font(LUCIDE)
+}
+
+/// `sticky-note` from Lucide.
+pub fn sticky_note<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E303}").font(LUCIDE)
+}
+
+/// `sticky-note-check` from Lucide.
+pub fn sticky_note_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F6}").font(LUCIDE)
+}
+
+/// `sticky-note-minus` from Lucide.
+pub fn sticky_note_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F7}").font(LUCIDE)
+}
+
+/// `sticky-note-off` from Lucide.
+pub fn sticky_note_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F8}").font(LUCIDE)
+}
+
+/// `sticky-note-plus` from Lucide.
+pub fn sticky_note_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F9}").font(LUCIDE)
+}
+
+/// `sticky-note-x` from Lucide.
+pub fn sticky_note_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FA}").font(LUCIDE)
+}
+
+/// `sticky-notes` from Lucide.
+pub fn sticky_notes<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FB}").font(LUCIDE)
+}
+
+/// `stone` from Lucide.
+pub fn stone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EB}").font(LUCIDE)
+}
+
+/// `stop-circle` from Lucide.
+pub fn stop_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E083}").font(LUCIDE)
+}
+
+/// `store` from Lucide.
+pub fn store<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E4}").font(LUCIDE)
+}
+
+/// `stretch-horizontal` from Lucide.
+pub fn stretch_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27C}").font(LUCIDE)
+}
+
+/// `stretch-vertical` from Lucide.
+pub fn stretch_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E27D}").font(LUCIDE)
+}
+
+/// `strikethrough` from Lucide.
+pub fn strikethrough<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E177}").font(LUCIDE)
+}
+
+/// `subscript` from Lucide.
+pub fn subscript<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25C}").font(LUCIDE)
+}
+
+/// `subtitles` from Lucide.
+pub fn subtitles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A4}").font(LUCIDE)
+}
+
+/// `summary` from Lucide.
+pub fn summary<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E711}").font(LUCIDE)
+}
+
+/// `sun` from Lucide.
+pub fn sun<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E178}").font(LUCIDE)
+}
+
+/// `sun-dim` from Lucide.
+pub fn sun_dim<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E299}").font(LUCIDE)
+}
+
+/// `sun-medium` from Lucide.
+pub fn sun_medium<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B1}").font(LUCIDE)
+}
+
+/// `sun-moon` from Lucide.
+pub fn sun_moon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B2}").font(LUCIDE)
+}
+
+/// `sun-snow` from Lucide.
+pub fn sun_snow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E372}").font(LUCIDE)
+}
+
+/// `sunrise` from Lucide.
+pub fn sunrise<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E179}").font(LUCIDE)
+}
+
+/// `sunset` from Lucide.
+pub fn sunset<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17A}").font(LUCIDE)
+}
+
+/// `superscript` from Lucide.
+pub fn superscript<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E25E}").font(LUCIDE)
+}
+
+/// `swatch-book` from Lucide.
+pub fn swatch_book<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E59F}").font(LUCIDE)
+}
+
+/// `swiss-franc` from Lucide.
+pub fn swiss_franc<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17B}").font(LUCIDE)
+}
+
+/// `switch-camera` from Lucide.
+pub fn switch_camera<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17C}").font(LUCIDE)
+}
+
+/// `sword` from Lucide.
+pub fn sword<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B3}").font(LUCIDE)
+}
+
+/// `swords` from Lucide.
+pub fn swords<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2B4}").font(LUCIDE)
+}
+
+/// `syringe` from Lucide.
+pub fn syringe<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F2}").font(LUCIDE)
+}
+
+/// `table` from Lucide.
+pub fn table<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17D}").font(LUCIDE)
+}
+
+/// `table-2` from Lucide.
+pub fn table_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F9}").font(LUCIDE)
+}
+
+/// `table-cells-merge` from Lucide.
+pub fn table_cells_merge<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C7}").font(LUCIDE)
+}
+
+/// `table-cells-split` from Lucide.
+pub fn table_cells_split<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C8}").font(LUCIDE)
+}
+
+/// `table-columns-split` from Lucide.
+pub fn table_columns_split<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C9}").font(LUCIDE)
+}
+
+/// `table-config` from Lucide.
+pub fn table_config<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E661}").font(LUCIDE)
+}
+
+/// `table-of-contents` from Lucide.
+pub fn table_of_contents<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E61E}").font(LUCIDE)
+}
+
+/// `table-properties` from Lucide.
+pub fn table_properties<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DB}").font(LUCIDE)
+}
+
+/// `table-rows-split` from Lucide.
+pub fn table_rows_split<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5CA}").font(LUCIDE)
+}
+
+/// `tablet` from Lucide.
+pub fn tablet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17E}").font(LUCIDE)
+}
+
+/// `tablet-smartphone` from Lucide.
+pub fn tablet_smartphone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E50A}").font(LUCIDE)
+}
+
+/// `tablets` from Lucide.
+pub fn tablets<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BE}").font(LUCIDE)
+}
+
+/// `tag` from Lucide.
+pub fn tag<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E17F}").font(LUCIDE)
+}
+
+/// `tag-plus` from Lucide.
+pub fn tag_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E712}").font(LUCIDE)
+}
+
+/// `tag-x` from Lucide.
+pub fn tag_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E713}").font(LUCIDE)
+}
+
+/// `tags` from Lucide.
+pub fn tags<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E35C}").font(LUCIDE)
+}
+
+/// `tally-1` from Lucide.
+pub fn tally_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D6}").font(LUCIDE)
+}
+
+/// `tally-2` from Lucide.
+pub fn tally_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D7}").font(LUCIDE)
+}
+
+/// `tally-3` from Lucide.
+pub fn tally_3<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D8}").font(LUCIDE)
+}
+
+/// `tally-4` from Lucide.
+pub fn tally_4<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4D9}").font(LUCIDE)
+}
+
+/// `tally-5` from Lucide.
+pub fn tally_5<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4DA}").font(LUCIDE)
+}
+
+/// `tangent` from Lucide.
+pub fn tangent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52E}").font(LUCIDE)
+}
+
+/// `target` from Lucide.
+pub fn target<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E180}").font(LUCIDE)
+}
+
+/// `telescope` from Lucide.
+pub fn telescope<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5C5}").font(LUCIDE)
+}
+
+/// `tent` from Lucide.
+pub fn tent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E227}").font(LUCIDE)
+}
+
+/// `tent-tree` from Lucide.
+pub fn tent_tree<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E53B}").font(LUCIDE)
+}
+
+/// `terminal` from Lucide.
+pub fn terminal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E181}").font(LUCIDE)
+}
+
+/// `terminal-square` from Lucide.
+pub fn terminal_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20A}").font(LUCIDE)
+}
+
+/// `test-tube` from Lucide.
+pub fn test_tube<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E405}").font(LUCIDE)
+}
+
+/// `test-tube-2` from Lucide.
+pub fn test_tube_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E406}").font(LUCIDE)
+}
+
+/// `test-tube-diagonal` from Lucide.
+pub fn test_tube_diagonal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E406}").font(LUCIDE)
+}
+
+/// `test-tubes` from Lucide.
+pub fn test_tubes<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E407}").font(LUCIDE)
+}
+
+/// `text` from Lucide.
+pub fn text_icon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E185}").font(LUCIDE)
+}
+
+/// `text-align-center` from Lucide.
+pub fn text_align_center<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E182}").font(LUCIDE)
+}
+
+/// `text-align-end` from Lucide.
+pub fn text_align_end<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E183}").font(LUCIDE)
+}
+
+/// `text-align-justify` from Lucide.
+pub fn text_align_justify<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E184}").font(LUCIDE)
+}
+
+/// `text-align-start` from Lucide.
+pub fn text_align_start<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E185}").font(LUCIDE)
+}
+
+/// `text-cursor` from Lucide.
+pub fn text_cursor<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E264}").font(LUCIDE)
+}
+
+/// `text-cursor-input` from Lucide.
+pub fn text_cursor_input<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E265}").font(LUCIDE)
+}
+
+/// `text-initial` from Lucide.
+pub fn text_initial<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E605}").font(LUCIDE)
+}
+
+/// `text-quote` from Lucide.
+pub fn text_quote<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E49E}").font(LUCIDE)
+}
+
+/// `text-search` from Lucide.
+pub fn text_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AD}").font(LUCIDE)
+}
+
+/// `text-select` from Lucide.
+pub fn text_select<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EA}").font(LUCIDE)
+}
+
+/// `text-selection` from Lucide.
+pub fn text_selection<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DE}").font(LUCIDE)
+}
+
+/// `text-wrap` from Lucide.
+pub fn text_wrap<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E248}").font(LUCIDE)
+}
+
+/// `theater` from Lucide.
+pub fn theater<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E522}").font(LUCIDE)
+}
+
+/// `thermometer` from Lucide.
+pub fn thermometer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E186}").font(LUCIDE)
+}
+
+/// `thermometer-snowflake` from Lucide.
+pub fn thermometer_snowflake<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E187}").font(LUCIDE)
+}
+
+/// `thermometer-sun` from Lucide.
+pub fn thermometer_sun<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E188}").font(LUCIDE)
+}
+
+/// `thumbs-down` from Lucide.
+pub fn thumbs_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E189}").font(LUCIDE)
+}
+
+/// `thumbs-up` from Lucide.
+pub fn thumbs_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E18A}").font(LUCIDE)
+}
+
+/// `ticket` from Lucide.
+pub fn ticket<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E20F}").font(LUCIDE)
+}
+
+/// `ticket-check` from Lucide.
+pub fn ticket_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AE}").font(LUCIDE)
+}
+
+/// `ticket-minus` from Lucide.
+pub fn ticket_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5AF}").font(LUCIDE)
+}
+
+/// `ticket-percent` from Lucide.
+pub fn ticket_percent<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B0}").font(LUCIDE)
+}
+
+/// `ticket-plus` from Lucide.
+pub fn ticket_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B1}").font(LUCIDE)
+}
+
+/// `ticket-slash` from Lucide.
+pub fn ticket_slash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B2}").font(LUCIDE)
+}
+
+/// `ticket-x` from Lucide.
+pub fn ticket_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B3}").font(LUCIDE)
+}
+
+/// `tickets` from Lucide.
+pub fn tickets<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E622}").font(LUCIDE)
+}
+
+/// `tickets-plane` from Lucide.
+pub fn tickets_plane<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E623}").font(LUCIDE)
+}
+
+/// `timeline` from Lucide.
+pub fn timeline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6EC}").font(LUCIDE)
+}
+
+/// `timer` from Lucide.
+pub fn timer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1E0}").font(LUCIDE)
+}
+
+/// `timer-off` from Lucide.
+pub fn timer_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E249}").font(LUCIDE)
+}
+
+/// `timer-reset` from Lucide.
+pub fn timer_reset<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E236}").font(LUCIDE)
+}
+
+/// `toggle-left` from Lucide.
+pub fn toggle_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E18B}").font(LUCIDE)
+}
+
+/// `toggle-right` from Lucide.
+pub fn toggle_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E18C}").font(LUCIDE)
+}
+
+/// `toilet` from Lucide.
+pub fn toilet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E635}").font(LUCIDE)
+}
+
+/// `tool-case` from Lucide.
+pub fn tool_case<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67D}").font(LUCIDE)
+}
+
+/// `toolbox` from Lucide.
+pub fn toolbox<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6B0}").font(LUCIDE)
+}
+
+/// `tornado` from Lucide.
+pub fn tornado<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E218}").font(LUCIDE)
+}
+
+/// `torus` from Lucide.
+pub fn torus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E52F}").font(LUCIDE)
+}
+
+/// `touchpad` from Lucide.
+pub fn touchpad<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E449}").font(LUCIDE)
+}
+
+/// `touchpad-off` from Lucide.
+pub fn touchpad_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44A}").font(LUCIDE)
+}
+
+/// `towel-rack` from Lucide.
+pub fn towel_rack<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C7}").font(LUCIDE)
+}
+
+/// `tower-control` from Lucide.
+pub fn tower_control<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3BC}").font(LUCIDE)
+}
+
+/// `toy-brick` from Lucide.
+pub fn toy_brick<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E347}").font(LUCIDE)
+}
+
+/// `tractor` from Lucide.
+pub fn tractor<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E504}").font(LUCIDE)
+}
+
+/// `traffic-cone` from Lucide.
+pub fn traffic_cone<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E505}").font(LUCIDE)
+}
+
+/// `trailer` from Lucide.
+pub fn trailer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E742}").font(LUCIDE)
+}
+
+/// `train` from Lucide.
+pub fn train<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A9}").font(LUCIDE)
+}
+
+/// `train-front` from Lucide.
+pub fn train_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E506}").font(LUCIDE)
+}
+
+/// `train-front-tunnel` from Lucide.
+pub fn train_front_tunnel<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E507}").font(LUCIDE)
+}
+
+/// `train-track` from Lucide.
+pub fn train_track<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E508}").font(LUCIDE)
+}
+
+/// `tram-front` from Lucide.
+pub fn tram_front<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A9}").font(LUCIDE)
+}
+
+/// `transgender` from Lucide.
+pub fn transgender<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E644}").font(LUCIDE)
+}
+
+/// `trash` from Lucide.
+pub fn trash<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E18D}").font(LUCIDE)
+}
+
+/// `trash-2` from Lucide.
+pub fn trash_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E18E}").font(LUCIDE)
+}
+
+/// `tree-deciduous` from Lucide.
+pub fn tree_deciduous<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F3}").font(LUCIDE)
+}
+
+/// `tree-palm` from Lucide.
+pub fn tree_palm<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E281}").font(LUCIDE)
+}
+
+/// `tree-pine` from Lucide.
+pub fn tree_pine<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F4}").font(LUCIDE)
+}
+
+/// `trees` from Lucide.
+pub fn trees<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F5}").font(LUCIDE)
+}
+
+/// `trending-down` from Lucide.
+pub fn trending_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E190}").font(LUCIDE)
+}
+
+/// `trending-up` from Lucide.
+pub fn trending_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E191}").font(LUCIDE)
+}
+
+/// `trending-up-down` from Lucide.
+pub fn trending_up_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E625}").font(LUCIDE)
+}
+
+/// `triangle` from Lucide.
+pub fn triangle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E192}").font(LUCIDE)
+}
+
+/// `triangle-alert` from Lucide.
+pub fn triangle_alert<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E193}").font(LUCIDE)
+}
+
+/// `triangle-dashed` from Lucide.
+pub fn triangle_dashed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63D}").font(LUCIDE)
+}
+
+/// `triangle-right` from Lucide.
+pub fn triangle_right<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4ED}").font(LUCIDE)
+}
+
+/// `trophy` from Lucide.
+pub fn trophy<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E373}").font(LUCIDE)
+}
+
+/// `truck` from Lucide.
+pub fn truck<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E194}").font(LUCIDE)
+}
+
+/// `truck-electric` from Lucide.
+pub fn truck_electric<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E65F}").font(LUCIDE)
+}
+
+/// `turkish-lira` from Lucide.
+pub fn turkish_lira<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E680}").font(LUCIDE)
+}
+
+/// `turntable` from Lucide.
+pub fn turntable<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E68C}").font(LUCIDE)
+}
+
+/// `turtle` from Lucide.
+pub fn turtle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4F9}").font(LUCIDE)
+}
+
+/// `tv` from Lucide.
+pub fn tv<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E195}").font(LUCIDE)
+}
+
+/// `tv-2` from Lucide.
+pub fn tv_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E203}").font(LUCIDE)
+}
+
+/// `tv-minimal` from Lucide.
+pub fn tv_minimal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E203}").font(LUCIDE)
+}
+
+/// `tv-minimal-play` from Lucide.
+pub fn tv_minimal_play<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5EC}").font(LUCIDE)
+}
+
+/// `type` from Lucide.
+pub fn type_icon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E198}").font(LUCIDE)
+}
+
+/// `type-outline` from Lucide.
+pub fn type_outline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E602}").font(LUCIDE)
+}
+
+/// `umbrella` from Lucide.
+pub fn umbrella<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E199}").font(LUCIDE)
+}
+
+/// `umbrella-off` from Lucide.
+pub fn umbrella_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E543}").font(LUCIDE)
+}
+
+/// `underline` from Lucide.
+pub fn underline<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19A}").font(LUCIDE)
+}
+
+/// `undo` from Lucide.
+pub fn undo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19B}").font(LUCIDE)
+}
+
+/// `undo-2` from Lucide.
+pub fn undo_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2A1}").font(LUCIDE)
+}
+
+/// `undo-dot` from Lucide.
+pub fn undo_dot<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E451}").font(LUCIDE)
+}
+
+/// `unfold-horizontal` from Lucide.
+pub fn unfold_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43D}").font(LUCIDE)
+}
+
+/// `unfold-vertical` from Lucide.
+pub fn unfold_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E43E}").font(LUCIDE)
+}
+
+/// `ungroup` from Lucide.
+pub fn ungroup<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E467}").font(LUCIDE)
+}
+
+/// `university` from Lucide.
+pub fn university<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E5}").font(LUCIDE)
+}
+
+/// `unlink` from Lucide.
+pub fn unlink<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19C}").font(LUCIDE)
+}
+
+/// `unlink-2` from Lucide.
+pub fn unlink_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19D}").font(LUCIDE)
+}
+
+/// `unlock` from Lucide.
+pub fn unlock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E10C}").font(LUCIDE)
+}
+
+/// `unlock-keyhole` from Lucide.
+pub fn unlock_keyhole<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E532}").font(LUCIDE)
+}
+
+/// `unplug` from Lucide.
+pub fn unplug<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E45D}").font(LUCIDE)
+}
+
+/// `upload` from Lucide.
+pub fn upload<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19E}").font(LUCIDE)
+}
+
+/// `upload-cloud` from Lucide.
+pub fn upload_cloud<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E091}").font(LUCIDE)
+}
+
+/// `usb` from Lucide.
+pub fn usb<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E356}").font(LUCIDE)
+}
+
+/// `usb-c-port` from Lucide.
+pub fn usb_c_port<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E73D}").font(LUCIDE)
+}
+
+/// `user` from Lucide.
+pub fn user<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E19F}").font(LUCIDE)
+}
+
+/// `user-2` from Lucide.
+pub fn user_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E468}").font(LUCIDE)
+}
+
+/// `user-check` from Lucide.
+pub fn user_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A0}").font(LUCIDE)
+}
+
+/// `user-check-2` from Lucide.
+pub fn user_check_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E469}").font(LUCIDE)
+}
+
+/// `user-circle` from Lucide.
+pub fn user_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E461}").font(LUCIDE)
+}
+
+/// `user-circle-2` from Lucide.
+pub fn user_circle_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E462}").font(LUCIDE)
+}
+
+/// `user-cog` from Lucide.
+pub fn user_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E342}").font(LUCIDE)
+}
+
+/// `user-cog-2` from Lucide.
+pub fn user_cog_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46A}").font(LUCIDE)
+}
+
+/// `user-key` from Lucide.
+pub fn user_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C8}").font(LUCIDE)
+}
+
+/// `user-lock` from Lucide.
+pub fn user_lock<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E660}").font(LUCIDE)
+}
+
+/// `user-minus` from Lucide.
+pub fn user_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A1}").font(LUCIDE)
+}
+
+/// `user-minus-2` from Lucide.
+pub fn user_minus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46B}").font(LUCIDE)
+}
+
+/// `user-pen` from Lucide.
+pub fn user_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FC}").font(LUCIDE)
+}
+
+/// `user-plus` from Lucide.
+pub fn user_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A2}").font(LUCIDE)
+}
+
+/// `user-plus-2` from Lucide.
+pub fn user_plus_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46C}").font(LUCIDE)
+}
+
+/// `user-round` from Lucide.
+pub fn user_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E468}").font(LUCIDE)
+}
+
+/// `user-round-arrow-left` from Lucide.
+pub fn user_round_arrow_left<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E714}").font(LUCIDE)
+}
+
+/// `user-round-check` from Lucide.
+pub fn user_round_check<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E469}").font(LUCIDE)
+}
+
+/// `user-round-cog` from Lucide.
+pub fn user_round_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46A}").font(LUCIDE)
+}
+
+/// `user-round-key` from Lucide.
+pub fn user_round_key<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6C9}").font(LUCIDE)
+}
+
+/// `user-round-minus` from Lucide.
+pub fn user_round_minus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46B}").font(LUCIDE)
+}
+
+/// `user-round-pen` from Lucide.
+pub fn user_round_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5FD}").font(LUCIDE)
+}
+
+/// `user-round-plus` from Lucide.
+pub fn user_round_plus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46C}").font(LUCIDE)
+}
+
+/// `user-round-search` from Lucide.
+pub fn user_round_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E578}").font(LUCIDE)
+}
+
+/// `user-round-x` from Lucide.
+pub fn user_round_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46D}").font(LUCIDE)
+}
+
+/// `user-search` from Lucide.
+pub fn user_search<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E579}").font(LUCIDE)
+}
+
+/// `user-shield` from Lucide.
+pub fn user_shield<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E729}").font(LUCIDE)
+}
+
+/// `user-square` from Lucide.
+pub fn user_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E465}").font(LUCIDE)
+}
+
+/// `user-square-2` from Lucide.
+pub fn user_square_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E466}").font(LUCIDE)
+}
+
+/// `user-star` from Lucide.
+pub fn user_star<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E687}").font(LUCIDE)
+}
+
+/// `user-x` from Lucide.
+pub fn user_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A3}").font(LUCIDE)
+}
+
+/// `user-x-2` from Lucide.
+pub fn user_x_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46D}").font(LUCIDE)
+}
+
+/// `users` from Lucide.
+pub fn users<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A4}").font(LUCIDE)
+}
+
+/// `users-2` from Lucide.
+pub fn users_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46E}").font(LUCIDE)
+}
+
+/// `users-round` from Lucide.
+pub fn users_round<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E46E}").font(LUCIDE)
+}
+
+/// `utensils` from Lucide.
+pub fn utensils<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F6}").font(LUCIDE)
+}
+
+/// `utensils-crossed` from Lucide.
+pub fn utensils_crossed<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F7}").font(LUCIDE)
+}
+
+/// `utility-pole` from Lucide.
+pub fn utility_pole<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3C2}").font(LUCIDE)
+}
+
+/// `van` from Lucide.
+pub fn van<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AD}").font(LUCIDE)
+}
+
+/// `variable` from Lucide.
+pub fn variable<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E473}").font(LUCIDE)
+}
+
+/// `vault` from Lucide.
+pub fn vault<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E58F}").font(LUCIDE)
+}
+
+/// `vector-square` from Lucide.
+pub fn vector_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E67C}").font(LUCIDE)
+}
+
+/// `vegan` from Lucide.
+pub fn vegan<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39D}").font(LUCIDE)
+}
+
+/// `venetian-mask` from Lucide.
+pub fn venetian_mask<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2AA}").font(LUCIDE)
+}
+
+/// `venus` from Lucide.
+pub fn venus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E645}").font(LUCIDE)
+}
+
+/// `venus-and-mars` from Lucide.
+pub fn venus_and_mars<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E646}").font(LUCIDE)
+}
+
+/// `verified` from Lucide.
+pub fn verified<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E241}").font(LUCIDE)
+}
+
+/// `vibrate` from Lucide.
+pub fn vibrate<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E223}").font(LUCIDE)
+}
+
+/// `vibrate-off` from Lucide.
+pub fn vibrate_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E29D}").font(LUCIDE)
+}
+
+/// `video` from Lucide.
+pub fn video<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A5}").font(LUCIDE)
+}
+
+/// `video-off` from Lucide.
+pub fn video_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A6}").font(LUCIDE)
+}
+
+/// `videotape` from Lucide.
+pub fn videotape<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CB}").font(LUCIDE)
+}
+
+/// `view` from Lucide.
+pub fn view<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A7}").font(LUCIDE)
+}
+
+/// `voicemail` from Lucide.
+pub fn voicemail<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A8}").font(LUCIDE)
+}
+
+/// `volleyball` from Lucide.
+pub fn volleyball<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E62F}").font(LUCIDE)
+}
+
+/// `volume` from Lucide.
+pub fn volume<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1A9}").font(LUCIDE)
+}
+
+/// `volume-1` from Lucide.
+pub fn volume_1<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AA}").font(LUCIDE)
+}
+
+/// `volume-2` from Lucide.
+pub fn volume_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AB}").font(LUCIDE)
+}
+
+/// `volume-off` from Lucide.
+pub fn volume_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E626}").font(LUCIDE)
+}
+
+/// `volume-x` from Lucide.
+pub fn volume_x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AC}").font(LUCIDE)
+}
+
+/// `vote` from Lucide.
+pub fn vote<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3AD}").font(LUCIDE)
+}
+
+/// `wallet` from Lucide.
+pub fn wallet<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E204}").font(LUCIDE)
+}
+
+/// `wallet-2` from Lucide.
+pub fn wallet_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CD}").font(LUCIDE)
+}
+
+/// `wallet-cards` from Lucide.
+pub fn wallet_cards<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CC}").font(LUCIDE)
+}
+
+/// `wallet-minimal` from Lucide.
+pub fn wallet_minimal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E4CD}").font(LUCIDE)
+}
+
+/// `wallpaper` from Lucide.
+pub fn wallpaper<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E44B}").font(LUCIDE)
+}
+
+/// `wand` from Lucide.
+pub fn wand<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E246}").font(LUCIDE)
+}
+
+/// `wand-2` from Lucide.
+pub fn wand_2<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E357}").font(LUCIDE)
+}
+
+/// `wand-sparkles` from Lucide.
+pub fn wand_sparkles<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E357}").font(LUCIDE)
+}
+
+/// `warehouse` from Lucide.
+pub fn warehouse<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3E6}").font(LUCIDE)
+}
+
+/// `washing-machine` from Lucide.
+pub fn washing_machine<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E590}").font(LUCIDE)
+}
+
+/// `watch` from Lucide.
+pub fn watch<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AD}").font(LUCIDE)
+}
+
+/// `waves` from Lucide.
+pub fn waves<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E283}").font(LUCIDE)
+}
+
+/// `waves-arrow-down` from Lucide.
+pub fn waves_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6A9}").font(LUCIDE)
+}
+
+/// `waves-arrow-up` from Lucide.
+pub fn waves_arrow_up<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AA}").font(LUCIDE)
+}
+
+/// `waves-horizontal` from Lucide.
+pub fn waves_horizontal<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E283}").font(LUCIDE)
+}
+
+/// `waves-ladder` from Lucide.
+pub fn waves_ladder<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E63B}").font(LUCIDE)
+}
+
+/// `waves-vertical` from Lucide.
+pub fn waves_vertical<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6F2}").font(LUCIDE)
+}
+
+/// `waypoints` from Lucide.
+pub fn waypoints<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E542}").font(LUCIDE)
+}
+
+/// `webcam` from Lucide.
+pub fn webcam<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E205}").font(LUCIDE)
+}
+
+/// `webcam-off` from Lucide.
+pub fn webcam_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6FF}").font(LUCIDE)
+}
+
+/// `webhook` from Lucide.
+pub fn webhook<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E374}").font(LUCIDE)
+}
+
+/// `webhook-off` from Lucide.
+pub fn webhook_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5B7}").font(LUCIDE)
+}
+
+/// `weight` from Lucide.
+pub fn weight<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E530}").font(LUCIDE)
+}
+
+/// `weight-tilde` from Lucide.
+pub fn weight_tilde<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6AE}").font(LUCIDE)
+}
+
+/// `wheat` from Lucide.
+pub fn wheat<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39E}").font(LUCIDE)
+}
+
+/// `wheat-off` from Lucide.
+pub fn wheat_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E39F}").font(LUCIDE)
+}
+
+/// `whole-word` from Lucide.
+pub fn whole_word<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3DF}").font(LUCIDE)
+}
+
+/// `wifi` from Lucide.
+pub fn wifi<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AE}").font(LUCIDE)
+}
+
+/// `wifi-cog` from Lucide.
+pub fn wifi_cog<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E674}").font(LUCIDE)
+}
+
+/// `wifi-high` from Lucide.
+pub fn wifi_high<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F7}").font(LUCIDE)
+}
+
+/// `wifi-low` from Lucide.
+pub fn wifi_low<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F8}").font(LUCIDE)
+}
+
+/// `wifi-off` from Lucide.
+pub fn wifi_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1AF}").font(LUCIDE)
+}
+
+/// `wifi-pen` from Lucide.
+pub fn wifi_pen<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E663}").font(LUCIDE)
+}
+
+/// `wifi-sync` from Lucide.
+pub fn wifi_sync<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E681}").font(LUCIDE)
+}
+
+/// `wifi-zero` from Lucide.
+pub fn wifi_zero<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5F9}").font(LUCIDE)
+}
+
+/// `wind` from Lucide.
+pub fn wind<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B0}").font(LUCIDE)
+}
+
+/// `wind-arrow-down` from Lucide.
+pub fn wind_arrow_down<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E631}").font(LUCIDE)
+}
+
+/// `wine` from Lucide.
+pub fn wine<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E2F8}").font(LUCIDE)
+}
+
+/// `wine-off` from Lucide.
+pub fn wine_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E3A0}").font(LUCIDE)
+}
+
+/// `workflow` from Lucide.
+pub fn workflow<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E425}").font(LUCIDE)
+}
+
+/// `worm` from Lucide.
+pub fn worm<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E5DA}").font(LUCIDE)
+}
+
+/// `wrap-text` from Lucide.
+pub fn wrap_text<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E248}").font(LUCIDE)
+}
+
+/// `wrench` from Lucide.
+pub fn wrench<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B1}").font(LUCIDE)
+}
+
+/// `wrench-off` from Lucide.
+pub fn wrench_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E70B}").font(LUCIDE)
+}
+
+/// `x` from Lucide.
+pub fn x<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B2}").font(LUCIDE)
+}
+
+/// `x-circle` from Lucide.
+pub fn x_circle<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E084}").font(LUCIDE)
+}
+
+/// `x-line-top` from Lucide.
+pub fn x_line_top<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CA}").font(LUCIDE)
+}
+
+/// `x-octagon` from Lucide.
+pub fn x_octagon<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E128}").font(LUCIDE)
+}
+
+/// `x-square` from Lucide.
+pub fn x_square<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E175}").font(LUCIDE)
+}
+
+/// `zap` from Lucide.
+pub fn zap<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B4}").font(LUCIDE)
+}
+
+/// `zap-off` from Lucide.
+pub fn zap_off<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B5}").font(LUCIDE)
+}
+
+/// `zodiac-aquarius` from Lucide.
+pub fn zodiac_aquarius<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CB}").font(LUCIDE)
+}
+
+/// `zodiac-aries` from Lucide.
+pub fn zodiac_aries<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CC}").font(LUCIDE)
+}
+
+/// `zodiac-cancer` from Lucide.
+pub fn zodiac_cancer<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CD}").font(LUCIDE)
+}
+
+/// `zodiac-capricorn` from Lucide.
+pub fn zodiac_capricorn<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CE}").font(LUCIDE)
+}
+
+/// `zodiac-gemini` from Lucide.
+pub fn zodiac_gemini<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6CF}").font(LUCIDE)
+}
+
+/// `zodiac-leo` from Lucide.
+pub fn zodiac_leo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D0}").font(LUCIDE)
+}
+
+/// `zodiac-libra` from Lucide.
+pub fn zodiac_libra<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D1}").font(LUCIDE)
+}
+
+/// `zodiac-ophiuchus` from Lucide.
+pub fn zodiac_ophiuchus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D2}").font(LUCIDE)
+}
+
+/// `zodiac-pisces` from Lucide.
+pub fn zodiac_pisces<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D3}").font(LUCIDE)
+}
+
+/// `zodiac-sagittarius` from Lucide.
+pub fn zodiac_sagittarius<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D4}").font(LUCIDE)
+}
+
+/// `zodiac-scorpio` from Lucide.
+pub fn zodiac_scorpio<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D5}").font(LUCIDE)
+}
+
+/// `zodiac-taurus` from Lucide.
+pub fn zodiac_taurus<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D6}").font(LUCIDE)
+}
+
+/// `zodiac-virgo` from Lucide.
+pub fn zodiac_virgo<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E6D7}").font(LUCIDE)
+}
+
+/// `zoom-in` from Lucide.
+pub fn zoom_in<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B6}").font(LUCIDE)
+}
+
+/// `zoom-out` from Lucide.
+pub fn zoom_out<'a, Theme, Renderer>() -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text("\u{E1B7}").font(LUCIDE)
+}
+
+/// Render any icon from [`ALL_ICONS`].
+pub fn render<'a, Theme, Renderer>(icon: Icon) -> Text<'a, Theme, Renderer>
+where
+    Theme: iced::widget::text::Catalog + 'a,
+    Renderer: iced::advanced::text::Renderer<Font = Font>,
+{
+    iced::widget::text(icon.codepoint).font(icon.font)
+}
+
+/// Look an icon up by its upstream name.
+pub fn find(name: &str) -> Option<Icon> {
+    ALL_ICONS.iter().find(|icon| icon.name == name).copied()
 }

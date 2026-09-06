@@ -663,7 +663,7 @@ fn read_state(source: &StateFieldRef, all_views: &BTreeMap<Uuid, AppView>) -> Op
             let widget = view.hierarchy.get_widget_by_id(*widget_id)?;
             if field_suffix == "_open" {
                 let (key, fallback) = match widget.widget_type {
-                    WidgetType::GenericOverlay => (
+                    WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => (
                         generic_overlay_open_state_key(source.view_id, *widget_id),
                         widget.properties.generic_overlay_initially_open,
                     ),
@@ -731,7 +731,7 @@ fn apply_state_write(
                 };
                 if let ActionValue::Bool(is_open) = value {
                     let key = match widget.widget_type {
-                        WidgetType::GenericOverlay => {
+                        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
                             generic_overlay_open_state_key(target.view_id, *widget_id)
                         }
                         WidgetType::DatePicker => {
@@ -945,7 +945,7 @@ mod tests {
                 .add_child(WidgetId(0), WidgetType::Column)
                 .expect("add layout");
             view.hierarchy
-                .add_child(layout_id, WidgetType::GenericOverlay)
+                .add_child(layout_id, WidgetType::Popover)
                 .expect("add overlay")
         };
         all_views

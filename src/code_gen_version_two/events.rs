@@ -794,7 +794,7 @@ impl ImportTracker {
                 }
             }
             WidgetType::CollapsibleGroup => {}
-            WidgetType::GenericOverlay => {}
+            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {}
             WidgetType::DatePicker => {
                 self.used_widgets.insert("button");
                 self.used_widgets.insert("stack");
@@ -1387,7 +1387,7 @@ fn generate_message_variants(
             }
             emitted = true;
         }
-        WidgetType::GenericOverlay => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             if has_custom_name {
                 b.line(&format!("{}(bool),", v));
             } else {
@@ -1745,7 +1745,9 @@ fn has_any_message_variants(widget: &Widget) -> bool {
         | WidgetType::VerticalSlider
         | WidgetType::Split
         | WidgetType::Toggler
-        | WidgetType::GenericOverlay
+        | WidgetType::Popover
+        | WidgetType::Menu
+        | WidgetType::Layer
         | WidgetType::DatePicker
         | WidgetType::PickList
         | WidgetType::ComboBox
@@ -2221,7 +2223,7 @@ fn generate_match_arms(
             b.decrease_indent();
             b.line("}");
         }
-        WidgetType::GenericOverlay => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             let arm = if has_custom_name {
                 format!("{}(is_open)", v)
             } else {

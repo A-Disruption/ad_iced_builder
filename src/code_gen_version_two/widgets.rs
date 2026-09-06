@@ -1,10 +1,12 @@
 use super::builder::{CodeBuilder, format_length, to_pascal_case, to_snake_case};
 use super::events::ViewRefInfo;
 use crate::data_structures::types::type_implementations::*;
+use crate::data_structures::properties::properties::Properties;
 use crate::data_structures::types::types::{Widget, WidgetId, WidgetType};
 use crate::enum_builder::TypeSystem;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use iced::widget::text::LineHeight;
+use iced::advanced::graphics::core::length::Bounds;
 use iced::{Alignment, Length, Padding, Point, Theme};
 use std::collections::HashMap;
 
@@ -46,7 +48,25 @@ pub fn generate_widget_code(
             type_system,
             view_refs,
         ),
-        WidgetType::GenericOverlay => generate_generic_overlay(
+        WidgetType::Popover => generate_popover(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
+        WidgetType::Menu => generate_menu(
+            b,
+            widget,
+            names,
+            custom_styles,
+            use_self,
+            type_system,
+            view_refs,
+        ),
+        WidgetType::Layer => generate_layer(
             b,
             widget,
             names,
@@ -409,15 +429,29 @@ fn resolve_collapsible_style_fn(style_name: &str) -> Option<String> {
     }
 }
 
-fn resolve_generic_overlay_style_fn(style_name: &str) -> Option<String> {
-    match style_name {
-        "Primary" => Some("widgets::generic_overlay::primary".to_string()),
-        "Success" => Some("widgets::generic_overlay::success".to_string()),
-        "Danger" => Some("widgets::generic_overlay::danger".to_string()),
-        "Warning" => Some("widgets::generic_overlay::warning".to_string()),
-        "Blank" => Some("widgets::generic_overlay::blank".to_string()),
-        _ => None,
-    }
+/// A style closure for one of the overlay widgets, from a preset name.
+///
+/// The widgets crate dropped `generic_overlay`'s named `primary` / `success` /
+/// `danger` / `warning` / `blank` helpers when it split that widget in three,
+/// so the generated code builds the same five over the widget's own default,
+/// the way the preview does. `module` is `popover`, `menu` or `layer`.
+fn resolve_overlay_style_fn(module: &str, style_name: &str) -> Option<String> {
+    let swatch = match style_name {
+        "Primary" => "primary",
+        "Success" => "success",
+        "Danger" => "danger",
+        "Warning" => "warning",
+        "Blank" => "background",
+        _ => return None,
+    };
+
+    Some(format!(
+        "|theme: &Theme| {{ let palette = theme.palette(); \
+         widgets::{module}::Style {{ \
+         background: iced::Background::Color(palette.{swatch}.base.color), \
+         text_color: palette.{swatch}.base.text, \
+         ..widgets::{module}::default(theme) }} }}"
+    ))
 }
 
 fn resolve_generic_overlay_trigger_style_fn(
@@ -445,35 +479,31 @@ fn resolve_generic_overlay_trigger_style_fn(
     })
 }
 
+/// The side of the trigger an anchored overlay opens on.
 fn generic_overlay_position_code(position: GenericOverlayPosition) -> &'static str {
     match position {
-        GenericOverlayPosition::Top => "widgets::generic_overlay::Position::Top",
-        GenericOverlayPosition::Bottom => "widgets::generic_overlay::Position::Bottom",
-        GenericOverlayPosition::Left => "widgets::generic_overlay::Position::Left",
-        GenericOverlayPosition::Right => "widgets::generic_overlay::Position::Right",
+        GenericOverlayPosition::Top => "widgets::anchor::Side::Top",
+        GenericOverlayPosition::Bottom => "widgets::anchor::Side::Bottom",
+        GenericOverlayPosition::Left => "widgets::anchor::Side::Left",
+        GenericOverlayPosition::Right => "widgets::anchor::Side::Right",
+    }
+}
+
+/// The edge of the viewport a layer sits against.
+fn generic_overlay_anchor_code(position: GenericOverlayPosition) -> &'static str {
+    match position {
+        GenericOverlayPosition::Top => "widgets::layer::Anchor::Top",
+        GenericOverlayPosition::Bottom => "widgets::layer::Anchor::Bottom",
+        GenericOverlayPosition::Left => "widgets::layer::Anchor::Left",
+        GenericOverlayPosition::Right => "widgets::layer::Anchor::Right",
     }
 }
 
 fn generic_overlay_alignment_code(alignment: ContainerAlignX) -> &'static str {
     match alignment {
-        ContainerAlignX::Left => "iced::Alignment::Start",
-        ContainerAlignX::Center => "iced::Alignment::Center",
-        ContainerAlignX::Right => "iced::Alignment::End",
-    }
-}
-
-fn generic_overlay_position_mode_code(mode: GenericOverlayPositionMode) -> &'static str {
-    match mode {
-        GenericOverlayPositionMode::Outside => "widgets::generic_overlay::PositionMode::Outside",
-        GenericOverlayPositionMode::Inside => "widgets::generic_overlay::PositionMode::Inside",
-    }
-}
-
-fn generic_overlay_resize_mode_code(mode: GenericOverlayResizeMode) -> &'static str {
-    match mode {
-        GenericOverlayResizeMode::None => "widgets::generic_overlay::ResizeMode::None",
-        GenericOverlayResizeMode::Always => "widgets::generic_overlay::ResizeMode::Always",
-        GenericOverlayResizeMode::WithCtrl => "widgets::generic_overlay::ResizeMode::WithCtrl",
+        ContainerAlignX::Left => "widgets::anchor::Align::Start",
+        ContainerAlignX::Center => "widgets::anchor::Align::Center",
+        ContainerAlignX::Right => "widgets::anchor::Align::End",
     }
 }
 
@@ -1433,7 +1463,7 @@ fn generate_textinput(
             "None".to_string()
         };
         b.dot_method("icon", &format!(
-            "text_input::Icon {{ font: Font::with_name(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
+            "text_input::Icon {{ font: Font::new(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
             props.text_input_icon_codepoint, size_arg, props.text_input_icon_spacing, side
         ));
     }
@@ -1543,7 +1573,7 @@ fn generate_combobox(
             "None".to_string()
         };
         b.dot_method("icon", &format!(
-            "text_input::Icon {{ font: Font::with_name(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
+            "text_input::Icon {{ font: Font::new(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
             props.combobox_icon_codepoint, size_arg, props.combobox_icon_spacing, side
         ));
     }
@@ -2625,7 +2655,124 @@ fn generate_collapsible_group(
     b.decrease_indent();
 }
 
-fn generate_generic_overlay(
+/// Emits the child at `index`, or a stand-in when there is none.
+fn generate_overlay_child(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    index: usize,
+    placeholder: &str,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    match (use_self, widget.children.get(index)) {
+        (true, Some(child)) => generate_widget_code(
+            b,
+            child,
+            names,
+            use_self,
+            custom_styles,
+            type_system,
+            view_refs,
+        ),
+        (true, None) => {
+            b.indent();
+            b.push(&format!("iced::widget::text(\"{placeholder}\")"));
+        }
+        (false, _) => {
+            b.indent();
+            b.push(&format!("// {placeholder}"));
+        }
+    }
+}
+
+/// The pixel bound the anchored widgets take, from the overlay width property.
+///
+/// See `overlay_width_bound` in the preview: those widgets size themselves to
+/// their contents between pixel bounds, so only a fixed or upper-bounded
+/// length carries over from the old `Length`-valued property.
+fn overlay_width_bound_code(width: Length) -> Option<f32> {
+    match width {
+        Length::Fixed(w) => Some(w),
+        Length::Bounded {
+            bounds: Bounds::Max(w) | Bounds::Both { max: w, .. },
+            ..
+        } => Some(w),
+        _ => None,
+    }
+}
+
+/// The `widgets::animation::Motion` constant for an animation preset.
+fn overlay_motion_code(preset: GenericOverlayAnimationPreset) -> &'static str {
+    match preset {
+        GenericOverlayAnimationPreset::Default => "widgets::animation::Motion::SMOOTH",
+        GenericOverlayAnimationPreset::Quick => "widgets::animation::Motion::QUICK",
+        GenericOverlayAnimationPreset::Slow => {
+            "widgets::animation::Motion::SMOOTH.duration(std::time::Duration::from_millis(420))"
+        }
+    }
+}
+
+/// Emits the shared surface settings of an anchored overlay.
+fn generate_anchored_common(b: &mut CodeBuilder, props: &Properties, include_side_extras: bool) {
+    if props.generic_overlay_hover_position != GenericOverlayPosition::Right {
+        b.dot_method(
+            "side",
+            generic_overlay_position_code(props.generic_overlay_hover_position),
+        );
+    }
+    if props.generic_overlay_hover_alignment != ContainerAlignX::Center {
+        b.dot_method(
+            "align",
+            generic_overlay_alignment_code(props.generic_overlay_hover_alignment),
+        );
+    }
+
+    // `PositionMode::Inside` had no counterpart in the new widgets; a negative
+    // gap is what pulls a surface back over its trigger.
+    let gap = props
+        .generic_overlay_hover_mode
+        .signed_gap(props.generic_overlay_hover_gap);
+
+    if (gap - 5.0).abs() > f32::EPSILON {
+        b.dot_method("gap", &format!("{gap:.1}"));
+    }
+
+    if include_side_extras && !props.generic_overlay_hover_snap {
+        b.dot_method("flip", "false");
+    }
+
+    if let Some(width) = overlay_width_bound_code(props.generic_overlay_overlay_width) {
+        b.dot_method("min_width", &format!("{width:.1}"));
+        b.dot_method("max_width", &format!("{width:.1}"));
+    }
+
+    if (props.generic_overlay_overlay_padding - 15.0).abs() > f32::EPSILON {
+        b.dot_method(
+            "padding",
+            &format!("{:.1}", props.generic_overlay_overlay_padding),
+        );
+    }
+    if (props.generic_overlay_overlay_radius - 12.0).abs() > f32::EPSILON {
+        b.dot_method(
+            "radius",
+            &format!("{:.1}", props.generic_overlay_overlay_radius),
+        );
+    }
+
+    if props.generic_overlay_animate {
+        b.dot_method(
+            "motion",
+            overlay_motion_code(props.generic_overlay_animation_preset),
+        );
+    } else {
+        b.dot_method_no_args("no_animation");
+    }
+}
+
+fn generate_popover(
     b: &mut CodeBuilder,
     widget: &Widget,
     names: &HashMap<WidgetId, String>,
@@ -2640,49 +2787,128 @@ fn generate_generic_overlay(
         .unwrap_or(&"widget".to_string())
         .clone();
     let has_custom_name = !props.widget_name.trim().is_empty();
-    let has_trigger_child = widget.children.get(0).is_some();
-    let uses_hover_placement =
-        props.generic_overlay_on_hover || props.generic_overlay_hover_positions_on_click;
-    let default_padding = Padding {
-        top: 5.0,
-        bottom: 5.0,
-        right: 10.0,
-        left: 10.0,
-    };
 
     b.indent();
-    b.push("widgets::generic_overlay::overlay_button(");
+    b.push("widgets::popover::popover(");
     b.newline();
     b.increase_indent();
 
-    if use_self {
-        if let Some(child) = widget.children.get(0) {
-            generate_widget_code(
-                b,
-                child,
-                names,
-                use_self,
-                custom_styles,
-                type_system,
-                view_refs,
-            );
-        } else {
-            b.indent();
-            b.push(&format!("iced::widget::text(\"{}\")", props.text_content));
-        }
-    } else {
-        b.indent();
-        b.push("// trigger content");
-    }
-
+    generate_overlay_child(
+        b,
+        widget,
+        0,
+        "Trigger",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
     b.push(",");
     b.newline();
-    b.indent();
-    b.push(&format!("\"{}\",", props.generic_overlay_title));
+    generate_overlay_child(
+        b,
+        widget,
+        1,
+        "Popover content",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
     b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    if let Some(ref id) = props.widget_id
+        && !id.is_empty()
+    {
+        b.add_id(id);
+    }
+
+    if props.generic_overlay_on_hover {
+        b.dot_method_no_args("on_hover");
+    }
+
+    generate_anchored_common(b, props, true);
+
+    if props.generic_overlay_close_on_click_outside {
+        b.dot_method("dismiss_on_outside_press", "true");
+    }
+    if !props.generic_overlay_safe_triangle {
+        b.dot_method("safe_corridor", "false");
+    }
 
     if use_self {
-        if let Some(child) = widget.children.get(1) {
+        let variant = CodeBuilder::msg_variant(&name, "Toggled", has_custom_name);
+        b.dot_method("open", &format!("self.{}_open", to_snake_case(&name)));
+        b.dot_method("on_toggle", &format!("Message::{variant}"));
+    } else {
+        b.dot_method("open", "false");
+        b.newline();
+        b.indent();
+        b.push(".on_toggle(|_| Message::Noop)");
+    }
+
+    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+        && let Some(style_fn) = resolve_overlay_style_fn("popover", style_name)
+    {
+        b.dot_method("style", &style_fn);
+    }
+
+    b.decrease_indent();
+}
+
+fn generate_menu(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let has_custom_name = !props.widget_name.trim().is_empty();
+
+    b.indent();
+    b.push("widgets::menu::menu(");
+    b.newline();
+    b.increase_indent();
+
+    generate_overlay_child(
+        b,
+        widget,
+        0,
+        "Trigger",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
+    b.push(",");
+    b.newline();
+
+    // Every child after the trigger is one row of the panel.
+    b.indent();
+    b.push("vec![");
+    b.newline();
+    b.increase_indent();
+
+    if use_self && widget.children.len() > 1 {
+        for child in &widget.children[1..] {
+            b.indent();
+            b.push("widgets::menu::item(");
+            b.newline();
+            b.increase_indent();
             generate_widget_code(
                 b,
                 child,
@@ -2692,14 +2918,85 @@ fn generate_generic_overlay(
                 type_system,
                 view_refs,
             );
-        } else {
+            b.newline();
+            b.decrease_indent();
             b.indent();
-            b.push("iced::widget::text(\"Overlay content\")");
+            b.push("),");
+            b.newline();
         }
     } else {
         b.indent();
-        b.push("// overlay content");
+        b.push("// menu items");
+        b.newline();
     }
+
+    b.decrease_indent();
+    b.indent();
+    b.push("],");
+    b.newline();
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    if let Some(ref id) = props.widget_id
+        && !id.is_empty()
+    {
+        b.add_id(id);
+    }
+
+    generate_anchored_common(b, props, false);
+
+    if use_self {
+        let variant = CodeBuilder::msg_variant(&name, "Toggled", has_custom_name);
+        b.dot_method("on_toggle", &format!("Message::{variant}"));
+    } else {
+        b.newline();
+        b.indent();
+        b.push(".on_toggle(|_| Message::Noop)");
+    }
+
+    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+        && let Some(style_fn) = resolve_overlay_style_fn("menu", style_name)
+    {
+        b.dot_method("style", &style_fn);
+    }
+
+    b.decrease_indent();
+}
+
+fn generate_layer(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let has_custom_name = !props.widget_name.trim().is_empty();
+
+    b.indent();
+    b.push("widgets::layer::layer(");
+    b.newline();
+    b.increase_indent();
+
+    generate_overlay_child(
+        b,
+        widget,
+        0,
+        "Layer content",
+        names,
+        custom_styles,
+        use_self,
+        type_system,
+        view_refs,
+    );
 
     b.newline();
     b.decrease_indent();
@@ -2707,199 +3004,94 @@ fn generate_generic_overlay(
     b.push(")");
     b.increase_indent();
 
-    if let Some(ref id) = props.widget_id {
-        if !id.is_empty() {
-            b.add_id(id);
-        }
+    if let Some(ref id) = props.widget_id
+        && !id.is_empty()
+    {
+        b.add_id(id);
     }
 
-    if has_trigger_child {
-        b.dot_method("width", "Length::Shrink");
-        b.dot_method("height", "Length::Shrink");
-        b.dot_method("padding", "0.0");
-        b.dot_method("style", "iced::widget::button::text");
+    if use_self {
+        b.dot_method("open", &format!("self.{}_open", to_snake_case(&name)));
     } else {
-        if !matches!(props.width, Length::Shrink) {
-            b.add_width(props.width);
-        }
-        if !matches!(props.height, Length::Shrink) {
-            b.add_height(props.height);
-        }
-        if props.padding_mode != PaddingMode::Symmetric || props.padding != default_padding {
-            b.add_padding(&props.padding, props.padding_mode);
-        }
-    }
-    if props.clip {
-        b.dot_method("button_clip", "true");
+        b.dot_method("open", "false");
     }
 
-    if props.generic_overlay_overlay_width_dynamic {
+    // A layer is placed against the viewport, so the same property that gives a
+    // popover its side gives a layer its anchor, and the gap becomes a margin.
+    if props.generic_overlay_hover_position != GenericOverlayPosition::Right {
         b.dot_method(
-            "overlay_width_dynamic",
-            &format!(
-                "|available| Length::Fixed(available * {:.4})",
-                props.generic_overlay_overlay_width_dynamic_factor
-            ),
-        );
-    } else if props.generic_overlay_overlay_width != Length::Fixed(400.0) {
-        b.dot_method(
-            "overlay_width",
-            &format_length(props.generic_overlay_overlay_width),
+            "anchor",
+            generic_overlay_anchor_code(props.generic_overlay_hover_position),
         );
     }
-    if props.generic_overlay_overlay_height_dynamic {
+    if (props.generic_overlay_hover_gap - 5.0).abs() > f32::EPSILON {
+        b.dot_method("margin", &format!("{:.1}", props.generic_overlay_hover_gap));
+    }
+
+    if !props.generic_overlay_hide_header {
+        b.dot_method("title", &format!("\"{}\"", props.generic_overlay_title));
+    }
+    if props.generic_overlay_hide_close_button {
+        b.dot_method("close_button", "false");
+    }
+    if props.generic_overlay_block_dragging {
+        b.dot_method("draggable", "false");
+    }
+    if props.generic_overlay_resizable.is_resizable() {
+        b.dot_method("resizable", "true");
+    }
+    if props.generic_overlay_opaque {
         b.dot_method(
-            "overlay_height_dynamic",
-            &format!(
-                "|available| Length::Fixed(available * {:.4})",
-                props.generic_overlay_overlay_height_dynamic_factor
-            ),
+            "backdrop",
+            &format!("{:.2}", props.generic_overlay_opaque_alpha),
         );
-    } else if !matches!(props.generic_overlay_overlay_height, Length::Shrink) {
-        b.dot_method(
-            "overlay_height",
-            &format_length(props.generic_overlay_overlay_height),
-        );
+    }
+    if props.generic_overlay_close_on_click_outside {
+        b.dot_method("dismiss_on_backdrop", "true");
+    }
+
+    if let Some(width) = overlay_width_bound_code(props.generic_overlay_overlay_width) {
+        b.dot_method("min_width", &format!("{width:.1}"));
+        b.dot_method("max_width", &format!("{width:.1}"));
+    }
+    if let Length::Fixed(height) = props.generic_overlay_overlay_height {
+        b.dot_method("min_height", &format!("{height:.1}"));
     }
     if (props.generic_overlay_overlay_padding - 15.0).abs() > f32::EPSILON {
         b.dot_method(
-            "overlay_padding",
+            "padding",
             &format!("{:.1}", props.generic_overlay_overlay_padding),
         );
     }
     if (props.generic_overlay_overlay_radius - 12.0).abs() > f32::EPSILON {
         b.dot_method(
-            "overlay_radius",
+            "radius",
             &format!("{:.1}", props.generic_overlay_overlay_radius),
         );
     }
 
-    if props.generic_overlay_on_hover {
-        b.dot_method_no_args("on_hover");
-    }
-    if props.generic_overlay_hover_positions_on_click {
-        b.dot_method_no_args("hover_positions_on_click");
-    }
-    if uses_hover_placement {
-        if props.generic_overlay_hover_position != GenericOverlayPosition::Right {
-            b.dot_method(
-                "hover_position",
-                generic_overlay_position_code(props.generic_overlay_hover_position),
-            );
-        }
-        if (props.generic_overlay_hover_gap - 5.0).abs() > f32::EPSILON {
-            b.dot_method(
-                "hover_gap",
-                &format!("{:.1}", props.generic_overlay_hover_gap),
-            );
-        }
-        if props.generic_overlay_hover_alignment != ContainerAlignX::Center {
-            b.dot_method(
-                "hover_alignment",
-                generic_overlay_alignment_code(props.generic_overlay_hover_alignment),
-            );
-        }
-        if props.generic_overlay_hover_mode != GenericOverlayPositionMode::Outside {
-            b.dot_method(
-                "hover_mode",
-                generic_overlay_position_mode_code(props.generic_overlay_hover_mode),
-            );
-        }
-        if !props.generic_overlay_hover_snap {
-            b.dot_method("hover_snap", "false");
-        }
-        if !props.generic_overlay_safe_triangle {
-            b.dot_method("safe_triangle", "false");
-        }
+    if props.generic_overlay_animate {
+        b.dot_method(
+            "motion",
+            overlay_motion_code(props.generic_overlay_animation_preset),
+        );
+    } else {
+        b.dot_method_no_args("no_animation");
     }
 
-    if props.generic_overlay_close_on_click_outside {
-        b.dot_method_no_args("close_on_click_outside");
-    }
-    if props.generic_overlay_opaque {
-        b.dot_method("opaque", "true");
-    }
-    if (props.generic_overlay_opaque_alpha - 0.3).abs() > f32::EPSILON {
-        b.dot_method(
-            "opaque_alpha",
-            &format!("{:.2}", props.generic_overlay_opaque_alpha),
-        );
-    }
-    if props.generic_overlay_hide_header {
-        b.dot_method_no_args("hide_header");
-    }
-    if props.generic_overlay_hide_close_button {
-        b.dot_method_no_args("hide_close_button");
-    }
-    if props.generic_overlay_block_dragging {
-        b.dot_method_no_args("block_dragging");
-    }
-    if props.generic_overlay_resizable != GenericOverlayResizeMode::None {
-        b.dot_method(
-            "resizable",
-            generic_overlay_resize_mode_code(props.generic_overlay_resizable),
-        );
-    }
-    if props.generic_overlay_reset_on_close {
-        b.dot_method_no_args("reset_on_close");
-    }
-    b.dot_method("interactive_base", "true");
+    // A layer has no trigger of its own, so the only message it sends is the
+    // one that closes it.
     if use_self {
         let variant = CodeBuilder::msg_variant(&name, "Toggled", has_custom_name);
-        b.dot_method("is_open", &format!("self.{}_open", to_snake_case(&name)));
-        b.dot_method("on_toggle", &format!("Message::{}", variant));
+        b.dot_method("on_dismiss", &format!("Message::{variant}(false)"));
     } else {
-        b.dot_method("is_open", "false");
-        b.newline();
-        b.indent();
-        b.push(".on_toggle(|_| Message::Noop)");
-    }
-    if props.generic_overlay_animate {
-        match props.generic_overlay_animation_preset {
-            GenericOverlayAnimationPreset::Default => b.dot_method("animate", "true"),
-            GenericOverlayAnimationPreset::Quick => b.dot_method_no_args("quick_animation"),
-            GenericOverlayAnimationPreset::Slow => b.dot_method_no_args("slow_animation"),
-        }
+        b.dot_method("on_dismiss", "Message::Noop");
     }
 
-    let default_style = props
-        .custom_style_name
-        .as_deref()
-        .and_then(|style_name| resolve_generic_overlay_trigger_style_fn(custom_styles, style_name));
-    let alternate_style = props
-        .active_style_name
-        .as_deref()
-        .and_then(|style_name| resolve_generic_overlay_trigger_style_fn(custom_styles, style_name));
-    let (uses_condition, condition) = style_condition_code(widget);
-
-    if !has_trigger_child {
-        match (&default_style, &alternate_style, &condition, uses_condition) {
-            (_, Some(alternate_fn), Some(cond), true) => {
-                let default_fn = default_style
-                    .as_deref()
-                    .unwrap_or("iced::widget::button::primary");
-                b.dot_method(
-                    "style",
-                    &format!(
-                        "{{ let _use_alternate = {}; move |theme: &Theme, status: iced::widget::button::Status| if _use_alternate {{ {}(theme, status) }} else {{ {}(theme, status) }} }}",
-                        cond, alternate_fn, default_fn
-                    ),
-                );
-            }
-            (_, Some(alternate_fn), _, false) => {
-                b.dot_method("style", alternate_fn);
-            }
-            (Some(default_fn), _, _, _) => {
-                b.dot_method("style", default_fn);
-            }
-            _ => {}
-        }
-    }
-
-    if let Some(ref style_name) = props.generic_overlay_overlay_style_name {
-        if let Some(style_fn) = resolve_generic_overlay_style_fn(style_name) {
-            b.dot_method("overlay_style", &style_fn);
-        }
+    if let Some(ref style_name) = props.generic_overlay_overlay_style_name
+        && let Some(style_fn) = resolve_overlay_style_fn("layer", style_name)
+    {
+        b.dot_method("style", &style_fn);
     }
 
     b.decrease_indent();

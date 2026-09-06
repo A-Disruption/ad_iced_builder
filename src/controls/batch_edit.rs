@@ -196,7 +196,12 @@ fn batch_length_picker<'a>(
 
     let picker = column![
         text(label).size(LABEL_SIZE),
-        pick_list(available_choices, Some(choice_now), move |choice| {
+        pick_list(
+            Some(choice_now),
+            available_choices,
+            ToString::to_string,
+        )
+        .on_select(move |choice| {
             // When changing choice, use default values
             let new_len = match choice {
                 LengthChoice::Fill => Length::Fill,
@@ -220,7 +225,7 @@ fn batch_length_picker<'a>(
         LengthChoice::Fixed => {
             column![
                 text("Pixels").size(LABEL_SIZE),
-                text_input::<Message, Theme, iced::Renderer>("e.g. 120", &draft_fixed)
+                text_input::<Message, Theme, iced::Renderer>("e.g. 120", draft_fixed)
                     .on_input(move |text| {
                         // Update draft field
                         if is_height {
@@ -237,7 +242,7 @@ fn batch_length_picker<'a>(
         LengthChoice::FillPortion => {
             column![
                 text("Portion").size(LABEL_SIZE),
-                text_input::<Message, Theme, iced::Renderer>("e.g. 1", &draft_fill_portion)
+                text_input::<Message, Theme, iced::Renderer>("e.g. 1", draft_fill_portion)
                     .on_input(move |text| {
                         // Update draft field
                         if is_height {

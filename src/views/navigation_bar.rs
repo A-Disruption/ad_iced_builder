@@ -19,7 +19,7 @@ pub fn navigation_bar<'a>(
     theme: &'a Theme,
 ) -> Element<'a, Message> {
     let background = theme
-        .extended_palette()
+        .palette()
         .background
         .weakest
         .color

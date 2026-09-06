@@ -2,6 +2,7 @@ use crate::data_structures::types::type_implementations::{
     ContentFitChoice, FontType, MouseInteraction, PaddingMode,
 };
 use iced::widget::text::LineHeight;
+use iced::advanced::graphics::core::length::{Bounds, Constraint, Sizing};
 use iced::{Alignment, Length, Padding};
 
 pub struct CodeBuilder {
@@ -333,8 +334,32 @@ pub fn format_length(length: Length) -> String {
     match length {
         Length::Fill => "Length::Fill".to_string(),
         Length::Shrink => "Length::Shrink".to_string(),
+        Length::Fit => "Length::Fit".to_string(),
         Length::Fixed(px) => format!("Length::Fixed({:.1})", px),
         Length::FillPortion(p) => format!("Length::FillPortion({})", p),
+        // `Bounded` and `Fluid` arrived with iced master, which folded
+        // `max_width` / `max_height` into the length itself. Both are emitted
+        // through the `.min()` / `.max()` builders rather than as struct
+        // literals, so generated code never has to import `Bounds`, `Sizing`
+        // or `Constraint`.
+        Length::Bounded { bounds, sizing } => {
+            let base = match sizing {
+                Sizing::Fit => "Length::Fit".to_string(),
+                Sizing::Shrink => "Length::Shrink".to_string(),
+                Sizing::Fill(1) => "Length::Fill".to_string(),
+                Sizing::Fill(p) => format!("Length::FillPortion({})", p),
+            };
+
+            match bounds {
+                Bounds::Min(min) => format!("{}.min({:.1})", base, min),
+                Bounds::Max(max) => format!("{}.max({:.1})", base, max),
+                Bounds::Both { min, max } => format!("{}.min({:.1}).max({:.1})", base, min, max),
+            }
+        }
+        // Layout produces `Fluid` when it merges lengths; nothing the builder
+        // hands out ever carries one, so these are here for exhaustiveness.
+        Length::Fluid(Constraint::Min(min)) => format!("Length::Fill.min({:.1})", min),
+        Length::Fluid(Constraint::Max) => "Length::Fill".to_string(),
     }
 }
 

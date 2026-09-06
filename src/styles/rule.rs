@@ -3,7 +3,7 @@ pub use iced::widget::rule::*;
 
 /// A [`Rule`] styling using the weak background color.
 pub fn rule_weak(theme: &Theme) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     Style {
         color: palette.background.weak.color,
@@ -15,7 +15,7 @@ pub fn rule_weak(theme: &Theme) -> Style {
 
 /// A [`Rule`] styling using the strong background color.
 pub fn rule_strong(theme: &Theme) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     Style {
         color: palette.background.strong.color,

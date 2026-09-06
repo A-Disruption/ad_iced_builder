@@ -1042,7 +1042,7 @@ pub fn view<'a>(
     .clip(true)
     .style(|theme: &iced::Theme| {
         let background = theme
-            .extended_palette()
+            .palette()
             .background
             .weakest
             .color
@@ -1548,7 +1548,7 @@ fn mix_color(a: Color, b: Color, amount: f32) -> Color {
 }
 
 fn flow_editor_style_tokens(theme: &iced::Theme) -> widgets::flow_editor::Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
     let mut style = widgets::flow_editor::Style::from_theme(theme);
     style.canvas_bg = palette.background.base.color;
     style.grid_line = color_alpha(palette.background.strong.color, 0.18);
@@ -1572,7 +1572,7 @@ fn flow_editor_style_tokens(theme: &iced::Theme) -> widgets::flow_editor::Style 
 
 fn semantic_row_style(theme: &iced::Theme, tone: RowTone) -> iced::widget::container::Style {
     let style = flow_editor_style_tokens(theme);
-    let warning = theme.extended_palette().warning.base.color;
+    let warning = theme.palette().warning.base.color;
     let (bg, border_color) = match tone {
         RowTone::Neutral => (
             color_alpha(style.node_border, 0.10),
@@ -1801,10 +1801,11 @@ fn build_node_header<'a>(
                 .map(|t| t.kind_label())
                 .collect();
             pick_list(
-                kind_labels,
                 Some(trigger.kind_label()),
-                move |label: &'static str| Message::SetFlowTriggerKind(fid, label),
+                kind_labels,
+                ToString::to_string,
             )
+            .on_select(move |label: &'static str| Message::SetFlowTriggerKind(fid, label))
             .width(Length::Fixed(146.0))
             .text_size(11.0)
             .style(header_picker_style)
@@ -1818,10 +1819,11 @@ fn build_node_header<'a>(
             let selected_mode = infer_navigate_mode(targets);
             Some(
                 pick_list(
-                    mode_options,
                     Some(selected_mode),
-                    move |mode: NavigateModeOption| Message::NavigateModeSelected(nid, mode),
+                    mode_options,
+                    ToString::to_string,
                 )
+                .on_select(move |mode: NavigateModeOption| Message::NavigateModeSelected(nid, mode))
                 .width(Length::Fixed(162.0))
                 .text_size(11.0)
                 .style(header_picker_style)
@@ -1829,7 +1831,12 @@ fn build_node_header<'a>(
             )
         }
         ActionNodeKind::Match { enum_type, .. } => Some(
-            pick_list(enum_names, enum_type.clone(), move |name: String| {
+            pick_list(
+                enum_type.clone(),
+                enum_names,
+                ToString::to_string,
+            )
+            .on_select(move |name: String| {
                 Message::SetMatchEnumType(nid, name)
             })
             .placeholder("String arms")
@@ -1880,10 +1887,11 @@ fn build_node_body<'a>(
                                 .unwrap_or(false);
 
                             let event_picker = pick_list(
-                                all_event_types(),
                                 Some(row_data.event_type.clone()),
-                                move |e: String| Message::SetRowEventType(fid, rid, e),
+                                all_event_types(),
+                                ToString::to_string,
                             )
+                            .on_select(move |e: String| Message::SetRowEventType(fid, rid, e))
                             .width(pxf(108.0))
                             .text_size(txt(10.5));
 
@@ -1907,16 +1915,17 @@ fn build_node_body<'a>(
                                 });
 
                             let widget_picker = pick_list(
-                                widget_opts,
                                 selected_widget,
-                                move |opt: WidgetOption| {
+                                widget_opts,
+                                ToString::to_string,
+                            )
+                            .on_select(move |opt: WidgetOption| {
                                     Message::SetRowTarget(
                                         fid,
                                         rid,
                                         Some((opt.view_id, opt.widget_id)),
                                     )
-                                },
-                            )
+                                })
                             .placeholder("Widget target...")
                             .width(Length::Fill)
                             .text_size(txt(10.5));
@@ -2091,7 +2100,12 @@ fn build_node_body<'a>(
             for (idx, assignment) in assignments.iter().enumerate() {
                 let sf_opts: Vec<StateFieldRef> = state_fields.to_vec();
                 let selected_sf = assignment.target.clone();
-                let field_picker = pick_list(sf_opts, selected_sf, move |sf: StateFieldRef| {
+                let field_picker = pick_list(
+                    selected_sf,
+                    sf_opts,
+                    ToString::to_string,
+                )
+                .on_select(move |sf: StateFieldRef| {
                     Message::StateMutationSetTarget(nid, idx, sf)
                 })
                 .placeholder("Select state field...")
@@ -2137,7 +2151,12 @@ fn build_node_body<'a>(
                                         None
                                     };
                                 let opts: Vec<String> = variants.clone();
-                                pick_list(opts, current_variant, move |variant: String| {
+                                pick_list(
+                                    current_variant,
+                                    opts,
+                                    ToString::to_string,
+                                )
+                                .on_select(move |variant: String| {
                                     Message::StateMutationSetLiteralEnum(
                                         nid,
                                         idx,
@@ -2218,7 +2237,12 @@ fn build_node_body<'a>(
                 let target_picker: Element<'_, Message> = match (selected_mode, target) {
                     (NavigateModeOption::AppView, Some(NavigateTarget::AppView { view_id })) => {
                         let selected = view_options.iter().find(|v| v.id == *view_id).cloned();
-                        pick_list(view_options.clone(), selected, move |opt: ViewOption| {
+                        pick_list(
+                            selected,
+                            view_options.clone(),
+                            ToString::to_string,
+                        )
+                        .on_select(move |opt: ViewOption| {
                             Message::NavigateAppViewSelected(nid, slot, opt.id)
                         })
                         .placeholder("Select app view...")
@@ -2227,10 +2251,11 @@ fn build_node_body<'a>(
                         .into()
                     }
                     (NavigateModeOption::AppView, _) => pick_list(
-                        view_options.clone(),
                         None::<ViewOption>,
-                        move |opt: ViewOption| Message::NavigateAppViewSelected(nid, slot, opt.id),
+                        view_options.clone(),
+                        ToString::to_string,
                     )
+                    .on_select(move |opt: ViewOption| Message::NavigateAppViewSelected(nid, slot, opt.id))
                     .placeholder("Select app view...")
                     .width(Length::Fill)
                     .text_size(txt(10.5))
@@ -2260,21 +2285,27 @@ fn build_node_body<'a>(
 
                         column![
                             pick_list(
-                                view_reference_choices.clone(),
                                 selected_ref.cloned(),
-                                move |choice: ViewReferenceChoice| {
+                                view_reference_choices.clone(),
+                                ToString::to_string,
+                            )
+                            .on_select(move |choice: ViewReferenceChoice| {
                                     Message::NavigateViewReferenceSelected(
                                         nid,
                                         slot,
                                         choice.owner_view_id,
                                         choice.widget_id,
                                     )
-                                }
-                            )
+                                })
                             .placeholder("Select View Reference...")
                             .width(Length::Fill)
                             .text_size(txt(10.5)),
-                            pick_list(target_options, selected_target, move |opt: ViewOption| {
+                            pick_list(
+                                selected_target,
+                                target_options,
+                                ToString::to_string,
+                            )
+                            .on_select(move |opt: ViewOption| {
                                 Message::NavigateViewReferenceTargetSelected(nid, slot, opt.id)
                             })
                             .placeholder("Select target view...")
@@ -2294,17 +2325,18 @@ fn build_node_body<'a>(
                         } else {
                             column![
                                 pick_list(
-                                    view_reference_choices.clone(),
                                     None::<ViewReferenceChoice>,
-                                    move |choice: ViewReferenceChoice| {
+                                    view_reference_choices.clone(),
+                                    ToString::to_string,
+                                )
+                                .on_select(move |choice: ViewReferenceChoice| {
                                         Message::NavigateViewReferenceSelected(
                                             nid,
                                             slot,
                                             choice.owner_view_id,
                                             choice.widget_id,
                                         )
-                                    }
-                                )
+                                    })
                                 .placeholder("Select View Reference...")
                                 .width(Length::Fill)
                                 .text_size(txt(10.5)),
@@ -2379,10 +2411,11 @@ fn build_node_body<'a>(
                     text("Conditions").size(txt(11.0)),
                     Space::new().width(Length::Fill),
                     pick_list(
-                        vec![ConditionJoinMode::All, ConditionJoinMode::Any],
                         Some(node.authored_condition_join),
-                        move |mode| Message::SetConditionalJoinMode(nid, mode),
+                        vec![ConditionJoinMode::All, ConditionJoinMode::Any],
+                        ToString::to_string,
                     )
+                    .on_select(move |mode| Message::SetConditionalJoinMode(nid, mode))
                     .width(pxf(118.0))
                     .text_size(txt(10.5))
                     .style(header_picker_style)
@@ -2415,10 +2448,11 @@ fn build_node_body<'a>(
                     .unwrap_or(false);
 
                 let source_picker = pick_list(
-                    source_options.clone(),
                     selected_source.clone(),
-                    move |source| Message::SetConditionalSource(nid, idx, source),
+                    source_options.clone(),
+                    ToString::to_string,
                 )
+                .on_select(move |source| Message::SetConditionalSource(nid, idx, source))
                 .placeholder("Left value")
                 .width(if needs_rhs {
                     Length::FillPortion(4)
@@ -2427,10 +2461,11 @@ fn build_node_body<'a>(
                 })
                 .text_size(txt(10.5));
                 let op_picker = pick_list(
-                    operator_options.clone(),
                     selected_operator.clone(),
-                    move |op| Message::SetConditionalOperator(nid, idx, op),
+                    operator_options.clone(),
+                    ToString::to_string,
                 )
+                .on_select(move |op| Message::SetConditionalOperator(nid, idx, op))
                 .placeholder("Operator")
                 .width(if needs_rhs {
                     Length::FillPortion(3)
@@ -2464,7 +2499,12 @@ fn build_node_body<'a>(
                                 ActionValue::EnumVariant { variant, .. } => Some(variant.clone()),
                                 _ => variants.first().cloned(),
                             };
-                            pick_list(variants.clone(), selected_variant, move |variant| {
+                            pick_list(
+                                selected_variant,
+                                variants.clone(),
+                                ToString::to_string,
+                            )
+                            .on_select(move |variant| {
                                 Message::SetConditionalRhsText(nid, idx, variant)
                             })
                             .placeholder("Variant")
@@ -2590,10 +2630,11 @@ fn build_node_body<'a>(
             col = col.push(
                 container(
                     pick_list(
-                        source_options.clone(),
                         selected_source.clone(),
-                        move |source| Message::SetMatchSubjectSource(nid, source),
+                        source_options.clone(),
+                        ToString::to_string,
                     )
+                    .on_select(move |source| Message::SetMatchSubjectSource(nid, source))
                     .placeholder("Subject source")
                     .width(Length::Fill)
                     .text_size(txt(10.5)),
@@ -2613,7 +2654,12 @@ fn build_node_body<'a>(
                         _ => arms.first().cloned(),
                     };
                     container(
-                        pick_list(arms.clone(), selected_variant, move |variant| {
+                        pick_list(
+                            selected_variant,
+                            arms.clone(),
+                            ToString::to_string,
+                        )
+                        .on_select(move |variant| {
                             Message::SetMatchSubjectLiteral(nid, variant)
                         })
                         .placeholder("Literal subject variant")
@@ -2730,10 +2776,11 @@ fn build_node_body<'a>(
             } else {
                 container(
                     pick_list(
-                        callable_flow_options,
                         selected,
-                        move |opt: CallableFlowOption| Message::SetCallFlowTarget(nid, opt.id),
+                        callable_flow_options,
+                        ToString::to_string,
                     )
+                    .on_select(move |opt: CallableFlowOption| Message::SetCallFlowTarget(nid, opt.id))
                     .placeholder("Select callable flow...")
                     .width(Length::Fill)
                     .text_size(txt(10.8)),
@@ -3048,7 +3095,7 @@ fn collect_fields_from_widget(
         WidgetType::Toggler => {
             out.push(make_widget_ref("_active", ActionValueType::Bool, "active"));
         }
-        WidgetType::GenericOverlay => {
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             out.push(make_widget_ref("_open", ActionValueType::Bool, "open"));
         }
         WidgetType::DatePicker => {
@@ -3581,7 +3628,7 @@ mod tests {
     #[test]
     fn collect_state_fields_includes_generic_overlay_open_field() {
         let (all_views, view_id, widget_id) =
-            single_view_with_widget(WidgetType::GenericOverlay, |_| {});
+            single_view_with_widget(WidgetType::Popover, |_| {});
 
         let fields = collect_state_fields(&all_views);
         let overlay_field = fields.iter().find(|field| {

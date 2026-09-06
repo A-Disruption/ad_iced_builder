@@ -1,3 +1,4 @@
+pub mod flow_model;
 pub mod custom_state;
 pub mod events;
 pub mod flow;

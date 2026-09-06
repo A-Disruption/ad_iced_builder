@@ -327,8 +327,14 @@ impl<'a> CodeGeneratorV2<'a> {
             WidgetType::Collapsible | WidgetType::CollapsibleGroup => {
                 widget_features.insert("collapsible");
             }
-            WidgetType::GenericOverlay => {
-                widget_features.insert("generic_overlay");
+            WidgetType::Popover => {
+                widget_features.insert("popover");
+            }
+            WidgetType::Menu => {
+                widget_features.insert("menu");
+            }
+            WidgetType::Layer => {
+                widget_features.insert("layer");
             }
             WidgetType::DatePicker => {
                 widget_features.insert("date_picker");
@@ -735,18 +741,27 @@ fn generate_cargo_toml(
             features
         )
     };
+    // The published `iced_split` is pinned to `iced_core` 0.14 and only exists
+    // at 0.1.0, so generated projects take the same fork the builder does.
     let iced_split_dep = if needs_iced_split {
-        "iced_split = \"0.1.0\"\n"
+        "iced_split = { git = \"https://github.com/A-Disruption/iced_split.git\" }\n"
     } else {
         ""
     };
 
+    // iced 0.15 is unreleased, so a `[patch.crates-io]` entry is not optional:
+    // cargo cannot resolve `0.15.0-dev` from crates.io without it, and every
+    // crate in the graph asking for that version has to resolve to the same
+    // checkout for `Element` and `Theme` to be one type across all of them.
+    let patch = "\n[patch.crates-io]\niced = { git = \"https://github.com/iced-rs/iced.git\", branch = \"master\" }\n";
+
     format!(
-        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.14.0\", features = [\n{}\n] }}\n{}{}{}",
+        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.15.0-dev\", features = [\n{}\n] }}\n{}{}{}{}",
         to_snake_case(app_name),
         features_str,
         iced_split_dep,
         widgets_dep,
         build_deps,
+        patch,
     )
 }

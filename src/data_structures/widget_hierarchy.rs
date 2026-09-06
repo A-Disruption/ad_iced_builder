@@ -142,7 +142,9 @@ impl WidgetHierarchy {
                             | WidgetType::Container
                             | WidgetType::Collapsible
                             | WidgetType::CollapsibleGroup
-                            | WidgetType::GenericOverlay
+                            | WidgetType::Popover
+                            | WidgetType::Menu
+                            | WidgetType::Layer
                             | WidgetType::Split
                             | WidgetType::Responsive
                             | WidgetType::Float
@@ -153,7 +155,11 @@ impl WidgetHierarchy {
                 WidgetType::Button => parent.children.is_empty(),
                 WidgetType::Collapsible => parent.children.is_empty(),
                 WidgetType::CollapsibleGroup => matches!(widget_type, WidgetType::Collapsible),
-                WidgetType::GenericOverlay => parent.children.len() < 2,
+                // Popover takes a trigger and its content; Layer is the content
+                // alone, positioned against the viewport; Menu takes a trigger
+                // and then one child per row.
+                WidgetType::Popover => parent.children.len() < 2,
+                WidgetType::Layer => parent.children.is_empty(),
                 WidgetType::Split => parent.children.len() < 2,
                 WidgetType::Responsive => parent.children.len() < 2,
                 WidgetType::Tooltip => parent.children.len() < 2, // <= 2 children
@@ -389,10 +395,17 @@ impl WidgetHierarchy {
             }
         }
 
-        if matches!(new_parent_ty, WidgetType::GenericOverlay) {
+        if matches!(new_parent_ty, WidgetType::Popover) {
             let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
             if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("GenericOverlay can only contain two children".into());
+                return Err("Popover holds a trigger and its content, and no more".into());
+            }
+        }
+
+        if matches!(new_parent_ty, WidgetType::Layer) {
+            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
+            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
+                return Err("Layer holds a single content widget".into());
             }
         }
 
@@ -906,7 +919,9 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
             | WidgetType::Scrollable
             | WidgetType::Collapsible
             | WidgetType::CollapsibleGroup
-            | WidgetType::GenericOverlay
+            | WidgetType::Popover
+            | WidgetType::Menu
+            | WidgetType::Layer
             | WidgetType::Split
             | WidgetType::Responsive
             | WidgetType::Tooltip

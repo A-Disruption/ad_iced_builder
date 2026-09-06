@@ -16,7 +16,7 @@ use crate::icon_lucide;
 use crate::styles;
 use crate::views::enum_editor::EnumEditorView;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
-use widgets::generic_overlay::overlay_button;
+use widgets::layer;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -31,7 +31,7 @@ pub enum Message {
 
     OpenEnumEditor,
     //    EnumEditor(enum_editor::Message),
-    OverlayOpened(WidgetId, iced::Point, iced::Size),
+    OverlayOpened(WidgetId),
     OverlayClosed(WidgetId),
 
     CodeTabSelected(String),
@@ -163,9 +163,9 @@ pub fn update(
         Message::OpenEnumEditor => {
             // open the enum editor view
         }
-        Message::OverlayOpened(_id, _point, _size) => {} // Handled in main.rs
+        Message::OverlayOpened(_id) => {} // Handled in main.rs
         Message::OverlayClosed(_id) => {}                // Handled in main.rs
-        Message::CopyCode(code) => return clipboard::write(code),
+        Message::CopyCode(code) => return clipboard::write(code).discard(),
         Message::CodeTabSelected(_) => {}   // Handled in main.rs
         Message::CodeViewEdit(_) => {}      // Handled in main.rs
         Message::WidgetPreviewEdit(_) => {} // Handled in main.rs
@@ -251,19 +251,19 @@ pub fn view<'a>(
             container(text(format!("{}", display_name))).padding(5),
             space::horizontal(),
             swap_button,
-            // Create overlay button with this widget's specific content
-            overlay_button(
-                icon_lucide::pencil(),
-                format!("Editing {}", display_name),
-                overlay_content
-            )
-            .close_on_click_outside()
-            .resizable(widgets::generic_overlay::ResizeMode::Always)
-            .overlay_width(600.0)
-            .overlay_height(750.0)
-            .on_open(move |pos, size| Message::OverlayOpened(root_widget_id, pos, size))
-            .on_close(move || Message::OverlayClosed(root_widget_id))
-            .style(styles::button::edit),
+            button(icon_lucide::pencil())
+                .style(styles::button::edit)
+                .on_press(Message::OverlayOpened(root_widget_id)),
+            // `layer` takes no trigger of its own: the button above opens it and
+            // the application owns the open flag, where `generic_overlay` kept
+            // that state inside the widget.
+            layer::modal(overlay_content, format!("Editing {}", display_name))
+                .open(open_editor_widget_id == Some(root_widget_id))
+                .min_width(600.0)
+                .min_height(750.0)
+                .dismiss_on_backdrop(true)
+                .dismiss_on_escape(true)
+                .on_dismiss(Message::OverlayClosed(root_widget_id)),
             disabled_delete_button //place_holder
         ]
         .spacing(5),
@@ -344,10 +344,11 @@ fn build_tree_item<'a>(
     let widget_id = widget.id;
     let edit_button: Element<Message> = if selection_count == 1 {
         // Original single-widget edit overlay
-        Some(
-            overlay_button(
-                icon_lucide::pencil(),
-                format!("Editing {}", display_name),
+        row![
+            button(icon_lucide::pencil())
+                .style(styles::button::edit)
+                .on_press(Message::OverlayOpened(widget_id)),
+            layer::modal(
                 build_editor_for_widget(
                     hierarchy,
                     type_system,
@@ -360,15 +361,15 @@ fn build_tree_item<'a>(
                     open_editor_widget_id,
                     view_id,
                 ),
+                format!("Editing {}", display_name),
             )
-            .close_on_click_outside()
-            .overlay_width(600.0)
-            .overlay_height(750.0)
-            .resizable(widgets::generic_overlay::ResizeMode::Always)
-            .on_open(move |pos, size| Message::OverlayOpened(widget_id, pos, size))
-            .on_close(move || Message::OverlayClosed(widget_id))
-            .style(styles::button::edit),
-        )
+            .open(open_editor_widget_id == Some(widget_id))
+            .min_width(600.0)
+            .min_height(750.0)
+            .dismiss_on_backdrop(true)
+            .dismiss_on_escape(true)
+            .on_dismiss(Message::OverlayClosed(widget_id)),
+        ]
         .into()
     } else if is_selected {
         // Show indicator that this is in batch selection
@@ -409,7 +410,9 @@ fn build_tree_item<'a>(
         | WidgetType::Stack
         | WidgetType::Collapsible
         | WidgetType::CollapsibleGroup
-        | WidgetType::GenericOverlay
+        | WidgetType::Popover
+        | WidgetType::Menu
+        | WidgetType::Layer
         | WidgetType::Themer
         | WidgetType::Grid => {
             let content = row![
@@ -755,7 +758,7 @@ fn build_editor_for_widget<'a>(
             custom_styles,
             preview_content,
         ),
-        WidgetType::GenericOverlay => generic_overlay_controls(
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => overlay_controls(
             &hierarchy,
             widget_id,
             theme,

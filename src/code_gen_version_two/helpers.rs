@@ -1,13 +1,12 @@
-use iced::widget::button;
-use iced::{Color, Element, Length};
-use widgets;
-use widgets::generic_overlay::OverlayButton;
+use iced::{Color, Element};
+use widgets::anchor::{Align, Side};
+use widgets::popover::{Popover, hover_popover};
 
 /// Format a color value as code, using theme source if available, otherwise RGBA.
 pub fn format_color_with_source(color: Color, source: &Option<String>) -> String {
     if let Some(src) = source {
-        // Strip "theme.extended_palette()." prefix if present
-        let path = src.strip_prefix("theme.extended_palette().").unwrap_or(src);
+        // Strip "theme.palette()." prefix if present
+        let path = src.strip_prefix("theme.palette().").unwrap_or(src);
         format!("palette.{}", path)
     } else {
         format!(
@@ -67,24 +66,30 @@ pub fn format_shadow(
     }
 }
 
+/// Reveals `corner` over the top-right of `content` on hover.
+///
+/// Replaces the `generic_overlay` hover button the widgets crate dropped when
+/// it moved to iced master. `hover_popover` is the same interaction — the
+/// cursor can travel into the surface and press what is inside it — and the
+/// negative gap reproduces the old `PositionMode::Inside`, pulling the corner
+/// element back over the trailing edge of the content instead of sitting
+/// outside it.
 pub fn internal_overlay<'a, Message, Theme, Renderer>(
-    hover_element: impl Into<Element<'a, Message, Theme, Renderer>>,
-    copy_button: impl Into<Element<'a, Message, Theme, Renderer>>,
-) -> OverlayButton<'a, Message, Theme, Renderer>
+    content: impl Into<Element<'a, Message, Theme, Renderer>>,
+    corner: impl Into<Element<'a, Message, Theme, Renderer>>,
+) -> Popover<'a, Message, Theme, Renderer>
 where
-    Renderer: iced::advanced::Renderer + iced::advanced::text::Renderer,
-    Theme: widgets::generic_overlay::Catalog + button::Catalog,
+    Theme: widgets::popover::Catalog,
+    Renderer: iced::advanced::Renderer,
 {
-    OverlayButton::new(hover_element, "", copy_button)
-        .hide_header()
-        .on_hover()
-        .overlay_padding(0.0)
-        .overlay_padding(0.0)
-        .hover_gap(11.0)
-        .overlay_height(Length::Shrink)
-        .overlay_width(Length::Shrink)
-        .hover_position(widgets::generic_overlay::Position::Right)
-        .hover_mode(widgets::generic_overlay::PositionMode::Inside)
-        .hover_alignment(iced::Alignment::Start)
-        .interactive_base(true)
+    hover_popover(content, corner)
+        .side(Side::Right)
+        .align(Align::Start)
+        .gap(-COPY_BUTTON_INSET)
+        .flip(false)
+        .padding(0.0)
 }
+
+/// How far back over the content edge `internal_overlay` pulls its corner
+/// element: the width of an icon button plus the old overlay's 11px gap.
+const COPY_BUTTON_INSET: f32 = 41.0;

@@ -1,3 +1,4 @@
+use iced::advanced::graphics::core::length::Bounds;
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{
     Pin, button, checkbox, column, combo_box, container, float, grid, image, markdown, mouse_area,
@@ -22,7 +23,7 @@ use crate::enum_builder::TypeSystem;
 use crate::preview_runtime::interpreter;
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use widgets::collapsible::{self as collapsible_widget, CollapsibleGroup};
-use widgets::{date_picker as date_picker_widget, generic_overlay};
+use widgets::date_picker as date_picker_widget;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -64,6 +65,57 @@ pub enum Message {
     Noop,
 }
 
+/// Folds an optional upper bound into a [`Length`].
+///
+/// iced master removed `max_width` / `max_height` from the widgets and made an
+/// upper bound part of the length itself, as `Length::Bounded`. `None` leaves
+/// the sizing strategy exactly as it was.
+fn bound_max(length: Length, max: Option<f32>) -> Length {
+    match max {
+        Some(max) => length.max(max),
+        None => length,
+    }
+}
+
+/// Places an icon beside an input.
+///
+/// iced master removed `text_input`'s built-in icon along with
+/// `text_input::Icon`, so the builder composes one instead: the Lucide glyph
+/// in a row with the input, on the side the project asked for. It sits outside
+/// the input's border rather than inside it, which is the one visible
+/// difference from the widget iced used to draw.
+fn with_input_icon<'a>(
+    input: Element<'a, Message>,
+    enabled: bool,
+    codepoint: u32,
+    size: f32,
+    spacing: f32,
+    side: TextInputIconSide,
+    color: Option<Color>,
+) -> Element<'a, Message> {
+    if !enabled {
+        return input;
+    }
+
+    let glyph = char::from_u32(codepoint).unwrap_or('\u{FFFD}');
+    let mut icon = text(glyph.to_string()).font(Font::new("lucide"));
+
+    if size > 0.0 {
+        icon = icon.size(size);
+    }
+
+    if let Some(color) = color {
+        icon = icon.color(color);
+    }
+
+    let row = match side {
+        TextInputIconSide::Left => row![icon, input],
+        TextInputIconSide::Right => row![input, icon],
+    };
+
+    row.spacing(spacing).align_y(Alignment::Center).into()
+}
+
 fn custom_style_definition(
     custom_themes: &CustomThemes,
     pane: ThemePaneEnum,
@@ -90,7 +142,7 @@ fn resolve_container_style(
     ContainerStyleType::get(style_name).map(|style| match style {
         ContainerStyleType::Transparent => container::transparent(theme),
         ContainerStyleType::Background => {
-            container::background(theme.extended_palette().background.base.color)
+            container::background(theme.palette().background.base.color)
         }
         ContainerStyleType::RoundedBox => container::rounded_box(theme),
         ContainerStyleType::BorderedBox => container::bordered_box(theme),
@@ -265,20 +317,6 @@ fn resolve_collapsible_style(
     }
 }
 
-fn resolve_generic_overlay_style(
-    theme: &Theme,
-    style_name: &str,
-) -> Option<generic_overlay::Style> {
-    match style_name {
-        "Primary" => Some(generic_overlay::primary(theme)),
-        "Success" => Some(generic_overlay::success(theme)),
-        "Danger" => Some(generic_overlay::danger(theme)),
-        "Warning" => Some(generic_overlay::warning(theme)),
-        "Blank" => Some(generic_overlay::blank(theme)),
-        _ => None,
-    }
-}
-
 fn should_use_alternate_style(
     widget: &Widget,
     current_view_id: Option<Uuid>,
@@ -325,7 +363,7 @@ fn selected_widget_style_name<'a>(
     }
 }
 
-fn generic_overlay_is_open(
+fn overlay_is_open(
     current_view_id: Option<Uuid>,
     all_views: &BTreeMap<Uuid, AppView>,
     widget_id: WidgetId,
@@ -1072,9 +1110,9 @@ pub fn view<'a>(
             .height(Length::Fill)
             // Any style closures here will now see the scoped theme
             .style(|theme: &Theme| container::Style {
-                background: Some(Background::Color(theme.palette().background)),
+                background: Some(Background::Color(theme.seed().background)),
                 border: Border {
-                    color: theme.extended_palette().background.strong.color,
+                    color: theme.palette().background.strong.color,
                     width: 2.0,
                     radius: 4.0.into(),
                 },
@@ -1082,10 +1120,10 @@ pub fn view<'a>(
             }),
     );
     // Optional: set default text color / background for this scope:
-     .text_color(|th| th.palette().text)
-    .background(|th| Background::Color(th.palette().background));
+     .text_color(|th| th.seed().text)
+    .background(|th| Background::Color(th.seed().background));
 
-    theme.extended_palette().secondary.base.text;
+    theme.palette().secondary.base.text;
 
     column![
         row![
@@ -1115,7 +1153,7 @@ pub fn view<'a>(
         container(preview_scoped)
         .padding(5)
         .style(|theme: &Theme| container::Style {
-                background: Some(Background::Color(theme.extended_palette().background.weak.color)),
+                background: Some(Background::Color(theme.palette().background.weak.color)),
                 ..Default::default()
             }),
     ]
@@ -1457,7 +1495,27 @@ fn build_widget_preview<'a>(
             current_view_id,
             type_system,
         ),
-        WidgetType::GenericOverlay => build_generic_overlay_preview(
+        WidgetType::Popover => build_popover_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Menu => build_menu_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        WidgetType::Layer => build_layer_preview(
             hierarchy,
             widget,
             theme,
@@ -1531,7 +1589,7 @@ fn build_widget_preview<'a>(
 
     if is_selected && highlight_selected {
         content
-            .explain(theme.extended_palette().success.strong.color)
+            .explain(theme.palette().success.strong.color)
             .into()
     } else {
         content
@@ -1594,15 +1652,9 @@ fn build_container_preview<'a>(
 
     container = container.padding(props.padding);
 
-    // NEW: Apply max_width
-    if let Some(max_w) = props.max_width {
-        container = container.max_width(max_w);
-    }
-
-    // NEW: Apply max_height
-    if let Some(max_h) = props.max_height {
-        container = container.max_height(max_h);
-    }
+    container = container
+        .width(bound_max(props.width, props.max_width))
+        .height(bound_max(props.height, props.max_height));
 
     // NEW: Apply clip
     if props.clip {
@@ -1760,9 +1812,7 @@ fn build_column_preview<'a>(
         }
     }
 
-    if let Some(max_w) = props.max_width {
-        content = content.max_width(max_w);
-    }
+    content = content.width(bound_max(props.width, props.max_width));
 
     if props.clip {
         content = content.clip(true);
@@ -1876,7 +1926,7 @@ fn build_text_preview<'a>(
     let user_color = props.text_color; // Only set the color if a color has been set :D
     t = t.style(move |th: &Theme| {
         let c = if user_color.a == 0.0 {
-            th.palette().text
+            th.seed().text
         } else {
             user_color
         };
@@ -1938,13 +1988,9 @@ fn build_text_editor_preview<'a>(
 
     let mut wrapper = container(editor).width(props.width).height(props.height);
 
-    if let Some(max_width) = props.max_width {
-        wrapper = wrapper.max_width(max_width);
-    }
-
-    if let Some(max_height) = props.max_height {
-        wrapper = wrapper.max_height(max_height);
-    }
+    wrapper = wrapper
+        .width(bound_max(props.width, props.max_width))
+        .height(bound_max(props.height, props.max_height));
 
     if props.clip {
         wrapper = wrapper.clip(true);
@@ -2010,22 +2056,6 @@ fn build_text_input_preview<'a>(
         input = input.align_x(props.text_input_alignment);
     }
 
-    // Apply icon if enabled
-    if props.text_input_icon_enabled {
-        let cp = char::from_u32(props.text_input_icon_codepoint).unwrap_or('\u{FFFD}');
-        let size = if props.text_input_icon_size > 0.0 {
-            Some(iced::Pixels(props.text_input_icon_size))
-        } else {
-            None
-        };
-        input = input.icon(text_input::Icon {
-            font: Font::with_name("lucide"),
-            code_point: cp,
-            size,
-            spacing: props.text_input_icon_spacing,
-            side: props.text_input_icon_side.into(),
-        });
-    }
 
     if let Some(style_name) = &props.custom_style_name {
         if let Some(definition) =
@@ -2036,7 +2066,15 @@ fn build_text_input_preview<'a>(
         }
     }
 
-    input.into()
+    with_input_icon(
+        input.into(),
+        props.text_input_icon_enabled,
+        props.text_input_icon_codepoint,
+        props.text_input_icon_size,
+        props.text_input_icon_spacing,
+        props.text_input_icon_side,
+        None,
+    )
 }
 
 fn build_checkbox_preview<'a>(
@@ -2198,9 +2236,7 @@ fn build_progress_bar_preview<'a>(
     .length(props.progress_length)
     .girth(props.progress_girth);
 
-    if props.progress_vertical {
-        content = content.vertical();
-    }
+    content = content.vertical(props.progress_vertical);
 
     if let Some(style_name) = selected_widget_style_name(widget, current_view_id, all_views) {
         let style_name = style_name.to_string();
@@ -2256,10 +2292,11 @@ fn build_pick_list_preview<'a>(
 ) -> Element<'a, Message> {
     let props = &widget.properties;
     let mut content = pick_list(
-        props.picklist_options.clone(),
         props.picklist_selected.clone(),
-        move |selected| Message::PickListSelected(widget.id, selected, current_view_id),
+        props.picklist_options.clone(),
+        ToString::to_string,
     )
+    .on_select(move |selected| Message::PickListSelected(widget.id, selected, current_view_id))
     .placeholder(&props.picklist_placeholder)
     .width(props.width);
 
@@ -2487,7 +2524,7 @@ fn build_tooltip_preview<'a>(
             .padding(6)
             .style(|th: &Theme| container::Style {
                 border: Border {
-                    color: th.extended_palette().primary.strong.color,
+                    color: th.palette().primary.strong.color,
                     width: 1.0,
                     radius: 4.0.into(),
                 },
@@ -2517,10 +2554,10 @@ fn build_tooltip_preview<'a>(
             .padding(6)
             .style(|th: &Theme| container::Style {
                 background: Some(Background::Color(
-                    th.extended_palette().background.weak.color,
+                    th.palette().background.weak.color,
                 )),
                 border: Border {
-                    color: th.extended_palette().background.strong.color,
+                    color: th.palette().background.strong.color,
                     width: 1.0,
                     radius: 4.0.into(),
                 },
@@ -2605,24 +2642,15 @@ fn build_combo_box_preview<'a>(
         }
     }
 
-    // Apply icon if enabled
-    if props.combobox_icon_enabled {
-        let cp = char::from_u32(props.combobox_icon_codepoint).unwrap_or('\u{FFFD}');
-        let size = if props.combobox_icon_size > 0.0 {
-            Some(iced::Pixels(props.combobox_icon_size))
-        } else {
-            None
-        };
-        cb = cb.icon(text_input::Icon {
-            font: Font::with_name("lucide"),
-            code_point: cp,
-            size,
-            spacing: props.combobox_icon_spacing,
-            side: props.combobox_icon_side.into(),
-        });
-    }
-
-    cb.into()
+    with_input_icon(
+        cb.into(),
+        props.combobox_icon_enabled,
+        props.combobox_icon_codepoint,
+        props.combobox_icon_size,
+        props.combobox_icon_spacing,
+        props.combobox_icon_side,
+        None,
+    )
 }
 
 fn build_markdown_preview<'a>(
@@ -2638,7 +2666,8 @@ fn build_markdown_preview<'a>(
     let props = &widget.properties;
     markdown::view(
         &props.markdown_content,
-        markdown::Settings::with_text_size(props.markdown_text_size, theme.clone()),
+        markdown::Settings::with_text_size(props.markdown_text_size),
+        theme.clone(),
     )
     .map(|_| Message::Noop)
 }
@@ -3060,12 +3089,9 @@ fn build_split_preview<'a>(
 
     let mut wrapper = container(split).width(props.width).height(props.height);
 
-    if let Some(max_width) = props.max_width {
-        wrapper = wrapper.max_width(max_width);
-    }
-    if let Some(max_height) = props.max_height {
-        wrapper = wrapper.max_height(max_height);
-    }
+    wrapper = wrapper
+        .width(bound_max(props.width, props.max_width))
+        .height(bound_max(props.height, props.max_height));
     if props.clip {
         wrapper = wrapper.clip(true);
     }
@@ -3114,12 +3140,9 @@ fn build_float_preview<'a>(
     }
 
     let mut wrapper = container(floating).width(props.width).height(props.height);
-    if let Some(max_width) = props.max_width {
-        wrapper = wrapper.max_width(max_width);
-    }
-    if let Some(max_height) = props.max_height {
-        wrapper = wrapper.max_height(max_height);
-    }
+    wrapper = wrapper
+        .width(bound_max(props.width, props.max_width))
+        .height(bound_max(props.height, props.max_height));
     if props.clip {
         wrapper = wrapper.clip(true);
     }
@@ -3179,13 +3202,9 @@ fn build_responsive_preview<'a>(
     .width(props.width)
     .height(props.height);
 
-    let mut wrapper = container(content);
-    if let Some(max_width) = props.max_width {
-        wrapper = wrapper.max_width(max_width);
-    }
-    if let Some(max_height) = props.max_height {
-        wrapper = wrapper.max_height(max_height);
-    }
+    let mut wrapper = container(content)
+        .width(bound_max(Length::Shrink, props.max_width))
+        .height(bound_max(Length::Shrink, props.max_height));
     if props.clip {
         wrapper = wrapper.clip(true);
     }
@@ -3244,12 +3263,9 @@ fn build_sensor_preview<'a>(
     }
 
     let mut wrapper = container(sensed).width(props.width).height(props.height);
-    if let Some(max_width) = props.max_width {
-        wrapper = wrapper.max_width(max_width);
-    }
-    if let Some(max_height) = props.max_height {
-        wrapper = wrapper.max_height(max_height);
-    }
+    wrapper = wrapper
+        .width(bound_max(props.width, props.max_width))
+        .height(bound_max(props.height, props.max_height));
     if props.clip {
         wrapper = wrapper.clip(true);
     }
@@ -3257,7 +3273,78 @@ fn build_sensor_preview<'a>(
     wrapper.into()
 }
 
-fn build_generic_overlay_preview<'a>(
+/// The child a trigger-driven overlay opens from, or a stand-in for it.
+fn overlay_trigger_child<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    match widget.children.first() {
+        Some(child) => build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        None => button(text(if widget.properties.text_content.is_empty() {
+            "Trigger"
+        } else {
+            &widget.properties.text_content
+        }))
+        .style(button::secondary)
+        .into(),
+    }
+}
+
+/// Applies a named preset over a widget's own default surface style.
+///
+/// The widgets crate dropped `generic_overlay`'s `primary` / `success` /
+/// `danger` / `warning` / `blank` helpers when it split that widget in three,
+/// so the builder derives the same five from the palette instead. `None` means
+/// the preset name is not one of them, and the widget's default stands.
+fn overlay_preset(theme: &Theme, style_name: &str) -> Option<(Background, Color)> {
+    let palette = theme.palette();
+
+    let pair = match style_name {
+        "Primary" => (palette.primary.base.color, palette.primary.base.text),
+        "Success" => (palette.success.base.color, palette.success.base.text),
+        "Danger" => (palette.danger.base.color, palette.danger.base.text),
+        "Warning" => (palette.warning.base.color, palette.warning.base.text),
+        "Blank" => (palette.background.base.color, palette.background.base.text),
+        _ => return None,
+    };
+
+    Some((Background::Color(pair.0), pair.1))
+}
+
+/// Turns the overlay width property into the pixel bound the anchored widgets
+/// take.
+///
+/// Those widgets size themselves to their contents between a pair of pixel
+/// bounds, where the old overlay took a whole `Length`. Only a fixed or
+/// upper-bounded length carries over; the rest leave the surface to its
+/// contents.
+fn overlay_width_bound(width: Length) -> Option<f32> {
+    match width {
+        Length::Fixed(w) => Some(w),
+        Length::Bounded {
+            bounds: Bounds::Max(w) | Bounds::Both { max: w, .. },
+            ..
+        } => Some(w),
+        _ => None,
+    }
+}
+
+fn build_popover_preview<'a>(
     hierarchy: &'a WidgetHierarchy,
     widget: &'a Widget,
     theme: &'a Theme,
@@ -3268,9 +3355,20 @@ fn build_generic_overlay_preview<'a>(
     type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let props = &widget.properties;
-    let has_trigger_child = widget.children.get(0).is_some();
-    let trigger_content: Element<'a, Message> = if let Some(child) = widget.children.get(0) {
-        build_widget_preview(
+
+    let trigger = overlay_trigger_child(
+        hierarchy,
+        widget,
+        theme,
+        custom_themes,
+        highlight_selected,
+        all_views,
+        current_view_id,
+        type_system,
+    );
+
+    let content: Element<'a, Message> = match widget.children.get(1) {
+        Some(child) => build_widget_preview(
             hierarchy,
             child,
             theme,
@@ -3279,148 +3377,243 @@ fn build_generic_overlay_preview<'a>(
             all_views,
             current_view_id,
             type_system,
-        )
-    } else {
-        text(&props.text_content).into()
+        ),
+        None => text("Popover content").into(),
     };
 
-    let overlay_content: Element<'a, Message> = if let Some(child) = widget.children.get(1) {
-        build_widget_preview(
-            hierarchy,
-            child,
-            theme,
-            custom_themes,
-            highlight_selected,
-            all_views,
-            current_view_id,
-            type_system,
+    let mut popover = widgets::popover::popover(trigger, content)
+        .open(overlay_is_open(current_view_id, all_views, widget.id))
+        .side(props.generic_overlay_hover_position.into())
+        .align(props.generic_overlay_hover_alignment.into())
+        // `PositionMode::Inside` is a negative gap on the anchored widgets.
+        .gap(
+            props
+                .generic_overlay_hover_mode
+                .signed_gap(props.generic_overlay_hover_gap),
         )
-    } else {
-        text("Overlay content").into()
-    };
-
-    let uses_hover_placement =
-        props.generic_overlay_on_hover || props.generic_overlay_hover_positions_on_click;
-    let is_open = generic_overlay_is_open(current_view_id, all_views, widget.id);
-    let mut overlay = generic_overlay::overlay_button(
-        trigger_content,
-        &props.generic_overlay_title,
-        overlay_content,
-    )
-    .button_clip(props.clip)
-    .overlay_padding(props.generic_overlay_overlay_padding)
-    .overlay_radius(props.generic_overlay_overlay_radius)
-    .opaque(props.generic_overlay_opaque)
-    .opaque_alpha(props.generic_overlay_opaque_alpha)
-    .interactive_base(true)
-    .is_open(is_open)
-    .on_toggle(move |value| Message::GenericOverlayToggled(widget.id, value, current_view_id));
-
-    if has_trigger_child {
-        overlay = overlay
-            .width(Length::Shrink)
-            .height(Length::Shrink)
-            .padding(0.0)
-            .style(button::text);
-    } else {
-        overlay = overlay
-            .width(props.width)
-            .height(props.height)
-            .padding(props.padding);
-    }
-
-    if props.generic_overlay_overlay_width_dynamic {
-        let factor = props.generic_overlay_overlay_width_dynamic_factor;
-        overlay = overlay.overlay_width_dynamic(move |available| Length::Fixed(available * factor));
-    } else {
-        overlay = overlay.overlay_width(props.generic_overlay_overlay_width);
-    }
-
-    if props.generic_overlay_overlay_height_dynamic {
-        let factor = props.generic_overlay_overlay_height_dynamic_factor;
-        overlay =
-            overlay.overlay_height_dynamic(move |available| Length::Fixed(available * factor));
-    } else {
-        overlay = overlay.overlay_height(props.generic_overlay_overlay_height);
-    }
-
-    if let Some(ref id) = props.widget_id {
-        if !id.is_empty() {
-            overlay = overlay.id(id.clone());
-        }
-    }
+        .flip(props.generic_overlay_hover_snap)
+        .padding(props.generic_overlay_overlay_padding)
+        .radius(props.generic_overlay_overlay_radius)
+        .safe_corridor(props.generic_overlay_safe_triangle)
+        .dismiss_on_outside_press(props.generic_overlay_close_on_click_outside)
+        .on_toggle(move |value| Message::GenericOverlayToggled(widget.id, value, current_view_id));
 
     if props.generic_overlay_on_hover {
-        overlay = overlay.on_hover();
+        popover = popover.on_hover();
     }
 
-    if props.generic_overlay_hover_positions_on_click {
-        overlay = overlay.hover_positions_on_click();
+    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
+        popover = popover.min_width(width).max_width(width);
     }
 
-    if uses_hover_placement {
-        overlay = overlay
-            .hover_position(props.generic_overlay_hover_position.into())
-            .hover_gap(props.generic_overlay_hover_gap)
-            .hover_alignment(props.generic_overlay_hover_alignment.into())
-            .hover_mode(props.generic_overlay_hover_mode.into())
-            .hover_snap(props.generic_overlay_hover_snap)
-            .safe_triangle(props.generic_overlay_safe_triangle);
-    }
+    popover = if props.generic_overlay_animate {
+        popover.motion(props.generic_overlay_animation_preset.motion())
+    } else {
+        popover.no_animation()
+    };
 
-    if props.generic_overlay_close_on_click_outside {
-        overlay = overlay.close_on_click_outside();
-    }
+    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+        let name = name.to_string();
 
-    if props.generic_overlay_hide_header {
-        overlay = overlay.hide_header();
-    }
+        popover = popover.style(move |theme: &Theme| {
+            let base = widgets::popover::default(theme);
 
-    if props.generic_overlay_hide_close_button {
-        overlay = overlay.hide_close_button();
-    }
-
-    if props.generic_overlay_block_dragging {
-        overlay = overlay.block_dragging();
-    }
-
-    if props.generic_overlay_resizable != GenericOverlayResizeMode::None {
-        overlay = overlay.resizable(props.generic_overlay_resizable.into());
-    }
-
-    if props.generic_overlay_reset_on_close {
-        overlay = overlay.reset_on_close();
-    }
-
-    if props.generic_overlay_animate {
-        overlay = match props.generic_overlay_animation_preset {
-            GenericOverlayAnimationPreset::Default => overlay.animate(true),
-            GenericOverlayAnimationPreset::Quick => overlay.quick_animation(),
-            GenericOverlayAnimationPreset::Slow => overlay.slow_animation(),
-        };
-    }
-
-    if !has_trigger_child
-        && let Some(style_name) = selected_widget_style_name(widget, current_view_id, all_views)
-    {
-        let style_name = style_name.to_string();
-        overlay = overlay.style(move |theme: &Theme, status| {
-            resolve_button_style(custom_themes, theme, status, &style_name)
-                .unwrap_or_else(|| button::primary(theme, status))
+            match overlay_preset(theme, &name) {
+                Some((background, text_color)) => widgets::popover::Style {
+                    background,
+                    text_color,
+                    ..base
+                },
+                None => base,
+            }
         });
     }
 
-    if let Some(style_name) = props.generic_overlay_overlay_style_name.as_deref() {
-        if resolve_generic_overlay_style(theme, style_name).is_some() {
-            let style_name = style_name.to_string();
-            overlay = overlay.overlay_style(move |theme: &Theme| {
-                resolve_generic_overlay_style(theme, &style_name)
-                    .unwrap_or_else(|| generic_overlay::blank(theme))
-            });
-        }
+    popover.into()
+}
+
+fn build_menu_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+
+    let trigger = overlay_trigger_child(
+        hierarchy,
+        widget,
+        theme,
+        custom_themes,
+        highlight_selected,
+        all_views,
+        current_view_id,
+        type_system,
+    );
+
+    // Every child after the trigger is one row of the panel.
+    let items: Vec<widgets::menu::Item<'a, Message>> = if widget.children.len() > 1 {
+        widget.children[1..]
+            .iter()
+            .map(|child| {
+                widgets::menu::item(build_widget_preview(
+                    hierarchy,
+                    child,
+                    theme,
+                    custom_themes,
+                    highlight_selected,
+                    all_views,
+                    current_view_id,
+                    type_system,
+                ))
+            })
+            .collect()
+    } else {
+        vec![
+            widgets::menu::item(text("First item")),
+            widgets::menu::item(text("Second item")),
+        ]
+    };
+
+    let mut menu = widgets::menu::menu(trigger, items)
+        .side(props.generic_overlay_hover_position.into())
+        .align(props.generic_overlay_hover_alignment.into())
+        .gap(props.generic_overlay_hover_gap)
+        .padding(props.generic_overlay_overlay_padding)
+        .radius(props.generic_overlay_overlay_radius)
+        .on_toggle(move |value| Message::GenericOverlayToggled(widget.id, value, current_view_id));
+
+    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
+        menu = menu.min_width(width).max_width(width);
     }
 
-    overlay.into()
+    menu = if props.generic_overlay_animate {
+        menu.motion(props.generic_overlay_animation_preset.motion())
+    } else {
+        menu.no_animation()
+    };
+
+    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+        let name = name.to_string();
+
+        menu = menu.style(move |theme: &Theme| {
+            let base = widgets::menu::default(theme);
+
+            match overlay_preset(theme, &name) {
+                Some((background, text_color)) => widgets::menu::Style {
+                    background,
+                    text_color,
+                    ..base
+                },
+                None => base,
+            }
+        });
+    }
+
+    menu.into()
+}
+
+fn build_layer_preview<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+    let is_open = overlay_is_open(current_view_id, all_views, widget.id);
+
+    let content: Element<'a, Message> = match widget.children.first() {
+        Some(child) => build_widget_preview(
+            hierarchy,
+            child,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
+        None => text("Layer content").into(),
+    };
+
+    let mut layer = widgets::layer::layer(content)
+        .open(is_open)
+        .anchor(props.generic_overlay_hover_position.into())
+        .margin(props.generic_overlay_hover_gap)
+        .padding(props.generic_overlay_overlay_padding)
+        .radius(props.generic_overlay_overlay_radius)
+        .draggable(!props.generic_overlay_block_dragging)
+        .resizable(props.generic_overlay_resizable.is_resizable())
+        .close_button(!props.generic_overlay_hide_close_button)
+        .dismiss_on_backdrop(props.generic_overlay_close_on_click_outside)
+        .dismiss_on_escape(true)
+        .on_dismiss(Message::GenericOverlayToggled(
+            widget.id,
+            false,
+            current_view_id,
+        ));
+
+    if !props.generic_overlay_hide_header {
+        layer = layer.title(props.generic_overlay_title.clone());
+    }
+
+    if props.generic_overlay_opaque {
+        layer = layer.backdrop(props.generic_overlay_opaque_alpha);
+    }
+
+    if let Some(width) = overlay_width_bound(props.generic_overlay_overlay_width) {
+        layer = layer.min_width(width).max_width(width);
+    }
+
+    if let Length::Fixed(height) = props.generic_overlay_overlay_height {
+        layer = layer.min_height(height);
+    }
+
+    layer = if props.generic_overlay_animate {
+        layer.motion(props.generic_overlay_animation_preset.motion())
+    } else {
+        layer.no_animation()
+    };
+
+    if let Some(name) = props.generic_overlay_overlay_style_name.as_deref() {
+        let name = name.to_string();
+
+        layer = layer.style(move |theme: &Theme| {
+            let base = widgets::layer::default(theme);
+
+            match overlay_preset(theme, &name) {
+                Some((background, text_color)) => widgets::layer::Style {
+                    background,
+                    text_color,
+                    ..base
+                },
+                None => base,
+            }
+        });
+    }
+
+    // A closed `Layer` draws nothing and occupies no space, which would leave
+    // it unselectable on the canvas. The handle beside it is the builder's own
+    // affordance and is not part of the generated code.
+    row![
+        button(text(if is_open { "Layer (open)" } else { "Layer" }))
+            .style(button::secondary)
+            .on_press(Message::GenericOverlayToggled(
+                widget.id,
+                !is_open,
+                current_view_id,
+            )),
+        layer,
+    ]
+    .into()
 }
 
 fn build_grid_preview<'a>(
@@ -3441,7 +3634,7 @@ fn build_grid_preview<'a>(
                     .center(Length::Fill)
                     .style(|th: &Theme| container::Style {
                         border: Border {
-                            color: th.extended_palette().background.strong.color,
+                            color: th.palette().background.strong.color,
                             width: 1.0,
                             radius: 2.0.into(),
                         },
@@ -3567,7 +3760,7 @@ fn build_table_preview<'a>(
     type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let props = &widget.properties;
-    let border_color = theme.extended_palette().background.strong.color;
+    let border_color = theme.palette().background.strong.color;
 
     if let Some(struct_id) = props.table_referenced_struct {
         if let Some(struct_def) = type_system.get_struct(struct_id) {
@@ -3682,7 +3875,7 @@ fn build_icon_preview<'a>(
     let props = &widget.properties;
     let codepoint_char = char::from_u32(props.icon_codepoint).unwrap_or('\u{FFFD}');
     text(codepoint_char.to_string())
-        .font(Font::with_name("lucide"))
+        .font(Font::new("lucide"))
         .size(props.icon_size)
         .width(props.width)
         .height(props.height)

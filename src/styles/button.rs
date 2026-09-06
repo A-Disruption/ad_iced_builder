@@ -2,7 +2,7 @@ pub use iced::widget::button::*;
 use iced::{Border, Theme, border::radius};
 
 pub fn cancel(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let base = Style {
         text_color: palette.danger.strong.color,
@@ -20,7 +20,7 @@ pub fn cancel(theme: &Theme, status: Status) -> Style {
 }
 
 pub fn edit(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let base = Style {
         text_color: palette.primary.strong.color,
@@ -43,7 +43,7 @@ pub fn edit(theme: &Theme, status: Status) -> Style {
 
 /// A 'selected' text button; used for the selected 'Pane' on the view selection menu
 pub fn selected_text(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let base = Style {
         text_color: palette.primary.base.color,
@@ -71,7 +71,7 @@ fn disabled(style: Style) -> Style {
 }
 
 pub fn invisible(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let base = Style {
         text_color: palette.background.neutral.color.scale_alpha(0.000),

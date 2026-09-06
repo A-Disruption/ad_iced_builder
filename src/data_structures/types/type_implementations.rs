@@ -1,3 +1,4 @@
+use iced::advanced::graphics::core::length::{Bounds, Sizing};
 use iced::mouse::Interaction;
 use iced::widget::{scrollable, text, tooltip};
 use iced::{Alignment, ContentFit, Font, Length};
@@ -320,6 +321,25 @@ impl From<ContainerAlignX> for Alignment {
     }
 }
 
+// iced master takes a `text::Alignment` for text alignment, which carries a
+// `Default` (writing-direction) case the layout alignments do not.
+impl From<ContainerAlignX> for iced::advanced::text::Alignment {
+    fn from(c: ContainerAlignX) -> Self {
+        iced::alignment::Horizontal::from(c).into()
+    }
+}
+
+/// The cross-axis alignment the anchored widgets take.
+impl From<ContainerAlignX> for widgets::anchor::Align {
+    fn from(c: ContainerAlignX) -> Self {
+        match c {
+            ContainerAlignX::Left => Self::Start,
+            ContainerAlignX::Center => Self::Center,
+            ContainerAlignX::Right => Self::End,
+        }
+    }
+}
+
 impl From<iced::alignment::Vertical> for ContainerAlignY {
     fn from(v: iced::alignment::Vertical) -> Self {
         match v {
@@ -472,7 +492,23 @@ pub enum GenericOverlayPosition {
     Right,
 }
 
-impl From<GenericOverlayPosition> for widgets::generic_overlay::Position {
+impl From<GenericOverlayPosition> for widgets::anchor::Side {
+    fn from(position: GenericOverlayPosition) -> Self {
+        match position {
+            GenericOverlayPosition::Top => Self::Top,
+            GenericOverlayPosition::Bottom => Self::Bottom,
+            GenericOverlayPosition::Left => Self::Left,
+            GenericOverlayPosition::Right => Self::Right,
+        }
+    }
+}
+
+/// Where a [`Layer`] sits against the viewport.
+///
+/// The same four sides the anchored widgets use, read as an edge of the window
+/// rather than a side of a trigger. `Anchor` also carries corners and a centre
+/// the builder does not expose yet.
+impl From<GenericOverlayPosition> for widgets::layer::Anchor {
     fn from(position: GenericOverlayPosition) -> Self {
         match position {
             GenericOverlayPosition::Top => Self::Top,
@@ -490,11 +526,16 @@ pub enum GenericOverlayPositionMode {
     Inside,
 }
 
-impl From<GenericOverlayPositionMode> for widgets::generic_overlay::PositionMode {
-    fn from(mode: GenericOverlayPositionMode) -> Self {
-        match mode {
-            GenericOverlayPositionMode::Outside => Self::Outside,
-            GenericOverlayPositionMode::Inside => Self::Inside,
+impl GenericOverlayPositionMode {
+    /// Turns a gap into the signed gap the anchored widgets take.
+    ///
+    /// The widgets crate has no `PositionMode`: a surface always sits on the
+    /// given side, and a *negative* gap is what pulls it back over the base.
+    /// That is exactly what `Inside` used to mean.
+    pub fn signed_gap(self, gap: f32) -> f32 {
+        match self {
+            Self::Outside => gap,
+            Self::Inside => -gap,
         }
     }
 }
@@ -507,13 +548,14 @@ pub enum GenericOverlayResizeMode {
     WithCtrl,
 }
 
-impl From<GenericOverlayResizeMode> for widgets::generic_overlay::ResizeMode {
-    fn from(mode: GenericOverlayResizeMode) -> Self {
-        match mode {
-            GenericOverlayResizeMode::None => Self::None,
-            GenericOverlayResizeMode::Always => Self::Always,
-            GenericOverlayResizeMode::WithCtrl => Self::WithCtrl,
-        }
+impl GenericOverlayResizeMode {
+    /// Whether a [`Layer`] should carry resize handles.
+    ///
+    /// `Layer::resizable` is a flag, where the old widget distinguished
+    /// always-on handles from ctrl-held ones. Both of those are "resizable"
+    /// now; the modifier is gone.
+    pub fn is_resizable(self) -> bool {
+        !matches!(self, Self::None)
     }
 }
 
@@ -523,6 +565,18 @@ pub enum GenericOverlayAnimationPreset {
     Default,
     Quick,
     Slow,
+}
+
+impl GenericOverlayAnimationPreset {
+    /// The open/close transition the anchored widgets take.
+    pub fn motion(self) -> widgets::animation::Motion {
+        match self {
+            Self::Default => widgets::animation::Motion::SMOOTH,
+            Self::Quick => widgets::animation::Motion::QUICK,
+            Self::Slow => widgets::animation::Motion::SMOOTH
+                .duration(std::time::Duration::from_millis(420)),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
@@ -581,6 +635,17 @@ impl GenericOverlayLengthChoice {
                 Length::FillPortion(_) => Self::FillPortion,
                 Length::Shrink => Self::Shrink,
                 Length::Fixed(_) => Self::Fixed,
+                // iced master added these. The builder's pickers cannot author
+                // them yet -- `Bounded` only ever arrives here from the separate
+                // max_width / max_height properties -- so each reduces to the
+                // sizing strategy underneath it.
+                Length::Fit => Self::Shrink,
+                Length::Fluid(_) => Self::Fill,
+                Length::Bounded { sizing, .. } => match sizing {
+                    Sizing::Fit | Sizing::Shrink => Self::Shrink,
+                    Sizing::Fill(1) => Self::Fill,
+                    Sizing::Fill(_) => Self::FillPortion,
+                },
             }
         }
     }
@@ -1131,6 +1196,14 @@ impl LengthChoice {
             Length::FillPortion(_) => LengthChoice::FillPortion,
             Length::Shrink => LengthChoice::Shrink,
             Length::Fixed(_) => LengthChoice::Fixed,
+            // See the note in `GenericOverlayLengthChoice::from_state`.
+            Length::Fit => LengthChoice::Shrink,
+            Length::Fluid(_) => LengthChoice::Fill,
+            Length::Bounded { sizing, .. } => match sizing {
+                Sizing::Fit | Sizing::Shrink => LengthChoice::Shrink,
+                Sizing::Fill(1) => LengthChoice::Fill,
+                Sizing::Fill(_) => LengthChoice::FillPortion,
+            },
         }
     }
 }
@@ -1171,21 +1244,28 @@ impl std::fmt::Display for TextInputIconSide {
     }
 }
 
-impl From<TextInputIconSide> for iced::widget::text_input::Side {
-    fn from(side: TextInputIconSide) -> Self {
-        match side {
-            TextInputIconSide::Left => iced::widget::text_input::Side::Left,
-            TextInputIconSide::Right => iced::widget::text_input::Side::Right,
-        }
-    }
-}
-
 pub fn length_to_string(length: Length) -> String {
     match length {
         Length::Fill => "Fill".to_string(),
         Length::Shrink => "Shrink".to_string(),
         Length::Fixed(pixels) => format!("{}", pixels),
         Length::FillPortion(p) => format!("FillPortion({p})"),
+        Length::Fit => "Fit".to_string(),
+        Length::Fluid(_) => "Fill".to_string(),
+        Length::Bounded { bounds, sizing } => {
+            let base = match sizing {
+                Sizing::Fit => "Fit",
+                Sizing::Shrink => "Shrink",
+                Sizing::Fill(1) => "Fill",
+                Sizing::Fill(_) => "FillPortion",
+            };
+
+            match bounds {
+                Bounds::Min(min) => format!("{base} (min {min})"),
+                Bounds::Max(max) => format!("{base} (max {max})"),
+                Bounds::Both { min, max } => format!("{base} ({min}..{max})"),
+            }
+        }
     }
 }
 

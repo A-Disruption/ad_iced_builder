@@ -1,6 +1,7 @@
 /// Custom serde helpers for iced types that don't implement Serialize/Deserialize.
 ///
 /// Usage: `#[serde(with = "serde_iced::color")]` on struct fields.
+use iced::advanced::graphics::core::length::{Bounds, Constraint, Sizing};
 use iced::{Alignment, Color, Length, Padding, Point, Vector};
 use serde::{Deserialize, Serialize};
 
@@ -12,6 +13,20 @@ pub(super) enum SerLength {
     Shrink,
     Fixed { value: f32 },
     FillPortion { portion: u16 },
+    // Added by iced master, which introduced `Fit` and folded `max_width` /
+    // `max_height` into the length itself. These are new variants rather than
+    // changes to the existing ones, so projects saved before the migration
+    // still load.
+    Fit,
+    Bounded { min: Option<f32>, max: Option<f32>, sizing: SerSizing },
+    Fluid { min: Option<f32> },
+}
+
+#[derive(Serialize, Deserialize, Clone, Copy)]
+pub(super) enum SerSizing {
+    Fit,
+    Shrink,
+    Fill { portion: u16 },
 }
 
 impl From<Length> for SerLength {
@@ -19,8 +34,28 @@ impl From<Length> for SerLength {
         match l {
             Length::Fill => Self::Fill,
             Length::Shrink => Self::Shrink,
+            Length::Fit => Self::Fit,
             Length::Fixed(v) => Self::Fixed { value: v },
             Length::FillPortion(p) => Self::FillPortion { portion: p },
+            Length::Bounded { bounds, sizing } => {
+                let (min, max) = match bounds {
+                    Bounds::Min(min) => (Some(min), None),
+                    Bounds::Max(max) => (None, Some(max)),
+                    Bounds::Both { min, max } => (Some(min), Some(max)),
+                };
+
+                Self::Bounded {
+                    min,
+                    max,
+                    sizing: match sizing {
+                        Sizing::Fit => SerSizing::Fit,
+                        Sizing::Shrink => SerSizing::Shrink,
+                        Sizing::Fill(portion) => SerSizing::Fill { portion },
+                    },
+                }
+            }
+            Length::Fluid(Constraint::Min(min)) => Self::Fluid { min: Some(min) },
+            Length::Fluid(Constraint::Max) => Self::Fluid { min: None },
         }
     }
 }
@@ -30,8 +65,28 @@ impl From<SerLength> for Length {
         match l {
             SerLength::Fill => Length::Fill,
             SerLength::Shrink => Length::Shrink,
+            SerLength::Fit => Length::Fit,
             SerLength::Fixed { value } => Length::Fixed(value),
             SerLength::FillPortion { portion } => Length::FillPortion(portion),
+            SerLength::Bounded { min, max, sizing } => {
+                let base = match sizing {
+                    SerSizing::Fit => Length::Fit,
+                    SerSizing::Shrink => Length::Shrink,
+                    SerSizing::Fill { portion } => Length::FillPortion(portion),
+                };
+
+                // `min` / `max` build the `Bounds` back up; a record with
+                // neither can only have come from a corrupted file, and falls
+                // back to the plain sizing strategy.
+                match (min, max) {
+                    (Some(min), Some(max)) => base.min(min).max(max),
+                    (Some(min), None) => base.min(min),
+                    (None, Some(max)) => base.max(max),
+                    (None, None) => base,
+                }
+            }
+            SerLength::Fluid { min: Some(min) } => Length::Fluid(Constraint::Min(min)),
+            SerLength::Fluid { min: None } => Length::Fluid(Constraint::Max),
         }
     }
 }

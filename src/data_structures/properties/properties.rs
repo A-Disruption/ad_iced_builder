@@ -959,8 +959,11 @@ impl Properties {
                 props.height = Length::Shrink;
                 props.spacing = 0.0;
             }
-            WidgetType::GenericOverlay => {
-                props.text_content = "Open Overlay".to_string();
+            WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
+                props.text_content = match widget_type {
+                    WidgetType::Menu => "Menu".to_string(),
+                    _ => "Open".to_string(),
+                };
                 props.generic_overlay_title = "Overlay".to_string();
                 props.width = Length::Shrink;
                 props.height = Length::Shrink;
@@ -971,6 +974,24 @@ impl Properties {
                     right: 10.0,
                     left: 10.0,
                 };
+
+                // A popover sits beside its trigger; a menu drops below it; a
+                // layer is centred on the window and, having no trigger of its
+                // own, only opens because the application says so.
+                match widget_type {
+                    WidgetType::Popover => {
+                        props.generic_overlay_hover_position = GenericOverlayPosition::Right;
+                    }
+                    WidgetType::Menu => {
+                        props.generic_overlay_hover_position = GenericOverlayPosition::Bottom;
+                        props.generic_overlay_hover_alignment = ContainerAlignX::Left;
+                    }
+                    _ => {
+                        props.generic_overlay_opaque = true;
+                        props.generic_overlay_resizable = GenericOverlayResizeMode::Always;
+                        props.generic_overlay_close_on_click_outside = true;
+                    }
+                }
             }
             WidgetType::DatePicker => {
                 props.text_content = "Select a date".to_string();

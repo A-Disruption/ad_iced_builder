@@ -10,7 +10,8 @@ use iced::widget::{
 };
 use iced::{Element, Length, padding};
 use std::collections::HashMap;
-use widgets::generic_overlay::overlay_button;
+use widgets::anchor::{Align, Side};
+use widgets::popover::popover;
 
 struct AutoStateRow<'a> {
     widget: &'a Widget,
@@ -26,7 +27,7 @@ fn stateful_widget_type_label(widget_type: WidgetType) -> Option<&'static str> {
         WidgetType::Slider | WidgetType::VerticalSlider => Some("f32"),
         WidgetType::Split => Some("f32"),
         WidgetType::Toggler => Some("bool"),
-        WidgetType::GenericOverlay => Some("bool"),
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => Some("bool"),
         WidgetType::DatePicker => Some("bool"),
         WidgetType::PickList => Some("Option<String>"),
         WidgetType::Radio => Some("usize"),
@@ -52,7 +53,9 @@ fn auto_state_base_name(widget: &Widget) -> Option<String> {
             WidgetType::VerticalSlider => "vertical_slider",
             WidgetType::Split => "split",
             WidgetType::Toggler => "toggler",
-            WidgetType::GenericOverlay => "genericoverlay",
+            WidgetType::Popover => "popover",
+            WidgetType::Menu => "menu",
+            WidgetType::Layer => "layer",
             WidgetType::DatePicker => "date_picker",
             WidgetType::PickList => "pick_list",
             WidgetType::Radio => "radio",
@@ -191,16 +194,21 @@ pub fn view<'a>(
             let type_options = custom_field_type_options(type_system, Some(&selected_type));
 
             row![
-                text_input("name", &name_val)
+                text_input("name", name_val.clone())
                     .on_input(move |s| Message::SetCustomFieldName(vid, fid, s))
                     .width(Length::Fixed(90.0))
                     .size(12),
-                pick_list(type_options, Some(selected_type), move |t| {
+                pick_list(
+                    Some(selected_type),
+                    type_options,
+                    ToString::to_string,
+                )
+                .on_select(move |t| {
                     Message::SetCustomFieldType(vid, fid, t)
-                },)
+                })
                 .width(Length::Fixed(140.0))
                 .text_size(12),
-                text_input("default", &default_val)
+                text_input("default", default_val.clone())
                     .on_input(move |s| Message::SetCustomFieldDefault(vid, fid, s))
                     .width(Length::Fill)
                     .size(12),
@@ -252,18 +260,20 @@ pub fn view<'a>(
     ))
     .center_x(Length::Fill);
 
-    overlay_button(
-        icon_lucide::settings(),
-        format!("{} Settings", &view.name),
-        settings_view,
+    // `popover` keeps its own open state when `.open()` is never called, which
+    // is what the old self-contained overlay button did.
+    popover(
+        button(icon_lucide::settings())
+            .style(button::text)
+            .padding(1.0),
+        container(settings_view).width(420).height(400),
     )
-    .overlay_padding(5.0)
-    .overlay_radius(10.0)
-    .overlay_width(420.0)
-    .overlay_height(400.0)
-    .close_on_click_outside()
-    .style(button::text)
-    .padding(1.0)
+    .side(Side::Bottom)
+    .align(Align::End)
+    .padding(5.0)
+    .radius(10.0)
+    .max_width(420.0)
+    .dismiss_on_outside_press(true)
     .into()
 }
 
@@ -306,17 +316,17 @@ mod tests {
     }
 
     #[test]
-    fn collect_stateful_widgets_includes_generic_overlay_open_state() {
+    fn collect_stateful_widgets_includes_overlay_open_state() {
         let mut root = Widget::new(WidgetType::Column, WidgetId(1));
         root.children
-            .push(Widget::new(WidgetType::GenericOverlay, WidgetId(2)));
+            .push(Widget::new(WidgetType::Popover, WidgetId(2)));
 
         let mut rows = Vec::new();
         let mut widget_counts = HashMap::new();
         collect_stateful_widgets(&root, &mut widget_counts, &mut rows);
 
         assert_eq!(rows.len(), 1);
-        assert_eq!(rows[0].generated_name, "genericoverlay");
+        assert_eq!(rows[0].generated_name, "popover");
         assert_eq!(rows[0].type_label, "bool");
     }
 

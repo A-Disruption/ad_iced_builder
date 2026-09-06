@@ -71,5 +71,5 @@ pub fn type_icon<'a>() -> Text<'a> {
 }
 
 fn icon(codepoint: &str) -> Text<'_> {
-    text(codepoint).font(Font::with_name("fonts"))
+    text(codepoint).font(Font::new("fonts"))
 }

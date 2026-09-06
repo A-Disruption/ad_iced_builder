@@ -229,7 +229,11 @@ impl SavedStyleDefinition {
     ) -> text_input::Style {
         let background_color =
             self.resolve_color(theme, self.background_color, &self.background_color_source);
-        let icon_color = self.resolve_color(theme, self.icon_color, &self.icon_color_source);
+        // iced master dropped `icon` from `text_input::Style` along with the
+        // built-in input icon. The property is kept because the builder now
+        // composes that icon as its own widget, which is where the colour will
+        // be applied.
+        let _icon_color = self.resolve_color(theme, self.icon_color, &self.icon_color_source);
         let placeholder_color = self.resolve_color(
             theme,
             self.placeholder_color,
@@ -241,8 +245,7 @@ impl SavedStyleDefinition {
 
         let base = text_input::Style {
             background: Background::Color(background_color),
-            border: self.resolved_border(theme),
-            icon: icon_color,
+            border: self.resolved_border(theme),
             placeholder: placeholder_color,
             value: text_color,
             selection: selection_color,
@@ -258,13 +261,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.value),
-                        icon: ov
-                            .icon_color
-                            .map(|c| {
-                                Self::resolve_ov(Some(c), &ov.icon_color_source, icon_color, theme)
-                            })
-                            .unwrap_or(base.icon),
+                            .unwrap_or(base.value),
                         background: ov
                             .background_color
                             .map(|c| {
@@ -305,13 +302,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.value),
-                        icon: ov
-                            .icon_color
-                            .map(|c| {
-                                Self::resolve_ov(Some(c), &ov.icon_color_source, icon_color, theme)
-                            })
-                            .unwrap_or(base.icon),
+                            .unwrap_or(base.value),
                         background: ov
                             .background_color
                             .map(|c| {
@@ -354,13 +345,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.placeholder),
-                        icon: ov
-                            .icon_color
-                            .map(|c| {
-                                Self::resolve_ov(Some(c), &ov.icon_color_source, icon_color, theme)
-                            })
-                            .unwrap_or(base.icon.scale_alpha(0.5)),
+                            .unwrap_or(base.placeholder),
                         background: Background::Color(Self::resolve_ov(
                             ov.background_color,
                             &ov.background_color_source,
@@ -381,8 +366,7 @@ impl SavedStyleDefinition {
                     }
                 } else {
                     text_input::Style {
-                        background: Background::Color(background_color.scale_alpha(0.5)),
-                        icon: base.icon.scale_alpha(0.5),
+                        background: Background::Color(background_color.scale_alpha(0.5)),
                         value: base.placeholder,
                         placeholder: base.placeholder.scale_alpha(0.5),
                         ..base
@@ -586,7 +570,9 @@ impl SavedStyleDefinition {
         };
 
         match status {
-            pick_list::Status::Active => base,
+            // `Disabled` is new in iced master; the builder has no override
+            // slot for it, so it renders as the base style.
+            pick_list::Status::Active | pick_list::Status::Disabled => base,
             pick_list::Status::Hovered => {
                 if let Some(ref ov) = self.status_hovered {
                     pick_list::Style {
@@ -1327,12 +1313,12 @@ impl SavedStyleDefinition {
     }
 }
 
-/// Evaluates theme path expressions like "theme.extended_palette().primary.strong.color"
+/// Evaluates theme path expressions like "theme.palette().primary.strong.color"
 pub fn evaluate_theme_expression(theme: &Theme, expression: &str) -> Option<Color> {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     // Parse the expression and navigate the theme structure
-    let expression = expression.replace("theme.extended_palette().", "");
+    let expression = expression.replace("theme.palette().", "");
     let parts: Vec<&str> = expression.split('.').collect();
 
     if parts.is_empty() {

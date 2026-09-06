@@ -30,7 +30,7 @@ fn main() {
         .theme(AdUiBuilder::theme)
         .subscription(AdUiBuilder::subscription)
         .font(icon::FONT)
-        .font(iced_lucide::FONT_BYTES)
+        .font(icon_lucide::FONT)
         .run()
         .unwrap()
 }
@@ -63,6 +63,7 @@ struct AdUiBuilder {
     widget_preview_content: text_editor::Content,
 
     open_editor_widget_id: Option<WidgetId>,
+    #[cfg(feature = "action_editor")]
     action_editor: views::action_editor::ActionEditorState,
 
     /// App-level flows (moved out of AppView — flows are not view-specific).
@@ -108,6 +109,7 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
+    #[cfg(feature = "action_editor")]
     ActionEditor(action_editor::Message),
 }
 
@@ -138,6 +140,7 @@ impl AdUiBuilder {
             widget_preview_content: text_editor::Content::new(),
 
             open_editor_widget_id: None,
+            #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows: Vec::new(),
 
@@ -292,7 +295,7 @@ impl AdUiBuilder {
                     ViewMessage::AddViews(msg) => {
                         // Handle overlay open/close from AddViews tree
                         if let add_views::Message::TreeMessage(
-                            widget_tree::Message::OverlayOpened(widget_id, _, _),
+                            widget_tree::Message::OverlayOpened(widget_id),
                         ) = msg
                         {
                             self.open_editor_widget_id = Some(widget_id);
@@ -353,6 +356,7 @@ impl AdUiBuilder {
                         )
                         .map(|m| Message::ViewMessages(ViewMessage::Preview(m)));
                     }
+                    #[cfg(feature = "action_editor")]
                     ViewMessage::ActionEditor(msg) => {
                         let task = action_editor::update_with_type_system(
                             &mut self.views,
@@ -665,6 +669,7 @@ impl AdUiBuilder {
                 ]
                 .into()
             }
+            #[cfg(feature = "action_editor")]
             navigation_bar::ViewSelection::Actions => action_editor::view(
                 &self.views,
                 &self.flows,
@@ -880,6 +885,7 @@ impl AdUiBuilder {
             code_view_content: text_editor::Content::new(),
             widget_preview_content: text_editor::Content::new(),
             open_editor_widget_id: None,
+            #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows,
             save_path: None,

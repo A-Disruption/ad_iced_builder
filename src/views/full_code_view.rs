@@ -6,7 +6,6 @@ use iced::{Alignment, Element, Length, Padding};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tree_sitter_highlighter::{TreeSitterIcedHighlighter, TsSettings, code_gen_text_editor_style};
-use widgets::generic_overlay;
 
 pub fn view<'a>(
     generated_files: &HashMap<String, String>,
@@ -82,8 +81,6 @@ pub fn view<'a>(
                 tooltip::Position::Left
             ),
         )
-        .style(button::text)
-        .overlay_style(generic_overlay::blank)
     ]
     .spacing(10)
     .padding(10)

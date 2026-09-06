@@ -57,7 +57,7 @@ pub fn generate_button_style_code(
         style_name
     ));
 
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
 
     code.push_str("    let base = Style {\n");
 
@@ -268,7 +268,7 @@ pub fn generate_container_style_code(
         style_name
     ));
 
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
 
     code.push_str("    Style {\n");
 
@@ -344,7 +344,7 @@ pub fn generate_checkbox_style_code(
         style_name
     ));
 
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
 
     code.push_str("    let base = Style {\n");
 
@@ -474,7 +474,7 @@ pub fn generate_rule_style_code(
         "pub fn {}(theme: &Theme) -> Style {{\n",
         style_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    Style {\n");
 
     code.push_str("        color: ");
@@ -537,7 +537,7 @@ pub fn generate_text_input_style_code(
         "pub fn {}(theme: &Theme, status: text_input::Status) -> text_input::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = text_input::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -762,7 +762,7 @@ pub fn generate_text_editor_style_code(
         "pub fn {}(theme: &Theme, status: text_editor::Status) -> text_editor::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = text_editor::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -964,7 +964,7 @@ pub fn generate_menu_style_code(
         "pub fn {}(theme: &Theme) -> menu::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    menu::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -1044,7 +1044,7 @@ pub fn generate_pick_list_style_code(
         "pub fn {}(theme: &Theme, status: pick_list::Status) -> pick_list::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = pick_list::Style {\n");
     code.push_str("        text_color: ");
     code.push_str(&format_color_with_source(text_color, text_color_source));
@@ -1227,7 +1227,7 @@ pub fn generate_slider_style_code(
         "pub fn {}(theme: &Theme, status: slider::Status) -> slider::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = slider::Style {\n");
     code.push_str("        rail: slider::Rail {\n");
     code.push_str("            backgrounds: (\n");
@@ -1398,7 +1398,7 @@ pub fn generate_progress_bar_style_code(
         "pub fn {}(theme: &Theme) -> progress_bar::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    progress_bar::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -1448,7 +1448,7 @@ pub fn generate_radio_style_code(
         "pub fn {}(theme: &Theme, status: radio::Status) -> radio::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = radio::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -1565,7 +1565,7 @@ pub fn generate_toggler_style_code(
         "pub fn {}(theme: &Theme, status: toggler::Status) -> toggler::Style {{\n",
         function_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    let base = toggler::Style {\n");
     code.push_str("        background: Background::Color(");
     code.push_str(&format_color_with_source(
@@ -1731,7 +1731,7 @@ pub fn generate_combo_box_style_code(
     let mut code = String::new();
 
     code.push_str(&format!("pub fn {}_input_style(theme: &Theme, status: text_input::Status) -> text_input::Style {{\n", style_name));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
 
     code.push_str("    let base = text_input::Style {\n");
 
@@ -1839,7 +1839,7 @@ pub fn generate_combo_box_style_code(
         "pub fn {}_menu_style(theme: &Theme) -> menu::Style {{\n",
         style_name
     ));
-    code.push_str("    let palette = theme.extended_palette();\n\n");
+    code.push_str("    let palette = theme.palette();\n\n");
     code.push_str("    menu::Style {\n");
 
     code.push_str("        background: Background::Color(");

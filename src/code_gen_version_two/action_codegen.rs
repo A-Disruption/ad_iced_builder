@@ -537,7 +537,7 @@ mod tests {
     fn flow_out(node: &ActionNodeData) -> u64 {
         node.cached_ports_out
             .iter()
-            .find(|p| matches!(p.kind, widgets::flow_editor::PortType::Flow))
+            .find(|p| matches!(p.kind, crate::action_system::flow_model::PortType::Flow))
             .expect("flow out")
             .id
             .0
@@ -546,7 +546,7 @@ mod tests {
     fn flow_in(node: &ActionNodeData) -> u64 {
         node.cached_ports_in
             .iter()
-            .find(|p| matches!(p.kind, widgets::flow_editor::PortType::Flow))
+            .find(|p| matches!(p.kind, crate::action_system::flow_model::PortType::Flow))
             .expect("flow in")
             .id
             .0
