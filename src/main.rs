@@ -16,6 +16,8 @@ mod preview_runtime;
 mod styles;
 mod views;
 
+use iced_native_frame::{FrameAction, NativeFrame, NativeFrameConfig};
+
 use action_system::flow::AppFlow;
 use data_structures::types::types::{AppView, WidgetId, WindowConfig};
 use views::enum_editor::EnumEditorView;
@@ -25,14 +27,17 @@ use views::theme_and_stylefn_builder::CustomThemes;
 use views::*;
 
 fn main() {
-    iced::daemon(AdUiBuilder::new, AdUiBuilder::update, AdUiBuilder::view)
+    let mut app = iced::daemon(AdUiBuilder::new, AdUiBuilder::update, AdUiBuilder::view)
         .title(AdUiBuilder::title)
         .theme(AdUiBuilder::theme)
-        .subscription(AdUiBuilder::subscription)
-        .font(icon::FONT)
-        .font(icon_lucide::FONT)
-        .run()
-        .unwrap()
+        .subscription(AdUiBuilder::subscription);
+
+    // One font per icon family, so the pickers can draw all of them.
+    for font in icon::FONTS {
+        app = app.font(*font);
+    }
+
+    app.run().unwrap()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,6 +47,12 @@ enum TypeEditorTab {
 }
 
 struct AdUiBuilder {
+    /// The builder's own title bar, drawn rather than asked of the platform.
+    ///
+    /// One frame serves every window: hover, focus and maximization are keyed
+    /// by `window::Id`, so maximizing the editor leaves the visualizer alone.
+    frame: NativeFrame,
+
     windows: BTreeMap<window::Id, Window>,
     selected_view: navigation_bar::ViewSelection,
     theme: Theme,
@@ -83,6 +94,9 @@ enum Message {
     WindowClosed(iced::window::Id),
     RequestOpenWindow(WindowEnum),
     WindowOpened(iced::window::Id, WindowEnum),
+    /// Something the custom title bar did — a drag, a caption button, a focus
+    /// change. Forwarded to [`NativeFrame::update`].
+    Frame(FrameAction),
 
     // Persistence
     NewProject,
@@ -119,6 +133,7 @@ impl AdUiBuilder {
         let initial_view = AppView::with_id(view_id, "Main View".to_string(), 0);
 
         let mut editor = Self {
+            frame: NativeFrame::new(NativeFrameConfig::platform_default()),
             windows: BTreeMap::new(),
             selected_window: None,
             selected_view: navigation_bar::ViewSelection::Main,
@@ -391,16 +406,28 @@ impl AdUiBuilder {
             Message::WindowClosed(window_id) => {
                 println!("Close window request, requested.");
                 self.windows.remove(&window_id);
+
+                // The frame keeps per-window state of its own; without this it
+                // would hold hover and maximization for a window that is gone.
+                let released = self
+                    .frame
+                    .update(FrameAction::WindowClosed(window_id), Message::Frame);
+
                 if self.windows.is_empty() {
-                    return iced::exit();
-                } else {
+                    return released.chain(iced::exit());
                 }
+
+                return released;
+            }
+            Message::Frame(action) => {
+                return self.frame.update(action, Message::Frame);
             }
             Message::RequestOpenWindow(window_type) => {
                 match window_type {
                     WindowEnum::Editor => {
                         let config = WindowConfig::editor();
-                        let (_id, open) = iced::window::open(config.settings);
+                        let (_id, open) =
+                            iced::window::open(self.frame.window_settings(config.settings));
 
                         return open.map(|id| Message::WindowOpened(id, WindowEnum::Editor));
                     }
@@ -421,7 +448,8 @@ impl AdUiBuilder {
 
                         // Create new visualizer
                         let config = WindowConfig::visualizer();
-                        let (_id, open) = iced::window::open(config.settings.clone());
+                        let (_id, open) =
+                            iced::window::open(self.frame.window_settings(config.settings.clone()));
 
                         return open
                             .map(move |id| Message::WindowOpened(id, WindowEnum::Visualizer));
@@ -431,6 +459,10 @@ impl AdUiBuilder {
             Message::WindowOpened(window_id, window_type) => {
                 let new_window = Window::new(window_id, window_type);
                 self.windows.insert(window_id, new_window);
+
+                // Once per window: on Windows this installs the `WM_NCHITTEST`
+                // subclass the Snap Layout flyout needs.
+                return self.frame.install(window_id).discard();
             }
 
             Message::NewProject => {
@@ -438,8 +470,12 @@ impl AdUiBuilder {
                 if !has_project {
                     let windows = std::mem::take(&mut self.windows);
                     let selected_window = self.selected_window;
+                    // The windows survive the reset, so the frame that knows
+                    // about them has to as well.
+                    let frame = self.frame.clone();
                     let (mut new_state, _) = Self::new();
                     new_state.windows = windows;
+                    new_state.frame = frame;
                     new_state.selected_window = selected_window;
                     *self = new_state;
                     return Task::none();
@@ -462,8 +498,10 @@ impl AdUiBuilder {
             Message::NewProjectDiscard => {
                 let windows = std::mem::take(&mut self.windows);
                 let selected_window = self.selected_window;
+                let frame = self.frame.clone();
                 let (mut new_state, _) = Self::new();
                 new_state.windows = windows;
+                new_state.frame = frame;
                 new_state.selected_window = selected_window;
                 *self = new_state;
                 return Task::none();
@@ -544,8 +582,10 @@ impl AdUiBuilder {
             Message::ProjectLoaded(path, json) => match persistence::deserialize_project(&json) {
                 Ok(data) => {
                     let windows = std::mem::take(&mut self.windows);
+                    let frame = self.frame.clone();
                     *self = Self::from_project_data(data);
                     self.windows = windows;
+                    self.frame = frame;
                     self.save_path = Some(path);
                     self.unsaved_changes = false;
                 }
@@ -680,59 +720,70 @@ impl AdUiBuilder {
             _ => container("No done, sorry :(").into(),
         };
 
-        match self.windows.get(&window_id) {
-            Some(window) => match window.windowtype {
-                WindowEnum::Editor => {
-                    let content = if self.selected_view == navigation_bar::ViewSelection::Actions {
-                        container(view).height(Length::Fill).width(Length::Fill)
-                    } else {
-                        container(view)
-                            .padding(10)
-                            .height(Length::Fill)
-                            .width(Length::Fill)
-                    };
+        let Some(window) = self.windows.get(&window_id) else {
+            // No frame here: a window the builder does not know about has no
+            // title to draw, and this is the one place that says so.
+            return container(column![text(format!(
+                "Something has gone terribly wrong. Window Id: {:?}",
+                window_id
+            ))])
+            .into();
+        };
 
-                    column![
-                        navigation_bar::navigation_bar(&self.selected_view, &self.theme).map(
-                            |selection| Message::ViewMessages(ViewMessage::NavigationBar(
-                                selection
-                            ))
-                        ),
-                        content,
-                    ]
-                    .into()
-                }
-                WindowEnum::Visualizer => {
-                    let view_id = window.view_to_display(self.selected_view_id);
-                    let view_to_render = self
-                        .views
-                        .get(&view_id)
-                        .expect("View assigned to window must exist");
+        let content: Element<'a, Message> = match window.windowtype {
+            WindowEnum::Editor => {
+                let content = if self.selected_view == navigation_bar::ViewSelection::Actions {
+                    container(view).height(Length::Fill).width(Length::Fill)
+                } else {
+                    container(view)
+                        .padding(10)
+                        .height(Length::Fill)
+                        .width(Length::Fill)
+                };
 
-                    preview::view(
-                        &view_to_render.hierarchy,
-                        &self.theme,
-                        &self.custom_styles,
-                        selected_view.show_widget_bounds,
-                        &self.views,
-                        Some(view_to_render.id),
-                        &self.type_system,
-                    )
-                    .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))
-                }
-            },
-            None => {
-                let content = column![text(format!(
-                    "Something has gone terribly wrong. Window Id: {:?}",
-                    window_id
-                )),];
-                container(content).into()
+                column![
+                    navigation_bar::navigation_bar(&self.selected_view, &self.theme).map(
+                        |selection| Message::ViewMessages(ViewMessage::NavigationBar(selection))
+                    ),
+                    content,
+                ]
+                .into()
             }
-        }
+            WindowEnum::Visualizer => {
+                let view_id = window.view_to_display(self.selected_view_id);
+                let view_to_render = self
+                    .views
+                    .get(&view_id)
+                    .expect("View assigned to window must exist");
+
+                preview::view(
+                    &view_to_render.hierarchy,
+                    &self.theme,
+                    &self.custom_styles,
+                    selected_view.show_widget_bounds,
+                    &self.views,
+                    Some(view_to_render.id),
+                    &self.type_system,
+                )
+                .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))
+            }
+        };
+
+        self.frame.view(
+            window_id,
+            window.title(),
+            None,
+            None,
+            content,
+            Message::Frame,
+        )
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        Subscription::batch(vec![event::listen_with(handle_event)])
+        Subscription::batch(vec![
+            event::listen_with(handle_event),
+            self.frame.subscription().map(Message::Frame),
+        ])
     }
 
     fn regenerate_code(&mut self) {
@@ -868,6 +919,7 @@ impl AdUiBuilder {
         custom_styles.restore_styles(data.custom_styles.styles);
 
         let mut builder = Self {
+            frame: NativeFrame::new(NativeFrameConfig::platform_default()),
             windows: BTreeMap::new(),
             selected_window: None,
             selected_view: navigation_bar::ViewSelection::Main,

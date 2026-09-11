@@ -2,7 +2,6 @@ use iced::widget::{button, column, container, row, rule, space, tooltip};
 use iced::{Element, Length, Theme};
 
 use crate::icon;
-use crate::icon_lucide;
 use crate::styles;
 
 #[derive(Debug, Clone)]
@@ -27,8 +26,8 @@ pub fn navigation_bar<'a>(
 
     container(column![
         row![
-            //button(icon::home().center())
-            button(icon_lucide::house().center())
+            //button(icon::house().center())
+            button(icon::house().center())
                 .width(35)
                 .style(if *selected_view == ViewSelection::Main {
                     styles::button::selected_text
@@ -36,7 +35,7 @@ pub fn navigation_bar<'a>(
                     button::text
                 })
                 .on_press(Message::ActiveView(ViewSelection::Main)),
-            button(icon_lucide::workflow().center())
+            button(icon::workflow().center())
                 .width(35)
                 .style(if *selected_view == ViewSelection::Actions {
                     styles::button::selected_text
@@ -44,7 +43,7 @@ pub fn navigation_bar<'a>(
                     button::text
                 })
                 .on_press(Message::ActiveView(ViewSelection::Actions)),
-            button(icon_lucide::blocks().center())
+            button(icon::blocks().center())
                 .width(35)
                 .style(if *selected_view == ViewSelection::EnumBuilder {
                     styles::button::selected_text
@@ -52,7 +51,7 @@ pub fn navigation_bar<'a>(
                     button::text
                 })
                 .on_press(Message::ActiveView(ViewSelection::EnumBuilder)),
-            button(icon_lucide::palette().center())
+            button(icon::palette().center())
                 .width(35)
                 .style(if *selected_view == ViewSelection::ThemeBuilder {
                     styles::button::selected_text
@@ -70,7 +69,7 @@ pub fn navigation_bar<'a>(
                 .on_press(Message::ActiveView(ViewSelection::Code)),
             space::horizontal(),
             tooltip(
-                button(icon_lucide::file_plus().center())
+                button(icon::file_plus().center())
                     .width(35)
                     .style(button::text)
                     .on_press(Message::NewProject),
@@ -78,7 +77,7 @@ pub fn navigation_bar<'a>(
                 tooltip::Position::Bottom,
             ),
             tooltip(
-                button(icon_lucide::folder_open().center())
+                button(icon::folder_open().center())
                     .width(35)
                     .style(button::text)
                     .on_press(Message::OpenProject),
@@ -86,7 +85,7 @@ pub fn navigation_bar<'a>(
                 tooltip::Position::Bottom,
             ),
             tooltip(
-                button(icon_lucide::save().center())
+                button(icon::save().center())
                     .width(35)
                     .style(button::text)
                     .on_press(Message::SaveProject),
@@ -94,15 +93,15 @@ pub fn navigation_bar<'a>(
                 tooltip::Position::Bottom,
             ),
             tooltip(
-                button(icon_lucide::save_all().center())
+                button(icon::save_all().center())
                     .width(35)
                     .style(button::text)
                     .on_press(Message::SaveProjectAs),
                 "Save As… (Ctrl+Shift+S)",
                 tooltip::Position::Bottom,
             ),
-            //button(icon::cog().center())
-            button(icon_lucide::settings().center())
+            //button(icon::settings().center())
+            button(icon::settings().center())
                 .width(35)
                 .style(if *selected_view == ViewSelection::Settings {
                     styles::button::selected_text

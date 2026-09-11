@@ -973,7 +973,7 @@ pub fn view<'a>(
             .on_input(Message::SetFlowSearch)
             .size(12)
             .width(Length::Fill),
-        button(icon_lucide::plus().size(12).center())
+        button(icon::plus().size(12).center())
             .style(button::text)
             .on_press(Message::AddFlow),
     ]
@@ -1016,7 +1016,7 @@ pub fn view<'a>(
                         button::text
                     })
                     .on_press(Message::SelectFlow(fid)),
-                button(icon_lucide::trash_2().size(10.0))
+                button(icon::trash_2().size(10.0))
                     .style(styles::button::cancel)
                     .on_press(Message::DeleteFlow(fid2)),
             ]
@@ -1931,7 +1931,7 @@ fn build_node_body<'a>(
                             .text_size(txt(10.5));
 
                             let delete_btn: Element<'a, Message> = container(
-                                button(icon_lucide::trash_2().size(txt(11.0)))
+                                button(icon::trash_2().size(txt(11.0)))
                                     .style(styles::button::cancel)
                                     .on_press(Message::RemoveWidgetEventRow(fid, rid))
                                     .padding([pd(3.0), pd(6.0)]),
@@ -2186,7 +2186,7 @@ fn build_node_body<'a>(
                         }
                     }
                 };
-                let rm_btn = button(icon_lucide::trash_2().size(txt(11.0)))
+                let rm_btn = button(icon::trash_2().size(txt(11.0)))
                     .on_press(Message::StateMutationRemoveAssignment(nid, idx))
                     .style(styles::button::cancel)
                     .padding([pd(3.0), pd(6.0)]);
@@ -2365,7 +2365,7 @@ fn build_node_body<'a>(
                 } else {
                     RowTone::Neutral
                 };
-                let remove_btn = button(icon_lucide::trash_2().size(txt(11.0)))
+                let remove_btn = button(icon::trash_2().size(txt(11.0)))
                     .on_press(Message::RemoveNavigateTarget(nid, slot))
                     .style(styles::button::cancel)
                     .padding([pd(3.0), pd(6.0)]);
@@ -2533,7 +2533,7 @@ fn build_node_body<'a>(
 
                 let can_remove = authored_conditions.len() > 1;
                 let remove_btn = {
-                    let base = button(icon_lucide::trash_2().size(txt(11.0)))
+                    let base = button(icon::trash_2().size(txt(11.0)))
                         .style(styles::button::cancel)
                         .padding([pd(3.0), pd(6.0)]);
                     if can_remove {
@@ -2724,7 +2724,7 @@ fn build_node_body<'a>(
                                     .on_input(move |v| Message::SetMatchArm(nid, idx, v))
                                     .size(txt(10.8))
                                     .width(Length::Fill),
-                                button(icon_lucide::trash_2().size(txt(11.0)))
+                                button(icon::trash_2().size(txt(11.0)))
                                     .style(styles::button::cancel)
                                     .padding([pd(2.0), pd(6.0)])
                                     .on_press(Message::RemoveMatchArm(nid, idx))

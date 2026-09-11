@@ -6,7 +6,6 @@ use uuid::Uuid;
 
 use crate::enum_builder::*;
 use crate::icon;
-use crate::icon_lucide;
 use crate::styles;
 use widgets::collapsible::{CollapsibleGroup, collapsible};
 
@@ -438,7 +437,7 @@ pub fn view<'a>(
         space::horizontal(),
         text("Custom Structs").size(18),
         space::horizontal(),
-        button(icon_lucide::plus())
+        button(icon::plus())
             .style(button::text)
             .on_press(Message::CreateNewStruct)
     ]
@@ -502,7 +501,7 @@ pub fn view<'a>(
                                 }
                             })
                         .width(150),
-                        button(icon_lucide::trash_2())
+                        button(icon::trash_2())
                             .style(styles::button::cancel)
                             .on_press(Message::RemoveField {
                                 struct_id,
@@ -529,7 +528,7 @@ pub fn view<'a>(
                                 }
                             }),
                             space().width(150),
-                            button(icon_lucide::trash_2()).style(styles::button::invisible)
+                            button(icon::trash_2()).style(styles::button::invisible)
                         ]
                         .spacing(10)
                         .padding(5)
@@ -562,7 +561,7 @@ pub fn view<'a>(
                                     field_type: selected.field_type,
                                 })
                             .width(150),
-                            button(icon_lucide::plus().center())
+                            button(icon::plus().center())
                                 .style(button::text)
                                 .on_press(Message::AddField {
                                     struct_id,
@@ -577,10 +576,10 @@ pub fn view<'a>(
                     .padding([5, 10]),
                 ],
             )
-            .expand_icon(icon::collapsed())
-            .collapse_icon(icon::expanded())
+            .expand_icon(icon::chevron_right())
+            .collapse_icon(icon::chevron_down())
             .action_icon(
-                button(icon_lucide::trash_2())
+                button(icon::trash_2())
                     .style(styles::button::cancel)
                     .on_press(Message::DeleteStruct(struct_id))
                     .padding(padding::right(10.0)),

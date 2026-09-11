@@ -87,7 +87,8 @@ fn bound_max(length: Length, max: Option<f32>) -> Length {
 fn with_input_icon<'a>(
     input: Element<'a, Message>,
     enabled: bool,
-    codepoint: u32,
+    family: &str,
+    name: &str,
     size: f32,
     spacing: f32,
     side: TextInputIconSide,
@@ -97,8 +98,7 @@ fn with_input_icon<'a>(
         return input;
     }
 
-    let glyph = char::from_u32(codepoint).unwrap_or('\u{FFFD}');
-    let mut icon = text(glyph.to_string()).font(Font::new("lucide"));
+    let mut icon = crate::icon::by_name(family, name);
 
     if size > 0.0 {
         icon = icon.size(size);
@@ -2079,7 +2079,8 @@ fn build_text_input_preview<'a>(
     with_input_icon(
         input.into(),
         props.text_input_icon_enabled,
-        props.text_input_icon_codepoint,
+        &props.text_input_icon_family,
+        &props.text_input_icon_name,
         props.text_input_icon_size,
         props.text_input_icon_spacing,
         props.text_input_icon_side,
@@ -2655,7 +2656,8 @@ fn build_combo_box_preview<'a>(
     with_input_icon(
         cb.into(),
         props.combobox_icon_enabled,
-        props.combobox_icon_codepoint,
+        &props.combobox_icon_family,
+        &props.combobox_icon_name,
         props.combobox_icon_size,
         props.combobox_icon_spacing,
         props.combobox_icon_side,
@@ -4065,9 +4067,8 @@ fn build_icon_preview<'a>(
     _type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let props = &widget.properties;
-    let codepoint_char = char::from_u32(props.icon_codepoint).unwrap_or('\u{FFFD}');
-    text(codepoint_char.to_string())
-        .font(Font::new("lucide"))
+
+    crate::icon::by_name(&props.icon_family, &props.icon_name)
         .size(props.icon_size)
         .width(props.width)
         .height(props.height)

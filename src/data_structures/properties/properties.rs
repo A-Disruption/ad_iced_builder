@@ -130,8 +130,10 @@ pub struct Properties {
     #[serde(with = "serde_iced::text_line_height")]
     pub text_input_line_height: text::LineHeight,
     pub text_input_alignment: ContainerAlignX,
-    // TextInput icon (Lucide)
+    // TextInput icon
     pub text_input_icon_enabled: bool,
+    #[serde(default = "default_icon_family")]
+    pub text_input_icon_family: String,
     pub text_input_icon_name: String,
     pub text_input_icon_codepoint: u32,
     pub text_input_icon_size: f32, // 0.0 = use font default (None in iced)
@@ -501,8 +503,10 @@ pub struct Properties {
     pub combobox_use_on_open: bool,
     pub combobox_use_on_close: bool,
     pub referenced_enum: Option<Uuid>,
-    // ComboBox icon (Lucide)
+    // ComboBox icon
     pub combobox_icon_enabled: bool,
+    #[serde(default = "default_icon_family")]
+    pub combobox_icon_family: String,
     pub combobox_icon_name: String,
     pub combobox_icon_codepoint: u32,
     pub combobox_icon_size: f32,
@@ -565,8 +569,10 @@ pub struct Properties {
     /// Additional view IDs for multi-view selection (generates a `{Field}Selection` enum).
     pub extra_view_ids: Vec<Uuid>,
 
-    // Icon (Lucide) properties
-    pub icon_name: String,   // Human-readable name, e.g. "house"
+    // Icon widget properties
+    #[serde(default = "default_icon_family")]
+    pub icon_family: String,
+    pub icon_name: String,   // Upstream icon name, e.g. "house"
     pub icon_codepoint: u32, // Unicode codepoint for rendering
     pub icon_size: f32,
     pub icon_picker_filter: String, // Live search filter for the icon picker
@@ -772,6 +778,7 @@ impl Default for Properties {
             text_input_line_height: text::LineHeight::default(),
             text_input_alignment: ContainerAlignX::Left,
             text_input_icon_enabled: false,
+            text_input_icon_family: default_icon_family(),
             text_input_icon_name: "house".to_string(),
             text_input_icon_codepoint: 0xE1D7,
             text_input_icon_size: 0.0, // 0.0 = use font default
@@ -981,6 +988,7 @@ impl Default for Properties {
             combobox_size: 16.0,
             referenced_enum: None,
             combobox_icon_enabled: false,
+            combobox_icon_family: default_icon_family(),
             combobox_icon_name: "house".to_string(),
             combobox_icon_codepoint: 0xE1D7,
             combobox_icon_size: 0.0,
@@ -1036,6 +1044,7 @@ impl Default for Properties {
             extra_view_ids: Vec::new(),
 
             // Icon defaults — "house" icon from Lucide
+            icon_family: default_icon_family(),
             icon_name: "house".to_string(),
             icon_codepoint: 0xE0F5,
             icon_size: 16.0,
@@ -1479,3 +1488,12 @@ fn default_toast_width() -> f32 {
 /// The widgets themselves default to no upper bound at all, so this is only a
 /// starting point for the control, not a widget default.
 pub const DEFAULT_OVERLAY_MAX_WIDTH: f32 = 320.0;
+
+/// The icon family a project starts from, and the one a save written before
+/// families existed is assumed to have used.
+///
+/// Lucide was the only set `iced_lucide` offered at the time, so every icon
+/// name in an older `.adui` is a Lucide name.
+pub fn default_icon_family() -> String {
+    "lucide".to_string()
+}

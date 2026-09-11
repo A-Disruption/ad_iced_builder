@@ -146,6 +146,14 @@ pub struct WindowConfig {
     pub title: String,
     #[serde(default)]
     pub assigned_view_id: Option<Uuid>,
+
+    /// Whether the generated application draws its own title bar with
+    /// `iced-native-frame` rather than asking the platform for one.
+    ///
+    /// Off by default: it adds a dependency, and a plain window is what most
+    /// projects want.
+    #[serde(default)]
+    pub use_native_frame: bool,
     // iced::window::Settings is not serializable — reconstructed from draft strings on load.
     #[serde(skip, default = "Settings::default")]
     pub settings: Settings,
@@ -173,6 +181,7 @@ impl WindowConfig {
         Self {
             title,
             assigned_view_id: None,
+            use_native_frame: false,
             // Initialize drafts from actual values
             draft_width: settings.size.width.to_string(),
             draft_height: settings.size.height.to_string(),

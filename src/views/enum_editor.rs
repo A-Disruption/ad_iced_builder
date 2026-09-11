@@ -7,7 +7,6 @@ use uuid::Uuid;
 
 use crate::enum_builder::*;
 use crate::icon;
-use crate::icon_lucide;
 use crate::styles;
 use widgets::collapsible::{CollapsibleGroup, collapsible};
 
@@ -615,7 +614,7 @@ pub fn view<'a>(
         space::horizontal(),
         text("Custom Enums").size(18),
         space::horizontal(),
-        button(icon_lucide::plus())
+        button(icon::plus())
             .style(button::text)
             .on_press(Message::CreateNewEnum)
     ]
@@ -692,7 +691,7 @@ pub fn view<'a>(
                                         }
                                     })
                                 .width(150),
-                                button(icon_lucide::trash_2())
+                                button(icon::trash_2())
                                     .style(styles::button::cancel)
                                     .on_press(Message::RemoveVariantField {
                                         enum_id,
@@ -719,7 +718,7 @@ pub fn view<'a>(
                                     new_name,
                                 }
                             }),
-                            button(icon_lucide::trash_2())
+                            button(icon::trash_2())
                                 .style(styles::button::cancel)
                                 .on_press(Message::RemoveVariant {
                                     enum_id,
@@ -756,7 +755,7 @@ pub fn view<'a>(
                                             }
                                         })
                                     .width(150),
-                                    button(icon_lucide::plus().center())
+                                    button(icon::plus().center())
                                         .style(button::text)
                                         .on_press(Message::AddVariantField {
                                             enum_id,
@@ -798,7 +797,7 @@ pub fn view<'a>(
                                     new_name: name,
                                 }
                             }),
-                            button(icon_lucide::trash_2()).style(styles::button::invisible)
+                            button(icon::trash_2()).style(styles::button::invisible)
                         ]
                         .spacing(10)
                         .padding(5)
@@ -817,7 +816,7 @@ pub fn view<'a>(
                             text_input("variant_name", new_variant_name.clone()).on_input(move |value| {
                                 Message::NewVariantInputChanged { enum_id, value }
                             }),
-                            button(icon_lucide::plus().center())
+                            button(icon::plus().center())
                                 .style(button::text)
                                 .on_press(Message::AddVariant {
                                     enum_id,
@@ -831,10 +830,10 @@ pub fn view<'a>(
                     error_row,
                 ],
             )
-            .expand_icon(icon::collapsed())
-            .collapse_icon(icon::expanded())
+            .expand_icon(icon::chevron_right())
+            .collapse_icon(icon::chevron_down())
             .action_icon(
-                button(icon_lucide::trash_2())
+                button(icon::trash_2())
                     .style(styles::button::cancel)
                     .on_press(Message::DeleteEnum(enum_id))
                     .padding(padding::right(10.0)),

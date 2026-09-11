@@ -12,7 +12,6 @@ use crate::data_structures::types::types::{AppView, Widget, WidgetId, WidgetType
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::enum_builder::TypeSystem;
 use crate::icon;
-use crate::icon_lucide;
 use crate::styles;
 use crate::views::enum_editor::EnumEditorView;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
@@ -207,10 +206,10 @@ pub fn view<'a>(
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> =
         match widget.widget_type {
-            WidgetType::Row => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Column => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Container => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Scrollable => Some(icon_lucide::arrow_right_left()),
+            WidgetType::Row => Some(icon::arrow_right_left()),
+            WidgetType::Column => Some(icon::arrow_right_left()),
+            WidgetType::Container => Some(icon::arrow_right_left()),
+            WidgetType::Scrollable => Some(icon::arrow_right_left()),
             _ => None,
         };
 
@@ -224,7 +223,7 @@ pub fn view<'a>(
 
     let disabled_delete_button: Element<Message> = {
         // Don't allow deleting root
-        button(icon_lucide::trash_2())
+        button(icon::trash_2())
             .style(styles::button::cancel)
             .into()
     };
@@ -251,7 +250,7 @@ pub fn view<'a>(
             container(text(format!("{}", display_name))).padding(5),
             space::horizontal(),
             swap_button,
-            button(icon_lucide::pencil())
+            button(icon::pencil())
                 .style(styles::button::edit)
                 .on_press(Message::OverlayOpened(root_widget_id)),
             // `layer` takes no trigger of its own: the button above opens it and
@@ -273,8 +272,8 @@ pub fn view<'a>(
     .with_id(widget.id.0);
 
     let mut tree = tree_handle(vec![root])
-        .expand_icon(icon::collapsed())
-        .collapse_icon(icon::expanded())
+        .expand_icon(icon::chevron_right())
+        .collapse_icon(icon::chevron_down())
         .quick()
         .on_drop(Message::TreeMove)
         .on_select(|selected_ids| Message::SelectWidgets(selected_ids));
@@ -314,10 +313,10 @@ fn build_tree_item<'a>(
     // Determine if this widget can be swapped and the button label
     let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> =
         match widget.widget_type {
-            WidgetType::Row => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Column => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Container => Some(icon_lucide::arrow_right_left()),
-            WidgetType::Scrollable => Some(icon_lucide::arrow_right_left()),
+            WidgetType::Row => Some(icon::arrow_right_left()),
+            WidgetType::Column => Some(icon::arrow_right_left()),
+            WidgetType::Container => Some(icon::arrow_right_left()),
+            WidgetType::Scrollable => Some(icon::arrow_right_left()),
             _ => None,
         };
 
@@ -332,7 +331,7 @@ fn build_tree_item<'a>(
     let delete_button: Option<Element<Message>> = if widget.id.0 != 0 {
         // Don't allow deleting root
         Some(
-            button(icon_lucide::trash_2())
+            button(icon::trash_2())
                 .on_press(Message::DeleteWidget(widget.id))
                 .style(styles::button::cancel)
                 .into(),
@@ -345,7 +344,7 @@ fn build_tree_item<'a>(
     let edit_button: Element<Message> = if selection_count == 1 {
         // Original single-widget edit overlay
         row![
-            button(icon_lucide::pencil())
+            button(icon::pencil())
                 .style(styles::button::edit)
                 .on_press(Message::OverlayOpened(widget_id)),
             layer::modal(

@@ -6,13 +6,24 @@ pub fn generate_window_settings(b: &mut CodeBuilder, config: &WindowConfig) {
     let default_settings = window::Settings::default();
     let mut fill_defaults = false;
 
-    if window_settings_are_default(&config.settings) {
+    if window_settings_are_default(&config.settings) && !config.use_native_frame {
         return;
     }
 
     b.line("pub fn window_settings() -> iced::window::Settings {");
     b.increase_indent();
-    b.line("iced::window::Settings {");
+
+    // `NativeFrame::window_settings` is the one helper that replaces every
+    // platform `#[cfg]` a consumer would otherwise write: undecorated on
+    // Windows and Linux, decorated on macOS where the traffic lights stay.
+    if config.use_native_frame {
+        b.line("let frame = NativeFrame::new(NativeFrameConfig::platform_default());");
+        b.newline();
+        b.line("frame.window_settings(iced::window::Settings {");
+    } else {
+        b.line("iced::window::Settings {");
+    }
+
     b.increase_indent();
 
     if config.settings.size != default_settings.size {
@@ -151,7 +162,7 @@ pub fn generate_window_settings(b: &mut CodeBuilder, config: &WindowConfig) {
     }
 
     b.decrease_indent();
-    b.line("}");
+    b.line(if config.use_native_frame { "})" } else { "}" });
     b.decrease_indent();
     b.line("}");
     b.newline();

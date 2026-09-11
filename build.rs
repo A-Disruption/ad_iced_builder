@@ -1,30 +1,49 @@
+//! Generates `src/icon_lucide.rs`: a browsable index of every icon family
+//! `iced_lucide` carries.
+//!
+//! `build_index` is the right call rather than `build_all` because this is a UI
+//! builder — the icon pickers walk `ALL_ICONS` and filter by family, and naming
+//! eighty thousand icons as Rust functions would help nobody. The app's own
+//! chrome icons are hand-written aliases over that index in `src/icon.rs`.
+//!
+//! One subset `.ttf` per family lands in `fonts/`. Those are build output, not
+//! source, and are gitignored.
+//!
+//! It also hands the code generator the `iced` revision this builder resolved,
+//! so generated projects can pin the same one.
 use std::fs;
-use std::path::Path;
 
-fn main() {
-    println!("cargo::rerun-if-changed=fonts/fonts.toml");
-    iced_fontello::build("fonts/fonts.toml").expect("Fonts Missing");
-    patch_fontello_output("src/icon.rs");
+pub fn main() {
+    // An empty slice means every family the enabled features provide, which is
+    // all of them: `iced_lucide` is asked for with `features = ["all"]`.
+    iced_lucide::build_index(&[], "icon_lucide").expect("Build icon index");
 
-    iced_lucide::build_all("lucide", "icon_lucide").expect("Lucide Icons");
+    println!("cargo::rerun-if-changed=Cargo.lock");
+    println!("cargo::rustc-env=ICED_REVISION={}", iced_revision());
 }
 
-/// Brings `iced_fontello`'s generated module up to the iced master API.
+/// The `iced` commit `Cargo.lock` resolved.
 ///
-/// `iced_fontello` 0.14.1 is the newest release and still emits
-/// `Font::with_name`, which master replaced with the const `Font::new`. The
-/// generator writes this file on every build, so the fix has to be applied
-/// after it runs rather than committed into the file.
-fn patch_fontello_output(path: impl AsRef<Path>) {
-    let path = path.as_ref();
+/// Generated projects pin this rather than tracking `branch = "master"`, which
+/// is not reproducible: master moves, and when it does a generated project
+/// stops compiling against the same `widgets`, `iced_lucide` and
+/// `iced-native-frame` this builder works with. Moving the builder forward
+/// moves what it generates forward with it.
+fn iced_revision() -> String {
+    const FALLBACK: &str = "master";
 
-    let Ok(generated) = fs::read_to_string(path) else {
-        return;
+    let Ok(lock) = fs::read_to_string("Cargo.lock") else {
+        return FALLBACK.to_string();
     };
 
-    let patched = generated.replace("Font::with_name(", "Font::new(");
-
-    if patched != generated {
-        fs::write(path, patched).expect("rewrite generated icon module");
-    }
+    // The entry looks like:
+    //   name = "iced"
+    //   version = "0.15.0-dev"
+    //   source = "git+https://github.com/iced-rs/iced.git?branch=master#<sha>"
+    lock.split("[[package]]")
+        .find(|package| package.contains("name = \"iced\"\n"))
+        .and_then(|package| package.lines().find(|line| line.starts_with("source = ")))
+        .and_then(|source| source.rsplit_once('#'))
+        .map(|(_, sha)| sha.trim_end_matches('"').to_string())
+        .unwrap_or_else(|| FALLBACK.to_string())
 }

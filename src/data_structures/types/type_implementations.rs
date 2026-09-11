@@ -1,4 +1,4 @@
-use iced::advanced::graphics::core::length::{Bounds, Sizing};
+use iced::advanced::graphics::core::length::{Bounds, Constraint, Sizing};
 use iced::mouse::Interaction;
 use iced::widget::{scrollable, text, tooltip};
 use iced::{Alignment, ContentFit, Font, Length};
@@ -1181,6 +1181,42 @@ pub enum LengthChoice {
     Fit,
     Shrink,
     Fixed,
+    /// `Length::Bounded` -- any of the sizings above, held inside a pixel
+    /// range.
+    ///
+    /// iced master folded the old `max_width` / `max_height` builders into
+    /// the length itself, and this is what they became.
+    Bounded,
+    /// `Length::Fluid` -- fills like `Fill`, but subject to one open-ended
+    /// constraint.
+    ///
+    /// Unlike `Bounded`, a fluid length propagates its constraint outward
+    /// through the layout: a container of fluid children is itself fluid.
+    Fluid,
+}
+
+impl LengthChoice {
+    /// Every choice, in the order the pickers offer them.
+    pub const ALL: &'static [Self] = &[
+        Self::Fill,
+        Self::FillPortion,
+        Self::Fit,
+        Self::Shrink,
+        Self::Fixed,
+        Self::Bounded,
+        Self::Fluid,
+    ];
+
+    /// The choices that survive inside a scrollable, which cannot give a
+    /// child an unbounded axis to fill.
+    pub const CONSTRAINED: &'static [Self] =
+        &[Self::Fit, Self::Shrink, Self::Fixed, Self::Bounded];
+
+    /// Whether this choice needs space to fill, and so is unavailable along a
+    /// scrollable's scrolling axis.
+    pub fn needs_fill(self) -> bool {
+        matches!(self, Self::Fill | Self::FillPortion | Self::Fluid)
+    }
 }
 
 impl std::fmt::Display for LengthChoice {
@@ -1191,6 +1227,8 @@ impl std::fmt::Display for LengthChoice {
             LengthChoice::Fit => write!(f, "Fit"),
             LengthChoice::Shrink => write!(f, "Shrink"),
             LengthChoice::Fixed => write!(f, "Fixed"),
+            LengthChoice::Bounded => write!(f, "Bounded"),
+            LengthChoice::Fluid => write!(f, "Fluid"),
         }
     }
 }
@@ -1203,13 +1241,134 @@ impl LengthChoice {
             Length::Shrink => LengthChoice::Shrink,
             Length::Fixed(_) => LengthChoice::Fixed,
             Length::Fit => LengthChoice::Fit,
-            Length::Fluid(_) => LengthChoice::Fill,
-            Length::Bounded { sizing, .. } => match sizing {
-                Sizing::Fit => LengthChoice::Fit,
-                Sizing::Shrink => LengthChoice::Shrink,
-                Sizing::Fill(1) => LengthChoice::Fill,
-                Sizing::Fill(_) => LengthChoice::FillPortion,
+            Length::Fluid(_) => LengthChoice::Fluid,
+            Length::Bounded { .. } => LengthChoice::Bounded,
+        }
+    }
+}
+
+/// The growth strategy inside a [`Length::Bounded`].
+///
+/// Mirrors [`Sizing`], which carries its fill factor inline; the portion is
+/// edited separately, so the choice does not.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SizingChoice {
+    Fit,
+    Shrink,
+    Fill,
+    FillPortion,
+}
+
+impl SizingChoice {
+    pub const ALL: &'static [Self] = &[Self::Fit, Self::Shrink, Self::Fill, Self::FillPortion];
+
+    pub fn from_sizing(sizing: Sizing) -> Self {
+        match sizing {
+            Sizing::Fit => Self::Fit,
+            Sizing::Shrink => Self::Shrink,
+            Sizing::Fill(1) => Self::Fill,
+            Sizing::Fill(_) => Self::FillPortion,
+        }
+    }
+
+    /// The [`Sizing`] this choice means, given the portion currently in hand.
+    pub fn to_sizing(self, portion: u16) -> Sizing {
+        match self {
+            Self::Fit => Sizing::Fit,
+            Self::Shrink => Sizing::Shrink,
+            Self::Fill => Sizing::Fill(1),
+            Self::FillPortion => Sizing::Fill(portion.max(1)),
+        }
+    }
+}
+
+impl std::fmt::Display for SizingChoice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Fit => write!(f, "Fit"),
+            Self::Shrink => write!(f, "Shrink"),
+            Self::Fill => write!(f, "Fill"),
+            Self::FillPortion => write!(f, "FillPortion"),
+        }
+    }
+}
+
+/// Which ends of a [`Length::Bounded`] are pinned.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BoundsChoice {
+    Min,
+    Max,
+    Both,
+}
+
+impl BoundsChoice {
+    pub const ALL: &'static [Self] = &[Self::Min, Self::Max, Self::Both];
+
+    pub fn from_bounds(bounds: Bounds) -> Self {
+        match bounds {
+            Bounds::Min(_) => Self::Min,
+            Bounds::Max(_) => Self::Max,
+            Bounds::Both { .. } => Self::Both,
+        }
+    }
+
+    /// The [`Bounds`] this choice means, given the values currently in hand.
+    pub fn to_bounds(self, min: f32, max: f32) -> Bounds {
+        match self {
+            Self::Min => Bounds::Min(min),
+            Self::Max => Bounds::Max(max),
+            Self::Both => Bounds::Both {
+                min,
+                max: max.max(min),
             },
+        }
+    }
+}
+
+impl std::fmt::Display for BoundsChoice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Min => write!(f, "Minimum"),
+            Self::Max => write!(f, "Maximum"),
+            Self::Both => write!(f, "Both"),
+        }
+    }
+}
+
+/// The single open-ended limit on a [`Length::Fluid`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConstraintChoice {
+    /// Never shrinks below a given size.
+    Min,
+    /// Never grows beyond the size the contents resolve to on their own,
+    /// handing any unused share back to the siblings.
+    Max,
+}
+
+impl ConstraintChoice {
+    pub const ALL: &'static [Self] = &[Self::Min, Self::Max];
+
+    pub fn from_constraint(constraint: Constraint) -> Self {
+        match constraint {
+            Constraint::Min(_) => Self::Min,
+            Constraint::Max => Self::Max,
+        }
+    }
+
+    /// The [`Constraint`] this choice means, given the minimum in hand.
+    pub fn to_constraint(self, min: f32) -> Constraint {
+        match self {
+            Self::Min => Constraint::Min(min),
+            Self::Max => Constraint::Max,
+        }
+    }
+}
+
+impl std::fmt::Display for ConstraintChoice {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Min => write!(f, "At least"),
+            Self::Max => write!(f, "No more than contents"),
         }
     }
 }
@@ -1270,26 +1429,6 @@ pub fn length_to_string(length: Length) -> String {
                 Bounds::Min(min) => format!("{base} (min {min})"),
                 Bounds::Max(max) => format!("{base} (max {max})"),
                 Bounds::Both { min, max } => format!("{base} ({min}..{max})"),
-            }
-        }
-    }
-}
-
-pub fn parse_length(value: &str) -> Length {
-    match value.to_lowercase().as_str() {
-        "fill" => Length::Fill,
-        "shrink" => Length::Shrink,
-        _ => {
-            if let Ok(pixels) = value.parse::<f32>() {
-                Length::Fixed(pixels)
-            } else if value.ends_with("px") {
-                if let Ok(pixels) = value[..value.len() - 2].parse::<f32>() {
-                    Length::Fixed(pixels)
-                } else {
-                    Length::Shrink
-                }
-            } else {
-                Length::Shrink
             }
         }
     }

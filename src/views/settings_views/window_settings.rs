@@ -47,6 +47,8 @@ pub enum Message {
     Decorations(window::Id, bool),
     Transparent(window::Id, bool),
     ExitOnCloseRequest(window::Id, bool),
+    /// Whether the generated app draws its own title bar with `iced-native-frame`.
+    UseNativeFrame(window::Id, bool),
 
     // Window Level
     SetLevel(window::Id, Level),
@@ -347,6 +349,11 @@ pub fn update(windows: &mut BTreeMap<window::Id, Window>, message: Message) -> T
                 window.config.settings.transparent = value;
             }
         }
+        Message::UseNativeFrame(id, value) => {
+            if let Some(window) = windows.get_mut(&id) {
+                window.config.use_native_frame = value;
+            }
+        }
         Message::ExitOnCloseRequest(id, value) => {
             if let Some(window) = windows.get_mut(&id) {
                 window.config.settings.exit_on_close_request = value;
@@ -474,6 +481,18 @@ pub fn view<'a>(
                 checkbox(settings.exit_on_close_request)
                     .label("Exit App on Close")
                     .on_toggle(move |b| Message::ExitOnCloseRequest(*id, b)),
+                // Custom Frame Section
+                section_header("Title Bar"),
+                checkbox(window.config.use_native_frame)
+                    .label("Draw a custom title bar (iced-native-frame)")
+                    .on_toggle(move |b| Message::UseNativeFrame(*id, b)),
+                text(
+                    "The generated app draws its own title bar out of iced widgets, \
+                     with native caption semantics — Snap Layouts on Windows 11, \
+                     drag-to-snap and resize cursors. Adds an iced-native-frame \
+                     dependency and replaces the platform title bar."
+                )
+                .size(12),
                 // Window Level Section
                 section_header("Window Level"),
                 pick_list(
@@ -489,8 +508,8 @@ pub fn view<'a>(
             .padding(20);
 
             collapsible(window.title(), scrollable(content).height(Length::Fill))
-                .expand_icon(icon::collapsed())
-                .collapse_icon(icon::expanded())
+                .expand_icon(icon::chevron_right())
+                .collapse_icon(icon::chevron_down())
                 .into()
         })
         .collect::<Vec<_>>();

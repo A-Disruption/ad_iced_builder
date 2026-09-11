@@ -15,6 +15,7 @@ use iced::widget::{
     Column, Row, Space, button, checkbox, column, container, pick_list, radio, row, rule, scrollable,
     slider, space, text, text_editor, text_input, toggler, tooltip,
 };
+use iced::advanced::graphics::core::length::{Bounds, Constraint, Sizing};
 use iced::{Alignment, Color, Element, Length, Padding, Theme, padding};
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -25,20 +26,126 @@ use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use crate::views::widget_tree::Message;
 use control_styling::*;
 
-/// Looks up a Lucide icon by the name stored in a project.
+/// Looks up an icon by the family and name stored in a project.
 ///
 /// iced_lucide 0.2 renamed icons from `snake_case` to the upstream
 /// `kebab-case`, so a name saved before that migration is normalised before
 /// the lookup. Falls back to the replacement glyph when nothing matches.
-pub fn lucide_icon(name: &str) -> icon_lucide::Icon {
-    icon_lucide::find(name)
-        .or_else(|| icon_lucide::find(&name.replace('_', "-")))
+pub fn stored_icon(family: &str, name: &str) -> icon_lucide::Icon {
+    icon::find_in(family, name)
+        .or_else(|| icon::find_in(family, &name.replace('_', "-")))
         .unwrap_or(icon_lucide::Icon {
             name: "",
             codepoint: "\u{FFFD}",
-            font: icon_lucide::ALL_ICONS[0].font,
-            family: "lucide",
+            font: iced::Font::DEFAULT,
+            family: "",
         })
+}
+
+/// How many icons the picker grid draws before asking for a narrower search.
+///
+/// Every family is enabled, which is eighty thousand icons; Nerd Fonts alone
+/// is eleven thousand. Building a button for each would stall the frame, and
+/// nobody scrolls that far anyway.
+const ICON_PICKER_LIMIT: usize = 400;
+
+/// The icon picker: a family selector, a search box, and a grid of hits.
+///
+/// The three widgets that carry an icon — `text_input`, `combo_box`, and the
+/// `icon` widget itself — each have their own property messages, so the two
+/// choices a caller owns arrive as closures.
+pub fn icon_picker<'a>(
+    family: &'a str,
+    name: &'a str,
+    filter: &'a str,
+    on_family: impl Fn(String) -> Message + 'a,
+    on_filter: impl Fn(String) -> Message + 'a,
+    on_select: impl Fn(String, String, u32) -> Message + 'a,
+) -> Element<'a, Message> {
+    let needle = filter.to_lowercase();
+
+    let matches = icon::in_family(family)
+        .filter(|icon| needle.is_empty() || icon.name.contains(needle.as_str()));
+
+    let total = matches.clone().count();
+
+    let icon_buttons: Vec<Element<'a, Message>> = matches
+        .take(ICON_PICKER_LIMIT)
+        .map(|icon| {
+            tooltip(
+                button(icon_lucide::render(*icon))
+                    .on_press(on_select(
+                        icon.family.to_string(),
+                        icon.name.to_string(),
+                        icon::codepoint_of(*icon),
+                    ))
+                    .style(button::text),
+                container(text(icon.name))
+                    .style(container::bordered_box)
+                    .padding(5),
+                tooltip::Position::Top,
+            )
+            .into()
+        })
+        .collect();
+
+    let families: Vec<&'static str> = icon_lucide::FAMILIES
+        .iter()
+        .map(|family| family.name)
+        .collect();
+
+    let selected_family = icon_lucide::FAMILIES
+        .iter()
+        .find(|candidate| candidate.id == family)
+        .map(|family| family.name);
+
+    let family_picker = pick_list(selected_family, families, ToString::to_string)
+        .on_select(move |label| {
+            let id = icon_lucide::FAMILIES
+                .iter()
+                .find(|family| family.name == label)
+                .map_or("lucide", |family| family.id);
+
+            on_family(id.to_string())
+        })
+        .width(Length::Fill);
+
+    let search = text_input("Search icons\u{2026}", filter).on_input(on_filter);
+
+    // Saying how many were left out is the only cue that the grid is capped.
+    let tally = if total > ICON_PICKER_LIMIT {
+        format!("Showing {ICON_PICKER_LIMIT} of {total} — narrow the search")
+    } else {
+        format!("{total} icons")
+    };
+
+    let picker_content = column![
+        container(column![family_picker, search].spacing(4))
+            .padding(padding::horizontal(5.0).top(5.0)),
+        container(text(tally).size(LABEL_SIZE)).padding(padding::horizontal(5.0)),
+        scrollable(
+            Row::with_children(icon_buttons)
+                .spacing(4)
+                .padding(10)
+                .wrap(),
+        ),
+    ]
+    .spacing(4);
+
+    let trigger = row![
+        icon_lucide::render(stored_icon(family, name)).size(20),
+        text(name),
+    ]
+    .spacing(6)
+    .align_y(Alignment::Center);
+
+    popover(trigger, container(picker_content).width(650).height(450))
+        .side(anchor::Side::Right)
+        .align(anchor::Align::Start)
+        .gap(5.0)
+        .max_width(650.0)
+        .dismiss_on_outside_press(true)
+        .into()
 }
 
 pub fn container_controls<'a>(
@@ -854,66 +961,29 @@ pub fn text_input_controls<'a>(
         .spacing(SECTION_SPACING),
         {
             // Icon section
-            let filter = props.text_input_icon_picker_filter.to_lowercase();
-            let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
-                .iter()
-                .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
-                .map(|icon| {
-                    let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-                    let name_clone = icon.name.to_string();
-                    tooltip(
-                        button(icon_lucide::render(*icon))
-                            .on_press(Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::TextInputIconSelected(name_clone, cp_u32),
-                            ))
-                            .style(button::text),
-                        container(text(icon.name))
-                            .style(container::bordered_box)
-                            .padding(5),
-                        tooltip::Position::Top,
+            let picker = icon_picker(
+                &props.text_input_icon_family,
+                &props.text_input_icon_name,
+                &props.text_input_icon_picker_filter,
+                move |family| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::TextInputIconFamily(family),
                     )
-                    .into()
-                })
-                .collect();
-
-            let search = text_input("Search icons…", &props.text_input_icon_picker_filter)
-                .on_input(move |v| {
+                },
+                move |v| {
                     Message::PropertyChanged(
                         widget_id,
                         PropertyChange::TextInputIconPickerFilter(v),
                     )
-                });
-
-            let picker_content = column![
-                container(search).padding(padding::horizontal(5.0)),
-                scrollable(
-                    Row::with_children(icon_buttons)
-                        .spacing(4)
-                        .padding(10)
-                        .wrap(),
-                ),
-            ]
-            .spacing(4);
-
-            let current_icon = lucide_icon(&props.text_input_icon_name);
-
-            let trigger = row![
-                icon_lucide::render(current_icon).size(20),
-                text(&props.text_input_icon_name),
-            ]
-            .spacing(6)
-            .align_y(Alignment::Center);
-
-            let picker = popover(
-                trigger,
-                container(picker_content).width(650).height(450),
-            )
-            .side(anchor::Side::Right)
-            .align(anchor::Align::Start)
-            .gap(5.0)
-            .max_width(650.0)
-            .dismiss_on_outside_press(true);
+                },
+                move |family, name, codepoint| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::TextInputIconSelected(family, name, codepoint),
+                    )
+                },
+            );
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -2690,64 +2760,23 @@ pub fn combobox_controls<'a>(
         .spacing(SECTION_SPACING),
         {
             // ComboBox icon section
-            let filter = props.combobox_icon_picker_filter.to_lowercase();
-            let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
-                .iter()
-                .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
-                .map(|icon| {
-                    let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-                    let name_clone = icon.name.to_string();
-                    tooltip(
-                        button(icon_lucide::render(*icon))
-                            .on_press(Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::ComboBoxIconSelected(name_clone, cp_u32),
-                            ))
-                            .style(button::text),
-                        container(text(icon.name))
-                            .style(container::bordered_box)
-                            .padding(5),
-                        tooltip::Position::Top,
-                    )
-                    .into()
-                })
-                .collect();
-
-            let search = text_input("Search icons…", &props.combobox_icon_picker_filter).on_input(
+            let picker = icon_picker(
+                &props.combobox_icon_family,
+                &props.combobox_icon_name,
+                &props.combobox_icon_picker_filter,
+                move |family| {
+                    Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconFamily(family))
+                },
                 move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconPickerFilter(v))
                 },
+                move |family, name, codepoint| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ComboBoxIconSelected(family, name, codepoint),
+                    )
+                },
             );
-
-            let picker_content = column![
-                container(search).padding(padding::horizontal(5.0)),
-                scrollable(
-                    Row::with_children(icon_buttons)
-                        .spacing(4)
-                        .padding(10)
-                        .wrap(),
-                ),
-            ]
-            .spacing(4);
-
-            let current_icon = lucide_icon(&props.combobox_icon_name);
-
-            let trigger = row![
-                icon_lucide::render(current_icon).size(20),
-                text(&props.combobox_icon_name),
-            ]
-            .spacing(6)
-            .align_y(Alignment::Center);
-
-            let picker = popover(
-                trigger,
-                container(picker_content).width(650).height(450),
-            )
-            .side(anchor::Side::Right)
-            .align(anchor::Align::Start)
-            .gap(5.0)
-            .max_width(650.0)
-            .dismiss_on_outside_press(true);
 
             column![
                 text("Icon").size(SECTION_SIZE),
@@ -5123,64 +5152,19 @@ pub fn icon_controls<'a>(
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
-    // Filter the full icon list for the picker grid
-    let filter = props.icon_picker_filter.to_lowercase();
-    let icon_buttons: Vec<Element<'a, Message>> = icon_lucide::ALL_ICONS
-        .iter()
-        .filter(|icon| filter.is_empty() || icon.name.contains(filter.as_str()))
-        .map(|icon| {
-            let cp_u32 = icon.codepoint.chars().next().map(|c| c as u32).unwrap_or(0xFFFD);
-            let name_clone = icon.name.to_string();
-            tooltip(
-                button(icon_lucide::render(*icon))
-                    .on_press(Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::IconSelected(name_clone, cp_u32),
-                    ))
-                    .style(button::text),
-                container(text(icon.name))
-                    .style(container::bordered_box)
-                    .padding(5),
-                tooltip::Position::Top,
+    let picker = icon_picker(
+        &props.icon_family,
+        &props.icon_name,
+        &props.icon_picker_filter,
+        move |family| Message::PropertyChanged(widget_id, PropertyChange::IconFamily(family)),
+        move |v| Message::PropertyChanged(widget_id, PropertyChange::IconPickerFilter(v)),
+        move |family, name, codepoint| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::IconSelected(family, name, codepoint),
             )
-            .into()
-        })
-        .collect();
-
-    let search = text_input("Search icons\u{2026}", &props.icon_picker_filter).on_input(move |v| {
-        Message::PropertyChanged(widget_id, PropertyChange::IconPickerFilter(v))
-    });
-
-    let picker_content = column![
-        container(search).padding(padding::horizontal(5.0)),
-        scrollable(
-            Row::with_children(icon_buttons)
-                .spacing(4)
-                .padding(10)
-                .wrap(),
-        ),
-    ]
-    .spacing(4);
-
-    // Trigger button shows the current icon + its name
-    let current_icon = lucide_icon(&props.icon_name);
-
-    let trigger = row![
-        icon_lucide::render(current_icon).size(20),
-        text(&props.icon_name),
-    ]
-    .spacing(6)
-    .align_y(Alignment::Center);
-
-    let picker = popover(
-        trigger,
-        container(picker_content).width(650).height(450),
-    )
-    .side(anchor::Side::Right)
-    .align(anchor::Align::Start)
-    .gap(5.0)
-    .max_width(650.0)
-    .dismiss_on_outside_press(true);
+        },
+    );
 
     let content = column![
         text("Icon Properties").size(TITLE_SIZE),
@@ -5302,6 +5286,277 @@ pub fn size_controls_scrollable_aware<'a>(
 }
 
 /// A single labeled Length selector that's aware of scrollable constraints
+/// The pixel value a length picker reaches for when it has none of its own.
+const DEFAULT_LENGTH_PX: f32 = 120.0;
+const DEFAULT_LENGTH_PORTION: u16 = 1;
+const DEFAULT_LENGTH_MIN: f32 = 0.0;
+const DEFAULT_LENGTH_MAX: f32 = 400.0;
+
+/// Pulls a bounded length apart into the values its editors each own.
+///
+/// A length that is not bounded still answers, with defaults — that is what
+/// makes switching *to* `Bounded` land somewhere sensible.
+fn bounded_parts(current: Length) -> (SizingChoice, u16, BoundsChoice, f32, f32) {
+    let Length::Bounded { bounds, sizing } = current else {
+        let sizing = match current {
+            Length::Fill => SizingChoice::Fill,
+            Length::FillPortion(_) => SizingChoice::FillPortion,
+            Length::Shrink => SizingChoice::Shrink,
+            _ => SizingChoice::Fit,
+        };
+
+        let portion = match current {
+            Length::FillPortion(portion) => portion,
+            _ => DEFAULT_LENGTH_PORTION,
+        };
+
+        return (
+            sizing,
+            portion,
+            BoundsChoice::Max,
+            DEFAULT_LENGTH_MIN,
+            DEFAULT_LENGTH_MAX,
+        );
+    };
+
+    let portion = match sizing {
+        Sizing::Fill(portion) => portion,
+        _ => DEFAULT_LENGTH_PORTION,
+    };
+
+    let (min, max) = match bounds {
+        Bounds::Min(min) => (min, DEFAULT_LENGTH_MAX.max(min)),
+        Bounds::Max(max) => (DEFAULT_LENGTH_MIN, max),
+        Bounds::Both { min, max } => (min, max),
+    };
+
+    (
+        SizingChoice::from_sizing(sizing),
+        portion,
+        BoundsChoice::from_bounds(bounds),
+        min,
+        max,
+    )
+}
+
+/// A labelled number field that keeps the current value while it is being
+/// typed into.
+///
+/// These edit a `Length` straight through, so there is nowhere to park a
+/// half-typed string: an unparseable field reads as "unchanged" rather than
+/// snapping the widget to zero on the way to `12`.
+fn pixel_field<'a, M: Clone + 'a>(
+    label: &'a str,
+    value: f32,
+    on_change: impl Fn(f32) -> M + 'a,
+) -> Element<'a, M> {
+    column![
+        text(label),
+        text_input("e.g. 120.0", format!("{value}"))
+            .on_input(move |input| on_change(input.trim().parse::<f32>().unwrap_or(value)))
+            .width(120)
+    ]
+    .spacing(5)
+    .into()
+}
+
+/// The controls that sit beside a length's kind, for whichever kind is chosen.
+///
+/// `Fixed` wants a pixel count, `FillPortion` a portion, and the two lengths
+/// iced master added want rather more than that — so all of it lives here
+/// rather than being written out at each picker.
+fn length_detail_controls<'a, M: Clone + 'a>(
+    current: Length,
+    can_fill: bool,
+    on_change: impl Fn(Length) -> M + 'a + Copy,
+) -> Element<'a, M> {
+    match LengthChoice::from_length(current) {
+        LengthChoice::Fixed => {
+            let pixels = match current {
+                Length::Fixed(pixels) => pixels,
+                _ => DEFAULT_LENGTH_PX,
+            };
+
+            pixel_field("Pixels", pixels, move |pixels| {
+                on_change(Length::Fixed(pixels))
+            })
+        }
+
+        LengthChoice::FillPortion if can_fill => {
+            let portion = match current {
+                Length::FillPortion(portion) => portion,
+                _ => DEFAULT_LENGTH_PORTION,
+            };
+
+            column![
+                text("Portion"),
+                text_input("e.g. 1", portion.to_string())
+                    .on_input(move |input| {
+                        let portion = input
+                            .trim()
+                            .parse::<u16>()
+                            .map(|portion| portion.max(1))
+                            .unwrap_or(portion);
+
+                        on_change(Length::FillPortion(portion))
+                    })
+                    .width(120)
+            ]
+            .spacing(5)
+            .into()
+        }
+
+        LengthChoice::Bounded => {
+            let (sizing, portion, bounds, min, max) = bounded_parts(current);
+
+            let rebuild = move |sizing: SizingChoice, portion: u16, bounds: BoundsChoice, min, max| {
+                on_change(Length::Bounded {
+                    bounds: bounds.to_bounds(min, max),
+                    sizing: sizing.to_sizing(portion),
+                })
+            };
+
+            let sizings: Vec<SizingChoice> = SizingChoice::ALL
+                .iter()
+                .copied()
+                .filter(|choice| {
+                    can_fill
+                        || !matches!(choice, SizingChoice::Fill | SizingChoice::FillPortion)
+                })
+                .collect();
+
+            let mut controls = column![
+                column![
+                    text("Grows by"),
+                    pick_list(Some(sizing), sizings, ToString::to_string)
+                        .on_select(move |sizing| rebuild(sizing, portion, bounds, min, max))
+                        .width(160),
+                ]
+                .spacing(5),
+                column![
+                    text("Bounded at"),
+                    pick_list(Some(bounds), BoundsChoice::ALL.to_vec(), ToString::to_string)
+                        .on_select(move |bounds| rebuild(sizing, portion, bounds, min, max))
+                        .width(160),
+                ]
+                .spacing(5),
+            ]
+            .spacing(10);
+
+            if sizing == SizingChoice::FillPortion {
+                controls = controls.push(
+                    column![
+                        text("Portion"),
+                        text_input("e.g. 1", portion.to_string())
+                            .on_input(move |input| {
+                                let portion = input
+                                    .trim()
+                                    .parse::<u16>()
+                                    .map(|portion| portion.max(1))
+                                    .unwrap_or(portion);
+
+                                rebuild(sizing, portion, bounds, min, max)
+                            })
+                            .width(120),
+                    ]
+                    .spacing(5),
+                );
+            }
+
+            if bounds != BoundsChoice::Max {
+                controls = controls.push(pixel_field("Minimum px", min, move |min| {
+                    rebuild(sizing, portion, bounds, min, max)
+                }));
+            }
+
+            if bounds != BoundsChoice::Min {
+                controls = controls.push(pixel_field("Maximum px", max, move |max| {
+                    rebuild(sizing, portion, bounds, min, max)
+                }));
+            }
+
+            controls.into()
+        }
+
+        LengthChoice::Fluid => {
+            let constraint = match current {
+                Length::Fluid(constraint) => constraint,
+                _ => Constraint::Max,
+            };
+
+            let min = match constraint {
+                Constraint::Min(min) => min,
+                Constraint::Max => DEFAULT_LENGTH_MIN,
+            };
+
+            let mut controls = column![
+                column![
+                    text("Limit"),
+                    pick_list(
+                        Some(ConstraintChoice::from_constraint(constraint)),
+                        ConstraintChoice::ALL.to_vec(),
+                        ToString::to_string,
+                    )
+                    .on_select(move |choice| on_change(Length::Fluid(choice.to_constraint(min))))
+                    .width(200),
+                ]
+                .spacing(5),
+            ]
+            .spacing(10);
+
+            if matches!(constraint, Constraint::Min(_)) {
+                controls = controls.push(pixel_field("Minimum px", min, move |min| {
+                    on_change(Length::Fluid(Constraint::Min(min)))
+                }));
+            }
+
+            controls.into()
+        }
+
+        _ => Space::new().width(0).into(),
+    }
+}
+
+/// Turns a chosen kind into a length, keeping whatever the current one can
+/// lend it.
+fn length_for_choice(choice: LengthChoice, current: Length) -> Length {
+    let (sizing, portion, bounds, min, max) = bounded_parts(current);
+
+    match choice {
+        LengthChoice::Fill => Length::Fill,
+        LengthChoice::FillPortion => match current {
+            Length::FillPortion(portion) => Length::FillPortion(portion),
+            _ => Length::FillPortion(DEFAULT_LENGTH_PORTION),
+        },
+        LengthChoice::Fit => Length::Fit,
+        LengthChoice::Shrink => Length::Shrink,
+        LengthChoice::Fixed => match current {
+            Length::Fixed(pixels) => Length::Fixed(pixels),
+            _ => Length::Fixed(DEFAULT_LENGTH_PX),
+        },
+        LengthChoice::Bounded => Length::Bounded {
+            bounds: bounds.to_bounds(min, max),
+            sizing: sizing.to_sizing(portion),
+        },
+        LengthChoice::Fluid => match current {
+            Length::Fluid(constraint) => Length::Fluid(constraint),
+            _ => Length::Fluid(Constraint::Max),
+        },
+    }
+}
+
+/// The kinds a length may take here.
+///
+/// A scrollable gives its child an unbounded axis to scroll through, so
+/// nothing that fills can be measured against it.
+fn length_choices(can_fill: bool) -> Vec<LengthChoice> {
+    LengthChoice::ALL
+        .iter()
+        .copied()
+        .filter(|choice| can_fill || !choice.needs_fill())
+        .collect()
+}
+
 pub fn length_picker_scrollable_aware<'a, F>(
     label: &'a str,
     current: Length,
@@ -5358,13 +5613,6 @@ where
 
     let choice_now = LengthChoice::from_length(current);
 
-    // Build available choices based on scrollable constraints
-    let mut available_choices = vec![LengthChoice::Fit, LengthChoice::Shrink, LengthChoice::Fixed];
-    if can_fill {
-        available_choices.insert(0, LengthChoice::Fill);
-        available_choices.insert(1, LengthChoice::FillPortion);
-    }
-
     let picker = column![
         if !can_fill && saved_value.is_some() {
             column![
@@ -5376,75 +5624,16 @@ where
         } else {
             column![text(label)]
         },
-        pick_list(
-            Some(choice_now),
-            available_choices,
-            ToString::to_string,
-        )
-        .on_select(move |choice| {
-            let new_len = match choice {
-                LengthChoice::Fill => Length::Fill,
-                LengthChoice::FillPortion => match current {
-                    Length::FillPortion(p) => Length::FillPortion(p),
-                    _ => Length::FillPortion(DEFAULT_PORTION),
-                },
-                LengthChoice::Fit => Length::Fit,
-                LengthChoice::Shrink => Length::Shrink,
-                LengthChoice::Fixed => match current {
-                    Length::Fixed(px) => Length::Fixed(px),
-                    _ => Length::Fixed(DEFAULT_PX),
-                },
-            };
-            on_change(new_len)
-        })
-        .width(160)
+        pick_list(Some(choice_now), length_choices(can_fill), ToString::to_string)
+            .on_select(move |choice| on_change(length_for_choice(choice, current)))
+            .width(160)
     ]
     .spacing(5)
     .width(Length::Shrink);
 
-    // Secondary control for Fixed and FillPortion
-    let extra: Element<_> = match choice_now {
-        LengthChoice::Fixed => {
-            let value_str = match current {
-                Length::Fixed(px) => format!("{px}"),
-                _ => format!("{DEFAULT_PX}"),
-            };
-            column![
-                text("Pixels"),
-                text_input("e.g. 120.0", value_str.clone())
-                    .on_input(move |v| on_change(parse_length(&v)))
-                    .width(120)
-            ]
-            .spacing(5)
-            .into()
-        }
-        LengthChoice::FillPortion if can_fill => {
-            let portion_now = match current {
-                Length::FillPortion(p) => p,
-                _ => DEFAULT_PORTION,
-            };
-            let value_str = portion_now.to_string();
-            column![
-                text("Portion"),
-                text_input("e.g. 1", value_str.clone())
-                    .on_input(move |v| {
-                        let p = v
-                            .trim()
-                            .parse::<u16>()
-                            .ok()
-                            .map(|x| x.max(1))
-                            .unwrap_or(DEFAULT_PORTION);
-                        on_change(Length::FillPortion(p))
-                    })
-                    .width(120)
-            ]
-            .spacing(5)
-            .into()
-        }
-        _ => Space::new().width(0).into(),
-    };
-
-    row![picker, extra].spacing(15).into()
+    row![picker, length_detail_controls(current, can_fill, on_change)]
+        .spacing(15)
+        .into()
 }
 
 pub fn length_picker_with_draft<'a>(
@@ -5500,12 +5689,6 @@ pub fn length_picker_with_draft<'a>(
 
     let choice_now = LengthChoice::from_length(current);
 
-    let mut available_choices = vec![LengthChoice::Fit, LengthChoice::Shrink, LengthChoice::Fixed];
-    if can_fill {
-        available_choices.insert(0, LengthChoice::Fill);
-        available_choices.insert(1, LengthChoice::FillPortion);
-    }
-
     let picker = column![
         if !can_fill && saved_value.is_some() {
             column![
@@ -5515,32 +5698,16 @@ pub fn length_picker_with_draft<'a>(
         } else {
             column![text(label).size(LABEL_SIZE)]
         },
-        pick_list(
-            Some(choice_now),
-            available_choices,
-            ToString::to_string,
-        )
-        .on_select(move |choice| {
-            let new_len = match choice {
-                LengthChoice::Fill => Length::Fill,
-                LengthChoice::FillPortion => match current {
-                    Length::FillPortion(p) => Length::FillPortion(p),
-                    _ => Length::FillPortion(DEFAULT_PORTION),
-                },
-                LengthChoice::Fit => Length::Fit,
-                LengthChoice::Shrink => Length::Shrink,
-                LengthChoice::Fixed => match current {
-                    Length::Fixed(px) => Length::Fixed(px),
-                    _ => Length::Fixed(DEFAULT_PX),
-                },
-            };
-            on_change(new_len)
-        })
-        .width(160)
+        pick_list(Some(choice_now), length_choices(can_fill), ToString::to_string)
+            .on_select(move |choice| on_change(length_for_choice(choice, current)))
+            .width(160)
     ]
     .spacing(LABEL_SPACING)
     .width(Length::Shrink);
 
+    // `Fixed` and `FillPortion` are typed into, so they keep the draft string
+    // that lets a field sit empty mid-edit. The lengths iced master added have
+    // no draft of their own, and fall through to the shared editors.
     let extra: Element<_> = match choice_now {
         LengthChoice::Fixed => {
             let committed_value = match current {
@@ -5575,6 +5742,9 @@ pub fn length_picker_with_draft<'a>(
             ]
             .spacing(LABEL_SPACING)
             .into()
+        }
+        LengthChoice::Bounded | LengthChoice::Fluid => {
+            length_detail_controls(current, can_fill, on_change)
         }
         _ => space::horizontal().into(),
     };

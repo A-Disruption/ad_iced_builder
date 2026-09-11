@@ -137,19 +137,6 @@ fn batch_length_picker<'a>(
     is_height: bool,
     hierarchy: &'a WidgetHierarchy,
 ) -> Element<'a, Message> {
-    const DEFAULT_PX: f32 = 120.0;
-    const DEFAULT_PORTION: u16 = 1;
-
-    // Static slices for pick_list (must outlive the function)
-    const ALL_CHOICES: &[LengthChoice] = &[
-        LengthChoice::Fill,
-        LengthChoice::FillPortion,
-        LengthChoice::Shrink,
-        LengthChoice::Fixed,
-    ];
-
-    const CONSTRAINED_CHOICES: &[LengthChoice] = &[LengthChoice::Shrink, LengthChoice::Fixed];
-
     // Check if ANY selected widget is under a scrollable
     // For batch editing, we need to check all selected widgets
     let selected_ids = hierarchy.get_selected_widgets();
@@ -170,17 +157,16 @@ fn batch_length_picker<'a>(
         .map(|len| LengthChoice::from_length(len))
         .unwrap_or(LengthChoice::Fill);
 
-    // Select the appropriate static slice based on constraints
-    let available_choices = if any_scrollable_conflicts {
-        CONSTRAINED_CHOICES
+    let can_fill = !any_scrollable_conflicts;
+
+    let available_choices = if can_fill {
+        LengthChoice::ALL
     } else {
-        ALL_CHOICES
+        LengthChoice::CONSTRAINED
     };
 
     // Show warning if current choice is incompatible
-    let warning = if any_scrollable_conflicts
-        && (choice_now == LengthChoice::Fill || choice_now == LengthChoice::FillPortion)
-    {
+    let warning = if any_scrollable_conflicts && choice_now.needs_fill() {
         Some(
             container(
                 text("⚠ Some widgets are in scrollables and cannot use Fill")
@@ -202,14 +188,10 @@ fn batch_length_picker<'a>(
             ToString::to_string,
         )
         .on_select(move |choice| {
-            // When changing choice, use default values
-            let new_len = match choice {
-                LengthChoice::Fill => Length::Fill,
-                LengthChoice::FillPortion => Length::FillPortion(DEFAULT_PORTION),
-                LengthChoice::Fit => Length::Fit,
-                LengthChoice::Shrink => Length::Shrink,
-                LengthChoice::Fixed => Length::Fixed(DEFAULT_PX),
-            };
+            // The selection may hold several different lengths, so there is no
+            // one current value to carry over; a fresh one starts from Fit.
+            let new_len =
+                super::length_for_choice(choice, current.unwrap_or(iced::Length::Fit));
 
             if is_height {
                 Message::BatchPropertyChanged(PropertyChange::Height(new_len))
@@ -261,6 +243,19 @@ fn batch_length_picker<'a>(
             .spacing(LABEL_SPACING)
             .into()
         }
+        // These have no draft string of their own, so they go through the
+        // shared editors and write the length straight out.
+        LengthChoice::Bounded | LengthChoice::Fluid => super::length_detail_controls(
+            current.unwrap_or(iced::Length::Fit),
+            can_fill,
+            move |length| {
+                if is_height {
+                    Message::BatchPropertyChanged(PropertyChange::Height(length))
+                } else {
+                    Message::BatchPropertyChanged(PropertyChange::Width(length))
+                }
+            },
+        ),
         _ => space::horizontal().into(),
     };
 

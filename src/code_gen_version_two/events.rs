@@ -698,6 +698,8 @@ pub struct ImportTracker {
     pub used_widgets: HashSet<&'static str>,
 
     pub uses_length: bool,
+    /// Whether any length is a `Length::Fluid`, which names a `Constraint`.
+    pub uses_length_constraint: bool,
     pub uses_alignment: bool,
     pub uses_padding: bool,
     pub uses_color: bool,
@@ -727,6 +729,7 @@ impl ImportTracker {
         Self {
             used_widgets: HashSet::new(),
             uses_length: false,
+            uses_length_constraint: false,
             uses_alignment: false,
             uses_padding: false,
             uses_color: false,
@@ -923,6 +926,14 @@ impl ImportTracker {
 
         self.uses_length = true;
 
+        // `Constraint` has no short public path, so a fluid length needs its
+        // own import line rather than riding along in the `iced::{..}` block.
+        if matches!(props.width, iced::Length::Fluid(_))
+            || matches!(props.height, iced::Length::Fluid(_))
+        {
+            self.uses_length_constraint = true;
+        }
+
         if matches!(widget.widget_type, WidgetType::Row | WidgetType::Column) {
             if props.align_items != Alignment::Start {
                 self.uses_alignment = true;
@@ -997,16 +1008,19 @@ impl ImportTracker {
                 self.uses_alignment = true;
             }
             if props.text_input_icon_enabled {
-                self.uses_font = true;
+                // The icon is composed into a `row` beside the field; iced
+                // master has no `text_input::Icon` to put inside its border.
                 self.uses_icon = true;
+                self.uses_alignment = true;
+                self.used_widgets.insert("row");
             }
         }
 
         if widget.widget_type == WidgetType::ComboBox {
             if props.combobox_icon_enabled {
-                self.uses_font = true;
                 self.uses_icon = true;
-                self.used_widgets.insert("text_input"); // combo_box icon uses text_input::Icon/Side
+                self.uses_alignment = true;
+                self.used_widgets.insert("row");
             }
         }
 
@@ -1052,7 +1066,12 @@ impl ImportTracker {
     }
 }
 
-pub fn generate_imports(b: &mut CodeBuilder, root: &Widget, is_main: bool) -> ImportTracker {
+pub fn generate_imports(
+    b: &mut CodeBuilder,
+    root: &Widget,
+    is_main: bool,
+    uses_native_frame: bool,
+) -> ImportTracker {
     let mut tracker = ImportTracker::new();
     tracker.scan_widget(root);
 
@@ -1157,6 +1176,14 @@ pub fn generate_imports(b: &mut CodeBuilder, root: &Widget, is_main: bool) -> Im
     b.decrease_indent();
     b.line("};");
 
+    if tracker.uses_length_constraint {
+        b.line("use iced::advanced::graphics::core::length::Constraint;");
+    }
+
+    if uses_native_frame {
+        b.line("use iced_native_frame::{FrameAction, NativeFrame, NativeFrameConfig};");
+    }
+
     if tracker.uses_icon {
         if is_main {
             b.line("mod icon;");
@@ -1168,26 +1195,37 @@ pub fn generate_imports(b: &mut CodeBuilder, root: &Widget, is_main: bool) -> Im
     tracker
 }
 
-/// Collect all icon names used in this widget tree (icon widgets + text_input/combo_box icons).
-pub fn collect_all_icon_names(root: &Widget) -> BTreeSet<String> {
-    let mut names = BTreeSet::new();
-    collect_icon_names_recursive(root, &mut names);
-    names
+/// Every icon this widget tree draws, as `(family, upstream name)`.
+///
+/// Covers icon widgets as well as the icons `text_input` and `combo_box` carry.
+/// The family travels with the name because `iced_lucide` offers twenty-six of
+/// them and the same name turns up in several — `github` is both a Font Awesome
+/// brand and a Simple Icons one.
+pub fn collect_all_icons(root: &Widget) -> BTreeSet<(String, String)> {
+    let mut icons = BTreeSet::new();
+    collect_icons_recursive(root, &mut icons);
+    icons
 }
 
-fn collect_icon_names_recursive(widget: &Widget, names: &mut BTreeSet<String>) {
+fn collect_icons_recursive(widget: &Widget, icons: &mut BTreeSet<(String, String)>) {
     let props = &widget.properties;
     if widget.widget_type == WidgetType::Icon {
-        names.insert(props.icon_name.clone());
+        icons.insert((props.icon_family.clone(), props.icon_name.clone()));
     }
     if widget.widget_type == WidgetType::TextInput && props.text_input_icon_enabled {
-        names.insert(props.text_input_icon_name.clone());
+        icons.insert((
+            props.text_input_icon_family.clone(),
+            props.text_input_icon_name.clone(),
+        ));
     }
     if widget.widget_type == WidgetType::ComboBox && props.combobox_icon_enabled {
-        names.insert(props.combobox_icon_name.clone());
+        icons.insert((
+            props.combobox_icon_family.clone(),
+            props.combobox_icon_name.clone(),
+        ));
     }
     for child in &widget.children {
-        collect_icon_names_recursive(child, names);
+        collect_icons_recursive(child, icons);
     }
 }
 
@@ -1200,11 +1238,17 @@ pub fn generate_message_enum(
     flows: &[AppFlow],
     is_main: bool,
     emits_bubbled_navigation_message: bool,
+    uses_native_frame: bool,
 ) {
     b.newline();
     b.line("#[derive(Debug, Clone)]");
     b.line("pub enum Message {");
     b.increase_indent();
+
+    if uses_native_frame {
+        b.line("/// A drag, a caption button, or a focus change in the title bar.");
+        b.line("Frame(FrameAction),");
+    }
 
     let has_variants = generate_message_variants(b, root, names, type_system);
 
@@ -1533,6 +1577,7 @@ pub fn generate_update(
     bubbled_navigation_subviews: &HashSet<Uuid>,
     sub_view_intercepts: &HashMap<Uuid, Vec<CrossViewIntercept>>,
     callable_method_names: &HashMap<Uuid, String>,
+    uses_native_frame: bool,
 ) {
     let all_names: HashMap<(Uuid, WidgetId), String> = names
         .iter()
@@ -1566,6 +1611,14 @@ pub fn generate_update(
     b.increase_indent();
     b.line("match message {");
     b.increase_indent();
+
+    if uses_native_frame {
+        b.line("Message::Frame(action) => {");
+        b.increase_indent();
+        b.line("return self.frame.update(action, Message::Frame);");
+        b.decrease_indent();
+        b.line("}");
+    }
 
     generate_match_arms(
         b,
@@ -2791,6 +2844,7 @@ mod tests {
             &TypeSystem::default(),
             &[],
             &[],
+            false,
             false,
             false,
         );

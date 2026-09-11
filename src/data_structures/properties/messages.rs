@@ -90,7 +90,10 @@ pub enum PropertyChange {
     TextInputFont(FontType),
     TextInputAlignment(ContainerAlignX),
     TextInputIconEnabled(bool),
-    TextInputIconSelected(String, u32),
+    /// Family, upstream name, and codepoint of a picked icon.
+    TextInputIconSelected(String, String, u32),
+    /// Browses another icon family, keeping the icon if that family has it.
+    TextInputIconFamily(String),
     TextInputIconSize(f32),
     TextInputIconSpacing(f32),
     TextInputIconSide(TextInputIconSide),
@@ -279,7 +282,10 @@ pub enum PropertyChange {
     ComboBoxSize(f32),
     ComboBoxEnumId(Option<Uuid>),
     ComboBoxIconEnabled(bool),
-    ComboBoxIconSelected(String, u32),
+    /// Family, upstream name, and codepoint of a picked icon.
+    ComboBoxIconSelected(String, String, u32),
+    /// Browses another icon family, keeping the icon if that family has it.
+    ComboBoxIconFamily(String),
     ComboBoxIconSize(f32),
     ComboBoxIconSpacing(f32),
     ComboBoxIconSide(TextInputIconSide),
@@ -332,7 +338,10 @@ pub enum PropertyChange {
     IconName(String),
     IconCodepoint(u32),
     IconSize(f32),
-    IconSelected(String, u32), // Sets both name and codepoint atomically
+    /// Family, upstream name, and codepoint of a picked icon.
+    IconSelected(String, String, u32),
+    /// Browses another icon family, keeping the icon if that family has it.
+    IconFamily(String),
     IconPickerFilter(String),
 
     // Grid properties
@@ -588,7 +597,15 @@ pub fn apply_property_change(
         PropertyChange::TextInputFont(font) => properties.text_input_font = font,
         PropertyChange::TextInputAlignment(align_x) => properties.text_input_alignment = align_x,
         PropertyChange::TextInputIconEnabled(v) => properties.text_input_icon_enabled = v,
-        PropertyChange::TextInputIconSelected(name, cp) => {
+        PropertyChange::TextInputIconSelected(family, name, cp) => {
+            properties.text_input_icon_family = family;
+            properties.text_input_icon_name = name;
+            properties.text_input_icon_codepoint = cp;
+        }
+        PropertyChange::TextInputIconFamily(family) => {
+            let (name, cp) = crate::icon::retarget(&family, &properties.text_input_icon_name);
+
+            properties.text_input_icon_family = family;
             properties.text_input_icon_name = name;
             properties.text_input_icon_codepoint = cp;
         }
@@ -1037,7 +1054,15 @@ pub fn apply_property_change(
         PropertyChange::ComboBoxUseOnClose(v) => properties.combobox_use_on_close = v,
         PropertyChange::ComboBoxSize(v) => properties.combobox_size = v,
         PropertyChange::ComboBoxIconEnabled(v) => properties.combobox_icon_enabled = v,
-        PropertyChange::ComboBoxIconSelected(name, cp) => {
+        PropertyChange::ComboBoxIconSelected(family, name, cp) => {
+            properties.combobox_icon_family = family;
+            properties.combobox_icon_name = name;
+            properties.combobox_icon_codepoint = cp;
+        }
+        PropertyChange::ComboBoxIconFamily(family) => {
+            let (name, cp) = crate::icon::retarget(&family, &properties.combobox_icon_name);
+
+            properties.combobox_icon_family = family;
             properties.combobox_icon_name = name;
             properties.combobox_icon_codepoint = cp;
         }
@@ -1140,7 +1165,15 @@ pub fn apply_property_change(
         PropertyChange::IconName(v) => properties.icon_name = v,
         PropertyChange::IconCodepoint(v) => properties.icon_codepoint = v,
         PropertyChange::IconSize(v) => properties.icon_size = v,
-        PropertyChange::IconSelected(name, codepoint) => {
+        PropertyChange::IconSelected(family, name, codepoint) => {
+            properties.icon_family = family;
+            properties.icon_name = name;
+            properties.icon_codepoint = codepoint;
+        }
+        PropertyChange::IconFamily(family) => {
+            let (name, codepoint) = crate::icon::retarget(&family, &properties.icon_name);
+
+            properties.icon_family = family;
             properties.icon_name = name;
             properties.icon_codepoint = codepoint;
         }

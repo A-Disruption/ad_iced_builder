@@ -625,11 +625,61 @@ fn generate_svg(b: &mut CodeBuilder, widget: &Widget) {
     }
 }
 
+/// The icon element that sits beside a `text_input` or `combo_box`.
+///
+/// iced master removed `text_input::Icon`, which drew a glyph inside the
+/// field's border. Composing a row is what replaces it: the icon sits outside
+/// the border rather than within it, which is a visual change, but it is the
+/// only shape the current API supports.
+fn input_icon_expr(family: &str, name: &str, size: f32) -> String {
+    let call = format!("icon::{}()", super::icon_fn_name(family, name));
+
+    if size > 0.0 {
+        format!("{call}.size({size:.1})")
+    } else {
+        call
+    }
+}
+
+/// Opens the `row!` an input's icon is composed into, emitting the icon first
+/// when it belongs on the left.
+fn open_input_icon_row(b: &mut CodeBuilder, icon: &str, side: TextInputIconSide) {
+    b.line("row![");
+    b.increase_indent();
+
+    if side == TextInputIconSide::Left {
+        b.line(&format!("{icon},"));
+    }
+
+    b.indent();
+}
+
+/// Closes that `row!`, emitting the icon last when it belongs on the right.
+fn close_input_icon_row(b: &mut CodeBuilder, icon: &str, side: TextInputIconSide, spacing: f32) {
+    b.push(",");
+    b.newline();
+
+    if side == TextInputIconSide::Right {
+        b.line(&format!("{icon},"));
+    }
+
+    b.decrease_indent();
+    b.indent();
+    b.push("]");
+    b.increase_indent();
+    b.dot_method("spacing", &format!("{spacing:.1}"));
+    b.dot_method("align_y", "Alignment::Center");
+    b.decrease_indent();
+}
+
 fn generate_icon(b: &mut CodeBuilder, widget: &Widget) {
     let props = &widget.properties;
 
     b.indent();
-    b.push(&format!("icon::{}()", props.icon_name));
+    b.push(&format!(
+        "icon::{}()",
+        super::icon_fn_name(&props.icon_family, &props.icon_name)
+    ));
     b.increase_indent();
 
     if props.icon_size != 24.0 {
@@ -1405,7 +1455,19 @@ fn generate_textinput(
         .clone();
     let has_custom_name = !widget.properties.widget_name.trim().is_empty();
 
-    b.indent();
+    let icon = props.text_input_icon_enabled.then(|| {
+        input_icon_expr(
+            &props.text_input_icon_family,
+            &props.text_input_icon_name,
+            props.text_input_icon_size,
+        )
+    });
+
+    match &icon {
+        Some(icon) => open_input_icon_row(b, icon, props.text_input_icon_side),
+        None => b.indent(),
+    }
+
     let value_arg = if use_self {
         format!("&self.{}_value", to_snake_case(&name))
     } else {
@@ -1451,22 +1513,6 @@ fn generate_textinput(
         b.add_align_x(props.text_input_alignment.into());
     }
 
-    if props.text_input_icon_enabled {
-        let side = match props.text_input_icon_side {
-            TextInputIconSide::Left => "text_input::Side::Left",
-            TextInputIconSide::Right => "text_input::Side::Right",
-        };
-        let size_arg = if props.text_input_icon_size > 0.0 {
-            format!("Some({:.1}.into())", props.text_input_icon_size)
-        } else {
-            "None".to_string()
-        };
-        b.dot_method("icon", &format!(
-            "text_input::Icon {{ font: Font::new(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
-            props.text_input_icon_codepoint, size_arg, props.text_input_icon_spacing, side
-        ));
-    }
-
     if !matches!(props.width, Length::Fill) {
         b.add_width(props.width);
     }
@@ -1478,6 +1524,15 @@ fn generate_textinput(
     }
 
     b.decrease_indent();
+
+    if let Some(icon) = &icon {
+        close_input_icon_row(
+            b,
+            icon,
+            props.text_input_icon_side,
+            props.text_input_icon_spacing,
+        );
+    }
 }
 
 fn generate_combobox(
@@ -1494,7 +1549,19 @@ fn generate_combobox(
         .clone();
     let has_custom_name = !widget.properties.widget_name.trim().is_empty();
 
-    b.indent();
+    let icon = props.combobox_icon_enabled.then(|| {
+        input_icon_expr(
+            &props.combobox_icon_family,
+            &props.combobox_icon_name,
+            props.combobox_icon_size,
+        )
+    });
+
+    match &icon {
+        Some(icon) => open_input_icon_row(b, icon, props.combobox_icon_side),
+        None => b.indent(),
+    }
+
     b.push("combo_box(");
     b.newline();
     b.increase_indent();
@@ -1561,22 +1628,6 @@ fn generate_combobox(
         b.add_width(props.width);
     }
 
-    if props.combobox_icon_enabled {
-        let side = match props.combobox_icon_side {
-            TextInputIconSide::Left => "text_input::Side::Left",
-            TextInputIconSide::Right => "text_input::Side::Right",
-        };
-        let size_arg = if props.combobox_icon_size > 0.0 {
-            format!("Some({:.1}.into())", props.combobox_icon_size)
-        } else {
-            "None".to_string()
-        };
-        b.dot_method("icon", &format!(
-            "text_input::Icon {{ font: Font::new(\"lucide\"), code_point: '\\u{{{:04X}}}', size: {}, spacing: {:.1}, side: {} }}",
-            props.combobox_icon_codepoint, size_arg, props.combobox_icon_spacing, side
-        ));
-    }
-
     let mut uses_split_styles = false;
     if let Some(style_name) = props.custom_style_name.as_deref() {
         if has_custom_style(custom_styles, ThemePaneEnum::TextInput, style_name) {
@@ -1605,6 +1656,10 @@ fn generate_combobox(
                 );
             }
         }
+    }
+
+    if let Some(icon) = &icon {
+        close_input_icon_row(b, icon, props.combobox_icon_side, props.combobox_icon_spacing);
     }
 }
 

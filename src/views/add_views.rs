@@ -3,7 +3,6 @@ use crate::action_system::custom_state::CustomFieldType;
 use crate::data_structures::types::types::{AppView, WidgetId};
 use crate::enum_builder::TypeSystem;
 use crate::icon;
-use crate::icon_lucide;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::widget_tree;
 use iced::{
@@ -170,7 +169,7 @@ pub fn view<'a>(
         space::horizontal(),
         text("Views").size(18),
         space::horizontal(),
-        button(icon_lucide::plus())
+        button(icon::plus())
             .on_press(Message::AddView)
             .style(button::text)
     ]
@@ -196,9 +195,9 @@ pub fn view<'a>(
                 )
                 .map(|msg| Message::TreeMessage(msg)),
             )
-            .expand_icon(icon::collapsed())
+            .expand_icon(icon::chevron_right())
             .on_toggle(|_| Message::ViewSelected(view.1.id))
-            .collapse_icon(icon::expanded())
+            .collapse_icon(icon::chevron_down())
             .action_icon(crate::views::settings_views::view_settings::view(
                 &view.1,
                 type_system,

@@ -3,7 +3,6 @@ use crate::code_gen_version_two::builder::sanitize_name;
 use crate::data_structures::types::types::{AppView, Widget, WidgetType};
 use crate::enum_builder::TypeSystem;
 use crate::icon;
-use crate::icon_lucide;
 use crate::views::add_views::Message;
 use iced::widget::{
     button, checkbox, column, container, pick_list, row, rule, scrollable, text, text_input,
@@ -146,7 +145,7 @@ pub fn view<'a>(
 
     let state_header = row![
         text("State").size(13),
-        button(icon_lucide::plus().size(12))
+        button(icon::plus().size(12))
             .on_press(Message::AddCustomStateField(vid))
             .style(button::text)
             .padding(2),
@@ -213,7 +212,7 @@ pub fn view<'a>(
                     .on_input(move |s| Message::SetCustomFieldDefault(vid, fid, s))
                     .width(Length::Fill)
                     .size(12),
-                button(icon::trash())
+                button(icon::trash_2())
                     .on_press(Message::RemoveCustomStateField(vid, fid))
                     .style(button::text)
                     .padding(2),
@@ -264,7 +263,7 @@ pub fn view<'a>(
     // `popover` keeps its own open state when `.open()` is never called, which
     // is what the old self-contained overlay button did.
     popover(
-        button(icon_lucide::settings())
+        button(icon::settings())
             .style(button::text)
             .padding(1.0),
         container(settings_view).width(420).height(400),

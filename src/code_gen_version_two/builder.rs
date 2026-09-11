@@ -64,6 +64,18 @@ impl CodeBuilder {
         self.code.push('\n');
     }
 
+    /// Ends the expression built so far with a semicolon.
+    ///
+    /// Every chained builder call leaves a trailing newline behind it, so a
+    /// plain `push(";")` would put the semicolon on a line of its own.
+    pub fn end_statement(&mut self) {
+        while self.code.ends_with('\n') {
+            let _ = self.code.pop();
+        }
+
+        self.code.push_str(";\n");
+    }
+
     pub fn dot_method(&mut self, name: &str, args: &str) {
         self.newline();
         self.indent();
@@ -356,10 +368,17 @@ pub fn format_length(length: Length) -> String {
                 Bounds::Both { min, max } => format!("{}.min({:.1}).max({:.1})", base, min, max),
             }
         }
-        // Layout produces `Fluid` when it merges lengths; nothing the builder
-        // hands out ever carries one, so these are here for exhaustiveness.
-        Length::Fluid(Constraint::Min(min)) => format!("Length::Fill.min({:.1})", min),
-        Length::Fluid(Constraint::Max) => "Length::Fill".to_string(),
+        // `Fluid` has no builder method behind it, so it is written out as the
+        // variant. `Constraint` has no short public path — `iced::core` is
+        // private — so the generated file imports it, and this names it bare.
+        //
+        // It is deliberately not `Length::Fill.min(x)`: that builds a
+        // `Bounded`, which stops at the layout that reads it, where a fluid
+        // length propagates its constraint outward.
+        Length::Fluid(Constraint::Min(min)) => {
+            format!("Length::Fluid(Constraint::Min({:.1}))", min)
+        }
+        Length::Fluid(Constraint::Max) => "Length::Fluid(Constraint::Max)".to_string(),
     }
 }
 

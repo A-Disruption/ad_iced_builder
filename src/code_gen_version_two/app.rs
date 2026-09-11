@@ -24,7 +24,7 @@ fn startup_method_name(flow_id: Uuid) -> String {
     format!("startup_flow_{}", flow_id.as_simple())
 }
 
-fn escape_rust_string_literal(value: &str) -> String {
+pub(crate) fn escape_rust_string_literal(value: &str) -> String {
     value.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
@@ -145,6 +145,7 @@ pub fn generate_app_struct(
     is_main: bool,
     custom_state: &[CustomStateField],
     initial_view_variant: Option<&str>,
+    uses_native_frame: bool,
 ) {
     b.newline();
     if is_main {
@@ -153,6 +154,12 @@ pub fn generate_app_struct(
         b.line(&format!("pub struct {} {{", struct_name));
     }
     b.increase_indent();
+
+    if uses_native_frame {
+        b.line("/// The window's own title bar, drawn rather than asked of the platform.");
+        b.line("frame: NativeFrame,");
+    }
+
     // current_view field comes first when view routing is active
     if initial_view_variant.is_some() {
         b.line("current_view: View,");
@@ -191,6 +198,14 @@ pub fn generate_impl(
     sub_view_intercepts: &HashMap<Uuid, Vec<CrossViewIntercept>>,
 ) {
     let is_main = main_config.is_some();
+
+    // Only the main view is an application; a sub-view is a component inside
+    // one, and has no window of its own to decorate.
+    let native_frame_title = main_config
+        .filter(|(config, _)| config.use_native_frame)
+        .map(|(config, _)| config.title.as_str());
+    let uses_native_frame = native_frame_title.is_some();
+
     let view_reference_selection_index =
         events::build_view_reference_selection_index(current_view_id, view_refs);
     let callable_method_names: HashMap<Uuid, String> = flows
@@ -220,6 +235,7 @@ pub fn generate_impl(
         custom_state,
         &startup_flow_names,
         initial_view_variant,
+        uses_native_frame,
     );
     b.newline();
 
@@ -252,9 +268,18 @@ pub fn generate_impl(
         bubbled_navigation_subviews,
         sub_view_intercepts,
         &callable_method_names,
+        uses_native_frame,
     );
     b.newline();
-    view::generate_view_method(b, root, names, custom_styles, type_system, view_refs);
+    view::generate_view_method(
+        b,
+        root,
+        names,
+        custom_styles,
+        type_system,
+        view_refs,
+        native_frame_title,
+    );
 
     let all_names: HashMap<(Uuid, WidgetId), String> = all_view_widget_names
         .iter()
@@ -386,9 +411,9 @@ pub fn generate_impl(
                 )
         })
         .collect();
-    if !timer_key_flows.is_empty() {
+    if !timer_key_flows.is_empty() || uses_native_frame {
         b.newline();
-        generate_subscription_method(b, &timer_key_flows, struct_name);
+        generate_subscription_method(b, &timer_key_flows, struct_name, uses_native_frame);
     }
 
     b.newline();
@@ -396,14 +421,29 @@ pub fn generate_impl(
     b.line("}");
 }
 
-fn generate_subscription_method(b: &mut CodeBuilder, flows: &[&AppFlow], struct_name: &str) {
+fn generate_subscription_method(
+    b: &mut CodeBuilder,
+    flows: &[&AppFlow],
+    struct_name: &str,
+    uses_native_frame: bool,
+) {
+    // The frame needs its subscription forwarded, or it keeps per-window state
+    // for windows that have closed.
+    let frame = "self.frame.subscription().map(Message::Frame)";
+
     b.line("fn subscription(&self) -> iced::Subscription<Message> {");
     b.increase_indent();
-    if flows.len() == 1 {
+
+    if flows.is_empty() && uses_native_frame {
+        b.line(frame);
+    } else if flows.len() == 1 && !uses_native_frame {
         emit_subscription_source(b, flows[0]);
     } else {
         b.line("iced::Subscription::batch([");
         b.increase_indent();
+        if uses_native_frame {
+            b.line(&format!("{frame},"));
+        }
         for flow in flows {
             b.indent();
             emit_subscription_source(b, flow);
@@ -413,6 +453,7 @@ fn generate_subscription_method(b: &mut CodeBuilder, flows: &[&AppFlow], struct_
         b.decrease_indent();
         b.line("])");
     }
+
     b.decrease_indent();
     b.line("}");
     let _ = struct_name;
@@ -600,11 +641,12 @@ fn generate_new_method(
     custom_state: &[CustomStateField],
     startup_sub_names: &[String],
     initial_view_variant: Option<&str>,
+    uses_native_frame: bool,
 ) {
     b.line("pub fn new() -> (Self, Task<Message>) {");
     b.increase_indent();
 
-    if startup_sub_names.is_empty() {
+    if startup_sub_names.is_empty() && !uses_native_frame {
         b.line("(");
         b.increase_indent();
         b.line("Self {");
@@ -617,6 +659,7 @@ fn generate_new_method(
             view_refs,
             custom_state,
             initial_view_variant,
+            uses_native_frame,
         );
         b.decrease_indent();
         b.line("},");
@@ -624,8 +667,13 @@ fn generate_new_method(
         b.decrease_indent();
         b.line(")");
     } else {
-        // Need a local variable to call startup methods on self
-        b.line("let mut app = Self {");
+        // Need a local variable to call startup methods on, or to reach the
+        // frame with. Only the startup methods need it mutable.
+        b.line(if startup_sub_names.is_empty() {
+            "let app = Self {"
+        } else {
+            "let mut app = Self {"
+        });
         b.increase_indent();
         emit_new_fields(
             b,
@@ -635,13 +683,27 @@ fn generate_new_method(
             view_refs,
             custom_state,
             initial_view_variant,
+            uses_native_frame,
         );
         b.decrease_indent();
         b.line("};");
         for name in startup_sub_names {
             b.line(&format!("app.{}();", name));
         }
-        b.line("(app, Task::none())");
+
+        if uses_native_frame {
+            // Bound before the tuple, because a tuple evaluates left to right
+            // and `app` moves into its first element.
+            //
+            // `install_latest` folds in the `window::latest()` query, so a
+            // single-window application never names a `window::Id`. It
+            // resolves once the runtime has opened the first window.
+            b.line("let installed = app.frame.install_latest().discard();");
+            b.newline();
+            b.line("(app, installed)");
+        } else {
+            b.line("(app, Task::none())");
+        }
     }
 
     b.decrease_indent();
@@ -656,7 +718,12 @@ fn emit_new_fields(
     view_refs: &[ViewRefInfo],
     custom_state: &[CustomStateField],
     initial_view_variant: Option<&str>,
+    uses_native_frame: bool,
 ) {
+    if uses_native_frame {
+        b.line("frame: NativeFrame::new(NativeFrameConfig::platform_default()),");
+    }
+
     if let Some(variant) = initial_view_variant {
         b.line(&format!("current_view: View::{},", variant));
     }
@@ -923,10 +990,20 @@ pub fn generate_main_function(
             )
     });
 
+    let uses_native_frame = window_config.is_some_and(|config| config.use_native_frame);
+
     b.line("pub fn main() -> iced::Result {");
     b.increase_indent();
 
     b.indent();
+
+    // Registering a font is a `self`-consuming builder call and there is one
+    // per icon family, so a project with icons binds the builder and loops
+    // rather than closing the chain with `.run()`.
+    if uses_icon {
+        b.push("let app = ");
+    }
+
     b.push(&format!(
         "iced::application({}::new, {}::update, {}::view)",
         struct_name, struct_name, struct_name
@@ -935,14 +1012,16 @@ pub fn generate_main_function(
 
     b.increase_indent();
     if let Some(window_config) = window_config {
-        if !window_settings_are_default(&window_config.settings) {
+        // A custom frame always needs `window_settings`: that is where the
+        // platform decorations are turned off and the corner preference set.
+        if uses_native_frame || !window_settings_are_default(&window_config.settings) {
             b.indent();
             b.push(&format!(".window({}::window_settings())", struct_name));
             b.newline();
         }
     }
 
-    if has_timer_key_subs {
+    if has_timer_key_subs || uses_native_frame {
         b.indent();
         b.push(&format!(".subscription({}::subscription)", struct_name));
         b.newline();
@@ -957,9 +1036,24 @@ pub fn generate_main_function(
     b.newline();
 
     if uses_icon {
-        b.indent();
-        b.push(".font(icon::FONT)");
+        b.end_statement();
+        b.decrease_indent();
+
+        // `FONTS` carries one subset font per family the project draws from,
+        // so this is right whether that is one family or six.
         b.newline();
+        b.line("let app = icon::FONTS");
+        b.increase_indent();
+        b.line(".iter()");
+        b.line(".fold(app, |app, font| app.font(*font));");
+        b.decrease_indent();
+        b.newline();
+
+        b.line("app.run()");
+        b.decrease_indent();
+        b.line("}");
+
+        return;
     }
 
     b.indent();

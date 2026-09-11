@@ -1959,8 +1959,8 @@ impl CustomThemes {
             // The list of saved styles
             collapsible("Saved Styles", saved_styles_list)
                 .title_alignment(Alignment::Center)
-                .collapse_icon(icon::expanded())
-                .expand_icon(icon::collapsed()),
+                .collapse_icon(icon::chevron_down())
+                .expand_icon(icon::chevron_right()),
             // The controls for saving a new style
             container(
                 column![

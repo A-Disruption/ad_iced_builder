@@ -38,8 +38,8 @@ advanced-table = { path = "C:/Rust Projects/advanced-table" }
 iced-native-frame = { path = "C:/Rust Projects/iced-window-decorations" }
 #iced-native-frame = { git = "https://github.com/A-Disruption/iced-window-decorations.git" }
 
-iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
-#iced_lucide = { git = "https://github.com/A-Disruption/iced_lucide.git" }
+iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide", features = ["all"] }
+#iced_lucide = { git = "https://github.com/A-Disruption/iced_lucide.git", features = ["all"] }
 
 uuid = { version = "1.21.0", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -49,8 +49,7 @@ tree_sitter_highlighter = { path = "C:/Rust Projects/tree_sitter_highlighter" }
 #tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master" }
 
 [build-dependencies]
-iced_fontello = "0.14.1"
-iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide" }
+iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide", features = ["all"] }
 
 [features]
 default = []
