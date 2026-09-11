@@ -146,6 +146,7 @@ pub fn generate_app_struct(
     custom_state: &[CustomStateField],
     initial_view_variant: Option<&str>,
     uses_native_frame: bool,
+    title_bar: Option<&events::TitleBarInfo>,
 ) {
     b.newline();
     if is_main {
@@ -158,6 +159,11 @@ pub fn generate_app_struct(
     if uses_native_frame {
         b.line("/// The window's own title bar, drawn rather than asked of the platform.");
         b.line("frame: NativeFrame,");
+    }
+
+    if let Some(title_bar) = title_bar {
+        b.line("/// The view drawn into the title bar's own row.");
+        b.line(&format!("{}: {},", title_bar.field_name, title_bar.struct_name));
     }
 
     // current_view field comes first when view routing is active
@@ -196,6 +202,7 @@ pub fn generate_impl(
     emits_bubbled_navigation_message: bool,
     bubbled_navigation_subviews: &HashSet<Uuid>,
     sub_view_intercepts: &HashMap<Uuid, Vec<CrossViewIntercept>>,
+    title_bar: Option<&events::TitleBarInfo>,
 ) {
     let is_main = main_config.is_some();
 
@@ -236,6 +243,7 @@ pub fn generate_impl(
         &startup_flow_names,
         initial_view_variant,
         uses_native_frame,
+        title_bar,
     );
     b.newline();
 
@@ -250,6 +258,11 @@ pub fn generate_impl(
         b.newline();
         generate_theme_method(b, theme);
         b.newline();
+
+        if uses_native_frame {
+            super::window_settings::generate_frame_config(b, window_config);
+        }
+
         generate_window_settings(b, window_config);
     }
 
@@ -269,6 +282,7 @@ pub fn generate_impl(
         sub_view_intercepts,
         &callable_method_names,
         uses_native_frame,
+        title_bar,
     );
     b.newline();
     view::generate_view_method(
@@ -279,6 +293,7 @@ pub fn generate_impl(
         type_system,
         view_refs,
         native_frame_title,
+        title_bar,
     );
 
     let all_names: HashMap<(Uuid, WidgetId), String> = all_view_widget_names
@@ -642,6 +657,7 @@ fn generate_new_method(
     startup_sub_names: &[String],
     initial_view_variant: Option<&str>,
     uses_native_frame: bool,
+    title_bar: Option<&events::TitleBarInfo>,
 ) {
     b.line("pub fn new() -> (Self, Task<Message>) {");
     b.increase_indent();
@@ -660,6 +676,7 @@ fn generate_new_method(
             custom_state,
             initial_view_variant,
             uses_native_frame,
+            title_bar,
         );
         b.decrease_indent();
         b.line("},");
@@ -684,6 +701,7 @@ fn generate_new_method(
             custom_state,
             initial_view_variant,
             uses_native_frame,
+            title_bar,
         );
         b.decrease_indent();
         b.line("};");
@@ -719,9 +737,17 @@ fn emit_new_fields(
     custom_state: &[CustomStateField],
     initial_view_variant: Option<&str>,
     uses_native_frame: bool,
+    title_bar: Option<&events::TitleBarInfo>,
 ) {
     if uses_native_frame {
-        b.line("frame: NativeFrame::new(NativeFrameConfig::platform_default()),");
+        b.line("frame: NativeFrame::new(Self::frame_config()),");
+    }
+
+    if let Some(title_bar) = title_bar {
+        b.line(&format!(
+            "{}: {}::new().0,",
+            title_bar.field_name, title_bar.struct_name
+        ));
     }
 
     if let Some(variant) = initial_view_variant {
@@ -1187,6 +1213,7 @@ mod tests {
             false,
             &HashSet::new(),
             &HashMap::new(),
+            None,
         );
 
         let code = b.build();

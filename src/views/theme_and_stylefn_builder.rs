@@ -1951,7 +1951,7 @@ impl CustomThemes {
                 .padding(10)
                 .spacing(5);
 
-                scrollable(list_content).into()
+                crate::controls::scroll_y(list_content).into()
             }
         };
 
@@ -2220,17 +2220,8 @@ impl CustomThemes {
         };
 
         row![
-            scrollable(
-                column![style_selection, content,]
-                    .spacing(10)
-                    .padding(Padding {
-                        top: 0.0,
-                        right: 15.0,
-                        left: 0.0,
-                        bottom: 0.0,
-                    })
-            )
-            .width(Length::Fixed(420.0)),
+            crate::controls::scroll_y(column![style_selection, content].spacing(10))
+                .width(Length::Fixed(420.0)),
             column![
                 container(text("Live Preview").size(18)).center_x(Length::Fill),
                 container(preview_content).center_x(Length::Fill),
@@ -2883,7 +2874,7 @@ impl CustomThemes {
             .height(Length::Shrink),
         );
 
-        let palette_showcase = scrollable(
+        let palette_showcase = crate::controls::scroll_y(
             column![
                 base_palette,
                 container(

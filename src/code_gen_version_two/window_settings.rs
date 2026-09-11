@@ -1,5 +1,5 @@
 use super::builder::CodeBuilder;
-use crate::data_structures::types::types::WindowConfig;
+use crate::data_structures::types::types::{NativeFrameSettings, WindowConfig};
 use iced::window;
 
 pub fn generate_window_settings(b: &mut CodeBuilder, config: &WindowConfig) {
@@ -17,7 +17,7 @@ pub fn generate_window_settings(b: &mut CodeBuilder, config: &WindowConfig) {
     // platform `#[cfg]` a consumer would otherwise write: undecorated on
     // Windows and Linux, decorated on macOS where the traffic lights stay.
     if config.use_native_frame {
-        b.line("let frame = NativeFrame::new(NativeFrameConfig::platform_default());");
+        b.line("let frame = NativeFrame::new(Self::frame_config());");
         b.newline();
         b.line("frame.window_settings(iced::window::Settings {");
     } else {
@@ -163,6 +163,119 @@ pub fn generate_window_settings(b: &mut CodeBuilder, config: &WindowConfig) {
 
     b.decrease_indent();
     b.line(if config.use_native_frame { "})" } else { "}" });
+    b.decrease_indent();
+    b.line("}");
+    b.newline();
+}
+
+/// The custom title bar's configuration, as a method on the app.
+///
+/// Both `window_settings` and the frame itself need it, and it is long enough
+/// that writing it out twice would be worse than naming it once. Only the
+/// fields that differ from `platform_default` are written, so the generated
+/// code says what the project chose rather than restating the platform.
+pub fn generate_frame_config(b: &mut CodeBuilder, config: &WindowConfig) {
+    let frame = config.native_frame;
+    let base = NativeFrameSettings::default();
+
+    b.line("fn frame_config() -> NativeFrameConfig {");
+    b.increase_indent();
+    b.line("NativeFrameConfig {");
+    b.increase_indent();
+    b.line("decoration_mode: DecorationMode::Custom,");
+
+    let mut field = |name: &str, value: String, differs: bool| {
+        if differs {
+            b.line(&format!("{name}: {value},"));
+        }
+    };
+
+    field(
+        "title_bar_height",
+        format!("{:.1}", frame.title_bar_height),
+        frame.title_bar_height != base.title_bar_height,
+    );
+    field(
+        "caption_button_width",
+        format!("{:.1}", frame.caption_button_width),
+        frame.caption_button_width != base.caption_button_width,
+    );
+    field(
+        "caption_buttons",
+        frame.caption_buttons.to_string(),
+        frame.caption_buttons != base.caption_buttons,
+    );
+    field(
+        "resize_border",
+        format!("{:.1}", frame.resize_border),
+        frame.resize_border != base.resize_border,
+    );
+    field(
+        "resizable",
+        frame.resizable.to_string(),
+        frame.resizable != base.resizable,
+    );
+    field(
+        "corner_radius",
+        format!("{:.1}", frame.corner_radius),
+        frame.corner_radius != base.corner_radius,
+    );
+    field(
+        "frame_border",
+        frame.frame_border.to_string(),
+        frame.frame_border != base.frame_border,
+    );
+    field(
+        "client_shadow",
+        frame.client_shadow.to_string(),
+        frame.client_shadow != base.client_shadow,
+    );
+    field(
+        "outer_padding",
+        format!("{:.1}", frame.outer_padding),
+        frame.outer_padding != base.outer_padding,
+    );
+    field(
+        "native_rounding",
+        frame.native_rounding.to_string(),
+        frame.native_rounding != base.native_rounding,
+    );
+    field(
+        "native_shadow",
+        frame.native_shadow.to_string(),
+        frame.native_shadow != base.native_shadow,
+    );
+    field(
+        "window_icon_size",
+        format!("{:.1}", frame.window_icon_size),
+        frame.window_icon_size != base.window_icon_size,
+    );
+    field(
+        "title_spacing",
+        format!("{:.1}", frame.title_spacing),
+        frame.title_spacing != base.title_spacing,
+    );
+    field(
+        "title_padding",
+        format!("{:.1}", frame.title_padding),
+        frame.title_padding != base.title_padding,
+    );
+    field(
+        "leading_inset",
+        format!("{:.1}", frame.leading_inset),
+        frame.leading_inset != base.leading_inset,
+    );
+    field(
+        "show_title",
+        frame.show_title.to_string(),
+        frame.show_title != base.show_title,
+    );
+
+    // The platform defaults differ per target, so this is the rest of them
+    // rather than the struct's own `Default`.
+    b.line("..NativeFrameConfig::platform_default()");
+    b.decrease_indent();
+    b.line("}");
     b.decrease_indent();
     b.line("}");
     b.newline();

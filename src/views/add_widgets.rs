@@ -5,7 +5,7 @@ use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::enum_builder::TypeSystem;
 use iced::{
     Element, Length, Task,
-    widget::{button, column, container, row, rule, scrollable, text},
+    widget::{button, column, container, row, rule, text},
 };
 use widgets::anchor::{Align, Side};
 use widgets::popover::popover;
@@ -74,7 +74,7 @@ pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Elem
         }
     };
 
-    scrollable(match selected_count {
+    crate::controls::scroll_y(match selected_count {
         n if n < 2 => column![
             column![
                 text("Containers").size(18),

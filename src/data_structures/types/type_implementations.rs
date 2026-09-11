@@ -902,6 +902,11 @@ pub enum ContentFitChoice {
     ScaleDown,
     None,
 }
+
+impl ContentFitChoice {
+    pub const ALL: &'static [Self] =
+        &[Self::Contain, Self::Cover, Self::Fill, Self::ScaleDown, Self::None];
+}
 impl std::fmt::Display for ContentFitChoice {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use ContentFitChoice::*;

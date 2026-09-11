@@ -213,6 +213,39 @@ pub struct ViewRefInfo {
     pub extra_view_ids: Vec<Uuid>,
 }
 
+/// The view drawn into the custom title bar's application-owned row.
+///
+/// The frame lays a title bar out as
+/// `[icon][title][this row][caption controls]`, with this row taking all the
+/// width between — so it is where a menu bar or a row of tool buttons goes.
+/// It is an ordinary generated sub-view, held and routed like one a
+/// `ViewReference` would embed.
+#[derive(Debug, Clone)]
+pub struct TitleBarInfo {
+    /// Field name in the main app struct.
+    pub field_name: String,
+    /// snake_case module name, matching the generated file stem.
+    pub module_name: String,
+    /// PascalCase struct name.
+    pub struct_name: String,
+}
+
+impl TitleBarInfo {
+    /// Derives the names for the view a project put in its title bar.
+    pub fn for_view(view: &AppView) -> Self {
+        Self {
+            field_name: "title_bar".to_string(),
+            module_name: to_snake_case(&view.name),
+            struct_name: to_pascal_case(&handle_whitespace(&view.name)),
+        }
+    }
+
+    /// The `Message` variant its messages arrive in.
+    pub fn message_variant(&self) -> &'static str {
+        "TitleBar"
+    }
+}
+
 impl ViewRefInfo {
     pub fn is_multi(&self) -> bool {
         !self.extra_views.is_empty()
@@ -1181,7 +1214,9 @@ pub fn generate_imports(
     }
 
     if uses_native_frame {
-        b.line("use iced_native_frame::{FrameAction, NativeFrame, NativeFrameConfig};");
+        b.line(
+            "use iced_native_frame::{DecorationMode, FrameAction, NativeFrame, NativeFrameConfig};",
+        );
     }
 
     if tracker.uses_icon {
@@ -1239,6 +1274,7 @@ pub fn generate_message_enum(
     is_main: bool,
     emits_bubbled_navigation_message: bool,
     uses_native_frame: bool,
+    title_bar: Option<&TitleBarInfo>,
 ) {
     b.newline();
     b.line("#[derive(Debug, Clone)]");
@@ -1248,6 +1284,15 @@ pub fn generate_message_enum(
     if uses_native_frame {
         b.line("/// A drag, a caption button, or a focus change in the title bar.");
         b.line("Frame(FrameAction),");
+    }
+
+    if let Some(title_bar) = title_bar {
+        b.line("/// Something the view inside the title bar did.");
+        b.line(&format!(
+            "{}({}::Message),",
+            title_bar.message_variant(),
+            title_bar.module_name
+        ));
     }
 
     let has_variants = generate_message_variants(b, root, names, type_system);
@@ -1578,6 +1623,7 @@ pub fn generate_update(
     sub_view_intercepts: &HashMap<Uuid, Vec<CrossViewIntercept>>,
     callable_method_names: &HashMap<Uuid, String>,
     uses_native_frame: bool,
+    title_bar: Option<&TitleBarInfo>,
 ) {
     let all_names: HashMap<(Uuid, WidgetId), String> = names
         .iter()
@@ -1616,6 +1662,21 @@ pub fn generate_update(
         b.line("Message::Frame(action) => {");
         b.increase_indent();
         b.line("return self.frame.update(action, Message::Frame);");
+        b.decrease_indent();
+        b.line("}");
+    }
+
+    if let Some(title_bar) = title_bar {
+        b.line(&format!(
+            "Message::{}(message) => {{",
+            title_bar.message_variant()
+        ));
+        b.increase_indent();
+        b.line(&format!(
+            "return self.{}.update(message).map(Message::{});",
+            title_bar.field_name,
+            title_bar.message_variant()
+        ));
         b.decrease_indent();
         b.line("}");
     }
@@ -2847,6 +2908,7 @@ mod tests {
             false,
             false,
             false,
+            None,
         );
 
         let code = b.build();

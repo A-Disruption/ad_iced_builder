@@ -5,7 +5,7 @@ use crate::enum_builder::TypeSystem;
 use crate::icon;
 use crate::views::add_views::Message;
 use iced::widget::{
-    button, checkbox, column, container, pick_list, row, rule, scrollable, text, text_input,
+    button, checkbox, column, container, pick_list, row, rule, text, text_input,
 };
 use iced::{Element, Length, padding};
 use std::collections::HashMap;
@@ -244,7 +244,7 @@ pub fn view<'a>(
             .width(Length::Fill)
     };
 
-    let settings_view = container(scrollable(
+    let settings_view = container(crate::controls::scroll_y(
         column![
             title,
             checkbox(view.show_widget_bounds)

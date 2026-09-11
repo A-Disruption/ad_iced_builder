@@ -5,7 +5,7 @@ use std::path::Path;
 use uuid::Uuid;
 
 use crate::action_system::flow::AppFlow;
-use crate::data_structures::types::types::AppView;
+use crate::data_structures::types::types::{AppView, WindowConfig};
 use crate::enum_builder::TypeSystem;
 use crate::styles::style_enum::SavedStyleDefinition;
 use crate::views::theme_and_stylefn_builder::ThemePaneEnum;
@@ -53,6 +53,15 @@ pub struct ProjectData {
     /// The active app theme name, e.g. "Dark" or "Light".
     #[serde(default = "default_theme_name")]
     pub theme_name: String,
+
+    /// The window the generated application opens.
+    ///
+    /// This is the Visualizer's config, which is what describes the generated
+    /// app: its title, and the custom title bar it asks for. `window::Settings`
+    /// itself is `#[serde(skip)]` and does not round-trip -- only the fields
+    /// serde carries are restored.
+    #[serde(default)]
+    pub window: Option<WindowConfig>,
 }
 
 fn default_format_version() -> u32 {
@@ -74,6 +83,7 @@ impl ProjectData {
             custom_styles: SerializableThemes::default(),
             type_system: TypeSystem::default(),
             theme_name: "Dark".to_string(),
+            window: None,
         }
     }
 }
@@ -98,6 +108,7 @@ pub struct ProjectDataRef<'a> {
     pub custom_styles: SerializableThemesRef<'a>,
     pub type_system: &'a TypeSystem,
     pub theme_name: &'a str,
+    pub window: Option<&'a WindowConfig>,
 }
 
 pub fn save_project(data: &ProjectData, path: &Path) -> Result<(), String> {

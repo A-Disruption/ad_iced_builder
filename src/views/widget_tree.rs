@@ -258,8 +258,9 @@ pub fn view<'a>(
             // that state inside the widget.
             layer::modal(overlay_content, format!("Editing {}", display_name))
                 .open(open_editor_widget_id == Some(root_widget_id))
-                .min_width(600.0)
-                .min_height(750.0)
+                .min_width(EDITOR_MODAL_MIN_WIDTH)
+                .max_width(EDITOR_MODAL_WIDTH)
+                .min_height(EDITOR_MODAL_HEIGHT)
                 .dismiss_on_backdrop(true)
                 .dismiss_on_escape(true)
                 .on_dismiss(Message::OverlayClosed(root_widget_id)),
@@ -363,8 +364,9 @@ fn build_tree_item<'a>(
                 format!("Editing {}", display_name),
             )
             .open(open_editor_widget_id == Some(widget_id))
-            .min_width(600.0)
-            .min_height(750.0)
+            .min_width(EDITOR_MODAL_MIN_WIDTH)
+            .max_width(EDITOR_MODAL_WIDTH)
+            .min_height(EDITOR_MODAL_HEIGHT)
             .dismiss_on_backdrop(true)
             .dismiss_on_escape(true)
             .on_dismiss(Message::OverlayClosed(widget_id)),

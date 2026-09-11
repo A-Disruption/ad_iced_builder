@@ -19,7 +19,7 @@ mod views;
 use iced_native_frame::{FrameAction, NativeFrame, NativeFrameConfig};
 
 use action_system::flow::AppFlow;
-use data_structures::types::types::{AppView, WidgetId, WindowConfig};
+use data_structures::types::types::{AppView, NativeFrameSettings, WidgetId, WindowConfig};
 use views::enum_editor::EnumEditorView;
 use views::struct_editor::StructEditorView;
 use views::theme_and_stylefn_builder;
@@ -49,9 +49,17 @@ enum TypeEditorTab {
 struct AdUiBuilder {
     /// The builder's own title bar, drawn rather than asked of the platform.
     ///
-    /// One frame serves every window: hover, focus and maximization are keyed
-    /// by `window::Id`, so maximizing the editor leaves the visualizer alone.
+    /// This decorates the Editor window only. State is keyed by `window::Id`,
+    /// so it and `preview_frame` do not collide.
     frame: NativeFrame,
+
+    /// The title bar the *project* asks for, previewed on the Visualizer.
+    ///
+    /// The Visualizer stands in for the generated application, so it gets that
+    /// application's frame — which means no custom frame at all until the
+    /// project turns one on. Rebuilt by `sync_preview_frame` whenever the
+    /// settings change.
+    preview_frame: NativeFrame,
 
     windows: BTreeMap<window::Id, Window>,
     selected_view: navigation_bar::ViewSelection,
@@ -134,6 +142,9 @@ impl AdUiBuilder {
 
         let mut editor = Self {
             frame: NativeFrame::new(NativeFrameConfig::platform_default()),
+            preview_frame: NativeFrame::new(
+                NativeFrameSettings::default().to_config(false),
+            ),
             windows: BTreeMap::new(),
             selected_window: None,
             selected_view: navigation_bar::ViewSelection::Main,
@@ -392,11 +403,20 @@ impl AdUiBuilder {
                             return Task::none();
                         }
 
+                        let touches_frame = settings_views::window_settings::touches_frame(&msg);
+
                         let result =
                             settings_views::window_settings::update(&mut self.windows, msg)
                                 .map(|m| Message::ViewMessages(ViewMessage::WindowSettings(m)));
 
                         self.regenerate_code();
+
+                        // The Visualizer previews the project's title bar, so
+                        // its frame has to be rebuilt when those settings move.
+                        if touches_frame {
+                            return result.chain(self.sync_preview_frame());
+                        }
+
                         return result;
                     }
                 }
@@ -407,11 +427,16 @@ impl AdUiBuilder {
                 println!("Close window request, requested.");
                 self.windows.remove(&window_id);
 
-                // The frame keeps per-window state of its own; without this it
-                // would hold hover and maximization for a window that is gone.
-                let released = self
-                    .frame
-                    .update(FrameAction::WindowClosed(window_id), Message::Frame);
+                // Both frames keep per-window state of their own; without this
+                // they would hold hover and maximization for a window that is
+                // gone. Neither knows which windows are the other's, and
+                // releasing an id they never had is a no-op.
+                let released = Task::batch([
+                    self.frame
+                        .update(FrameAction::WindowClosed(window_id), Message::Frame),
+                    self.preview_frame
+                        .update(FrameAction::WindowClosed(window_id), Message::Frame),
+                ]);
 
                 if self.windows.is_empty() {
                     return released.chain(iced::exit());
@@ -419,8 +444,13 @@ impl AdUiBuilder {
 
                 return released;
             }
+            // Actions carry the window they came from, and each frame ignores
+            // ids it does not know, so both get a look.
             Message::Frame(action) => {
-                return self.frame.update(action, Message::Frame);
+                return Task::batch([
+                    self.frame.update(action.clone(), Message::Frame),
+                    self.preview_frame.update(action, Message::Frame),
+                ]);
             }
             Message::RequestOpenWindow(window_type) => {
                 match window_type {
@@ -446,10 +476,12 @@ impl AdUiBuilder {
                             ]);
                         }
 
-                        // Create new visualizer
+                        // Create new visualizer. It shows the project's frame,
+                        // not the builder's, so its settings come from there.
                         let config = WindowConfig::visualizer();
-                        let (_id, open) =
-                            iced::window::open(self.frame.window_settings(config.settings.clone()));
+                        let (_id, open) = iced::window::open(
+                            self.preview_frame.window_settings(config.settings.clone()),
+                        );
 
                         return open
                             .map(move |id| Message::WindowOpened(id, WindowEnum::Visualizer));
@@ -457,12 +489,20 @@ impl AdUiBuilder {
                 }
             }
             Message::WindowOpened(window_id, window_type) => {
-                let new_window = Window::new(window_id, window_type);
+                let new_window = Window::new(window_id, window_type.clone());
+                let uses_preview_frame = new_window.config.use_native_frame;
                 self.windows.insert(window_id, new_window);
 
-                // Once per window: on Windows this installs the `WM_NCHITTEST`
-                // subclass the Snap Layout flyout needs.
-                return self.frame.install(window_id).discard();
+                // Once per window, on the frame that decorates it: on Windows
+                // this installs the `WM_NCHITTEST` subclass the Snap Layout
+                // flyout needs.
+                return match window_type {
+                    WindowEnum::Editor => self.frame.install(window_id).discard(),
+                    WindowEnum::Visualizer if uses_preview_frame => {
+                        self.preview_frame.install(window_id).discard()
+                    }
+                    WindowEnum::Visualizer => Task::none(),
+                };
             }
 
             Message::NewProject => {
@@ -473,9 +513,11 @@ impl AdUiBuilder {
                     // The windows survive the reset, so the frame that knows
                     // about them has to as well.
                     let frame = self.frame.clone();
+                    let preview_frame = self.preview_frame.clone();
                     let (mut new_state, _) = Self::new();
                     new_state.windows = windows;
                     new_state.frame = frame;
+                    new_state.preview_frame = preview_frame;
                     new_state.selected_window = selected_window;
                     *self = new_state;
                     return Task::none();
@@ -499,9 +541,11 @@ impl AdUiBuilder {
                 let windows = std::mem::take(&mut self.windows);
                 let selected_window = self.selected_window;
                 let frame = self.frame.clone();
+                let preview_frame = self.preview_frame.clone();
                 let (mut new_state, _) = Self::new();
                 new_state.windows = windows;
                 new_state.frame = frame;
+                new_state.preview_frame = preview_frame;
                 new_state.selected_window = selected_window;
                 *self = new_state;
                 return Task::none();
@@ -583,11 +627,23 @@ impl AdUiBuilder {
                 Ok(data) => {
                     let windows = std::mem::take(&mut self.windows);
                     let frame = self.frame.clone();
+                    let preview_frame = self.preview_frame.clone();
+                    let loaded_window = data.window.clone();
+
                     *self = Self::from_project_data(data);
                     self.windows = windows;
                     self.frame = frame;
+                    self.preview_frame = preview_frame;
                     self.save_path = Some(path);
                     self.unsaved_changes = false;
+
+                    if let Some(config) = loaded_window {
+                        self.apply_generated_window_config(config);
+                    }
+
+                    // The loaded project may want a different title bar than
+                    // the one on screen.
+                    return self.sync_preview_frame();
                 }
                 Err(e) => {
                     eprintln!("Failed to parse project: {e}");
@@ -769,20 +825,94 @@ impl AdUiBuilder {
             }
         };
 
-        self.frame.view(
-            window_id,
-            window.title(),
-            None,
-            None,
-            content,
-            Message::Frame,
-        )
+        match window.windowtype {
+            // The builder's own chrome.
+            WindowEnum::Editor => {
+                self.frame
+                    .view(window_id, window.title(), None, None, content, Message::Frame)
+            }
+
+            // The project's chrome, or the platform's when the project has not
+            // asked for one — the Visualizer is standing in for the generated
+            // application, so it shows what that application would show.
+            WindowEnum::Visualizer => {
+                if !window.config.use_native_frame {
+                    return content;
+                }
+
+                let title_bar = window
+                    .config
+                    .title_bar_view_id
+                    .and_then(|view_id| self.views.get(&view_id))
+                    .map(|title_view| {
+                        preview::view(
+                            &title_view.hierarchy,
+                            &self.theme,
+                            &self.custom_styles,
+                            false,
+                            &self.views,
+                            Some(title_view.id),
+                            &self.type_system,
+                        )
+                        .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))
+                    });
+
+                self.preview_frame.view(
+                    window_id,
+                    &window.config.title,
+                    None,
+                    title_bar,
+                    content,
+                    Message::Frame,
+                )
+            }
+        }
+    }
+
+    /// Rebuilds the Visualizer's frame from the project's settings.
+    ///
+    /// Returns the tasks that make the window agree with them: the platform
+    /// decorations have to be flipped, and on Windows the `WM_NCHITTEST`
+    /// subclass installed or removed.
+    fn sync_preview_frame(&mut self) -> Task<Message> {
+        let Some((window_id, window)) = self
+            .windows
+            .iter()
+            .find(|(_, window)| window.windowtype == WindowEnum::Visualizer)
+        else {
+            return Task::none();
+        };
+
+        let window_id = *window_id;
+        let custom = window.config.use_native_frame;
+        let was_custom = self.preview_frame.decoration_mode().uses_custom_frame();
+        let config = window.config.native_frame.to_config(custom);
+
+        self.preview_frame = NativeFrame::new(config);
+
+        // Only the mode change needs anything of the window itself; the rest
+        // of the config is read afresh every frame.
+        if custom == was_custom {
+            return Task::none();
+        }
+
+        let decorations = window::toggle_decorations(window_id);
+
+        if custom {
+            self.preview_frame
+                .install(window_id)
+                .discard()
+                .chain(decorations)
+        } else {
+            decorations
+        }
     }
 
     fn subscription(&self) -> Subscription<Message> {
         Subscription::batch(vec![
             event::listen_with(handle_event),
             self.frame.subscription().map(Message::Frame),
+            self.preview_frame.subscription().map(Message::Frame),
         ])
     }
 
@@ -863,8 +993,38 @@ impl AdUiBuilder {
             },
             type_system: &self.type_system,
             theme_name: theme_key_str(&self.theme),
+            window: self.generated_window_config(),
         };
         save_project_ref(&data, path)
+    }
+
+    /// The config describing the window the generated application opens.
+    ///
+    /// The Visualizer stands in for that application, so its config is the
+    /// project's.
+    fn generated_window_config(&self) -> Option<&WindowConfig> {
+        self.windows
+            .values()
+            .find(|window| window.windowtype == WindowEnum::Visualizer)
+            .map(|window| &window.config)
+    }
+
+    /// Puts a loaded project's window config onto the live Visualizer.
+    ///
+    /// `window::Settings` is not serialized, so the one already on screen is
+    /// kept; everything serde carried — the title, the custom title bar and
+    /// its settings — comes from the file.
+    fn apply_generated_window_config(&mut self, config: WindowConfig) {
+        let Some(window) = self
+            .windows
+            .values_mut()
+            .find(|window| window.windowtype == WindowEnum::Visualizer)
+        else {
+            return;
+        };
+
+        let settings = window.config.settings.clone();
+        window.config = WindowConfig { settings, ..config };
     }
 
     fn from_project_data(data: persistence::ProjectData) -> Self {
@@ -920,6 +1080,9 @@ impl AdUiBuilder {
 
         let mut builder = Self {
             frame: NativeFrame::new(NativeFrameConfig::platform_default()),
+            preview_frame: NativeFrame::new(
+                NativeFrameSettings::default().to_config(false),
+            ),
             windows: BTreeMap::new(),
             selected_window: None,
             selected_view: navigation_bar::ViewSelection::Main,

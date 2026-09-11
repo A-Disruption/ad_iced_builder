@@ -7,7 +7,7 @@ use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::widget_tree;
 use iced::{
     Alignment, Element, Length, Task, Theme, padding,
-    widget::{button, column, container, row, scrollable, space, text, text_editor},
+    widget::{button, column, container, row, space, text, text_editor},
 };
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -209,10 +209,8 @@ pub fn view<'a>(
 
     container(column![
         header,
-        scrollable(
-            container(CollapsibleGroup::new(view_list).spacing(5.0)).padding(padding::right(10))
-        )
-        .height(Length::Fill)
+        crate::controls::scroll_y(CollapsibleGroup::new(view_list).spacing(5.0))
+            .height(Length::Fill)
     ])
     .width(400)
     .height(Length::Fill)

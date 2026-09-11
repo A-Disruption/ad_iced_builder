@@ -123,7 +123,7 @@ pub fn icon_picker<'a>(
         container(column![family_picker, search].spacing(4))
             .padding(padding::horizontal(5.0).top(5.0)),
         container(text(tally).size(LABEL_SIZE)).padding(padding::horizontal(5.0)),
-        scrollable(
+        scroll_y(
             Row::with_children(icon_buttons)
                 .spacing(4)
                 .padding(10)
@@ -179,32 +179,73 @@ pub fn container_controls<'a>(
             views,
             type_system
         ),
-        column![
-            text("Sizing Mode").size(SECTION_SIZE),
-            pick_list(
-                Some(props.container_sizing_mode),
-                vec![
-                    ContainerSizingMode::Manual,
-                    ContainerSizingMode::CenterX,
-                    ContainerSizingMode::CenterY,
-                    ContainerSizingMode::Center,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |mode| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::ContainerSizingMode(mode)
-                )),
-            text(match props.container_sizing_mode {
-                ContainerSizingMode::Manual => "Set width and height separately",
-                ContainerSizingMode::CenterX => "Set width and center content horizontally",
-                ContainerSizingMode::CenterY => "Set height and center content vertically",
-                ContainerSizingMode::Center => "Set size and center content in both directions",
-            })
-            .size(LABEL_SIZE - 1.0)
-            .color(Color::from_rgb(0.5, 0.5, 0.5)),
-        ]
-        .spacing(LABEL_SPACING),
+        section(
+            "Sizing",
+            column![
+                field_grid(vec![
+                    pick_field(
+                        "Mode",
+                        props.container_sizing_mode,
+                        vec![
+                            ContainerSizingMode::Manual,
+                            ContainerSizingMode::CenterX,
+                            ContainerSizingMode::CenterY,
+                            ContainerSizingMode::Center,
+                        ],
+                        move |mode| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::ContainerSizingMode(mode),
+                        ),
+                    ),
+                    // The alignment pick lists belong to Manual mode: the
+                    // centring modes do this themselves.
+                    if matches!(props.container_sizing_mode, ContainerSizingMode::Manual) {
+                        pick_field(
+                            "Align X",
+                            props.align_x,
+                            vec![
+                                ContainerAlignX::Left,
+                                ContainerAlignX::Center,
+                                ContainerAlignX::Right,
+                            ],
+                            move |v| Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::AlignX(v)
+                            ),
+                        )
+                    } else {
+                        nothing()
+                    },
+                    if matches!(props.container_sizing_mode, ContainerSizingMode::Manual) {
+                        pick_field(
+                            "Align Y",
+                            props.align_y,
+                            vec![
+                                ContainerAlignY::Top,
+                                ContainerAlignY::Center,
+                                ContainerAlignY::Bottom,
+                            ],
+                            move |v| Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::AlignY(v)
+                            ),
+                        )
+                    } else {
+                        nothing()
+                    },
+                ]),
+                text(match props.container_sizing_mode {
+                    ContainerSizingMode::Manual => "Set width and height separately",
+                    ContainerSizingMode::CenterX => "Set width and center content horizontally",
+                    ContainerSizingMode::CenterY => "Set height and center content vertically",
+                    ContainerSizingMode::Center =>
+                        "Set size and center content in both directions",
+                })
+                .size(LABEL_SIZE - 1.0)
+                .color(Color::from_rgb(0.5, 0.5, 0.5)),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
         // Size Controls - conditional based on mode
         match props.container_sizing_mode {
             ContainerSizingMode::Manual => {
@@ -274,56 +315,9 @@ pub fn container_controls<'a>(
                 .into()
             }
         },
-        // Only show alignment controls in Manual mode
-        if matches!(props.container_sizing_mode, ContainerSizingMode::Manual) {
-            row![
-                column![
-                    text("Horizontal Align").size(LABEL_SIZE),
-                    pick_list(
-                        Some(props.align_x),
-                        vec![
-                            ContainerAlignX::Left,
-                            ContainerAlignX::Center,
-                            ContainerAlignX::Right
-                        ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignX(v)))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING)
-                .width(Length::Fill),
-                column![
-                    text("Vertical Align").size(LABEL_SIZE),
-                    pick_list(
-                        Some(props.align_y),
-                        vec![
-                            ContainerAlignY::Top,
-                            ContainerAlignY::Center,
-                            ContainerAlignY::Bottom
-                        ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::AlignY(v)))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING)
-                .width(Length::Fill),
-            ]
-            .spacing(MAIN_SPACING)
-        } else {
-            row![]
-        },
         // Padding Controls
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        // Set a Widget Id
-        widget_id_control(widget_id, props.widget_id.clone(), theme),
-        // Max Width control
-        max_width_control(widget_id, props.max_width),
-        // Max Height control
-        max_height_control(widget_id, props.max_height),
-        //Clip control
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -346,134 +340,81 @@ pub fn row_controls<'a>(
     let content = column![
         text("Row Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Layout Mode").size(SECTION_SIZE),
-            row![
-                toggler(props.is_wrapping_row,).on_toggle(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::IsWrappingRow(v)
-                )),
-                text("Enable Wrapping"),
-                information(theme, "Items wrap to next line when row width is exceeded.")
-            ]
-            .spacing(LABEL_SPACING)
-            .align_y(Alignment::End),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Spacing between items").size(LABEL_SIZE),
-            row![
-                slider(0.0..=50.0, props.spacing, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::Spacing(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.spacing))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        // NEW: Wrapping-specific controls (only show when wrapping enabled)
-        if props.is_wrapping_row {
-            column![
-                column![
+        section(
+            "Layout",
+            field_grid(vec![
+                field(
+                    "Wrapping",
                     row![
-                        text("Vertical Spacing").size(SECTION_SIZE),
-                        information(theme, "Spacing between wrapped rows")
+                        toggler(props.is_wrapping_row).on_toggle(move |v| {
+                            Message::PropertyChanged(widget_id, PropertyChange::IsWrappingRow(v))
+                        }),
+                        information(theme, "Items wrap onto a new line when the row runs out"),
                     ]
                     .spacing(LABEL_SPACING)
-                    .align_y(Alignment::End),
-                    row![
-                        checkbox(props.match_horizontal_spacing,)
-                            .label("match horizontal spacing")
-                            .on_toggle(move |use_same| {
-                                Message::PropertyChanged(
-                                    widget_id,
-                                    PropertyChange::WrappingSpacingMatchToggle(use_same),
-                                )
-                            }),
-                        if props.match_horizontal_spacing {
-                            row![
-                                slider(0.0..=50.0, props.wrapping_vertical_spacing, move |v| {
-                                    Message::PropertyChanged(
-                                        widget_id,
-                                        PropertyChange::WrappingVerticalSpacing(v),
-                                    )
-                                })
-                                .step(1.0)
-                                .width(180),
-                                text(format!("{:.0}px", props.wrapping_vertical_spacing))
-                                    .size(LABEL_SIZE)
-                                    .width(50),
-                            ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center)
-                        } else {
-                            row![].into()
-                        }
-                    ]
-                    .spacing(SECTION_SPACING)
                     .align_y(Alignment::Center),
-                ]
-                .spacing(LABEL_SPACING),
-                column![
-                    row![
-                        text("Horizontal Alignment").size(LABEL_SIZE),
-                        information(theme, "Aligns wrapped lines within the row"),
-                    ]
-                    .spacing(LABEL_SPACING)
-                    .align_y(Alignment::End),
-                    pick_list(
-                        Some(props.wrapping_align_x),
+                ),
+                slider_field("Spacing", 0.0..=50.0, props.spacing, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::Spacing(v))
+                }),
+                // A wrapping row aligns its lines; a plain one aligns its
+                // children across the axis it does not lay out along.
+                if props.is_wrapping_row {
+                    toggle_field(
+                        "Match spacing",
+                        props.match_horizontal_spacing,
+                        move |use_same| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::WrappingSpacingMatchToggle(use_same),
+                        ),
+                    )
+                } else {
+                    nothing()
+                },
+                if props.is_wrapping_row && props.match_horizontal_spacing {
+                    slider_field(
+                        "Line spacing",
+                        0.0..=50.0,
+                        props.wrapping_vertical_spacing,
+                        move |v| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::WrappingVerticalSpacing(v),
+                        ),
+                    )
+                } else {
+                    nothing()
+                },
+                if props.is_wrapping_row {
+                    pick_field(
+                        "Align lines",
+                        props.wrapping_align_x,
                         vec![
                             ContainerAlignX::Left,
                             ContainerAlignX::Center,
                             ContainerAlignX::Right,
                         ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |align| Message::PropertyChanged(
+                        move |align| Message::PropertyChanged(
                             widget_id,
-                            PropertyChange::WrappingAlignX(align)
-                        ))
-                    .width(160),
-                ]
-                .spacing(LABEL_SPACING),
-            ]
-            .spacing(SECTION_SPACING)
-        } else {
-            column![].into()
-        },
-        // Vertical alignment (only for non-wrapping rows)
-        if !props.is_wrapping_row {
-            column![
-                text("Vertical Alignment").size(LABEL_SIZE),
-                row![
-                    pick_list(
-                        Some(AlignmentXOption::from_alignment(props.align_items)),
+                            PropertyChange::WrappingAlignX(align),
+                        ),
+                    )
+                } else {
+                    pick_field(
+                        "Align children",
+                        AlignmentXOption::from_alignment(props.align_items),
                         vec![
                             AlignmentXOption::Start,
                             AlignmentXOption::Center,
-                            AlignmentXOption::End
+                            AlignmentXOption::End,
                         ],
-                        ToString::to_string,
-                    )
-                    .on_select(move |sel| Message::PropertyChanged(
+                        move |sel| Message::PropertyChanged(
                             widget_id,
-                            PropertyChange::AlignItems(sel.to_alignment())
-                        )),
-                    information(theme, "Aligns children vertically within the row"),
-                ]
-                .spacing(LABEL_SPACING)
-                .align_y(Alignment::End),
-            ]
-            .spacing(LABEL_SPACING)
-        } else {
-            column![].into()
-        },
+                            PropertyChange::AlignItems(sel.to_alignment()),
+                        ),
+                    )
+                },
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -483,7 +424,7 @@ pub fn row_controls<'a>(
             widget_id,
         ),
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -506,39 +447,27 @@ pub fn column_controls<'a>(
     let content = column![
         text("Column Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Spacing between items").size(LABEL_SIZE),
-            row![
-                slider(0.0..=50.0, props.spacing, move |v| {
+        section(
+            "Layout",
+            field_grid(vec![
+                slider_field("Spacing", 0.0..=50.0, props.spacing, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::Spacing(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.spacing))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Horizontal Alignment").size(LABEL_SIZE),
-            pick_list(
-                Some(AlignmentXOption::from_alignment(props.align_items)),
-                vec![
-                    AlignmentXOption::Start,
-                    AlignmentXOption::Center,
-                    AlignmentXOption::End
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |sel| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::AlignItems(sel.to_alignment())
-                )),
-        ]
-        .spacing(LABEL_SPACING),
+                }),
+                pick_field(
+                    "Align children",
+                    AlignmentXOption::from_alignment(props.align_items),
+                    vec![
+                        AlignmentXOption::Start,
+                        AlignmentXOption::Center,
+                        AlignmentXOption::End,
+                    ],
+                    move |sel| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::AlignItems(sel.to_alignment()),
+                    ),
+                ),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -548,10 +477,7 @@ pub fn column_controls<'a>(
             widget_id,
         ),
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        // Max Width control
-        max_width_control(widget_id, props.max_width),
-        //Clip control
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -612,6 +538,7 @@ pub fn button_controls<'a>(
         conditional_style_section(widget_id, props, theme, view_id, h.root(), views, type_system),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             with_event_info(
                 radio(
                     "None (button disabled)",
@@ -670,7 +597,7 @@ pub fn button_controls<'a>(
             widget_id,
         ),
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
         .spacing(MAIN_SPACING)
         .into();
@@ -693,43 +620,98 @@ pub fn text_controls<'a>(
     let content = column![
         text("Text Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Text Content").size(LABEL_SIZE),
-            text_input("Content", &props.text_content)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextContent(v)
-                ))
-                .width(300),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=72.0, props.text_size, move |v| {
+        section(
+            "Text",
+            field_grid(vec![
+                text_field("Content", "Content", &props.text_content, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TextContent(v))
+                }),
+                slider_field("Font size", 8.0..=72.0, props.text_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TextSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.text_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font").size(LABEL_SIZE),
-            pick_list(
-                Some(props.font),
-                vec![FontType::Default, FontType::Monospace],
-                ToString::to_string,
-            )
-            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::Font(v)))
-            .width(200),
-        ]
-        .spacing(LABEL_SPACING),
+                }),
+                pick_field(
+                    "Font",
+                    props.font,
+                    vec![FontType::Default, FontType::Monospace],
+                    move |v| Message::PropertyChanged(widget_id, PropertyChange::Font(v)),
+                ),
+                field(
+                    "Colour",
+                    color_hex_input("", &props.draft_text_color, move |c| {
+                        Message::PropertyChanged(widget_id, PropertyChange::DraftTextColor(c))
+                    }),
+                ),
+                pick_field(
+                    "Wrapping",
+                    TextWrapping::from(props.wrap),
+                    vec![
+                        TextWrapping::None,
+                        TextWrapping::Word,
+                        TextWrapping::Glyph,
+                        TextWrapping::WordOrGlyph,
+                    ],
+                    move |w| Message::PropertyChanged(widget_id, PropertyChange::TextWrap(w)),
+                ),
+                pick_field(
+                    "Shaping",
+                    TextShaping::from(props.shaping),
+                    vec![TextShaping::Basic, TextShaping::Advanced, TextShaping::Auto],
+                    move |s| Message::PropertyChanged(widget_id, PropertyChange::TextShaping(s)),
+                ),
+                // Relative line height runs in hundredths, which the shared
+                // whole-number readout would round away.
+                field(
+                    "Line height",
+                    row![
+                        slider(
+                            0.8..=2.0,
+                            match props.line_height {
+                                text::LineHeight::Relative(v) => v,
+                                _ => 1.0,
+                            },
+                            move |v| Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::TextLineHeight(text::LineHeight::Relative(
+                                    (v * 100.0).round() / 100.0,
+                                )),
+                            ),
+                        )
+                        .step(0.05)
+                        .width(FIELD_WIDTH - 55.0),
+                        text(match props.line_height {
+                            text::LineHeight::Relative(v) => format!("{v:.2}"),
+                            _ => "1.00".into(),
+                        })
+                        .size(LABEL_SIZE)
+                        .width(50),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
+                ),
+                pick_field(
+                    "Align X",
+                    AlignText::from(props.text_align_x),
+                    vec![
+                        AlignText::Default,
+                        AlignText::Left,
+                        AlignText::Center,
+                        AlignText::Right,
+                        AlignText::Justified,
+                    ],
+                    move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignX(a)),
+                ),
+                pick_field(
+                    "Align Y",
+                    AlignmentYOption::from(props.text_align_y),
+                    vec![
+                        AlignmentYOption::Top,
+                        AlignmentYOption::Center,
+                        AlignmentYOption::Bottom,
+                    ],
+                    move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignY(a)),
+                ),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -738,99 +720,6 @@ pub fn text_controls<'a>(
             h,
             widget_id,
         ),
-        color_hex_input("Text Color", &props.draft_text_color, move |c| {
-            Message::PropertyChanged(widget_id, PropertyChange::DraftTextColor(c))
-        }),
-        column![
-            text("Wrapping").size(LABEL_SIZE),
-            pick_list(
-                Some(TextWrapping::from(props.wrap)),
-                vec![
-                    TextWrapping::None,
-                    TextWrapping::Word,
-                    TextWrapping::Glyph,
-                    TextWrapping::WordOrGlyph
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |w| Message::PropertyChanged(widget_id, PropertyChange::TextWrap(w)))
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Shaping").size(LABEL_SIZE),
-            pick_list(
-                Some(TextShaping::from(props.shaping)),
-                vec![TextShaping::Basic, TextShaping::Advanced, TextShaping::Auto],
-                ToString::to_string,
-            )
-            .on_select(move |s| Message::PropertyChanged(widget_id, PropertyChange::TextShaping(s)))
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Line Height").size(LABEL_SIZE),
-            row![
-                slider(
-                    0.8..=2.0,
-                    match props.line_height {
-                        text::LineHeight::Relative(v) => v,
-                        _ => 1.0,
-                    },
-                    move |v| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::TextLineHeight(text::LineHeight::Relative(
-                                (v * 100.0).round() / 100.0,
-                            )),
-                        )
-                    }
-                )
-                .step(0.05)
-                .width(220),
-                text(match props.line_height {
-                    text::LineHeight::Relative(v) => format!("{:.2}", v),
-                    _ => "1.00".into(),
-                })
-                .size(LABEL_SIZE)
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center)
-        ]
-        .spacing(LABEL_SPACING),
-        row![
-            column![
-                text("Align X").size(LABEL_SIZE),
-                pick_list(
-                    Some(AlignText::from(props.text_align_x)),
-                    vec![
-                        AlignText::Default,
-                        AlignText::Left,
-                        AlignText::Center,
-                        AlignText::Right,
-                        AlignText::Justified
-                    ],
-                    ToString::to_string,
-                )
-                .on_select(move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignX(a)))
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-            column![
-                text("Align Y").size(LABEL_SIZE),
-                pick_list(
-                    Some(AlignmentYOption::from(props.text_align_y)),
-                    vec![
-                        AlignmentYOption::Top,
-                        AlignmentYOption::Center,
-                        AlignmentYOption::Bottom
-                    ],
-                    ToString::to_string,
-                )
-                .on_select(move |a| Message::PropertyChanged(widget_id, PropertyChange::TextAlignY(a)))
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -861,87 +750,54 @@ pub fn text_input_controls<'a>(
             ThemePaneEnum::TextInput,
             PropertyChange::CustomStyle,
         ),
-        column![
-            text("Placeholder Text").size(LABEL_SIZE),
-            text_input("Placeholder", &props.text_input_placeholder)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextInputPlaceholder(v)
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=32.0, props.text_input_size, move |v| {
+        section(
+            "Field",
+            field_grid(vec![
+                text_field(
+                    "Placeholder",
+                    "Placeholder",
+                    &props.text_input_placeholder,
+                    move |v| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::TextInputPlaceholder(v),
+                    ),
+                ),
+                slider_field("Font size", 8.0..=32.0, props.text_input_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TextInputSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.text_input_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Internal Padding").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.text_input_padding, move |v| {
+                }),
+                slider_field("Padding", 0.0..=30.0, props.text_input_padding, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TextInputPadding(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.text_input_padding))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font").size(LABEL_SIZE),
-            pick_list(
-                Some(props.text_input_font),
-                vec![FontType::Default, FontType::Monospace],
-                ToString::to_string,
-            )
-            .on_select(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextInputFont(v.into())
-                )),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Horizontal Alignment").size(LABEL_SIZE),
-            pick_list(
-                Some(props.text_input_alignment),
-                vec![
-                    ContainerAlignX::Left,
-                    ContainerAlignX::Center,
-                    ContainerAlignX::Right,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::TextInputAlignment(v))),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Security & Behavior").size(SECTION_SIZE),
-            checkbox(props.is_secure)
-                .label("Secure Input (Password)")
-                .on_toggle(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::IsSecure(v)
-                )),
-        ]
-        .spacing(SECTION_SPACING),
+                }),
+                pick_field(
+                    "Font",
+                    props.text_input_font,
+                    vec![FontType::Default, FontType::Monospace],
+                    move |v| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::TextInputFont(v.into()),
+                    ),
+                ),
+                pick_field(
+                    "Align X",
+                    props.text_input_alignment,
+                    vec![
+                        ContainerAlignX::Left,
+                        ContainerAlignX::Center,
+                        ContainerAlignX::Right,
+                    ],
+                    move |v| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::TextInputAlignment(v),
+                    ),
+                ),
+                toggle_field("Secure (password)", props.is_secure, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::IsSecure(v))
+                }),
+            ]),
+        ),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             event_name_row(theme, "on_input", "Fires whenever the text value changes"),
             event_checkbox_row(
                 theme,
@@ -985,79 +841,67 @@ pub fn text_input_controls<'a>(
                 },
             );
 
-            column![
-                text("Icon").size(SECTION_SIZE),
-                checkbox(props.text_input_icon_enabled)
-                    .label("Enable Icon")
-                    .on_toggle(move |v| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::TextInputIconEnabled(v)
-                    )),
-                if props.text_input_icon_enabled {
-                    column![
-                        column![text("Icon").size(LABEL_SIZE), picker,].spacing(LABEL_SPACING),
-                        column![
-                            text("Side").size(LABEL_SIZE),
-                            pick_list(
-                                Some(props.text_input_icon_side),
+            section(
+                "Icon",
+                column![
+                    checkbox(props.text_input_icon_enabled)
+                        .label("Show an icon")
+                        .on_toggle(move |v| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TextInputIconEnabled(v)
+                        )),
+                    if props.text_input_icon_enabled {
+                        field_grid(vec![
+                            field("Icon", picker),
+                            pick_field(
+                                "Side",
+                                props.text_input_icon_side,
                                 vec![TextInputIconSide::Left, TextInputIconSide::Right],
-                                ToString::to_string,
-                            )
-                            .on_select(move |v| Message::PropertyChanged(
+                                move |v| Message::PropertyChanged(
                                     widget_id,
-                                    PropertyChange::TextInputIconSide(v)
-                                )),
-                        ]
-                        .spacing(LABEL_SPACING),
-                        column![
-                            text("Icon Size (0 = auto)").size(LABEL_SIZE),
-                            row![
-                                slider(0.0..=64.0, props.text_input_icon_size, move |v| {
-                                    Message::PropertyChanged(
-                                        widget_id,
-                                        PropertyChange::TextInputIconSize(v),
-                                    )
-                                })
-                                .step(1.0)
-                                .width(180),
-                                text(if props.text_input_icon_size > 0.0 {
-                                    format!("{:.0}px", props.text_input_icon_size)
-                                } else {
-                                    "auto".to_string()
-                                })
-                                .size(LABEL_SIZE)
-                                .width(50),
-                            ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING),
-                        column![
-                            text("Spacing").size(LABEL_SIZE),
-                            row![
-                                slider(0.0..=30.0, props.text_input_icon_spacing, move |v| {
-                                    Message::PropertyChanged(
-                                        widget_id,
-                                        PropertyChange::TextInputIconSpacing(v),
-                                    )
-                                })
-                                .step(1.0)
-                                .width(180),
-                                text(format!("{:.0}px", props.text_input_icon_spacing))
+                                    PropertyChange::TextInputIconSide(v),
+                                ),
+                            ),
+                            // Zero means "take the field's own size", which a
+                            // bare number would not say.
+                            field(
+                                "Size",
+                                row![
+                                    slider(0.0..=64.0, props.text_input_icon_size, move |v| {
+                                        Message::PropertyChanged(
+                                            widget_id,
+                                            PropertyChange::TextInputIconSize(v),
+                                        )
+                                    })
+                                    .step(1.0)
+                                    .width(FIELD_WIDTH - 55.0),
+                                    text(if props.text_input_icon_size > 0.0 {
+                                        format!("{:.0}", props.text_input_icon_size)
+                                    } else {
+                                        "auto".to_string()
+                                    })
                                     .size(LABEL_SIZE)
                                     .width(50),
-                            ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING),
-                    ]
-                    .spacing(SECTION_SPACING)
-                } else {
-                    column![]
-                },
-            ]
-            .spacing(SECTION_SPACING)
+                                ]
+                                .spacing(LABEL_SPACING)
+                                .align_y(Alignment::Center),
+                            ),
+                            slider_field(
+                                "Spacing",
+                                0.0..=30.0,
+                                props.text_input_icon_spacing,
+                                move |v| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::TextInputIconSpacing(v),
+                                ),
+                            ),
+                        ])
+                    } else {
+                        nothing()
+                    },
+                ]
+                .spacing(SECTION_SPACING),
+            )
         },
         size_controls_scrollable_aware(
             props.width,
@@ -1111,112 +955,95 @@ pub fn text_editor_controls<'a>(
         text("Text Editor Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::TextEditor),
-        column![
-            text("Placeholder").size(LABEL_SIZE),
-            text_input("Placeholder", &props.text_editor_placeholder)
-                .on_input(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextEditorPlaceholder(value),
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        column![text("Content").size(LABEL_SIZE), editor].spacing(LABEL_SPACING),
-        column![
-            text("Font Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=32.0, props.text_editor_size, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::TextEditorSize(value))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.text_editor_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Internal Padding").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.text_editor_padding, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::TextEditorPadding(value))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.text_editor_padding))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font").size(LABEL_SIZE),
-            pick_list(
-                Some(props.text_editor_font),
-                vec![FontType::Default, FontType::Monospace],
-                ToString::to_string,
-            )
-            .on_select(move |font| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextEditorFont(font),
-                )),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Wrapping").size(LABEL_SIZE),
-            pick_list(
-                Some(TextWrapping::from(props.text_editor_wrapping)),
-                vec![
-                    TextWrapping::None,
-                    TextWrapping::Word,
-                    TextWrapping::Glyph,
-                    TextWrapping::WordOrGlyph,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |wrapping| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextEditorWrapping(wrapping),
-                )),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Line Height").size(LABEL_SIZE),
-            row![
-                slider(
-                    0.8..=2.0,
-                    match props.text_editor_line_height {
-                        text::LineHeight::Relative(value) => value,
-                        _ => 1.0,
-                    },
-                    move |value| {
-                        Message::PropertyChanged(
+        section(
+            "Editor",
+            column![
+                field_grid(vec![
+                    text_field(
+                        "Placeholder",
+                        "Placeholder",
+                        &props.text_editor_placeholder,
+                        move |value| Message::PropertyChanged(
                             widget_id,
-                            PropertyChange::TextEditorLineHeight(text::LineHeight::Relative(
-                                (value * 100.0).round() / 100.0,
-                            )),
-                        )
-                    }
-                )
-                .step(0.05)
-                .width(220),
-                text(match props.text_editor_line_height {
-                    text::LineHeight::Relative(value) => format!("{:.2}", value),
-                    _ => "1.00".into(),
-                })
-                .size(LABEL_SIZE)
+                            PropertyChange::TextEditorPlaceholder(value),
+                        ),
+                    ),
+                    slider_field("Font size", 8.0..=32.0, props.text_editor_size, move |value| {
+                        Message::PropertyChanged(widget_id, PropertyChange::TextEditorSize(value))
+                    }),
+                    slider_field(
+                        "Padding",
+                        0.0..=30.0,
+                        props.text_editor_padding,
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TextEditorPadding(value),
+                        ),
+                    ),
+                    pick_field(
+                        "Font",
+                        props.text_editor_font,
+                        vec![FontType::Default, FontType::Monospace],
+                        move |font| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TextEditorFont(font),
+                        ),
+                    ),
+                    pick_field(
+                        "Wrapping",
+                        TextWrapping::from(props.text_editor_wrapping),
+                        vec![
+                            TextWrapping::None,
+                            TextWrapping::Word,
+                            TextWrapping::Glyph,
+                            TextWrapping::WordOrGlyph,
+                        ],
+                        move |wrapping| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TextEditorWrapping(wrapping),
+                        ),
+                    ),
+                    // Relative line height runs in hundredths.
+                    field(
+                        "Line height",
+                        row![
+                            slider(
+                                0.8..=2.0,
+                                match props.text_editor_line_height {
+                                    text::LineHeight::Relative(value) => value,
+                                    _ => 1.0,
+                                },
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::TextEditorLineHeight(
+                                        text::LineHeight::Relative(
+                                            (value * 100.0).round() / 100.0,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .step(0.05)
+                            .width(FIELD_WIDTH - 55.0),
+                            text(match props.text_editor_line_height {
+                                text::LineHeight::Relative(value) => format!("{value:.2}"),
+                                _ => "1.00".into(),
+                            })
+                            .size(LABEL_SIZE)
+                            .width(50),
+                        ]
+                        .spacing(LABEL_SPACING)
+                        .align_y(Alignment::Center),
+                    ),
+                ]),
+                // The editor itself is full width: it is the content, not a
+                // setting, and a grid cell would make it unusable.
+                column![text("Content").size(LABEL_SIZE), editor].spacing(LABEL_SPACING),
             ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center)
-        ]
-        .spacing(LABEL_SPACING),
+            .spacing(SECTION_SPACING),
+        ),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             event_name_row(
                 theme,
                 "on_edit",
@@ -1232,9 +1059,7 @@ pub fn text_editor_controls<'a>(
             h,
             widget_id,
         ),
-        max_width_control(widget_id, props.max_width),
-        max_height_control(widget_id, props.max_height),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -1269,63 +1094,31 @@ pub fn checkbox_controls<'a>(
             views,
             type_system
         ),
-        column![
-            text("Label Text").size(LABEL_SIZE),
-            text_input("Label", &props.checkbox_label)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::CheckboxLabel(v)
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Checkbox Size").size(LABEL_SIZE),
-            row![
-                slider(12.0..=40.0, props.checkbox_size, move |v| {
+        section(
+            "Checkbox",
+            field_grid(vec![
+                text_field("Label", "Label", &props.checkbox_label, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::CheckboxLabel(v))
+                }),
+                slider_field("Size", 12.0..=40.0, props.checkbox_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::CheckboxSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.checkbox_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Label Spacing").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.checkbox_spacing, move |v| {
+                }),
+                slider_field("Label spacing", 0.0..=30.0, props.checkbox_spacing, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::CheckboxSpacing(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.checkbox_spacing))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        checkbox(props.checkbox_checked)
-            .label("Default Checked State")
-            .on_toggle(move |v| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::CheckboxChecked(v)
-            )),
-        column![
-            text("Events").size(SECTION_SIZE),
+                }),
+                toggle_field("Checked", props.checkbox_checked, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::CheckboxChecked(v))
+                }),
+            ]),
+        ),
+        section(
+            "Events",
             event_name_row(
                 theme,
                 "on_toggle",
                 "Fires when the checkbox checked state changes",
             ),
-        ]
-        .spacing(SECTION_SPACING),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -1368,63 +1161,27 @@ pub fn toggler_controls<'a>(
             views,
             type_system
         ),
-        column![
-            text("Label Text").size(LABEL_SIZE),
-            text_input("Label", &props.toggler_label)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TogglerLabel(v)
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Toggler Size").size(LABEL_SIZE),
-            row![
-                slider(12.0..=40.0, props.toggler_size, move |v| {
+        section(
+            "Toggler",
+            field_grid(vec![
+                text_field("Label", "Label", &props.toggler_label, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TogglerLabel(v))
+                }),
+                slider_field("Size", 12.0..=40.0, props.toggler_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TogglerSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.toggler_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Label Spacing").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.toggler_spacing, move |v| {
+                }),
+                slider_field("Label spacing", 0.0..=30.0, props.toggler_spacing, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TogglerSpacing(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.toggler_spacing))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        checkbox(props.toggler_active)
-            .label("Default Active State")
-            .on_toggle(move |v| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::TogglerActive(v)
-            )),
-        column![
-            text("Events").size(SECTION_SIZE),
-            event_name_row(
-                theme,
-                "on_toggle",
-                "Fires when the toggler switches on or off",
-            ),
-        ]
-        .spacing(SECTION_SPACING),
+                }),
+                toggle_field("Active", props.toggler_active, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TogglerActive(v))
+                }),
+            ]),
+        ),
+        section(
+            "Events",
+            event_name_row(theme, "on_toggle", "Fires when the toggler switches on or off"),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -1467,53 +1224,23 @@ pub fn radio_controls<'a>(
             views,
             type_system,
         ),
-        column![
-            text("Label Text").size(LABEL_SIZE),
-            text_input("Label", &props.radio_label)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::RadioLabel(v)
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        row![
-            column![
-                text("Radio Size").size(LABEL_SIZE),
-                row![
-                    slider(12.0..=40.0, props.radio_size, move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::RadioSize(v))
-                    })
-                    .step(1.0)
-                    .width(200),
-                    text(format!("{:.0}px", props.radio_size))
-                        .size(LABEL_SIZE)
-                        .width(50),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Label Spacing").size(LABEL_SIZE),
-                row![
-                    slider(0.0..=30.0, props.radio_spacing, move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::RadioSpacing(v))
-                    })
-                    .step(1.0)
-                    .width(200),
-                    text(format!("{:.0}px", props.radio_spacing))
-                        .size(LABEL_SIZE)
-                        .width(50),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
-            ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(SECTION_SPACING),
+        section(
+            "Radio",
+            field_grid(vec![
+                text_field("Label", "Label", &props.radio_label, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::RadioLabel(v))
+                }),
+                slider_field("Size", 12.0..=40.0, props.radio_size, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::RadioSize(v))
+                }),
+                slider_field("Label spacing", 0.0..=30.0, props.radio_spacing, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::RadioSpacing(v))
+                }),
+            ]),
+        ),
         column![
             text("Options").size(SECTION_SIZE),
+            rule::horizontal(1),
             column(
                 props
                     .radio_options
@@ -1632,31 +1359,36 @@ pub fn picklist_controls<'a>(
             ThemePaneEnum::Menu,
             PropertyChange::MenuStyle,
         ),
-        column![
-            text("Placeholder Text").size(LABEL_SIZE),
-            text_input("Placeholder", &props.picklist_placeholder)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::PickListPlaceholder(v)
-                ))
-                .width(250),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Default Selection").size(LABEL_SIZE),
-            pick_list(
-                props.picklist_selected.clone(),
-                props.picklist_options.clone(),
-                ToString::to_string,
-            )
-            .on_select(move |selection| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::PickListSelected(Some(selection))
-                )),
-        ]
-        .spacing(LABEL_SPACING),
+        section(
+            "Pick list",
+            field_grid(vec![
+                text_field(
+                    "Placeholder",
+                    "Placeholder",
+                    &props.picklist_placeholder,
+                    move |v| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::PickListPlaceholder(v),
+                    ),
+                ),
+                field(
+                    "Default selection",
+                    pick_list(
+                        props.picklist_selected.clone(),
+                        props.picklist_options.clone(),
+                        ToString::to_string,
+                    )
+                    .on_select(move |selection| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::PickListSelected(Some(selection)),
+                    ))
+                    .width(FIELD_WIDTH),
+                ),
+            ]),
+        ),
         column![
             text("Options").size(SECTION_SIZE),
+            rule::horizontal(1),
             column(
                 props
                     .picklist_options
@@ -1717,6 +1449,7 @@ pub fn picklist_controls<'a>(
         .spacing(SECTION_SPACING),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             event_name_row(theme, "on_select", "Fires when the user picks an option"),
         ]
         .spacing(SECTION_SPACING),
@@ -1767,92 +1500,76 @@ pub fn slider_controls<'a>(
             views,
             type_system,
         ),
-        row![
-            column![
-                text("Min").size(LABEL_SIZE),
-                text_input("min", min_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_min);
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Max").size(LABEL_SIZE),
-                text_input("max", max_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_max);
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Step").size(LABEL_SIZE),
-                text_input("step", step_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_step.max(0.000_001));
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::SliderStep(v.max(0.000_001)),
+        section(
+            "Range",
+            field_grid(vec![
+                text_field("Min", "min", min_str, move |s| {
+                    let v = parse_f32(&s, props.slider_min);
+                    Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
+                }),
+                text_field("Max", "max", max_str, move |s| {
+                    let v = parse_f32(&s, props.slider_max);
+                    Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
+                }),
+                text_field("Step", "step", step_str, move |s| {
+                    let v = parse_f32(&s, props.slider_step.max(0.000_001));
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SliderStep(v.max(0.000_001)),
+                    )
+                }),
+                // Not `slider_field`: the range and step are the project's, and
+                // a value of 0.001 wants more than the whole numbers that
+                // readout shows.
+                field(
+                    "Value",
+                    row![
+                        slider(
+                            props.slider_min..=props.slider_max,
+                            props.slider_value,
+                            move |val| Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::SliderValue(val)
+                            ),
                         )
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(SECTION_SPACING),
-        column![
-            text("Value").size(LABEL_SIZE),
-            row![
-                slider(
-                    props.slider_min..=props.slider_max,
-                    props.slider_value,
-                    move |val| {
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderValue(val))
-                    }
-                )
-                .step(props.slider_step.max(0.000_001))
-                .width(300),
-                text(format!("{:.3}", props.slider_value)).size(LABEL_SIZE),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Events").size(SECTION_SIZE),
-            event_name_row(
-                theme,
-                "on_change",
-                "Fires whenever the slider value changes"
-            ),
-        ]
-        .spacing(SECTION_SPACING),
-        column![
-            length_picker_scrollable_aware(
-                "Width (Length)",
-                props.width,
-                move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
-                hierarchy,
-                widget_id,
-                false
-            ),
+                        .step(props.slider_step.max(0.000_001))
+                        .width(FIELD_WIDTH - 55.0),
+                        text(format!("{:.3}", props.slider_value))
+                            .size(LABEL_SIZE)
+                            .width(50),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
+                ),
+            ]),
+        ),
+        section(
+            "Events",
+            event_name_row(theme, "on_change", "Fires whenever the slider value changes"),
+        ),
+        section(
+            "Size",
             column![
-                text("Height (Thickness)").size(LABEL_SIZE),
-                text_input("px", slider_height.clone())
-                    .on_input(move |s| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::SliderHeight(parse_f32(&s, props.slider_height)),
-                        )
-                    })
-                    .width(120)
+                length_picker_scrollable_aware(
+                    "Width (Length)",
+                    props.width,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+                    hierarchy,
+                    widget_id,
+                    false
+                ),
+                field_grid(vec![text_field(
+                    "Height (thickness)",
+                    "px",
+                    slider_height,
+                    move |s| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SliderHeight(parse_f32(&s, props.slider_height)),
+                    ),
+                )]),
             ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(SECTION_SPACING),
+            .spacing(SECTION_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -1892,92 +1609,73 @@ pub fn vertical_slider_controls<'a>(
             views,
             type_system,
         ),
-        row![
-            column![
-                text("Min").size(LABEL_SIZE),
-                text_input("min", min_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_min);
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Max").size(LABEL_SIZE),
-                text_input("max", max_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_max);
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Step").size(LABEL_SIZE),
-                text_input("step", step_str.clone())
-                    .on_input(move |s| {
-                        let v = parse_f32(&s, props.slider_step.max(0.000_001));
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::SliderStep(v.max(0.000_001)),
+        section(
+            "Range",
+            field_grid(vec![
+                text_field("Min", "min", min_str, move |s| {
+                    let v = parse_f32(&s, props.slider_min);
+                    Message::PropertyChanged(widget_id, PropertyChange::SliderMin(v))
+                }),
+                text_field("Max", "max", max_str, move |s| {
+                    let v = parse_f32(&s, props.slider_max);
+                    Message::PropertyChanged(widget_id, PropertyChange::SliderMax(v))
+                }),
+                text_field("Step", "step", step_str, move |s| {
+                    let v = parse_f32(&s, props.slider_step.max(0.000_001));
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SliderStep(v.max(0.000_001)),
+                    )
+                }),
+                field(
+                    "Value",
+                    row![
+                        slider(
+                            props.slider_min..=props.slider_max,
+                            props.slider_value,
+                            move |val| Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::SliderValue(val)
+                            ),
                         )
-                    })
-                    .width(120),
-            ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(SECTION_SPACING),
-        column![
-            text("Value").size(LABEL_SIZE),
-            row![
-                slider(
-                    props.slider_min..=props.slider_max,
-                    props.slider_value,
-                    move |val| {
-                        Message::PropertyChanged(widget_id, PropertyChange::SliderValue(val))
-                    }
-                )
-                .step(props.slider_step.max(0.000_001))
-                .width(300),
-                text(format!("{:.3}", props.slider_value)).size(LABEL_SIZE),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Events").size(SECTION_SIZE),
-            event_name_row(
-                theme,
-                "on_change",
-                "Fires whenever the slider value changes"
-            ),
-        ]
-        .spacing(SECTION_SPACING),
-        column![
-            length_picker_scrollable_aware(
-                "Height (Length)",
-                props.height,
-                move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
-                hierarchy,
-                widget_id,
-                true
-            ),
+                        .step(props.slider_step.max(0.000_001))
+                        .width(FIELD_WIDTH - 55.0),
+                        text(format!("{:.3}", props.slider_value))
+                            .size(LABEL_SIZE)
+                            .width(50),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
+                ),
+            ]),
+        ),
+        section(
+            "Events",
+            event_name_row(theme, "on_change", "Fires whenever the slider value changes"),
+        ),
+        section(
+            "Size",
             column![
-                text("Width (Thickness)").size(LABEL_SIZE),
-                text_input("px", slider_width.clone())
-                    .on_input(move |s| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::SliderWidth(parse_f32(&s, props.slider_width)),
-                        )
-                    })
-                    .width(120)
+                length_picker_scrollable_aware(
+                    "Height (Length)",
+                    props.height,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+                    hierarchy,
+                    widget_id,
+                    true
+                ),
+                field_grid(vec![text_field(
+                    "Width (thickness)",
+                    "px",
+                    slider_width,
+                    move |s| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SliderWidth(parse_f32(&s, props.slider_width)),
+                    ),
+                )]),
             ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(SECTION_SPACING),
+            .spacing(SECTION_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2000,49 +1698,61 @@ pub fn rule_controls<'a>(
     let content = column![
         text("Rule Properties").size(TITLE_SIZE),
         custom_style_picker(custom_styles, widget_id, p, ThemePaneEnum::Rule),
-        column![
-            text("Orientation").size(LABEL_SIZE),
-            pick_list(
-                Some(p.orientation),
-                vec![Orientation::Horizontal, Orientation::Vertical],
-                ToString::to_string,
-            )
-            .on_select(move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o)))
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Thickness").size(LABEL_SIZE),
-            row![
-                slider(0.5..=20.0, p.rule_thickness as f32, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::RuleThickness(v))
-                })
-                .step(0.5)
-                .width(200),
-                text(format!("{:.1}px", p.rule_thickness))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Quick Presets").size(LABEL_SIZE),
-            row([1.0_f32, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0]
-                .into_iter()
-                .map(|px| {
-                    button(text(format!("{px}px")))
-                        .on_press(Message::PropertyChanged(
+        section(
+            "Rule",
+            column![
+                field_grid(vec![
+                    pick_field(
+                        "Orientation",
+                        p.orientation,
+                        vec![Orientation::Horizontal, Orientation::Vertical],
+                        move |o| Message::PropertyChanged(
                             widget_id,
-                            PropertyChange::RuleThickness(px),
-                        ))
-                        .padding(6)
-                        .into()
-                })
-                .collect::<Vec<_>>())
-            .spacing(LABEL_SPACING)
-        ]
-        .spacing(LABEL_SPACING),
+                            PropertyChange::Orientation(o)
+                        ),
+                    ),
+                    // Half-pixel steps, so the shared whole-number readout of
+                    // `slider_field` would not say enough.
+                    field(
+                        "Thickness",
+                        row![
+                            slider(0.5..=20.0, p.rule_thickness, move |v| {
+                                Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::RuleThickness(v),
+                                )
+                            })
+                            .step(0.5)
+                            .width(FIELD_WIDTH - 55.0),
+                            text(format!("{:.1}", p.rule_thickness))
+                                .size(LABEL_SIZE)
+                                .width(50),
+                        ]
+                        .spacing(LABEL_SPACING)
+                        .align_y(Alignment::Center),
+                    ),
+                ]),
+                column![
+                    text("Quick presets").size(LABEL_SIZE),
+                    row([1.0_f32, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0]
+                        .into_iter()
+                        .map(|px| {
+                            button(text(format!("{px}px")))
+                                .on_press(Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::RuleThickness(px),
+                                ))
+                                .padding(6)
+                                .into()
+                        })
+                        .collect::<Vec<_>>())
+                    .spacing(LABEL_SPACING)
+                    .wrap(),
+                ]
+                .spacing(LABEL_SPACING),
+            ]
+            .spacing(SECTION_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2073,50 +1783,38 @@ pub fn scrollable_controls<'a>(
             hierarchy,
             widget_id,
         ),
-        column![
-            text("Direction").size(LABEL_SIZE),
-            pick_list(
-                Some(DirChoice::to_choice(props.scroll_dir)),
-                vec![DirChoice::Vertical, DirChoice::Horizontal, DirChoice::Both],
-                ToString::to_string,
-            )
-            .on_select(move |c| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::ScrollableDirection(DirChoice::from_choice(c))
-                ))
-        ]
-        .spacing(LABEL_SPACING),
-        row![
-            column![
-                text("Anchor X").size(LABEL_SIZE),
-                pick_list(
-                    Some(AnchorChoice::from(props.anchor_x)),
-                    vec![AnchorChoice::Start, AnchorChoice::End],
-                    ToString::to_string,
-                )
-                .on_select(move |a| Message::PropertyChanged(
+        section(
+            "Scrolling",
+            field_grid(vec![
+                pick_field(
+                    "Direction",
+                    DirChoice::to_choice(props.scroll_dir),
+                    vec![DirChoice::Vertical, DirChoice::Horizontal, DirChoice::Both],
+                    move |c| Message::PropertyChanged(
                         widget_id,
-                        PropertyChange::ScrollableAnchorX(AnchorChoice::from_anchor(a))
-                    ))
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-            column![
-                text("Anchor Y").size(LABEL_SIZE),
-                pick_list(
-                    Some(AnchorChoice::from(props.anchor_y)),
+                        PropertyChange::ScrollableDirection(DirChoice::from_choice(c)),
+                    ),
+                ),
+                pick_field(
+                    "Anchor X",
+                    AnchorChoice::from(props.anchor_x),
                     vec![AnchorChoice::Start, AnchorChoice::End],
-                    ToString::to_string,
-                )
-                .on_select(move |a| Message::PropertyChanged(
+                    move |a| Message::PropertyChanged(
                         widget_id,
-                        PropertyChange::ScrollableAnchorY(AnchorChoice::from_anchor(a))
-                    ))
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
+                        PropertyChange::ScrollableAnchorX(AnchorChoice::from_anchor(a)),
+                    ),
+                ),
+                pick_field(
+                    "Anchor Y",
+                    AnchorChoice::from(props.anchor_y),
+                    vec![AnchorChoice::Start, AnchorChoice::End],
+                    move |a| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ScrollableAnchorY(AnchorChoice::from_anchor(a)),
+                    ),
+                ),
+            ]),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2139,17 +1837,15 @@ pub fn space_controls<'a>(
     let content = column![
         text("Space Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Orientation").size(LABEL_SIZE),
-            pick_list(
-                Some(props.orientation),
+        section(
+            "Space",
+            field_grid(vec![pick_field(
+                "Orientation",
+                props.orientation,
                 vec![Orientation::Horizontal, Orientation::Vertical],
-                ToString::to_string,
-            )
-            .on_select(move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o))),
-            checkbox(props.show_widget_bounds).label("Show Bounds")
-        ]
-        .spacing(LABEL_SPACING),
+                move |o| Message::PropertyChanged(widget_id, PropertyChange::Orientation(o)),
+            )]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -2187,21 +1883,32 @@ pub fn progress_controls<'a>(
         widget_name(widget_id, &p.widget_name),
         custom_style_picker(custom_styles, widget_id, p, ThemePaneEnum::Progressbar),
         conditional_style_section(widget_id, p, theme, view_id, h.root(), views, type_system),
-        row![
-            text("Orientation")
-                .size(LABEL_SIZE)
-                .width(Length::Fixed(80.0)),
-            radio("Horizontal", false, Some(p.progress_vertical), move |_| {
-                Message::PropertyChanged(widget_id, PropertyChange::ProgressVertical(false))
-            }),
-            radio("Vertical", true, Some(p.progress_vertical), move |_| {
-                Message::PropertyChanged(widget_id, PropertyChange::ProgressVertical(true))
-            }),
-        ]
-        .spacing(SECTION_SPACING)
-        .align_y(Alignment::Center),
-        if p.progress_vertical {
+        section(
+            "Bar",
             column![
+                field_grid(vec![
+                    toggle_field("Vertical", p.progress_vertical, move |vertical| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::ProgressVertical(vertical),
+                        )
+                    }),
+                    // Girth is the axis the bar does *not* run along, so which
+                    // dimension it is follows the orientation.
+                    text_field(
+                        if p.progress_vertical {
+                            "Girth (width)"
+                        } else {
+                            "Girth (height)"
+                        },
+                        "px",
+                        girth_str,
+                        move |s| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::ProgressGirth(parse_f32(&s, p.progress_girth)),
+                        ),
+                    ),
+                ]),
                 length_picker_scrollable_aware(
                     "Length",
                     p.progress_length,
@@ -2211,98 +1918,39 @@ pub fn progress_controls<'a>(
                     ),
                     h,
                     widget_id,
-                    true
+                    p.progress_vertical,
                 ),
-                column![
-                    text("Girth (Width)").size(LABEL_SIZE),
-                    text_input("px", girth_str.clone())
-                        .on_input(move |s| {
-                            Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::ProgressGirth(parse_f32(&s, p.progress_girth)),
-                            )
-                        })
-                        .width(120)
-                ]
-                .spacing(LABEL_SPACING),
             ]
-            .spacing(SECTION_SPACING)
-        } else {
-            column![
-                length_picker_scrollable_aware(
-                    "Length",
-                    p.progress_length,
-                    move |len| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::ProgressLength(len)
-                    ),
-                    h,
-                    widget_id,
-                    false
+            .spacing(SECTION_SPACING),
+        ),
+        section(
+            "Range",
+            field_grid(vec![
+                text_field("Min", "min", format!("{}", p.progress_min), move |s| {
+                    let v = s.trim().parse::<f32>().unwrap_or(p.progress_min);
+                    Message::PropertyChanged(widget_id, PropertyChange::ProgressMin(v))
+                }),
+                text_field("Max", "max", format!("{}", p.progress_max), move |s| {
+                    let v = s.trim().parse::<f32>().unwrap_or(p.progress_max);
+                    Message::PropertyChanged(widget_id, PropertyChange::ProgressMax(v))
+                }),
+                field(
+                    "Value",
+                    row![
+                        slider(p.progress_min..=p.progress_max, p.progress_value, move |v| {
+                            Message::PropertyChanged(widget_id, PropertyChange::ProgressValue(v))
+                        })
+                        .step(clamp_step)
+                        .width(FIELD_WIDTH - 55.0),
+                        text(format!("{:.02}", p.progress_value))
+                            .size(LABEL_SIZE)
+                            .width(50),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
                 ),
-                column![
-                    text("Girth (Height)").size(LABEL_SIZE),
-                    text_input("px", girth_str.clone())
-                        .on_input(move |s| {
-                            Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::ProgressGirth(parse_f32(&s, p.progress_girth)),
-                            )
-                        })
-                        .width(120)
-                ]
-                .spacing(LABEL_SPACING),
-            ]
-            .spacing(SECTION_SPACING)
-        },
-        column![
-            text("Range").size(SECTION_SIZE),
-            row![
-                column![
-                    text("Min").size(LABEL_SIZE),
-                    text_input("min", format!("{}", p.progress_min))
-                        .on_input(move |s| {
-                            let v = s.trim().parse::<f32>().unwrap_or(p.progress_min);
-                            Message::PropertyChanged(widget_id, PropertyChange::ProgressMin(v))
-                        })
-                        .width(120)
-                ]
-                .spacing(LABEL_SPACING),
-                column![
-                    text("Max").size(LABEL_SIZE),
-                    text_input("max", format!("{}", p.progress_max))
-                        .on_input(move |s| {
-                            let v = s.trim().parse::<f32>().unwrap_or(p.progress_max);
-                            Message::PropertyChanged(widget_id, PropertyChange::ProgressMax(v))
-                        })
-                        .width(120)
-                ]
-                .spacing(LABEL_SPACING),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Value").size(LABEL_SIZE),
-            row![
-                slider(
-                    p.progress_min..=p.progress_max,
-                    p.progress_value,
-                    move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::ProgressValue(v))
-                    }
-                )
-                .step(clamp_step)
-                .width(250),
-                text(format!("{:.02}", p.progress_value))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+            ]),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2325,32 +1973,17 @@ pub fn image_controls<'a>(
     let content = column![
         text("Image Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        row![
-            text("Path").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            text_input("assets/pic.png", &props.image_path)
-                .on_input(move |s| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::ImagePath(s)
-                ))
-                .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
-        row![
-            text("Fit").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            pick_list(
-                Some(props.image_fit),
-                vec![
-                    ContentFitChoice::Contain,
-                    ContentFitChoice::Cover,
-                    ContentFitChoice::Fill,
-                    ContentFitChoice::ScaleDown,
-                    ContentFitChoice::None,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::ImageFit(v)))
-        ]
-        .spacing(SECTION_SPACING),
+        section(
+            "Image",
+            field_grid(vec![
+                text_field("Path", "assets/pic.png", &props.image_path, move |s| {
+                    Message::PropertyChanged(widget_id, PropertyChange::ImagePath(s))
+                }),
+                pick_field("Fit", props.image_fit, ContentFitChoice::ALL, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::ImageFit(v))
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -2381,29 +2014,17 @@ pub fn svg_controls<'a>(
     let content = column![
         text("SVG Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        row![
-            text("Path").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            text_input("assets/icon.svg", &props.svg_path)
-                .on_input(move |s| Message::PropertyChanged(widget_id, PropertyChange::SvgPath(s)))
-                .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
-        row![
-            text("Fit").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            pick_list(
-                Some(props.svg_fit),
-                vec![
-                    ContentFitChoice::Contain,
-                    ContentFitChoice::Cover,
-                    ContentFitChoice::Fill,
-                    ContentFitChoice::ScaleDown,
-                    ContentFitChoice::None,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |v| Message::PropertyChanged(widget_id, PropertyChange::SvgFit(v)))
-        ]
-        .spacing(SECTION_SPACING),
+        section(
+            "SVG",
+            field_grid(vec![
+                text_field("Path", "assets/icon.svg", &props.svg_path, move |s| {
+                    Message::PropertyChanged(widget_id, PropertyChange::SvgPath(s))
+                }),
+                pick_field("Fit", props.svg_fit, ContentFitChoice::ALL, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::SvgFit(v))
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -2434,46 +2055,36 @@ pub fn tooltip_controls<'a>(
     let content = column![
         text("Tooltip Properties").size(TITLE_SIZE),
         widget_name(widget_id, &p.widget_name),
-        row![
-            text("Text").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            text_input("Tooltip text", &p.tooltip_text)
-                .on_input(move |s| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TooltipText(s)
-                ))
-                .width(Length::Fill),
-        ]
-        .spacing(SECTION_SPACING),
-        row![
-            text("Position").size(LABEL_SIZE).width(Length::Fixed(80.0)),
-            pick_list(
-                Some(p.tooltip_position),
-                vec![
-                    TooltipPosition::Top,
-                    TooltipPosition::Bottom,
-                    TooltipPosition::Left,
-                    TooltipPosition::Right
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |pos| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TooltipPosition(pos)
-                ))
-        ]
-        .spacing(SECTION_SPACING),
-        column![
-            text("Tip: Tooltip wraps two children. Add them under it in the tree.")
+        section(
+            "Tooltip",
+            column![
+                field_grid(vec![
+                    text_field("Text", "Tooltip text", &p.tooltip_text, move |s| {
+                        Message::PropertyChanged(widget_id, PropertyChange::TooltipText(s))
+                    }),
+                    pick_field(
+                        "Position",
+                        p.tooltip_position,
+                        vec![
+                            TooltipPosition::Top,
+                            TooltipPosition::Bottom,
+                            TooltipPosition::Left,
+                            TooltipPosition::Right,
+                        ],
+                        move |pos| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::TooltipPosition(pos)
+                        ),
+                    ),
+                ]),
+                text(
+                    "Tooltip wraps two children, added under it in the tree: the \n                     first is what you hover, the second is what it shows."
+                )
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.6, 0.6, 0.6)),
-            text("1st child is the element you hover")
-                .size(LABEL_SIZE)
-                .color(Color::from_rgb(0.6, 0.6, 0.6)),
-            text("2nd child is the tooltip content")
-                .size(LABEL_SIZE)
-                .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        ]
-        .spacing(LABEL_SPACING),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2525,34 +2136,26 @@ pub fn combobox_controls<'a>(
             ),
         ]
         .spacing(MAIN_SPACING),
-        column![
-            text("Placeholder Text").size(LABEL_SIZE),
-            text_input("Placeholder", &props.combobox_placeholder)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::ComboBoxPlaceholder(v)
-                ))
-                .width(300),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Font Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=32.0, props.combobox_size, move |v| {
+        section(
+            "Combo box",
+            field_grid(vec![
+                text_field(
+                    "Placeholder",
+                    "Placeholder",
+                    &props.combobox_placeholder,
+                    move |v| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ComboBoxPlaceholder(v),
+                    ),
+                ),
+                slider_field("Font size", 8.0..=32.0, props.combobox_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::ComboBoxSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.combobox_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+                }),
+            ]),
+        ),
         column![
             text("Data Source").size(SECTION_SIZE),
+            rule::horizontal(1),
             column![
                 radio(
                     "Custom Options (strings)",
@@ -2620,7 +2223,7 @@ pub fn combobox_controls<'a>(
                             text(format!("Variants: {}", enum_def.variants.len()))
                                 .size(LABEL_SIZE)
                                 .color(Color::from_rgb(0.5, 0.5, 0.5)),
-                            scrollable(
+                            scroll_y(
                                 column(
                                     enum_def
                                         .variants
@@ -2654,6 +2257,7 @@ pub fn combobox_controls<'a>(
         } else {
             column![
                 text("Custom Options").size(SECTION_SIZE),
+                rule::horizontal(1),
                 column(
                     props
                         .combobox_options
@@ -2713,6 +2317,7 @@ pub fn combobox_controls<'a>(
         },
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             column![
                 event_checkbox_row(
                     theme,
@@ -2778,79 +2383,67 @@ pub fn combobox_controls<'a>(
                 },
             );
 
-            column![
-                text("Icon").size(SECTION_SIZE),
-                checkbox(props.combobox_icon_enabled)
-                    .label("Enable Icon")
-                    .on_toggle(move |v| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::ComboBoxIconEnabled(v)
-                    )),
-                if props.combobox_icon_enabled {
-                    column![
-                        column![text("Icon").size(LABEL_SIZE), picker,].spacing(LABEL_SPACING),
-                        column![
-                            text("Side").size(LABEL_SIZE),
-                            pick_list(
-                                Some(props.combobox_icon_side),
+            section(
+                "Icon",
+                column![
+                    checkbox(props.combobox_icon_enabled)
+                        .label("Show an icon")
+                        .on_toggle(move |v| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::ComboBoxIconEnabled(v)
+                        )),
+                    if props.combobox_icon_enabled {
+                        field_grid(vec![
+                            field("Icon", picker),
+                            pick_field(
+                                "Side",
+                                props.combobox_icon_side,
                                 vec![TextInputIconSide::Left, TextInputIconSide::Right],
-                                ToString::to_string,
-                            )
-                            .on_select(move |v| Message::PropertyChanged(
+                                move |v| Message::PropertyChanged(
                                     widget_id,
-                                    PropertyChange::ComboBoxIconSide(v)
-                                )),
-                        ]
-                        .spacing(LABEL_SPACING),
-                        column![
-                            text("Icon Size (0 = auto)").size(LABEL_SIZE),
-                            row![
-                                slider(0.0..=64.0, props.combobox_icon_size, move |v| {
-                                    Message::PropertyChanged(
-                                        widget_id,
-                                        PropertyChange::ComboBoxIconSize(v),
-                                    )
-                                })
-                                .step(1.0)
-                                .width(180),
-                                text(if props.combobox_icon_size > 0.0 {
-                                    format!("{:.0}px", props.combobox_icon_size)
-                                } else {
-                                    "auto".to_string()
-                                })
-                                .size(LABEL_SIZE)
-                                .width(50),
-                            ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING),
-                        column![
-                            text("Spacing").size(LABEL_SIZE),
-                            row![
-                                slider(0.0..=30.0, props.combobox_icon_spacing, move |v| {
-                                    Message::PropertyChanged(
-                                        widget_id,
-                                        PropertyChange::ComboBoxIconSpacing(v),
-                                    )
-                                })
-                                .step(1.0)
-                                .width(180),
-                                text(format!("{:.0}px", props.combobox_icon_spacing))
+                                    PropertyChange::ComboBoxIconSide(v),
+                                ),
+                            ),
+                            // Zero means "take the field's own size", which a
+                            // bare number would not say.
+                            field(
+                                "Size",
+                                row![
+                                    slider(0.0..=64.0, props.combobox_icon_size, move |v| {
+                                        Message::PropertyChanged(
+                                            widget_id,
+                                            PropertyChange::ComboBoxIconSize(v),
+                                        )
+                                    })
+                                    .step(1.0)
+                                    .width(FIELD_WIDTH - 55.0),
+                                    text(if props.combobox_icon_size > 0.0 {
+                                        format!("{:.0}", props.combobox_icon_size)
+                                    } else {
+                                        "auto".to_string()
+                                    })
                                     .size(LABEL_SIZE)
                                     .width(50),
-                            ]
-                            .spacing(SECTION_SPACING)
-                            .align_y(Alignment::Center),
-                        ]
-                        .spacing(LABEL_SPACING),
-                    ]
-                    .spacing(SECTION_SPACING)
-                } else {
-                    column![]
-                },
-            ]
-            .spacing(SECTION_SPACING)
+                                ]
+                                .spacing(LABEL_SPACING)
+                                .align_y(Alignment::Center),
+                            ),
+                            slider_field(
+                                "Spacing",
+                                0.0..=30.0,
+                                props.combobox_icon_spacing,
+                                move |v| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::ComboBoxIconSpacing(v),
+                                ),
+                            ),
+                        ])
+                    } else {
+                        nothing()
+                    },
+                ]
+                .spacing(SECTION_SPACING),
+            )
         },
         size_controls_scrollable_aware(
             props.width,
@@ -2894,22 +2487,18 @@ pub fn markdown_controls<'a>(
                 .width(350.0),
         ]
         .spacing(LABEL_SPACING),
-        column![
-            text("Text Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=32.0, props.markdown_text_size, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::MarkdownTextSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.markdown_text_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+        section(
+            "Markdown",
+            field_grid(vec![slider_field(
+                "Text size",
+                8.0..=32.0,
+                props.markdown_text_size,
+                move |v| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::MarkdownTextSize(v)
+                ),
+            )]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -2940,32 +2529,17 @@ pub fn qrcode_controls<'a>(
     let content = column![
         text("QR Code Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Data to Encode").size(LABEL_SIZE),
-            text_input("Data", &props.qrcode_link)
-                .on_input(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::QRCodeData(v)
-                ))
-                .width(350),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Cell Size").size(LABEL_SIZE),
-            row![
-                slider(1.0..=20.0, props.qrcode_cell_size as f32, move |v| {
+        section(
+            "QR Code",
+            field_grid(vec![
+                text_field("Data", "Data", &props.qrcode_link, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::QRCodeData(v))
+                }),
+                slider_field("Cell size", 1.0..=20.0, props.qrcode_cell_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::QRCodeCellSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{}px", props.qrcode_cell_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+                }),
+            ]),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -2988,12 +2562,14 @@ pub fn stack_controls<'a>(
     let content = column![
         text("Stack Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Stack overlays its children on top of each other.")
+        section(
+            "Stack",
+            text(
+                "Stack overlays its children on top of each other: the first \n                 child is at the bottom, the last is on top."
+            )
             .size(LABEL_SIZE)
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        text("The first child is at the bottom, last child is on top.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -3046,89 +2622,56 @@ pub fn collapsible_controls<'a>(
         )
         .size(LABEL_SIZE)
         .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        column![
-            text("Title").size(LABEL_SIZE),
-            text_input("Collapsible", &props.collapsible_title)
-                .on_input(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::CollapsibleTitle(value)
-                ))
-                .width(300),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Header Height").size(LABEL_SIZE),
-            row![
-                slider(24.0..=80.0, props.collapsible_header_height, move |value| {
-                    Message::PropertyChanged(
+        section(
+            "Header",
+            field_grid(vec![
+                text_field("Title", "Collapsible", &props.collapsible_title, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::CollapsibleTitle(value))
+                }),
+                slider_field(
+                    "Height",
+                    24.0..=80.0,
+                    props.collapsible_header_height,
+                    move |value| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::CollapsibleHeaderHeight(value),
-                    )
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.collapsible_header_height))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Title Alignment").size(LABEL_SIZE),
-            pick_list(
-                Some(props.align_x),
-                vec![
-                    ContainerAlignX::Left,
-                    ContainerAlignX::Center,
-                    ContainerAlignX::Right,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |value| Message::PropertyChanged(widget_id, PropertyChange::AlignX(value)))
-            .width(200),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Title Font Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=32.0, props.text_size, move |value| {
+                    ),
+                ),
+                pick_field(
+                    "Title alignment",
+                    props.align_x,
+                    vec![
+                        ContainerAlignX::Left,
+                        ContainerAlignX::Center,
+                        ContainerAlignX::Right,
+                    ],
+                    move |value| Message::PropertyChanged(widget_id, PropertyChange::AlignX(value)),
+                ),
+                slider_field("Title size", 8.0..=32.0, props.text_size, move |value| {
                     Message::PropertyChanged(widget_id, PropertyChange::TextSize(value))
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.text_size))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Title Font").size(LABEL_SIZE),
-            pick_list(
-                Some(props.font),
-                vec![FontType::Default, FontType::Monospace],
-                ToString::to_string,
-            )
-            .on_select(move |value| Message::PropertyChanged(widget_id, PropertyChange::Font(value)))
-            .width(200),
-        ]
-        .spacing(LABEL_SPACING),
-        checkbox(props.collapsible_header_clickable)
-            .label("Header is clickable")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::CollapsibleHeaderClickable(value)
-            )),
-        checkbox(props.collapsible_expanded)
-            .label("Start expanded")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::CollapsibleExpanded(value)
-            )),
+                }),
+                pick_field(
+                    "Title font",
+                    props.font,
+                    vec![FontType::Default, FontType::Monospace],
+                    move |value| Message::PropertyChanged(widget_id, PropertyChange::Font(value)),
+                ),
+                toggle_field(
+                    "Header clickable",
+                    props.collapsible_header_clickable,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::CollapsibleHeaderClickable(value),
+                    ),
+                ),
+                toggle_field("Start expanded", props.collapsible_expanded, move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::CollapsibleExpanded(value),
+                    )
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -3138,35 +2681,39 @@ pub fn collapsible_controls<'a>(
             widget_id,
         ),
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        column![
-            text("Style").size(LABEL_SIZE),
-            pick_list(
-                props.custom_style_name.clone(),
-                style_options.clone(),
-                ToString::to_string,
-            )
-            .on_select(move |selection| {
-                    Message::PropertyChanged(
+        section(
+            "Style",
+            field_grid(vec![
+                field(
+                    "Style",
+                    pick_list(
+                        props.custom_style_name.clone(),
+                        style_options.clone(),
+                        ToString::to_string,
+                    )
+                    .on_select(move |selection| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::CustomStyle(Some(selection)),
+                    ))
+                    .placeholder("default")
+                    .width(FIELD_WIDTH),
+                ),
+                field(
+                    "Alternate style",
+                    pick_list(
+                        props.active_style_name.clone(),
+                        style_options,
+                        ToString::to_string,
                     )
-                })
-            .placeholder("default"),
-            text("Alternate style").size(LABEL_SIZE),
-            pick_list(
-                props.active_style_name.clone(),
-                style_options,
-                ToString::to_string,
-            )
-            .on_select(move |selection| {
-                    Message::PropertyChanged(
+                    .on_select(move |selection| Message::PropertyChanged(
                         widget_id,
                         PropertyChange::ActiveStyle(Some(selection)),
-                    )
-                })
-            .placeholder("none"),
-        ]
-        .spacing(LABEL_SPACING),
+                    ))
+                    .placeholder("none")
+                    .width(FIELD_WIDTH),
+                ),
+            ]),
+        ),
         conditional_style_section(
             widget_id,
             props,
@@ -3198,9 +2745,26 @@ pub fn collapsible_group_controls<'a>(
     let content = column![
         text("Collapsible Group Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Collapsible Group uses the real accordion widget and only accepts Collapsible children.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        section(
+            "Group",
+            column![
+                text(
+                    "An accordion of Collapsible children; it accepts no other \n                     kind of child."
+                )
+                .size(LABEL_SIZE)
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(vec![slider_field(
+                    "Spacing",
+                    0.0..=32.0,
+                    props.spacing,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::Spacing(value)
+                    ),
+                )]),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -3209,22 +2773,6 @@ pub fn collapsible_group_controls<'a>(
             h,
             widget_id,
         ),
-        column![
-            text("Spacing").size(LABEL_SIZE),
-            row![
-                slider(0.0..=32.0, props.spacing, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::Spacing(value))
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.spacing))
-                    .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -3902,136 +3450,69 @@ pub fn date_picker_controls<'a>(
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
-    let mode_controls = column![
-        text("Selection Mode").size(LABEL_SIZE),
-        pick_list(
-            Some(props.date_picker_mode),
-            vec![
-                DatePickerSelectionMode::Single,
-                DatePickerSelectionMode::Range,
-            ],
-            ToString::to_string,
-        )
-        .on_select(move |value| Message::PropertyChanged(
+    // Single mode has one date; range mode has two.
+    let initial_selection_fields: Vec<Element<'a, Message>> = match props.date_picker_mode {
+        DatePickerSelectionMode::Single => vec![text_field(
+            "Initial date",
+            "YYYY-MM-DD",
+            &props.date_picker_initial_single_date,
+            move |value| Message::PropertyChanged(
                 widget_id,
-                PropertyChange::DatePickerSelectionMode(value),
-            ))
-        .width(180),
-    ]
-    .spacing(LABEL_SPACING);
-
-    let initial_selection_controls: Element<'a, Message> = match props.date_picker_mode {
-        DatePickerSelectionMode::Single => column![
-            text("Initial Date").size(LABEL_SIZE),
-            text_input("YYYY-MM-DD", &props.date_picker_initial_single_date)
-                .on_input(move |value| Message::PropertyChanged(
+                PropertyChange::DatePickerInitialSingleDate(value),
+            ),
+        )],
+        DatePickerSelectionMode::Range => vec![
+            text_field(
+                "Range start",
+                "YYYY-MM-DD",
+                &props.date_picker_initial_range_start,
+                move |value| Message::PropertyChanged(
                     widget_id,
-                    PropertyChange::DatePickerInitialSingleDate(value),
-                ))
-                .width(220),
-        ]
-        .spacing(LABEL_SPACING)
-        .into(),
-        DatePickerSelectionMode::Range => row![
-            column![
-                text("Range Start").size(LABEL_SIZE),
-                text_input("YYYY-MM-DD", &props.date_picker_initial_range_start)
-                    .on_input(move |value| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::DatePickerInitialRangeStart(value),
-                    ))
-                    .width(180),
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-            column![
-                text("Range End").size(LABEL_SIZE),
-                text_input("YYYY-MM-DD", &props.date_picker_initial_range_end)
-                    .on_input(move |value| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::DatePickerInitialRangeEnd(value),
-                    ))
-                    .width(180),
-            ]
-            .spacing(LABEL_SPACING)
-            .width(Length::Fill),
-        ]
-        .spacing(MAIN_SPACING)
-        .into(),
+                    PropertyChange::DatePickerInitialRangeStart(value),
+                ),
+            ),
+            text_field(
+                "Range end",
+                "YYYY-MM-DD",
+                &props.date_picker_initial_range_end,
+                move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DatePickerInitialRangeEnd(value),
+                ),
+            ),
+        ],
     };
 
     let time_controls: Element<'a, Message> = if props.date_picker_show_time {
-        column![
-            text("Initial Time").size(SECTION_SIZE),
-            column![
-                text("Hour").size(LABEL_SIZE),
-                row![
-                    slider(
-                        0.0..=23.0,
-                        props.date_picker_initial_hour as f32,
-                        move |value| {
-                            Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::DatePickerInitialHour(value.round() as u32),
-                            )
-                        }
-                    )
-                    .step(1.0)
-                    .width(220),
-                    text(format!("{:02}", props.date_picker_initial_hour))
-                        .size(LABEL_SIZE)
-                        .width(40),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
-            ]
-            .spacing(LABEL_SPACING),
-            column![
-                text("Minute").size(LABEL_SIZE),
-                row![
-                    slider(
-                        0.0..=59.0,
-                        props.date_picker_initial_minute as f32,
-                        move |value| {
-                            Message::PropertyChanged(
-                                widget_id,
-                                PropertyChange::DatePickerInitialMinute(value.round() as u32),
-                            )
-                        }
-                    )
-                    .step(1.0)
-                    .width(220),
-                    text(format!("{:02}", props.date_picker_initial_minute))
-                        .size(LABEL_SIZE)
-                        .width(40),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
-            ]
-            .spacing(LABEL_SPACING),
-        ]
-        .spacing(MAIN_SPACING)
-        .into()
+        section(
+            "Initial time",
+            field_grid(vec![
+                slider_field(
+                    "Hour",
+                    0.0..=23.0,
+                    props.date_picker_initial_hour as f32,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DatePickerInitialHour(value.round() as u32),
+                    ),
+                ),
+                slider_field(
+                    "Minute",
+                    0.0..=59.0,
+                    props.date_picker_initial_minute as f32,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DatePickerInitialMinute(value.round() as u32),
+                    ),
+                ),
+            ]),
+        )
     } else {
-        column![].into()
+        nothing()
     };
-
     let content = column![
         text("Date Picker Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Trigger Text").size(LABEL_SIZE),
-            text_input("Select a date", &props.text_content)
-                .on_input(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::TextContent(value),
-                ))
-                .width(260),
-            text("Used until the picker has a selected date.")
-                .size(LABEL_SIZE - 1.0)
-                .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        ]
-        .spacing(LABEL_SPACING),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
         conditional_style_section(
             widget_id,
@@ -4042,20 +3523,64 @@ pub fn date_picker_controls<'a>(
             views,
             type_system
         ),
-        mode_controls,
-        checkbox(props.date_picker_show_time)
-            .label("Include time selection")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::DatePickerShowTime(value),
-            )),
-        checkbox(props.date_picker_initially_open)
-            .label("Start open")
-            .on_toggle(move |value| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::DatePickerInitiallyOpen(value),
-            )),
-        initial_selection_controls,
+        section(
+            "Picker",
+            column![
+                field_grid(
+                    [
+                        vec![
+                            text_field(
+                                "Trigger text",
+                                "Select a date",
+                                &props.text_content,
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::TextContent(value),
+                                ),
+                            ),
+                            pick_field(
+                                "Mode",
+                                props.date_picker_mode,
+                                vec![
+                                    DatePickerSelectionMode::Single,
+                                    DatePickerSelectionMode::Range,
+                                ],
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::DatePickerSelectionMode(value),
+                                ),
+                            ),
+                        ],
+                        initial_selection_fields,
+                        vec![
+                            toggle_field(
+                                "Include time",
+                                props.date_picker_show_time,
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::DatePickerShowTime(value),
+                                ),
+                            ),
+                            toggle_field(
+                                "Start open",
+                                props.date_picker_initially_open,
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::DatePickerInitiallyOpen(value),
+                                ),
+                            ),
+                        ],
+                    ]
+                    .into_iter()
+                    .flatten()
+                    .collect()
+                ),
+                text("The trigger text is used until the picker has a selected date.")
+                    .size(LABEL_SIZE - 1.0)
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
         time_controls,
         size_controls_scrollable_aware(
             props.width,
@@ -4066,7 +3591,7 @@ pub fn date_picker_controls<'a>(
             widget_id,
         ),
         padding_controls(props.padding, widget_id, props.padding_mode, theme,),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4095,104 +3620,81 @@ pub fn split_controls<'a>(
         SplitStrategy::End => "End Pane Size",
     };
 
-    let position_controls: Element<'a, Message> = match props.split_strategy {
-        SplitStrategy::Relative => column![
-            text(position_label).size(LABEL_SIZE),
+    // Relative splits run 0..1 and want two decimals; the pixel strategies
+    // run to the pane size and want none.
+    let position_field: Element<'a, Message> = match props.split_strategy {
+        SplitStrategy::Relative => field(
+            position_label,
             row![
                 slider(0.0..=1.0, props.split_at, move |value| {
                     Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value))
                 })
                 .step(0.01)
-                .width(220),
+                .width(FIELD_WIDTH - 55.0),
                 text(format!("{:.2}", props.split_at))
                     .size(LABEL_SIZE)
-                    .width(60),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING)
-        .into(),
-        SplitStrategy::Start | SplitStrategy::End => {
-            let slider_max = props.split_at.max(800.0).ceil();
-            column![
-                text(position_label).size(LABEL_SIZE),
-                row![
-                    slider(0.0..=slider_max, props.split_at, move |value| {
-                        Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value))
-                    })
-                    .step(1.0)
-                    .width(220),
-                    text(format!("{:.0}px", props.split_at))
-                        .size(LABEL_SIZE)
-                        .width(60),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center),
+                    .width(50),
             ]
             .spacing(LABEL_SPACING)
-            .into()
-        }
+            .align_y(Alignment::Center),
+        ),
+        SplitStrategy::Start | SplitStrategy::End => slider_field(
+            position_label,
+            0.0..=props.split_at.max(800.0).ceil(),
+            props.split_at,
+            move |value| Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value)),
+        ),
     };
 
     let content = column![
         text("Split Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Split lays out exactly two child panes with a draggable divider.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        text(pane_hint)
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        column![
-            text("Orientation").size(LABEL_SIZE),
-            pick_list(
-                Some(props.orientation),
-                vec![Orientation::Vertical, Orientation::Horizontal],
-                ToString::to_string,
-            )
-            .on_select(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::Orientation(value)
+        section(
+            "Split",
+            column![
+                text(format!(
+                    "Split lays out exactly two child panes with a draggable \
+                     divider. {pane_hint}"
                 ))
-            .width(180),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Sizing Strategy").size(LABEL_SIZE),
-            pick_list(
-                Some(props.split_strategy),
-                vec![
-                    SplitStrategy::Relative,
-                    SplitStrategy::Start,
-                    SplitStrategy::End,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |value| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::SplitStrategy(value)
-                ))
-            .width(180),
-        ]
-        .spacing(LABEL_SPACING),
-        position_controls,
-        column![
-            text("Handle Width").size(LABEL_SIZE),
-            row![
-                slider(1.0..=32.0, props.split_handle_width, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::SplitHandleWidth(value))
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.split_handle_width))
-                    .size(LABEL_SIZE)
-                    .width(60),
+                .size(LABEL_SIZE)
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(vec![
+                    pick_field(
+                        "Orientation",
+                        props.orientation,
+                        vec![Orientation::Vertical, Orientation::Horizontal],
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::Orientation(value),
+                        ),
+                    ),
+                    pick_field(
+                        "Sizing",
+                        props.split_strategy,
+                        vec![
+                            SplitStrategy::Relative,
+                            SplitStrategy::Start,
+                            SplitStrategy::End,
+                        ],
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::SplitStrategy(value),
+                        ),
+                    ),
+                    position_field,
+                    slider_field(
+                        "Handle width",
+                        1.0..=32.0,
+                        props.split_handle_width,
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::SplitHandleWidth(value),
+                        ),
+                    ),
+                ]),
             ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+            .spacing(LABEL_SPACING),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -4201,7 +3703,7 @@ pub fn split_controls<'a>(
             h,
             widget_id,
         ),
-        clip_control(widget_id, props.clip, _theme),
+        advanced_section(widget_id, props, _theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4224,57 +3726,55 @@ pub fn float_controls<'a>(
     let content = column![
         text("Float Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Float renders its child as an overlay when you scale or offset it.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        column![
-            text("Scale").size(LABEL_SIZE),
-            row![
-                slider(0.25..=3.0, props.float_scale, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::FloatScale(value))
-                })
-                .step(0.05)
-                .width(220),
-                text(format!("{:.2}x", props.float_scale))
+        section(
+            "Float",
+            column![
+                text("Float renders its child as an overlay when you scale or offset it.")
                     .size(LABEL_SIZE)
-                    .width(60),
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(vec![
+                    // Scale is a multiplier in twentieths, so it keeps its own
+                    // two-decimal readout.
+                    field(
+                        "Scale",
+                        row![
+                            slider(0.25..=3.0, props.float_scale, move |value| {
+                                Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::FloatScale(value),
+                                )
+                            })
+                            .step(0.05)
+                            .width(FIELD_WIDTH - 55.0),
+                            text(format!("{:.2}x", props.float_scale))
+                                .size(LABEL_SIZE)
+                                .width(50),
+                        ]
+                        .spacing(LABEL_SPACING)
+                        .align_y(Alignment::Center),
+                    ),
+                    slider_field(
+                        "Translate X",
+                        -400.0..=400.0,
+                        props.float_translate_x,
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::FloatTranslateX(value),
+                        ),
+                    ),
+                    slider_field(
+                        "Translate Y",
+                        -400.0..=400.0,
+                        props.float_translate_y,
+                        move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::FloatTranslateY(value),
+                        ),
+                    ),
+                ]),
             ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Translate X").size(LABEL_SIZE),
-            row![
-                slider(-400.0..=400.0, props.float_translate_x, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::FloatTranslateX(value))
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.float_translate_x))
-                    .size(LABEL_SIZE)
-                    .width(70),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Translate Y").size(LABEL_SIZE),
-            row![
-                slider(-400.0..=400.0, props.float_translate_y, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::FloatTranslateY(value))
-                })
-                .step(1.0)
-                .width(220),
-                text(format!("{:.0}px", props.float_translate_y))
-                    .size(LABEL_SIZE)
-                    .width(70),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+            .spacing(LABEL_SPACING),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -4283,7 +3783,7 @@ pub fn float_controls<'a>(
             h,
             widget_id,
         ),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4306,25 +3806,26 @@ pub fn responsive_controls<'a>(
     let content = column![
         text("Responsive Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Child 1 is shown at or below the breakpoint width. Child 2 is shown above it.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        column![
-            text("Width Breakpoint").size(LABEL_SIZE),
-            row![
-                slider(240.0..=1600.0, props.responsive_breakpoint, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::ResponsiveBreakpoint(value))
-                })
-                .step(10.0)
-                .width(220),
-                text(format!("{:.0}px", props.responsive_breakpoint))
-                    .size(LABEL_SIZE)
-                    .width(70),
+        section(
+            "Responsive",
+            column![
+                text(
+                    "Child 1 is shown at or below the breakpoint width; child 2 \n                     is shown above it."
+                )
+                .size(LABEL_SIZE)
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(vec![slider_field(
+                    "Breakpoint",
+                    240.0..=1600.0,
+                    props.responsive_breakpoint,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::ResponsiveBreakpoint(value),
+                    ),
+                )]),
             ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+            .spacing(LABEL_SPACING),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -4333,7 +3834,7 @@ pub fn responsive_controls<'a>(
             h,
             widget_id,
         ),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4361,6 +3862,7 @@ pub fn sensor_controls<'a>(
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             column![
                 event_checkbox_row(
                     theme,
@@ -4387,41 +3889,29 @@ pub fn sensor_controls<'a>(
             .spacing(LABEL_SPACING),
         ]
         .spacing(LABEL_SPACING),
-        column![
-            text("Anticipate Distance").size(LABEL_SIZE),
-            row![
-                slider(0.0..=600.0, props.sensor_anticipate, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::SensorAnticipate(value))
-                })
-                .step(10.0)
-                .width(220),
-                text(format!("{:.0}px", props.sensor_anticipate))
-                    .size(LABEL_SIZE)
-                    .width(70),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Delay").size(LABEL_SIZE),
-            row![
-                slider(0.0..=5000.0, props.sensor_delay_ms as f32, move |value| {
-                    Message::PropertyChanged(
+        section(
+            "Sensor",
+            field_grid(vec![
+                slider_field(
+                    "Anticipate",
+                    0.0..=600.0,
+                    props.sensor_anticipate,
+                    move |value| Message::PropertyChanged(
                         widget_id,
-                        PropertyChange::SensorDelayMs(value.round() as u64)
-                    )
-                })
-                .step(50.0)
-                .width(220),
-                text(format!("{}ms", props.sensor_delay_ms))
-                    .size(LABEL_SIZE)
-                    .width(70),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+                        PropertyChange::SensorAnticipate(value),
+                    ),
+                ),
+                slider_field(
+                    "Delay (ms)",
+                    0.0..=5000.0,
+                    props.sensor_delay_ms as f32,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::SensorDelayMs(value.round() as u64),
+                    ),
+                ),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -4430,7 +3920,7 @@ pub fn sensor_controls<'a>(
             h,
             widget_id,
         ),
-        clip_control(widget_id, props.clip, theme),
+        advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4458,6 +3948,7 @@ pub fn mousearea_controls<'a>(
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
         column![
             text("Events").size(SECTION_SIZE),
+            rule::horizontal(1),
             column![
                 text("Left Mouse Button:").size(LABEL_SIZE),
                 event_checkbox_row(
@@ -4615,22 +4106,25 @@ pub fn themer_controls<'a>(
     let content = column![
         text("Themer Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![
-            text("Theme").size(LABEL_SIZE),
-            pick_list(
-                props.themer_theme.clone(),
-                Theme::ALL,
-                ToString::to_string,
-            )
-            .on_select(move |theme| {
-                Message::PropertyChanged(widget_id, PropertyChange::ThemerTheme(Some(theme)))
-            })
-            .placeholder("Inherit from parent"),
-        ]
-        .spacing(LABEL_SPACING),
-        text("Themer applies a theme to all its children.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
+        section(
+            "Themer",
+            column![
+                field_grid(vec![field(
+                    "Theme",
+                    pick_list(props.themer_theme.clone(), Theme::ALL, ToString::to_string)
+                        .on_select(move |theme| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::ThemerTheme(Some(theme)),
+                        ))
+                        .placeholder("Inherit from parent")
+                        .width(FIELD_WIDTH),
+                )]),
+                text("Themer applies a theme to all its children.")
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4658,83 +4152,63 @@ pub fn grid_controls<'a>(
     };
     let fluid_max_str = format!("{}", props.grid_fluid_max_width);
 
-    let layout_section: Element<Message> = if props.grid_use_fluid {
-        column![
-            text("Fluid Max Column Width").size(LABEL_SIZE),
-            text_input("200", fluid_max_str.clone())
-                .on_input(move |s| {
-                    let v = parse_f32(&s, props.grid_fluid_max_width);
-                    Message::PropertyChanged(widget_id, PropertyChange::GridFluidMaxWidth(v))
-                })
-                .width(100),
-            text("Columns fill available space up to this width.")
-                .size(LABEL_SIZE - 1.0)
-                .color(Color::from_rgb(0.5, 0.5, 0.5)),
-        ]
-        .spacing(LABEL_SPACING)
-        .into()
-    } else {
-        column![
-            text("Columns").size(LABEL_SIZE),
-            text_input("3", columns_str.clone())
-                .on_input(move |s| {
-                    let v = s
-                        .trim()
-                        .parse::<usize>()
-                        .unwrap_or(props.grid_columns)
-                        .max(1);
-                    Message::PropertyChanged(widget_id, PropertyChange::GridColumns(v))
-                })
-                .width(100),
-        ]
-        .spacing(LABEL_SPACING)
-        .into()
-    };
-
     let content = column![
         text("Grid Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Grid distributes children in a uniform column layout.")
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        column![
-            text("Layout Mode").size(LABEL_SIZE),
-            toggler(props.grid_use_fluid)
-                .label("Fluid (auto-column) mode")
-                .on_toggle(move |v| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::GridUseFluid(v)
-                )),
-        ]
-        .spacing(LABEL_SPACING),
-        layout_section,
-        column![
-            text("Spacing").size(LABEL_SIZE),
-            text_input("0", spacing_str.clone())
-                .on_input(move |s| {
-                    let v = parse_f32(&s, props.grid_spacing);
-                    Message::PropertyChanged(widget_id, PropertyChange::GridSpacing(v))
-                })
-                .width(100),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Fixed Width (px)").size(LABEL_SIZE),
-            text_input("none", fixed_width_str.clone())
-                .on_input(move |s| {
-                    let v = if s.trim().is_empty() {
-                        None
+        section(
+            "Grid",
+            column![
+                text("Grid distributes children in a uniform column layout.")
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(vec![
+                    toggle_field("Fluid columns", props.grid_use_fluid, move |v| {
+                        Message::PropertyChanged(widget_id, PropertyChange::GridUseFluid(v))
+                    }),
+                    // Fluid mode derives the column count from a maximum
+                    // column width; fixed mode is told the count outright.
+                    if props.grid_use_fluid {
+                        text_field("Max column width", "200", fluid_max_str, move |s| {
+                            let v = parse_f32(&s, props.grid_fluid_max_width);
+                            Message::PropertyChanged(
+                                widget_id,
+                                PropertyChange::GridFluidMaxWidth(v),
+                            )
+                        })
                     } else {
-                        parse_f32(&s, props.grid_fixed_width.unwrap_or(0.0)).into()
-                    };
-                    Message::PropertyChanged(widget_id, PropertyChange::GridFixedWidth(v))
+                        text_field("Columns", "3", columns_str, move |s| {
+                            let v = s
+                                .trim()
+                                .parse::<usize>()
+                                .unwrap_or(props.grid_columns)
+                                .max(1);
+                            Message::PropertyChanged(widget_id, PropertyChange::GridColumns(v))
+                        })
+                    },
+                    text_field("Spacing", "0", spacing_str, move |s| {
+                        let v = parse_f32(&s, props.grid_spacing);
+                        Message::PropertyChanged(widget_id, PropertyChange::GridSpacing(v))
+                    }),
+                    text_field("Fixed width", "fill", fixed_width_str, move |s| {
+                        let v = if s.trim().is_empty() {
+                            None
+                        } else {
+                            parse_f32(&s, props.grid_fixed_width.unwrap_or(0.0)).into()
+                        };
+                        Message::PropertyChanged(widget_id, PropertyChange::GridFixedWidth(v))
+                    }),
+                ]),
+                text(if props.grid_use_fluid {
+                    "Columns fill the available space up to the maximum width. \
+                     Fixed width sizes the whole grid; leave it empty to fill."
+                } else {
+                    "Fixed width sizes the whole grid; leave it empty to fill."
                 })
-                .width(100),
-            text("Pixel width for the entire grid widget. Leave empty for Fill.")
                 .size(LABEL_SIZE - 1.0)
                 .color(Color::from_rgb(0.5, 0.5, 0.5)),
-        ]
-        .spacing(LABEL_SPACING),
+            ]
+            .spacing(LABEL_SPACING),
+        ),
     ]
     .spacing(MAIN_SPACING)
     .into();
@@ -4768,29 +4242,19 @@ pub fn pin_controls<'a>(
     let content = column![
         text("Pin Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        text("Position").size(SECTION_SIZE),
-        row![
-            text("X").size(LABEL_SIZE).width(Length::Fixed(20.0)),
-            text_input("0", x_str.clone())
-                .on_input(move |s| {
+        section(
+            "Position",
+            field_grid(vec![
+                text_field("X", "0", x_str, move |s| {
                     let v = parse_f32(&s, props.pin_point.x);
                     Message::PropertyChanged(widget_id, PropertyChange::PinX(v))
-                })
-                .width(120),
-        ]
-        .spacing(SECTION_SPACING)
-        .align_y(Alignment::Center),
-        row![
-            text("Y").size(LABEL_SIZE).width(Length::Fixed(20.0)),
-            text_input("0", y_str.clone())
-                .on_input(move |s| {
+                }),
+                text_field("Y", "0", y_str, move |s| {
                     let v = parse_f32(&s, props.pin_point.y);
                     Message::PropertyChanged(widget_id, PropertyChange::PinY(v))
-                })
-                .width(120),
-        ]
-        .spacing(SECTION_SPACING)
-        .align_y(Alignment::Center),
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -4838,6 +4302,7 @@ pub fn table_controls<'a>(
         widget_name(widget_id, &props.widget_name),
         column![
             text("Data Source (Struct)").size(SECTION_SIZE),
+            rule::horizontal(1),
             if struct_names.is_empty() {
                 column![
                     text("No structs defined yet")
@@ -4875,7 +4340,7 @@ pub fn table_controls<'a>(
                     text(format!("Columns ({})", struct_def.fields.len()))
                         .size(LABEL_SIZE)
                         .color(Color::from_rgb(0.5, 0.5, 0.5)),
-                    scrollable(
+                    scroll_y(
                         column(
                             struct_def
                                 .fields
@@ -4904,77 +4369,52 @@ pub fn table_controls<'a>(
         } else {
             column![]
         },
-        text("Table Settings").size(SECTION_SIZE),
-        column![
-            text("Padding X").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.table_padding_x, move |v| {
+        section(
+            "Table",
+            field_grid(vec![
+                slider_field("Padding X", 0.0..=30.0, props.table_padding_x, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TablePaddingX(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}", props.table_padding_x))
-                    .size(LABEL_SIZE)
-                    .width(30),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Padding Y").size(LABEL_SIZE),
-            row![
-                slider(0.0..=30.0, props.table_padding_y, move |v| {
+                }),
+                slider_field("Padding Y", 0.0..=30.0, props.table_padding_y, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::TablePaddingY(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}", props.table_padding_y))
-                    .size(LABEL_SIZE)
-                    .width(30),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Separator X").size(LABEL_SIZE),
-            row![
-                slider(0.0..=10.0, props.table_separator_x, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorX(v))
-                })
-                .step(0.5)
-                .width(200),
-                text(format!("{:.1}", props.table_separator_x))
-                    .size(LABEL_SIZE)
-                    .width(30),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        column![
-            text("Separator Y").size(LABEL_SIZE),
-            row![
-                slider(0.0..=10.0, props.table_separator_y, move |v| {
-                    Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorY(v))
-                })
-                .step(0.5)
-                .width(200),
-                text(format!("{:.1}", props.table_separator_y))
-                    .size(LABEL_SIZE)
-                    .width(30),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
-        checkbox(props.table_bold_headers)
-            .label("Bold Headers")
-            .on_toggle(move |v| Message::PropertyChanged(
-                widget_id,
-                PropertyChange::TableBoldHeaders(v)
-            )),
+                }),
+                // Separators move in half pixels, so they keep a readout with
+                // a decimal rather than the shared whole-number one.
+                field(
+                    "Separator X",
+                    row![
+                        slider(0.0..=10.0, props.table_separator_x, move |v| {
+                            Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorX(v))
+                        })
+                        .step(0.5)
+                        .width(FIELD_WIDTH - 45.0),
+                        text(format!("{:.1}", props.table_separator_x))
+                            .size(LABEL_SIZE)
+                            .width(40),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
+                ),
+                field(
+                    "Separator Y",
+                    row![
+                        slider(0.0..=10.0, props.table_separator_y, move |v| {
+                            Message::PropertyChanged(widget_id, PropertyChange::TableSeparatorY(v))
+                        })
+                        .step(0.5)
+                        .width(FIELD_WIDTH - 45.0),
+                        text(format!("{:.1}", props.table_separator_y))
+                            .size(LABEL_SIZE)
+                            .width(40),
+                    ]
+                    .spacing(LABEL_SPACING)
+                    .align_y(Alignment::Center),
+                ),
+                toggle_field("Bold headers", props.table_bold_headers, move |v| {
+                    Message::PropertyChanged(widget_id, PropertyChange::TableBoldHeaders(v))
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -5020,6 +4460,7 @@ pub fn view_reference_controls<'a>(
         widget_name(widget_id, &props.widget_name),
         column![
             text("Referenced View").size(SECTION_SIZE),
+            rule::horizontal(1),
             text("Select which view to display here:")
                 .size(LABEL_SIZE)
                 .color(Color::from_rgb(0.6, 0.6, 0.6)),
@@ -5169,23 +4610,15 @@ pub fn icon_controls<'a>(
     let content = column![
         text("Icon Properties").size(TITLE_SIZE),
         widget_name(widget_id, &props.widget_name),
-        column![text("Icon").size(LABEL_SIZE), picker,].spacing(LABEL_SPACING),
-        column![
-            text("Icon Size").size(LABEL_SIZE),
-            row![
-                slider(8.0..=128.0, props.icon_size, move |v| {
+        section(
+            "Icon",
+            field_grid(vec![
+                field("Icon", picker),
+                slider_field("Size", 8.0..=128.0, props.icon_size, move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::IconSize(v))
-                })
-                .step(1.0)
-                .width(200),
-                text(format!("{:.0}px", props.icon_size))
-                    .size(LABEL_SIZE)
-                    .width(50),
-            ]
-            .spacing(SECTION_SPACING)
-            .align_y(Alignment::Center),
-        ]
-        .spacing(LABEL_SPACING),
+                }),
+            ]),
+        ),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -5764,6 +5197,7 @@ pub fn padding_controls<'a>(
 ) -> Element<'a, Message> {
     column![
         text("Padding").size(SECTION_SIZE),
+        rule::horizontal(1),
         // Mode selection
         column![
             row![
@@ -5995,83 +5429,82 @@ where
 }
 
 pub fn clip_control<'a>(widget_id: WidgetId, clipped: bool, theme: &Theme) -> Element<'a, Message> {
-    row![
-        checkbox(clipped,)
-            .label("Enable Clipping")
-            .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::Clip(v))),
-        information(
-            theme,
-            "When enabled, child content that exceeds bounds will be clipped"
-        ),
-    ]
-    .spacing(LABEL_SPACING)
-    .align_y(Alignment::End)
-    .into()
+    field(
+        "Clipping",
+        row![
+            checkbox(clipped)
+                .label("Clip")
+                .on_toggle(move |v| Message::PropertyChanged(widget_id, PropertyChange::Clip(v))),
+            information(theme, "Child content beyond the bounds is cut off"),
+        ]
+        .spacing(LABEL_SPACING)
+        .align_y(Alignment::Center),
+    )
 }
 
 pub fn max_width_control<'a>(widget_id: WidgetId, max_width: Option<f32>) -> Element<'a, Message> {
-    column![
-        row![
-            checkbox(max_width.is_some())
-                .label("Set max width")
-                .on_toggle(move |enabled| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::MaxWidth(if enabled { Some(800.0) } else { None })
-                )),
-            if let Some(max_w) = max_width {
-                row![
-                    slider(100.0..=2000.0, max_w, move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::MaxWidth(Some(v)))
-                    })
-                    .step(10.0)
-                    .width(200),
-                    text(format!("{:.0}px", max_w)).size(LABEL_SIZE).width(60),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center)
-            } else {
-                row![]
-            }
-        ]
-        .spacing(SECTION_SPACING)
-        .align_y(Alignment::Center),
-    ]
-    .spacing(LABEL_SPACING)
-    .into()
+    bounded_field("Max width", max_width, move |value| {
+        Message::PropertyChanged(widget_id, PropertyChange::MaxWidth(value))
+    })
 }
 
 pub fn max_height_control<'a>(
     widget_id: WidgetId,
     max_height: Option<f32>,
 ) -> Element<'a, Message> {
-    column![
+    bounded_field("Max height", max_height, move |value| {
+        Message::PropertyChanged(widget_id, PropertyChange::MaxHeight(value))
+    })
+}
+
+/// An optional pixel bound: a switch that turns it on, and an entry for it.
+///
+/// Turning it on starts at a size rather than zero, so the widget does not
+/// vanish the moment the box is ticked.
+fn bounded_field<'a>(
+    label: &'a str,
+    value: Option<f32>,
+    on_change: impl Fn(Option<f32>) -> Message + 'a + Copy,
+) -> Element<'a, Message> {
+    const DEFAULT: f32 = 800.0;
+
+    let control: Element<'a, Message> = match value {
+        Some(value) => text_input("px", format!("{value}"))
+            .on_input(move |raw| on_change(Some(raw.trim().parse().unwrap_or(value))))
+            .width(FIELD_WIDTH - 30.0)
+            .into(),
+        None => text("off").size(LABEL_SIZE).into(),
+    };
+
+    field(
+        label,
         row![
-            checkbox(max_height.is_some())
-                .label("Set max height")
-                .on_toggle(move |enabled| Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::MaxHeight(if enabled { Some(800.0) } else { None })
-                )),
-            if let Some(max_h) = max_height {
-                row![
-                    slider(100.0..=2000.0, max_h, move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::MaxHeight(Some(v)))
-                    })
-                    .step(10.0)
-                    .width(200),
-                    text(format!("{:.0}px", max_h)).size(LABEL_SIZE).width(60),
-                ]
-                .spacing(SECTION_SPACING)
-                .align_y(Alignment::Center)
-            } else {
-                row![].into()
-            }
+            checkbox(value.is_some()).on_toggle(move |on| on_change(on.then_some(DEFAULT))),
+            control,
         ]
-        .spacing(SECTION_SPACING)
+        .spacing(LABEL_SPACING)
         .align_y(Alignment::Center),
-    ]
-    .spacing(LABEL_SPACING)
-    .into()
+    )
+}
+
+/// The settings every container-ish widget carries: an id, bounds, clipping.
+///
+/// They are the same four everywhere they appear, and none of them is what
+/// anyone opens the panel for, so they travel together at the end.
+pub fn advanced_section<'a>(
+    widget_id: WidgetId,
+    props: &'a Properties,
+    theme: &Theme,
+) -> Element<'a, Message> {
+    section(
+        "Advanced",
+        field_grid(vec![
+            widget_id_control(widget_id, props.widget_id.clone(), theme),
+            max_width_control(widget_id, props.max_width),
+            max_height_control(widget_id, props.max_height),
+            clip_control(widget_id, props.clip, theme),
+        ]),
+    )
 }
 
 pub fn widget_id_control<'a>(
@@ -6079,35 +5512,33 @@ pub fn widget_id_control<'a>(
     id: Option<String>,
     theme: &Theme,
 ) -> Element<'a, Message> {
-    let id_clone = id.clone();
+    let is_set = id.is_some();
 
-    row![
+    let control: Element<'a, Message> = match id {
+        Some(id) => text_input("widget_id", id)
+            .on_input(move |v| {
+                Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
+            })
+            .width(FIELD_WIDTH - 30.0)
+            .into(),
+        // With no id to edit there is room for the explanation instead.
+        None => information(theme, "Use for programmatic access via widget::Id"),
+    };
+
+    field(
+        "Widget id",
         row![
-            checkbox(id_clone.is_some())
-                .label("Set Widget Id")
-                .on_toggle(move |enabled| Message::PropertyChanged(
+            checkbox(is_set).on_toggle(move |enabled| {
+                Message::PropertyChanged(
                     widget_id,
-                    PropertyChange::WidgetId(if enabled { Some(String::new()) } else { None })
-                )),
-            information(theme, "Use for programmatic access via widget::Id"),
+                    PropertyChange::WidgetId(enabled.then(String::new)),
+                )
+            }),
+            control,
         ]
         .spacing(LABEL_SPACING)
-        .align_y(Alignment::End),
-        if let Some(id_val) = id {
-            row![
-                text_input("widget_id", id_val)
-                    .on_input(move |v| {
-                        Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
-                    })
-                    .width(200)
-            ]
-        } else {
-            row![]
-        }
-    ]
-    .spacing(SECTION_SPACING)
-    .align_y(Alignment::Center)
-    .into()
+        .align_y(Alignment::Center),
+    )
 }
 
 pub fn widget_name<'a>(widget_id: WidgetId, name: &'a str) -> Element<'a, Message> {
@@ -6532,7 +5963,7 @@ pub fn add_code_preview<'a>(
     };
 
     column![
-        column![scrollable(content,),].height(400),
+        column![scroll_y(content)].height(400),
         container(rule::horizontal(2)).padding(padding::right(10)),
         text("Widget Code").size(16),
         text_editor(preview_content)
@@ -6605,6 +6036,7 @@ pub fn overlay_child_controls<'a>(
 
             column![
                 text("Menu Row").size(SECTION_SIZE),
+                rule::horizontal(1),
                 column![
                     text("Row Kind").size(LABEL_SIZE),
                     pick_list(Some(kind), MenuItemKind::ALL, ToString::to_string)
@@ -6629,6 +6061,7 @@ pub fn overlay_child_controls<'a>(
         }
         _ => column![
             text("Toast").size(SECTION_SIZE),
+            rule::horizontal(1),
             column![
                 text("Variant").size(LABEL_SIZE),
                 pick_list(
@@ -6735,20 +6168,20 @@ pub fn padding_field<'a>(
 ///
 /// Wide enough for a pick list of anchor names, narrow enough that three fit
 /// across the editor at its default width.
-const FIELD_WIDTH: f32 = 168.0;
+pub const FIELD_WIDTH: f32 = 168.0;
 
 /// The height of one control in the property grid.
 ///
 /// A pick list, a text entry and a checkbox are all different heights on their
 /// own, which left a wrapped row looking ragged. Boxing each to the same height
 /// keeps the rows level whatever mix of controls lands on them.
-const CONTROL_HEIGHT: f32 = 32.0;
+pub const CONTROL_HEIGHT: f32 = 32.0;
 
 /// A labelled control, sized to the property grid.
-pub fn field<'a>(
+pub fn field<'a, M: 'a>(
     label: &'a str,
-    control: impl Into<Element<'a, Message>>,
-) -> Element<'a, Message> {
+    control: impl Into<Element<'a, M>>,
+) -> Element<'a, M> {
     column![
         text(label).size(LABEL_SIZE),
         container(control.into())
@@ -6761,7 +6194,7 @@ pub fn field<'a>(
 }
 
 /// Lays fields out across the available width, wrapping onto further rows.
-pub fn field_grid<'a>(fields: Vec<Element<'a, Message>>) -> Element<'a, Message> {
+pub fn field_grid<'a, M: 'a>(fields: Vec<Element<'a, M>>) -> Element<'a, M> {
     Row::with_children(fields)
         .spacing(SECTION_SPACING)
         .wrap()
@@ -6769,10 +6202,10 @@ pub fn field_grid<'a>(fields: Vec<Element<'a, Message>>) -> Element<'a, Message>
 }
 
 /// A titled group of controls.
-pub fn section<'a>(
+pub fn section<'a, M: 'a>(
     title: &'a str,
-    body: impl Into<Element<'a, Message>>,
-) -> Element<'a, Message> {
+    body: impl Into<Element<'a, M>>,
+) -> Element<'a, M> {
     column![
         text(title).size(SECTION_SIZE),
         rule::horizontal(1),
@@ -6783,30 +6216,145 @@ pub fn section<'a>(
 }
 
 /// Nothing at all, for a section that does not apply to this widget.
-pub fn nothing<'a>() -> Element<'a, Message> {
+pub fn nothing<'a, M: 'a>() -> Element<'a, M> {
     column![].into()
 }
 
+/// How wide the widget editor opens.
+///
+/// The property grid is a wrapping row of `FIELD_WIDTH` columns, which asks
+/// for whatever width it is given — so without a cap the layer opens as wide
+/// as the viewport and the grid lays itself out in one long line. Four columns
+/// across is the shape the sections were written for; the rest is the layer's
+/// own 16px padding on each side, the editor's 5px, and the scrollbar gutter.
+///
+/// The editor is resizable, so this is a starting size rather than a limit:
+/// `max_width` caps the width the layer *chooses*, not what the user can drag
+/// it to.
+pub const EDITOR_MODAL_WIDTH: f32 = editor_modal_width(4.0);
+
+/// The narrowest the widget editor can be dragged.
+///
+/// Three columns: below that the grid starts wrapping pairs awkwardly.
+pub const EDITOR_MODAL_MIN_WIDTH: f32 = editor_modal_width(3.0);
+
+/// The width `columns` of the property grid occupy, with the chrome around
+/// them: the layer's own 16px padding each side, the editor's 5px, and the
+/// scrollbar gutter.
+const fn editor_modal_width(columns: f32) -> f32 {
+    columns * FIELD_WIDTH + (columns - 1.0) * SECTION_SPACING + 2.0 * (16.0 + 5.0)
+        + SCROLLBAR_GUTTER
+}
+
+/// How tall the widget editor opens.
+///
+/// Tall enough for the code preview under the settings to be worth having,
+/// short enough to fit a 768px-high display with the layer's margin around it.
+pub const EDITOR_MODAL_HEIGHT: f32 = 720.0;
+
+/// The room a vertical scrollbar needs beside the content it scrolls.
+///
+/// iced draws the bar inside the scrollable's own bounds and over whatever is
+/// beneath it, so anything running to the full width ends up underneath it.
+/// The bar is 10px wide by default; the rest is breathing room.
+pub const SCROLLBAR_GUTTER: f32 = 14.0;
+
+/// A vertical scrollable that leaves room for its own scrollbar.
+///
+/// Prefer this over a bare `scrollable` anywhere the content fills the width.
+pub fn scroll_y<'a, M>(
+    content: impl Into<Element<'a, M>>,
+) -> iced::widget::Scrollable<'a, M>
+where
+    M: 'a,
+{
+    scrollable(container(content.into()).padding(padding::right(SCROLLBAR_GUTTER)))
+}
+
 /// A numeric entry sized for the property grid.
-pub fn float_input<'a>(
+pub fn float_input<'a, M: Clone + 'a>(
     value: f32,
-    on_change: impl Fn(f32) -> Message + 'a,
-) -> Element<'a, Message> {
+    on_change: impl Fn(f32) -> M + 'a,
+) -> Element<'a, M> {
     text_input("0", format!("{value}"))
         .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
         .width(FIELD_WIDTH)
         .into()
 }
 
+/// A labelled text entry sized for the property grid.
+pub fn text_field<'a, M: Clone + 'a>(
+    label: &'a str,
+    placeholder: &'a str,
+    value: impl iced::advanced::text::IntoFragment<'a>,
+    on_change: impl Fn(String) -> M + 'a,
+) -> Element<'a, M> {
+    field(
+        label,
+        text_input(placeholder, value)
+            .on_input(on_change)
+            .width(FIELD_WIDTH),
+    )
+}
+
+/// A labelled pick list sized for the property grid.
+pub fn pick_field<'a, T, L, M>(
+    label: &'a str,
+    selected: T,
+    options: L,
+    on_select: impl Fn(T) -> M + 'a,
+) -> Element<'a, M>
+where
+    T: ToString + PartialEq + Clone + 'a,
+    L: std::borrow::Borrow<[T]> + 'a,
+    M: Clone + 'a,
+{
+    field(
+        label,
+        pick_list(Some(selected), options, ToString::to_string)
+            .on_select(on_select)
+            .width(FIELD_WIDTH),
+    )
+}
+
+/// A labelled slider with its value beside it, sized for the property grid.
+///
+/// The readout is what makes a slider worth having over a number entry, so it
+/// travels with it rather than being written out at each call.
+pub fn slider_field<'a, M: Clone + 'a>(
+    label: &'a str,
+    range: std::ops::RangeInclusive<f32>,
+    value: f32,
+    on_change: impl Fn(f32) -> M + 'a,
+) -> Element<'a, M> {
+    // The readout is fixed-width so a row of sliders lines up whatever the
+    // numbers happen to be.
+    const READOUT_WIDTH: f32 = 38.0;
+
+    field(
+        label,
+        row![
+            slider(range, value, on_change)
+                .step(1.0)
+                .width(FIELD_WIDTH - READOUT_WIDTH - LABEL_SPACING),
+            text(format!("{value:.0}"))
+                .size(LABEL_SIZE)
+                .width(READOUT_WIDTH),
+        ]
+        .spacing(LABEL_SPACING)
+        .align_y(Alignment::Center),
+    )
+}
+
 /// A checkbox laid out to line up with the labelled fields beside it.
 ///
 /// The label sits inside the checkbox rather than above it, so an empty label
 /// row keeps it on the same baseline as the controls it wraps alongside.
-pub fn toggle_field<'a>(
+pub fn toggle_field<'a, M: Clone + 'a>(
     label: &'a str,
     checked: bool,
-    on_toggle: impl Fn(bool) -> Message + 'a,
-) -> Element<'a, Message> {
+    on_toggle: impl Fn(bool) -> M + 'a,
+) -> Element<'a, M> {
     column![
         text(" ").size(LABEL_SIZE),
         container(checkbox(checked).label(label).on_toggle(on_toggle))

@@ -1,6 +1,6 @@
 use iced::{
     Alignment, Element, Length, Padding, Task, Theme, padding,
-    widget::{button, column, container, pick_list, row, scrollable, space, text, text_input},
+    widget::{button, column, container, pick_list, row, space, text, text_input},
 };
 use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
@@ -844,13 +844,10 @@ pub fn view<'a>(
         .collect();
 
     container(
-        scrollable(
-            container(column![
-                header,
-                CollapsibleGroup::new(enum_vec).spacing(5.0)
-            ])
-            .padding(padding::right(10)),
-        )
+        crate::controls::scroll_y(column![
+            header,
+            CollapsibleGroup::new(enum_vec).spacing(5.0)
+        ])
         .height(Length::Fill),
     )
     .height(Length::Fill)

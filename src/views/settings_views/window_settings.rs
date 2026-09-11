@@ -1,8 +1,11 @@
 use crate::Window;
 use crate::data_structures::types::types::AppView;
+use crate::controls::control_styling::{LABEL_SIZE, LABEL_SPACING, SECTION_SPACING};
+use crate::controls::{FIELD_WIDTH, field, field_grid, float_input, nothing, toggle_field};
+use crate::data_structures::types::types::NativeFrameSettings;
 use crate::icon;
 use iced::widget::{
-    button, checkbox, column, container, pick_list, row, scrollable, space, text, text_input,
+    button, checkbox, column, container, pick_list, row, space, text, text_input,
 };
 use iced::{
     Alignment, Element, Length, Point, Task,
@@ -49,10 +52,80 @@ pub enum Message {
     ExitOnCloseRequest(window::Id, bool),
     /// Whether the generated app draws its own title bar with `iced-native-frame`.
     UseNativeFrame(window::Id, bool),
+    /// One field of the custom title bar's appearance.
+    NativeFrameSetting(window::Id, FrameSetting),
+    /// The view rendered into the title bar's application-owned row.
+    TitleBarView(window::Id, Option<Uuid>),
 
     // Window Level
     SetLevel(window::Id, Level),
     // Icon & PlatformSpecific?
+}
+
+/// One field of [`NativeFrameSettings`].
+///
+/// Sixteen `Message` variants that all do the same thing would drown the enum,
+/// so the field travels with its new value instead.
+#[derive(Clone, Debug)]
+pub enum FrameSetting {
+    TitleBarHeight(f32),
+    CaptionButtonWidth(f32),
+    CaptionButtons(bool),
+    ResizeBorder(f32),
+    Resizable(bool),
+    CornerRadius(f32),
+    FrameBorder(bool),
+    ClientShadow(bool),
+    OuterPadding(f32),
+    NativeRounding(bool),
+    NativeShadow(bool),
+    WindowIconSize(f32),
+    TitleSpacing(f32),
+    TitlePadding(f32),
+    LeadingInset(f32),
+    ShowTitle(bool),
+}
+
+impl FrameSetting {
+    fn apply(self, frame: &mut NativeFrameSettings) {
+        match self {
+            Self::TitleBarHeight(value) => frame.title_bar_height = value,
+            Self::CaptionButtonWidth(value) => frame.caption_button_width = value,
+            Self::CaptionButtons(value) => frame.caption_buttons = value,
+            Self::ResizeBorder(value) => frame.resize_border = value,
+            Self::Resizable(value) => frame.resizable = value,
+            Self::CornerRadius(value) => frame.corner_radius = value,
+            Self::FrameBorder(value) => frame.frame_border = value,
+            Self::ClientShadow(value) => {
+                frame.client_shadow = value;
+
+                // The shadow is drawn in the transparent padding around the
+                // surface, so turning it on with none reserved draws nothing.
+                if value && frame.outer_padding <= 0.0 {
+                    frame.outer_padding = 12.0;
+                }
+            }
+            Self::OuterPadding(value) => frame.outer_padding = value,
+            Self::NativeRounding(value) => frame.native_rounding = value,
+            Self::NativeShadow(value) => frame.native_shadow = value,
+            Self::WindowIconSize(value) => frame.window_icon_size = value,
+            Self::TitleSpacing(value) => frame.title_spacing = value,
+            Self::TitlePadding(value) => frame.title_padding = value,
+            Self::LeadingInset(value) => frame.leading_inset = value,
+            Self::ShowTitle(value) => frame.show_title = value,
+        }
+    }
+}
+
+/// Whether a message changes something the previewed title bar is built from.
+///
+/// The Visualizer's frame is rebuilt from the project's settings, and doing
+/// that on every keystroke in the width field would be wasteful.
+pub fn touches_frame(message: &Message) -> bool {
+    matches!(
+        message,
+        Message::UseNativeFrame(..) | Message::NativeFrameSetting(..)
+    )
 }
 
 pub fn update(windows: &mut BTreeMap<window::Id, Window>, message: Message) -> Task<Message> {
@@ -354,6 +427,16 @@ pub fn update(windows: &mut BTreeMap<window::Id, Window>, message: Message) -> T
                 window.config.use_native_frame = value;
             }
         }
+        Message::NativeFrameSetting(id, setting) => {
+            if let Some(window) = windows.get_mut(&id) {
+                setting.apply(&mut window.config.native_frame);
+            }
+        }
+        Message::TitleBarView(id, view_id) => {
+            if let Some(window) = windows.get_mut(&id) {
+                window.config.title_bar_view_id = view_id;
+            }
+        }
         Message::ExitOnCloseRequest(id, value) => {
             if let Some(window) = windows.get_mut(&id) {
                 window.config.settings.exit_on_close_request = value;
@@ -483,16 +566,7 @@ pub fn view<'a>(
                     .on_toggle(move |b| Message::ExitOnCloseRequest(*id, b)),
                 // Custom Frame Section
                 section_header("Title Bar"),
-                checkbox(window.config.use_native_frame)
-                    .label("Draw a custom title bar (iced-native-frame)")
-                    .on_toggle(move |b| Message::UseNativeFrame(*id, b)),
-                text(
-                    "The generated app draws its own title bar out of iced widgets, \
-                     with native caption semantics — Snap Layouts on Windows 11, \
-                     drag-to-snap and resize cursors. Adds an iced-native-frame \
-                     dependency and replaces the platform title bar."
-                )
-                .size(12),
+                native_frame_controls(id, window, views),
                 // Window Level Section
                 section_header("Window Level"),
                 pick_list(
@@ -507,7 +581,10 @@ pub fn view<'a>(
             .spacing(15)
             .padding(20);
 
-            collapsible(window.title(), scrollable(content).height(Length::Fill))
+            collapsible(
+                window.title(),
+                crate::controls::scroll_y(content).height(Length::Fill),
+            )
                 .expand_icon(icon::chevron_right())
                 .collapse_icon(icon::chevron_down())
                 .into()
@@ -531,7 +608,7 @@ pub fn view<'a>(
         .align_y(Alignment::Center)
         .spacing(10)
         .padding(5),
-        scrollable(
+        crate::controls::scroll_y(
             CollapsibleGroup::new(window_settings)
                 .spacing(5.0)
                 .height(Length::Fill)
@@ -546,6 +623,177 @@ pub fn view<'a>(
     .spacing(10)
     .width(400)
     .into()
+}
+
+/// The custom title bar: whether to draw one, and what it looks like.
+///
+/// Everything below the switch is hidden while it is off — none of it does
+/// anything to a platform-decorated window.
+fn native_frame_controls<'a>(
+    id: &'a window::Id,
+    window: &'a Window,
+    views: &'a BTreeMap<Uuid, AppView>,
+) -> Element<'a, Message> {
+    let enable = column![
+        checkbox(window.config.use_native_frame)
+            .label("Draw a custom title bar (iced-native-frame)")
+            .on_toggle(move |on| Message::UseNativeFrame(*id, on)),
+        text(
+            "The window draws its own title bar out of iced widgets, keeping \
+             native caption semantics — Snap Layouts on Windows 11, \
+             drag-to-snap, and resize cursors. The Visualizer previews it."
+        )
+        .size(LABEL_SIZE),
+    ]
+    .spacing(LABEL_SPACING);
+
+    if !window.config.use_native_frame {
+        return enable.into();
+    }
+
+    let frame = window.config.native_frame;
+    let set = move |setting: FrameSetting| Message::NativeFrameSetting(*id, setting);
+
+    // The view drawn into the row between the title and the caption controls.
+    // Anything with a `view` can go there, so every view in the project is
+    // offered; "None" leaves the space empty.
+    let title_bar_views: Vec<TitleBarChoice> = std::iter::once(TitleBarChoice::none())
+        .chain(
+            views
+                .values()
+                .map(|view| TitleBarChoice::view(view.id, &view.name)),
+        )
+        .collect();
+
+    let selected_title_bar = title_bar_views
+        .iter()
+        .find(|choice| choice.id == window.config.title_bar_view_id)
+        .copied();
+
+    let content = field_grid(vec![
+        field(
+            "Contents",
+            pick_list(selected_title_bar, title_bar_views, ToString::to_string)
+                .on_select(move |choice| Message::TitleBarView(*id, choice.id))
+                .width(FIELD_WIDTH),
+        ),
+        toggle_field("Show title", frame.show_title, move |on| {
+            set(FrameSetting::ShowTitle(on))
+        }),
+        toggle_field("Caption buttons", frame.caption_buttons, move |on| {
+            set(FrameSetting::CaptionButtons(on))
+        }),
+        field(
+            "Bar height",
+            float_input(frame.title_bar_height, move |value| {
+                set(FrameSetting::TitleBarHeight(value))
+            }),
+        ),
+        field(
+            "Caption width",
+            float_input(frame.caption_button_width, move |value| {
+                set(FrameSetting::CaptionButtonWidth(value))
+            }),
+        ),
+        field(
+            "Icon size",
+            float_input(frame.window_icon_size, move |value| {
+                set(FrameSetting::WindowIconSize(value))
+            }),
+        ),
+        field(
+            "Title spacing",
+            float_input(frame.title_spacing, move |value| {
+                set(FrameSetting::TitleSpacing(value))
+            }),
+        ),
+        field(
+            "Title padding",
+            float_input(frame.title_padding, move |value| {
+                set(FrameSetting::TitlePadding(value))
+            }),
+        ),
+        field(
+            "Leading inset",
+            float_input(frame.leading_inset, move |value| {
+                set(FrameSetting::LeadingInset(value))
+            }),
+        ),
+        toggle_field("Resizable", frame.resizable, move |on| {
+            set(FrameSetting::Resizable(on))
+        }),
+        field(
+            "Resize border",
+            float_input(frame.resize_border, move |value| {
+                set(FrameSetting::ResizeBorder(value))
+            }),
+        ),
+        field(
+            "Corner radius",
+            float_input(frame.corner_radius, move |value| {
+                set(FrameSetting::CornerRadius(value))
+            }),
+        ),
+        toggle_field("Frame border", frame.frame_border, move |on| {
+            set(FrameSetting::FrameBorder(on))
+        }),
+        toggle_field("Client shadow", frame.client_shadow, move |on| {
+            set(FrameSetting::ClientShadow(on))
+        }),
+        // Only the client-side shadow is drawn in this padding, and on Wayland
+        // it leaks into tiled and maximized geometry — so it is not offered
+        // unless something is using it.
+        if frame.client_shadow {
+            field(
+                "Outer padding",
+                float_input(frame.outer_padding, move |value| {
+                    set(FrameSetting::OuterPadding(value))
+                }),
+            )
+        } else {
+            nothing()
+        },
+        toggle_field("Native rounding", frame.native_rounding, move |on| {
+            set(FrameSetting::NativeRounding(on))
+        }),
+        toggle_field("Native shadow", frame.native_shadow, move |on| {
+            set(FrameSetting::NativeShadow(on))
+        }),
+    ]);
+
+    column![enable, content].spacing(SECTION_SPACING).into()
+}
+
+/// One entry in the title-bar contents picker.
+///
+/// A pick list needs `Display`, and `Option<Uuid>` has none that reads as a
+/// view name, so the name travels with the id.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct TitleBarChoice<'a> {
+    id: Option<Uuid>,
+    name: &'a str,
+}
+
+impl<'a> TitleBarChoice<'a> {
+    fn none() -> Self {
+        Self {
+            id: None,
+            name: "None",
+        }
+    }
+
+    fn view(id: Uuid, name: &'a str) -> Self {
+        Self {
+            id: Some(id),
+            name,
+        }
+    }
+}
+
+impl std::fmt::Display for TitleBarChoice<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.name)
+    }
 }
 
 fn section_header<'a>(title: &'a str) -> Element<'a, Message> {

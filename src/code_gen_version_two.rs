@@ -421,6 +421,15 @@ impl<'a> CodeGeneratorV2<'a> {
 
         let window_config = self.generated_window_config();
 
+        // Only the main view owns the window, so only it carries a title bar.
+        let title_bar = window_config
+            .title_bar_view_id
+            .filter(|_| view_entry.is_main && window_config.use_native_frame)
+            .and_then(|view_id| self.views.and_then(|views| views.get(&view_id)))
+            // A view cannot sit inside its own title bar.
+            .filter(|title_view| title_view.id != view_entry.id)
+            .map(events::TitleBarInfo::for_view);
+
         // Only the main view is an application, so only it owns the window
         // the frame decorates.
         let uses_native_frame = view_entry.is_main && window_config.use_native_frame;
@@ -452,6 +461,19 @@ impl<'a> CodeGeneratorV2<'a> {
                 if all_referenced_modules.contains(module) {
                     b.line(&format!("mod {};", module));
                 }
+            }
+            if let Some(title_bar) = &title_bar {
+                // The title bar view need not be referenced by any
+                // `ViewReference` widget, so its module may not be in the set
+                // above.
+                if !all_referenced_modules.contains(&title_bar.module_name) {
+                    b.line(&format!("mod {};", title_bar.module_name));
+                }
+
+                b.line(&format!(
+                    "use {}::{};",
+                    title_bar.module_name, title_bar.struct_name
+                ));
             }
             for vr in &view_refs {
                 b.line(&format!("use {}::{};", vr.module_name, vr.struct_name));
@@ -555,6 +577,7 @@ impl<'a> CodeGeneratorV2<'a> {
             view_entry.is_main,
             emits_bubbled_navigation_message,
             uses_native_frame,
+            title_bar.as_ref(),
         );
         // -- Selection Enums for multi-view ViewReference widgets --
         events::generate_view_selection_enums(&mut b, &view_refs);
@@ -579,6 +602,7 @@ impl<'a> CodeGeneratorV2<'a> {
             &view_entry.custom_state,
             initial_view_variant.as_deref(),
             uses_native_frame,
+            title_bar.as_ref(),
         );
         b.newline();
 
@@ -610,6 +634,7 @@ impl<'a> CodeGeneratorV2<'a> {
             emits_bubbled_navigation_message,
             &bubbled_navigation_subviews,
             &sub_view_intercepts,
+            title_bar.as_ref(),
         );
         b.newline();
 
@@ -856,6 +881,66 @@ mod tests {
         assert!(cargo.contains("features = [\"fontawesome\"]"));
     }
 
+    /// Generates a two-view project whose title bar holds the second view.
+    fn generate_title_bar_project() -> std::collections::HashMap<String, String> {
+        use super::CodeGeneratorV2;
+        use crate::data_structures::types::types::{AppView, WidgetType};
+        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::{Window, WindowEnum};
+
+        let main_id = uuid::Uuid::new_v4();
+        let main = AppView::with_id(main_id, "Main View".to_string(), 0);
+
+        let bar_id = uuid::Uuid::new_v4();
+        let mut bar = AppView::with_id(bar_id, "Tool Bar".to_string(), 1);
+        bar.is_main = false;
+
+        let root = bar.hierarchy.root().id;
+        let bar_row = bar
+            .hierarchy
+            .add_child(root, WidgetType::Row)
+            .expect("a row goes in the root container");
+        bar.hierarchy
+            .add_child(bar_row, WidgetType::Button)
+            .expect("a button goes in a row");
+
+        let views = std::collections::BTreeMap::from([(main_id, main), (bar_id, bar)]);
+
+        let mut window = Window::new(iced::window::Id::unique(), WindowEnum::Visualizer);
+        window.config.use_native_frame = true;
+        window.config.title_bar_view_id = Some(bar_id);
+
+        let windows = std::collections::BTreeMap::from([(iced::window::Id::unique(), window)]);
+
+        let theme = iced::Theme::Dark;
+        let type_system = crate::enum_builder::TypeSystem::new();
+
+        let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        dump_project(&files);
+        files
+    }
+
+    #[test]
+    fn title_bar_view_is_held_routed_and_drawn() {
+        let files = generate_title_bar_project();
+        let main = files.get("main.rs").expect("main.rs is generated");
+
+        assert!(main.contains("mod tool_bar;"));
+        assert!(main.contains("use tool_bar::ToolBar;"));
+        assert!(main.contains("title_bar: ToolBar,"));
+        assert!(main.contains("title_bar: ToolBar::new().0,"));
+        assert!(main.contains("TitleBar(tool_bar::Message),"));
+        assert!(main.contains("Message::TitleBar(message) =>"));
+        assert!(main.contains("self.title_bar.update(message).map(Message::TitleBar)"));
+
+        // Content in the title bar rules out `decorate`, which passes none.
+        assert!(!main.contains("self.frame.decorate("));
+        assert!(main.contains("self.frame.primary_window()"));
+        assert!(main.contains("Some(title_bar),"));
+    }
+
     /// Generates a project using the two lengths iced master added.
     fn generate_length_project() -> std::collections::HashMap<String, String> {
         use super::CodeGeneratorV2;
@@ -991,9 +1076,11 @@ mod tests {
         let files = generate_project(true);
         let main = files.get("main.rs").expect("main.rs is generated");
 
-        assert!(main.contains("use iced_native_frame::{FrameAction, NativeFrame, NativeFrameConfig};"));
+        assert!(main.contains(
+            "use iced_native_frame::{DecorationMode, FrameAction, NativeFrame, NativeFrameConfig};"
+        ));
         assert!(main.contains("frame: NativeFrame,"));
-        assert!(main.contains("frame: NativeFrame::new(NativeFrameConfig::platform_default()),"));
+        assert!(main.contains("frame: NativeFrame::new(Self::frame_config()),"));
         assert!(main.contains("Frame(FrameAction),"));
         assert!(main.contains("Message::Frame(action) =>"));
         assert!(main.contains("let installed = app.frame.install_latest().discard();"));
@@ -1004,6 +1091,7 @@ mod tests {
         // `window_settings` is what turns the platform decorations off, so it
         // has to be generated and wired even when every other setting is
         // still at its default.
+        assert!(main.contains("fn frame_config() -> NativeFrameConfig {"));
         assert!(main.contains("frame.window_settings(iced::window::Settings {"));
         assert!(main.contains(".window(App::window_settings())"));
         assert!(main.contains(".subscription(App::subscription)"));

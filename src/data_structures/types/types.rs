@@ -154,6 +154,18 @@ pub struct WindowConfig {
     /// projects want.
     #[serde(default)]
     pub use_native_frame: bool,
+
+    /// How that title bar looks, when it is drawn.
+    #[serde(default)]
+    pub native_frame: NativeFrameSettings,
+
+    /// A view rendered into the title bar's application-owned row.
+    ///
+    /// The frame lays out `[icon][title][this][caption controls]`, with this
+    /// row taking all the width between, so a menu bar or a row of tool
+    /// buttons goes here. `None` leaves the space empty.
+    #[serde(default)]
+    pub title_bar_view_id: Option<Uuid>,
     // iced::window::Settings is not serializable — reconstructed from draft strings on load.
     #[serde(skip, default = "Settings::default")]
     pub settings: Settings,
@@ -176,12 +188,104 @@ pub struct WindowConfig {
     pub draft_pos_y: String,
 }
 
+/// A serializable mirror of `iced_native_frame::NativeFrameConfig`.
+///
+/// The real config is `Copy` but not `Serialize`, and carries a
+/// `DecorationMode` that duplicates [`WindowConfig::use_native_frame`]. This
+/// holds the rest of it, so a project's title bar survives a save and the
+/// builder can preview it.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct NativeFrameSettings {
+    pub title_bar_height: f32,
+    pub caption_button_width: f32,
+    /// Whether the frame draws its own minimize / maximize / close controls.
+    pub caption_buttons: bool,
+    pub resize_border: f32,
+    pub resizable: bool,
+    pub corner_radius: f32,
+    pub frame_border: bool,
+    /// Needs `outer_padding` above zero and a transparent window.
+    pub client_shadow: bool,
+    pub outer_padding: f32,
+    /// Windows 11 only, through the window's corner preference.
+    pub native_rounding: bool,
+    /// Windows only, through winit's undecorated shadow.
+    pub native_shadow: bool,
+    pub window_icon_size: f32,
+    pub title_spacing: f32,
+    pub title_padding: f32,
+    /// Room before the leading region — on macOS, for the traffic lights.
+    pub leading_inset: f32,
+    pub show_title: bool,
+}
+
+impl Default for NativeFrameSettings {
+    /// The crate's own platform defaults, read off a real config so the two
+    /// cannot drift apart.
+    fn default() -> Self {
+        Self::from_config(iced_native_frame::NativeFrameConfig::platform_default())
+    }
+}
+
+impl NativeFrameSettings {
+    pub fn from_config(config: iced_native_frame::NativeFrameConfig) -> Self {
+        Self {
+            title_bar_height: config.title_bar_height,
+            caption_button_width: config.caption_button_width,
+            caption_buttons: config.caption_buttons,
+            resize_border: config.resize_border,
+            resizable: config.resizable,
+            corner_radius: config.corner_radius,
+            frame_border: config.frame_border,
+            client_shadow: config.client_shadow,
+            outer_padding: config.outer_padding,
+            native_rounding: config.native_rounding,
+            native_shadow: config.native_shadow,
+            window_icon_size: config.window_icon_size,
+            title_spacing: config.title_spacing,
+            title_padding: config.title_padding,
+            leading_inset: config.leading_inset,
+            show_title: config.show_title,
+        }
+    }
+
+    /// The real config, with `decoration_mode` set from whether the custom
+    /// frame is wanted at all.
+    pub fn to_config(self, custom: bool) -> iced_native_frame::NativeFrameConfig {
+        iced_native_frame::NativeFrameConfig {
+            decoration_mode: if custom {
+                iced_native_frame::DecorationMode::Custom
+            } else {
+                iced_native_frame::DecorationMode::System
+            },
+            title_bar_height: self.title_bar_height,
+            caption_button_width: self.caption_button_width,
+            caption_buttons: self.caption_buttons,
+            resize_border: self.resize_border,
+            resizable: self.resizable,
+            corner_radius: self.corner_radius,
+            frame_border: self.frame_border,
+            client_shadow: self.client_shadow,
+            outer_padding: self.outer_padding,
+            native_rounding: self.native_rounding,
+            native_shadow: self.native_shadow,
+            window_icon_size: self.window_icon_size,
+            title_spacing: self.title_spacing,
+            title_padding: self.title_padding,
+            leading_inset: self.leading_inset,
+            show_title: self.show_title,
+        }
+    }
+}
+
 impl WindowConfig {
     pub fn new(title: String, settings: Settings) -> Self {
         Self {
             title,
             assigned_view_id: None,
             use_native_frame: false,
+            native_frame: NativeFrameSettings::default(),
+            title_bar_view_id: None,
             // Initialize drafts from actual values
             draft_width: settings.size.width.to_string(),
             draft_height: settings.size.height.to_string(),
