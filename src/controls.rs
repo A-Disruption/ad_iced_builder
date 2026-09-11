@@ -12,7 +12,7 @@ use crate::enum_builder::TypeSystem;
 use crate::icon;
 use crate::icon_lucide;
 use iced::widget::{
-    Row, Space, button, checkbox, column, container, pick_list, radio, row, rule, scrollable,
+    Column, Row, Space, button, checkbox, column, container, pick_list, radio, row, rule, scrollable,
     slider, space, text, text_editor, text_input, toggler, tooltip,
 };
 use iced::{Alignment, Color, Element, Length, Padding, Theme, padding};
@@ -3217,10 +3217,11 @@ pub fn overlay_controls<'a>(
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
-    // The four widgets that replaced `generic_overlay` share this panel, and
-    // each shows only the settings it actually has. A Layer and a Toast stack
-    // are placed against the viewport and have no trigger; a Popover and a Menu
-    // hang off one.
+    // The four widgets that replaced `generic_overlay` share this panel, but
+    // not its shape: each composes its own sections below, grouped the way that
+    // widget reads rather than forced into one common set. A Layer in
+    // particular has a title bar, a backdrop and drag/resize handles that the
+    // others have nothing to do with.
     let kind = widget.widget_type;
     let is_popover = kind == WidgetType::Popover;
     let is_menu = kind == WidgetType::Menu;
@@ -3251,7 +3252,7 @@ pub fn overlay_controls<'a>(
         ),
     };
 
-    // ── Header ───────────────────────────────────────────────────────────────
+    // ── Header, with the preset picker ───────────────────────────────────────
     let presets = OverlayPreset::all_for(kind);
 
     let preset_picker: Element<'a, Message> = if presets.is_empty() {
@@ -3286,11 +3287,14 @@ pub fn overlay_controls<'a>(
         .spacing(SECTION_SPACING)
         .align_y(Alignment::Start),
         widget_name(widget_id, &props.widget_name),
+        // All four take an `id`, and the generated code emits one when it is
+        // set, so the panel has to be able to set it.
+        widget_id_control(widget_id, props.widget_id.clone(), theme),
     ]
     .spacing(SECTION_SPACING);
 
-    // ── Surface ──────────────────────────────────────────────────────────────
-    let mut surface = vec![
+    // ── Appearance, shared by all four ───────────────────────────────────────
+    let mut appearance = vec![
         field(
             "Panel Style",
             pick_list(
@@ -3318,23 +3322,26 @@ pub fn overlay_controls<'a>(
         ),
     ];
 
-    // A toast stack takes one fixed width for every toast in it, where the
-    // anchored widgets size themselves between bounds.
+    // ── Size ─────────────────────────────────────────────────────────────────
+    // A toast stack gives every toast in it one fixed width; the other three
+    // size themselves to their contents between bounds.
+    let mut size = Vec::new();
+
     if is_toast {
-        surface.push(field(
+        appearance.push(field(
             "Toast Width",
             float_input(props.toast_width, move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::ToastWidth(value))
             }),
         ));
     } else {
-        surface.push(field(
+        size.push(field(
             "Min Width",
             float_input(props.overlay_min_width, move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayMinWidth(value))
             }),
         ));
-        surface.push(toggle_field(
+        size.push(toggle_field(
             "Limit width",
             props.overlay_max_width.is_some(),
             move |value| {
@@ -3346,22 +3353,22 @@ pub fn overlay_controls<'a>(
         ));
 
         if let Some(max) = props.overlay_max_width {
-            surface.push(field(
+            size.push(field(
                 "Max Width",
                 float_input(max, move |value| {
                     Message::PropertyChanged(widget_id, PropertyChange::OverlayMaxWidth(value))
                 }),
             ));
         }
-    }
 
-    if is_layer {
-        surface.push(field(
-            "Min Height",
-            float_input(props.layer_min_height, move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::LayerMinHeight(value))
-            }),
-        ));
+        if is_layer {
+            size.push(field(
+                "Min Height",
+                float_input(props.layer_min_height, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::LayerMinHeight(value))
+                }),
+            ));
+        }
     }
 
     // ── Placement ────────────────────────────────────────────────────────────
@@ -3411,10 +3418,7 @@ pub fn overlay_controls<'a>(
             "Overlap",
             pick_list(
                 Some(props.overlay_hover_mode),
-                vec![
-                    OverlayPositionMode::Outside,
-                    OverlayPositionMode::Inside,
-                ],
+                vec![OverlayPositionMode::Outside, OverlayPositionMode::Inside],
                 ToString::to_string,
             )
             .on_select(move |value| {
@@ -3432,41 +3436,7 @@ pub fn overlay_controls<'a>(
     }
 
     if is_layer {
-        placement.push(field(
-            "Anchor",
-            pick_list(
-                Some(props.layer_anchor),
-                OverlayAnchor::ALL,
-                ToString::to_string,
-            )
-            .on_select(move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::LayerAnchor(value))
-            })
-            .width(FIELD_WIDTH),
-        ));
-        placement.push(field(
-            "Margin",
-            float_input(props.overlay_hover_gap, move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverGap(value))
-            }),
-        ));
-        placement.push(toggle_field(
-            "Stretch to edge",
-            props.layer_stretch,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::LayerStretch(value))
-            },
-        ));
-        placement.push(toggle_field(
-            "Exact point",
-            props.layer_position_enabled,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::LayerPositionEnabled(value))
-            },
-        ));
-
-        // The anchor is ignored once a point is given, so the coordinates only
-        // appear when they are the thing in charge.
+        // An exact point overrides the anchor, so the two are never both live.
         if props.layer_position_enabled {
             placement.push(field(
                 "X",
@@ -3480,7 +3450,41 @@ pub fn overlay_controls<'a>(
                     Message::PropertyChanged(widget_id, PropertyChange::LayerPositionY(value))
                 }),
             ));
+        } else {
+            placement.push(field(
+                "Anchor",
+                pick_list(
+                    Some(props.layer_anchor),
+                    OverlayAnchor::ALL,
+                    ToString::to_string,
+                )
+                .on_select(move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::LayerAnchor(value))
+                })
+                .width(FIELD_WIDTH),
+            ));
+            placement.push(field(
+                "Margin",
+                float_input(props.overlay_hover_gap, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverGap(value))
+                }),
+            ));
+            placement.push(toggle_field(
+                "Stretch to edge",
+                props.layer_stretch,
+                move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::LayerStretch(value))
+                },
+            ));
         }
+
+        placement.push(toggle_field(
+            "Exact point",
+            props.layer_position_enabled,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerPositionEnabled(value))
+            },
+        ));
     }
 
     if is_toast {
@@ -3503,17 +3507,130 @@ pub fn overlay_controls<'a>(
             }),
         ));
         placement.push(field(
-            "Spacing",
+            "Gap Between",
             float_input(props.toast_spacing, move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::ToastSpacing(value))
             }),
         ));
     }
 
+    // ── Window chrome, Layer only ────────────────────────────────────────────
+    // The title bar, the handles you move and resize it by: the things that
+    // make a layer feel like a window rather than a panel.
+    let mut window = Vec::new();
+
+    if is_layer {
+        window.push(toggle_field(
+            "Title bar",
+            !props.overlay_hide_header,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayHideHeader(!value))
+            },
+        ));
+
+        // Nothing else in this group exists without the bar itself.
+        if !props.overlay_hide_header {
+            window.push(field(
+                "Title",
+                text_input("Overlay", &props.overlay_title)
+                    .on_input(move |value| {
+                        Message::PropertyChanged(widget_id, PropertyChange::OverlayTitle(value))
+                    })
+                    .width(FIELD_WIDTH),
+            ));
+            window.push(toggle_field(
+                "Close button",
+                !props.overlay_hide_close_button,
+                move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::OverlayHideCloseButton(!value),
+                    )
+                },
+            ));
+        }
+
+        window.push(toggle_field(
+            "Draggable",
+            !props.overlay_block_dragging,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayBlockDragging(!value))
+            },
+        ));
+        window.push(field(
+            "Resize",
+            pick_list(
+                Some(props.overlay_resizable),
+                vec![
+                    OverlayResizeMode::None,
+                    OverlayResizeMode::Always,
+                    OverlayResizeMode::WithCtrl,
+                ],
+                ToString::to_string,
+            )
+            .on_select(move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayResizable(value))
+            })
+            .width(FIELD_WIDTH),
+        ));
+    }
+
+    // ── Backdrop and dismissal ───────────────────────────────────────────────
+    let mut dismissal = Vec::new();
+
+    if is_layer {
+        dismissal.push(toggle_field(
+            "Dim the page",
+            props.overlay_opaque,
+            move |value| Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaque(value)),
+        ));
+
+        // The alpha only reaches the screen when there is a backdrop for it.
+        if props.overlay_opaque {
+            dismissal.push(field(
+                "Dim Amount",
+                slider(0.1..=1.0, props.overlay_opaque_alpha, move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaqueAlpha(value))
+                })
+                .step(0.05)
+                .width(FIELD_WIDTH),
+            ));
+        }
+
+        dismissal.push(toggle_field(
+            "Close on backdrop",
+            props.overlay_close_on_click_outside,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::OverlayCloseOnClickOutside(value),
+                )
+            },
+        ));
+        dismissal.push(toggle_field(
+            "Close on Escape",
+            props.layer_dismiss_on_escape,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::LayerDismissOnEscape(value))
+            },
+        ));
+    } else if is_popover {
+        dismissal.push(toggle_field(
+            "Close on outside press",
+            props.overlay_close_on_click_outside,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::OverlayCloseOnClickOutside(value),
+                )
+            },
+        ));
+    }
+
     // ── Menu panel ───────────────────────────────────────────────────────────
     let menu_panel: Element<'a, Message> = if is_menu {
         section(
-            "Menu Panel",
+            "Rows",
             column![
                 field_grid(vec![
                     field(
@@ -3547,24 +3664,10 @@ pub fn overlay_controls<'a>(
                         ))
                         .width(FIELD_WIDTH),
                     ),
-                    toggle_field("Plain trigger", props.menu_plain_trigger, move |value| {
-                        Message::PropertyChanged(
-                            widget_id,
-                            PropertyChange::MenuPlainTrigger(value),
-                        )
-                    }),
                 ]),
                 padding_field("Row Padding", props.menu_item_padding, move |padding| {
                     Message::PropertyChanged(widget_id, PropertyChange::MenuItemPadding(padding))
                 }),
-                padding_field(
-                    "Trigger Padding",
-                    props.menu_trigger_padding,
-                    move |padding| Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::MenuTriggerPadding(padding)
-                    ),
-                ),
             ]
             .spacing(SECTION_SPACING),
         )
@@ -3572,153 +3675,112 @@ pub fn overlay_controls<'a>(
         nothing()
     };
 
-    // ── Behaviour ────────────────────────────────────────────────────────────
-    // A menu owns its own open state: it has neither an `open` flag for the
-    // application to drive nor a dismissal setting, so neither is offered.
-    let mut behaviour: Vec<Element<'a, Message>> = Vec::new();
-
-    if !is_menu {
-        behaviour.push(toggle_field(
-            "Start open",
-            props.overlay_initially_open,
-            move |value| {
-                Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::OverlayInitiallyOpen(value),
-                )
-            },
-        ));
-    }
-
-    if !is_toast && !is_menu {
-        behaviour.push(toggle_field(
-            if is_layer {
-                "Close on backdrop"
-            } else {
-                "Close on outside press"
-            },
-            props.overlay_close_on_click_outside,
-            move |value| {
-                Message::PropertyChanged(
-                    widget_id,
-                    PropertyChange::OverlayCloseOnClickOutside(value),
-                )
-            },
-        ));
-    }
-
-    if is_popover {
-        behaviour.push(toggle_field(
-            "Open on hover",
-            props.overlay_on_hover,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::OverlayOnHover(value))
-            },
-        ));
-
-        // The corridor is the forgiving path between trigger and surface, so it
-        // only means anything when hovering is what opens the popover.
-        if props.overlay_on_hover {
-            behaviour.push(toggle_field(
-                "Safe corridor",
-                props.overlay_safe_triangle,
-                move |value| {
-                    Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::OverlaySafeTriangle(value),
-                    )
-                },
-            ));
-        }
-    }
-
-    if is_layer {
-        behaviour.push(toggle_field(
-            "Close on Escape",
-            props.layer_dismiss_on_escape,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::LayerDismissOnEscape(value))
-            },
-        ));
-        behaviour.push(toggle_field(
-            "Draggable",
-            !props.overlay_block_dragging,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::OverlayBlockDragging(!value))
-            },
-        ));
-        behaviour.push(field(
-            "Resize",
-            pick_list(
-                Some(props.overlay_resizable),
-                vec![
-                    OverlayResizeMode::None,
-                    OverlayResizeMode::Always,
-                    OverlayResizeMode::WithCtrl,
-                ],
-                ToString::to_string,
-            )
-            .on_select(move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::OverlayResizable(value))
-            })
-            .width(FIELD_WIDTH),
-        ));
-        behaviour.push(toggle_field("Dim the page", props.overlay_opaque, move |value| {
-            Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaque(value))
-        }));
-
-        // The alpha only reaches the screen when there is a backdrop to apply
-        // it to.
-        if props.overlay_opaque {
-            behaviour.push(field(
-                "Dim Amount",
-                slider(0.1..=1.0, props.overlay_opaque_alpha, move |value| {
-                    Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaqueAlpha(value))
-                })
-                .step(0.05)
-                .width(FIELD_WIDTH),
-            ));
-        }
-    }
-
-    // ── Title bar, for the one widget that draws one ─────────────────────────
-    let title_bar: Element<'a, Message> = if is_layer {
-        let mut fields = vec![toggle_field(
-            "Show title bar",
-            !props.overlay_hide_header,
-            move |value| {
-                Message::PropertyChanged(widget_id, PropertyChange::OverlayHideHeader(!value))
-            },
-        )];
-
-        // Nothing else in this group exists without the bar itself.
-        if !props.overlay_hide_header {
-            fields.push(field(
-                "Title",
-                text_input("Overlay", &props.overlay_title)
-                    .on_input(move |value| {
-                        Message::PropertyChanged(widget_id, PropertyChange::OverlayTitle(value))
-                    })
-                    .width(FIELD_WIDTH),
-            ));
-            fields.push(toggle_field(
-                "Close button",
-                !props.overlay_hide_close_button,
-                move |value| {
-                    Message::PropertyChanged(
-                        widget_id,
-                        PropertyChange::OverlayHideCloseButton(!value),
-                    )
-                },
-            ));
-        }
-
-        section("Title Bar", field_grid(fields))
-    } else {
+    // ── Trigger ──────────────────────────────────────────────────────────────
+    // Without a trigger child the widget draws a plain button in its place, and
+    // the widget's own size, padding and style describe that button.
+    let trigger: Element<'a, Message> = if !is_anchored {
         nothing()
+    } else {
+        let mut behaviour = Vec::new();
+
+        if is_popover {
+            behaviour.push(toggle_field(
+                "Open on hover",
+                props.overlay_on_hover,
+                move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::OverlayOnHover(value))
+                },
+            ));
+
+            // The corridor is the forgiving path between trigger and surface,
+            // so it only means anything when hovering is what opens it.
+            if props.overlay_on_hover {
+                behaviour.push(toggle_field(
+                    "Safe corridor",
+                    props.overlay_safe_triangle,
+                    move |value| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::OverlaySafeTriangle(value),
+                        )
+                    },
+                ));
+            }
+        }
+
+        if is_menu {
+            behaviour.push(toggle_field(
+                "Plain trigger",
+                props.menu_plain_trigger,
+                move |value| {
+                    Message::PropertyChanged(widget_id, PropertyChange::MenuPlainTrigger(value))
+                },
+            ));
+        }
+
+        let body: Element<'a, Message> = if has_trigger_child {
+            let mut rows = column![
+                text(
+                    "The trigger child renders unchanged: the widget wraps it without \
+                     adding padding or styling of its own.",
+                )
+                .size(LABEL_SIZE)
+                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+            ]
+            .spacing(SECTION_SPACING);
+
+            if !behaviour.is_empty() {
+                rows = rows.push(field_grid(behaviour));
+            }
+
+            if is_menu {
+                rows = rows.push(padding_field(
+                    "Trigger Padding",
+                    props.menu_trigger_padding,
+                    move |padding| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuTriggerPadding(padding),
+                        )
+                    },
+                ));
+            }
+
+            rows.into()
+        } else {
+            column![
+                text("No trigger child, so the widget draws a button in its place.")
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                field_grid(behaviour),
+                custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
+                conditional_style_section(
+                    widget_id,
+                    props,
+                    theme,
+                    view_id,
+                    h.root(),
+                    views,
+                    type_system
+                ),
+                size_controls_scrollable_aware(
+                    props.width,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
+                    props.height,
+                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
+                    h,
+                    widget_id,
+                ),
+                padding_controls(props.padding, widget_id, props.padding_mode, theme),
+            ]
+            .spacing(SECTION_SPACING)
+            .into()
+        };
+
+        section("Trigger", body)
     };
 
-    // ── Animation ────────────────────────────────────────────────────────────
+    // ── Animation and visibility ─────────────────────────────────────────────
     let mut animation = vec![toggle_field(
         "Animate",
         props.overlay_animate,
@@ -3747,62 +3809,52 @@ pub fn overlay_controls<'a>(
         ));
     }
 
-    // ── Trigger ──────────────────────────────────────────────────────────────
-    // Without a trigger child the widget draws a plain button in its place, and
-    // that button is stylable and sizable like any other.
-    let trigger: Element<'a, Message> = if !is_anchored {
-        nothing()
-    } else if has_trigger_child {
-        section(
-            "Trigger",
-            text(
-                "The trigger child renders unchanged: the widget wraps it without \
-                 adding padding or styling of its own.",
-            )
-            .size(LABEL_SIZE)
-            .color(Color::from_rgb(0.6, 0.6, 0.6)),
-        )
-    } else {
-        section(
-            "Trigger",
-            column![
-                custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
-                conditional_style_section(
-                    widget_id,
-                    props,
-                    theme,
-                    view_id,
-                    h.root(),
-                    views,
-                    type_system
-                ),
-                size_controls_scrollable_aware(
-                    props.width,
-                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
-                    props.height,
-                    move |l| Message::PropertyChanged(widget_id, PropertyChange::Height(l)),
-                    h,
-                    widget_id,
-                ),
-                padding_controls(props.padding, widget_id, props.padding_mode, theme),
-                clip_control(widget_id, props.clip, theme),
-            ]
-            .spacing(SECTION_SPACING),
-        )
+    // A menu owns its own open state, so there is nothing to start open.
+    if !is_menu {
+        animation.push(toggle_field(
+            "Start open",
+            props.overlay_initially_open,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::OverlayInitiallyOpen(value))
+            },
+        ));
+    }
+
+    // ── Assembly, in the order each widget reads ─────────────────────────────
+    let mut sections: Vec<Element<'a, Message>> = vec![header.into()];
+
+    let mut push = |title: &'a str, fields: Vec<Element<'a, Message>>| {
+        if !fields.is_empty() {
+            sections.push(section(title, field_grid(fields)));
+        }
     };
 
-    let content = column![
-        header,
-        section("Surface", field_grid(surface)),
-        section("Placement", field_grid(placement)),
-        menu_panel,
-        title_bar,
-        section("Behaviour", field_grid(behaviour)),
-        section("Animation", field_grid(animation)),
-        trigger,
-    ]
-    .spacing(MAIN_SPACING)
-    .into();
+    if is_layer {
+        push("Window", window);
+        push("Placement", placement);
+        push("Size", size);
+        push("Backdrop", dismissal);
+        push("Appearance", appearance);
+        push("Animation", animation);
+    } else {
+        push("Placement", placement);
+        push("Size", size);
+        push("Appearance", appearance);
+        push("Behaviour", dismissal);
+        push("Animation", animation);
+    }
+
+    if is_menu {
+        sections.push(menu_panel);
+    }
+
+    if is_anchored {
+        sections.push(trigger);
+    }
+
+    let content = Column::with_children(sections)
+        .spacing(MAIN_SPACING)
+        .into();
 
     scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
         .into()
@@ -6515,15 +6567,27 @@ pub fn padding_field<'a>(
 /// across the editor at its default width.
 const FIELD_WIDTH: f32 = 168.0;
 
+/// The height of one control in the property grid.
+///
+/// A pick list, a text entry and a checkbox are all different heights on their
+/// own, which left a wrapped row looking ragged. Boxing each to the same height
+/// keeps the rows level whatever mix of controls lands on them.
+const CONTROL_HEIGHT: f32 = 32.0;
+
 /// A labelled control, sized to the property grid.
 pub fn field<'a>(
     label: &'a str,
     control: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    column![text(label).size(LABEL_SIZE), control.into()]
-        .spacing(LABEL_SPACING)
-        .width(FIELD_WIDTH)
-        .into()
+    column![
+        text(label).size(LABEL_SIZE),
+        container(control.into())
+            .height(CONTROL_HEIGHT)
+            .align_y(Alignment::Center),
+    ]
+    .spacing(LABEL_SPACING)
+    .width(FIELD_WIDTH)
+    .into()
 }
 
 /// Lays fields out across the available width, wrapping onto further rows.
@@ -6575,7 +6639,9 @@ pub fn toggle_field<'a>(
 ) -> Element<'a, Message> {
     column![
         text(" ").size(LABEL_SIZE),
-        checkbox(checked).label(label).on_toggle(on_toggle),
+        container(checkbox(checked).label(label).on_toggle(on_toggle))
+            .height(CONTROL_HEIGHT)
+            .align_y(Alignment::Center),
     ]
     .spacing(LABEL_SPACING)
     .width(FIELD_WIDTH)
