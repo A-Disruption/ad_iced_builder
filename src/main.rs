@@ -131,6 +131,9 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
+    /// The action graph reported an edit.
+    #[cfg(not(feature = "action_editor"))]
+    ActionGraph(action_system::node_graph::GraphMessage),
     #[cfg(feature = "action_editor")]
     ActionEditor(action_editor::Message),
 }
@@ -394,6 +397,18 @@ impl AdUiBuilder {
                         .map(|m| Message::ViewMessages(ViewMessage::ActionEditor(m)));
                         self.regenerate_code();
                         return task;
+                    }
+                    // The action graph owns the flow it is showing, so the
+                    // reducer says whether anything generated changed.
+                    #[cfg(not(feature = "action_editor"))]
+                    ViewMessage::ActionGraph(msg) => {
+                        if let Some(flow) = self.flows.first_mut()
+                            && action_system::node_graph::update(&mut flow.graph, msg)
+                        {
+                            self.regenerate_code();
+                        }
+
+                        return Task::none();
                     }
                     ViewMessage::WindowSettings(msg) => {
                         if let settings_views::window_settings::Message::UpdateTheme(theme) = msg {
@@ -777,6 +792,22 @@ impl AdUiBuilder {
                 &self.type_system,
             )
             .map(|m| Message::ViewMessages(ViewMessage::ActionEditor(m))),
+
+            // The action editor, rebuilt on `iced_nodegraph`. Shows the first
+            // flow; the flow browser that picks between them is the next
+            // piece, and lives in the parked `action_editor` module.
+            #[cfg(not(feature = "action_editor"))]
+            navigation_bar::ViewSelection::Actions => match self.flows.first() {
+                Some(flow) => action_system::node_graph::view(&flow.graph)
+                    .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))),
+                None => container(
+                    text("No flows yet. The flow browser is the next piece.").size(14),
+                )
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
+                .into(),
+            },
+
             _ => container("No done, sorry :(").into(),
         };
 

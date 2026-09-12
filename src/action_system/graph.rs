@@ -768,7 +768,7 @@ impl ActionNodeData {
     }
 }
 
-fn node_width(kind: &ActionNodeKind) -> f32 {
+pub fn node_width(kind: &ActionNodeKind) -> f32 {
     match kind {
         ActionNodeKind::Trigger { .. } => 380.0,
         ActionNodeKind::NavigateToView { .. } => 430.0,
