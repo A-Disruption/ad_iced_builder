@@ -16,6 +16,7 @@ use iced::{Alignment, Element, Length, Point};
 use iced_nodegraph::prelude::*;
 
 use super::flow_model::{PortDef, PortSide, PortType};
+use super::flow::{AppFlow, FlowTrigger};
 use super::graph::{ActionEdge, ActionGraph, ActionNodeData, ActionNodeId, node_width};
 
 /// The id vocabulary the action editor speaks to `iced_nodegraph`.
@@ -141,13 +142,26 @@ fn node_content<'a>(node: &ActionNodeData) -> Element<'a, GraphMessage> {
 pub enum Message {
     Graph(GraphMessage),
     Palette(PaletteMessage),
+    Flow(FlowMessage),
 }
 
-/// The action editor: the graph, with right-click to add a node.
-pub fn editor<'a>(
-    graph: &'a ActionGraph,
-    palette: &'a PaletteState,
-) -> Element<'a, Message> {
+/// The action editor: a flow bar, and the flow's graph with right-click to
+/// add a node.
+pub fn editor<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, Message> {
+    let bar = flow_bar(flows, state);
+
+    let Some(flow) = state.selected(flows) else {
+        return column![
+            bar,
+            container(text("No flows yet. Add one to start wiring actions.").size(14))
+                .center_x(Length::Fill)
+                .center_y(Length::Fill),
+        ]
+        .into();
+    };
+
+    let (graph, palette) = (&flow.graph, &state.palette);
+
     // The graph has no background-click callback, so the right-click that
     // opens the palette is caught out here. `mouse_area` reports the cursor
     // relative to its own bounds, which is the coordinate space
@@ -157,7 +171,7 @@ pub fn editor<'a>(
         .on_right_press(Message::Palette(PaletteMessage::Opened));
 
     let Some(open) = &palette.open else {
-        return canvas.into();
+        return column![bar, canvas].into();
     };
 
     // `layer` positions against the viewport and draws as an overlay, so it
@@ -170,7 +184,7 @@ pub fn editor<'a>(
         .on_dismiss(Message::Palette(PaletteMessage::Closed))
         .padding(0.0);
 
-    iced::widget::stack![canvas, palette].into()
+    column![bar, iced::widget::stack![canvas, palette]].into()
 }
 
 /// Builds the widget for a whole [`ActionGraph`].
@@ -667,5 +681,177 @@ mod palette_tests {
         assert!(!update_palette(&mut graph, &mut palette, PaletteMessage::Closed));
         assert!(!palette.is_open());
         assert_eq!(graph.nodes.len(), before);
+    }
+}
+
+// ─── Flow bar ────────────────────────────────────────────────────────────────
+// The full flow browser -- named actions, subscriptions, widget-event rows --
+// is still in the parked `views::action_editor`. This is the minimum that
+// makes the editor usable: somewhere to create a flow, and a way to pick which
+// one is on screen.
+
+/// Which flow the editor is showing, and the palette over it.
+#[derive(Debug, Clone, Default)]
+pub struct EditorState {
+    pub palette: PaletteState,
+    /// Index into the app's flows. Clamped on use, so removing a flow cannot
+    /// leave this pointing past the end.
+    selected: usize,
+}
+
+impl EditorState {
+    /// The flow being edited, if there is one.
+    pub fn selected<'f>(&self, flows: &'f [AppFlow]) -> Option<&'f AppFlow> {
+        flows.get(self.selected.min(flows.len().saturating_sub(1)))
+    }
+
+    fn selected_mut<'f>(&self, flows: &'f mut [AppFlow]) -> Option<&'f mut AppFlow> {
+        let index = self.selected.min(flows.len().saturating_sub(1));
+        flows.get_mut(index)
+    }
+
+    /// The selected flow's graph, which is what the widget edits.
+    pub fn selected_mut_graph<'f>(
+        &self,
+        flows: &'f mut [AppFlow],
+    ) -> Option<&'f mut ActionGraph> {
+        self.selected_mut(flows).map(|flow| &mut flow.graph)
+    }
+}
+
+/// What the flow bar reports.
+#[derive(Debug, Clone)]
+pub enum FlowMessage {
+    Selected(usize),
+    Added,
+    Renamed(String),
+}
+
+/// Applies a flow-bar message. Returns whether the generated code changed.
+pub fn update_flows(
+    flows: &mut Vec<AppFlow>,
+    state: &mut EditorState,
+    message: FlowMessage,
+) -> bool {
+    match message {
+        FlowMessage::Selected(index) => {
+            state.selected = index;
+            // Which flow is on screen is not part of the output.
+            false
+        }
+
+        FlowMessage::Added => {
+            let name = format!("flow_{}", flows.len() + 1);
+            flows.push(AppFlow::new(name, FlowTrigger::Callable));
+            state.selected = flows.len() - 1;
+
+            true
+        }
+
+        FlowMessage::Renamed(name) => {
+            let Some(flow) = state.selected_mut(flows) else {
+                return false;
+            };
+
+            flow.name = name;
+            true
+        }
+    }
+}
+
+/// A tab per flow, plus the button that makes one.
+fn flow_bar<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, Message> {
+    let selected = state.selected.min(flows.len().saturating_sub(1));
+
+    let tabs = flows.iter().enumerate().map(|(index, flow)| {
+        iced::widget::button(text(&flow.name).size(12))
+            .on_press(Message::Flow(FlowMessage::Selected(index)))
+            .style(if index == selected {
+                iced::widget::button::primary
+            } else {
+                iced::widget::button::text
+            })
+            .into()
+    });
+
+    let name = state.selected(flows).map(|flow| flow.name.as_str());
+
+    container(
+        row![
+            row(tabs).spacing(4).wrap(),
+            iced::widget::button(text("+ Flow").size(12))
+                .on_press(Message::Flow(FlowMessage::Added))
+                .style(iced::widget::button::secondary),
+            iced::widget::space::horizontal(),
+            // Renaming the selected flow, which is what the generated method
+            // is named after.
+            iced::widget::text_input("flow name", name.unwrap_or_default())
+                .on_input(|name| Message::Flow(FlowMessage::Renamed(name)))
+                .size(12)
+                .width(Length::Fixed(180.0)),
+        ]
+        .spacing(8)
+        .align_y(Alignment::Center),
+    )
+    .padding(6)
+    .width(Length::Fill)
+    .into()
+}
+
+#[cfg(test)]
+mod flow_tests {
+    use super::*;
+
+    #[test]
+    fn adding_a_flow_selects_it() {
+        let mut flows: Vec<AppFlow> = Vec::new();
+        let mut state = EditorState::default();
+
+        assert!(state.selected(&flows).is_none());
+
+        assert!(update_flows(&mut flows, &mut state, FlowMessage::Added));
+        assert!(update_flows(&mut flows, &mut state, FlowMessage::Added));
+
+        assert_eq!(flows.len(), 2);
+        assert_eq!(
+            state.selected(&flows).map(|flow| flow.name.as_str()),
+            Some("flow_2"),
+            "a new flow should be the one on screen",
+        );
+    }
+
+    #[test]
+    fn renaming_hits_the_selected_flow() {
+        let mut flows: Vec<AppFlow> = Vec::new();
+        let mut state = EditorState::default();
+
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Added);
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Added);
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Selected(0));
+
+        assert!(update_flows(
+            &mut flows,
+            &mut state,
+            FlowMessage::Renamed("on_save".to_string()),
+        ));
+
+        assert_eq!(flows[0].name, "on_save");
+        assert_eq!(flows[1].name, "flow_2");
+    }
+
+    #[test]
+    fn a_stale_selection_does_not_index_past_the_end() {
+        let mut flows: Vec<AppFlow> = Vec::new();
+        let mut state = EditorState::default();
+
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Added);
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Added);
+        let _ = update_flows(&mut flows, &mut state, FlowMessage::Selected(1));
+
+        // Something else removed a flow behind the editor's back.
+        flows.pop();
+
+        assert!(state.selected(&flows).is_some());
+        assert_eq!(state.selected(&flows).unwrap().name, "flow_1");
     }
 }

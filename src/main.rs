@@ -88,9 +88,9 @@ struct AdUiBuilder {
     /// App-level flows (moved out of AppView — flows are not view-specific).
     flows: Vec<AppFlow>,
 
-    /// The action editor's right-click palette. Closed when nothing is open.
+    /// Which flow the action editor shows, and its right-click palette.
     #[cfg(not(feature = "action_editor"))]
-    action_palette: action_system::node_graph::PaletteState,
+    action_editor: action_system::node_graph::EditorState,
 
     save_path: Option<PathBuf>,
     unsaved_changes: bool,
@@ -177,7 +177,7 @@ impl AdUiBuilder {
             action_editor: views::action_editor::ActionEditorState::default(),
             flows: Vec::new(),
             #[cfg(not(feature = "action_editor"))]
-            action_palette: Default::default(),
+            action_editor: Default::default(),
 
             save_path: None,
             unsaved_changes: false,
@@ -410,19 +410,32 @@ impl AdUiBuilder {
                     ViewMessage::ActionGraph(msg) => {
                         use action_system::node_graph;
 
-                        let Some(flow) = self.flows.first_mut() else {
-                            return Task::none();
-                        };
-
+                        // The flow bar owns the list; the graph and palette act on
+                        // whichever flow it has selected.
                         let changed = match msg {
-                            node_graph::Message::Graph(msg) => {
-                                node_graph::update(&mut flow.graph, msg)
-                            }
-                            node_graph::Message::Palette(msg) => node_graph::update_palette(
-                                &mut flow.graph,
-                                &mut self.action_palette,
+                            node_graph::Message::Flow(msg) => node_graph::update_flows(
+                                &mut self.flows,
+                                &mut self.action_editor,
                                 msg,
                             ),
+                            node_graph::Message::Graph(msg) => self
+                                .action_editor
+                                .selected_mut_graph(&mut self.flows)
+                                .is_some_and(|graph| node_graph::update(graph, msg)),
+                            node_graph::Message::Palette(msg) => {
+                                let palette = &mut self.action_editor.palette;
+                                let mut state = std::mem::take(palette);
+
+                                let changed = self
+                                    .action_editor
+                                    .selected_mut_graph(&mut self.flows)
+                                    .is_some_and(|graph| {
+                                        node_graph::update_palette(graph, &mut state, msg)
+                                    });
+
+                                self.action_editor.palette = state;
+                                changed
+                            }
                         };
 
                         if changed {
@@ -818,18 +831,9 @@ impl AdUiBuilder {
             // flow; the flow browser that picks between them is the next
             // piece, and lives in the parked `action_editor` module.
             #[cfg(not(feature = "action_editor"))]
-            navigation_bar::ViewSelection::Actions => match self.flows.first() {
-                Some(flow) => {
-                    action_system::node_graph::editor(&flow.graph, &self.action_palette)
-                        .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg)))
-                }
-                None => container(
-                    text("No flows yet. The flow browser is the next piece.").size(14),
-                )
-                .center_x(Length::Fill)
-                .center_y(Length::Fill)
-                .into(),
-            },
+            navigation_bar::ViewSelection::Actions =>
+                action_system::node_graph::editor(&self.flows, &self.action_editor)
+                    .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))),
 
             _ => container("No done, sorry :(").into(),
         };
@@ -1162,7 +1166,7 @@ impl AdUiBuilder {
             action_editor: views::action_editor::ActionEditorState::default(),
             flows,
             #[cfg(not(feature = "action_editor"))]
-            action_palette: Default::default(),
+            action_editor: Default::default(),
             save_path: None,
             unsaved_changes: false,
             pending_new_project: false,
