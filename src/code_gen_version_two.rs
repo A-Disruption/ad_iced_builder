@@ -793,7 +793,7 @@ mod tests {
     fn generate_icon_project() -> std::collections::HashMap<String, String> {
         use super::CodeGeneratorV2;
         use crate::data_structures::types::types::{AppView, WidgetType};
-        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
         use crate::{Window, WindowEnum};
 
         let view_id = uuid::Uuid::new_v4();
@@ -834,6 +834,9 @@ mod tests {
             input.properties.text_input_icon_family = "lucide".to_string();
             input.properties.text_input_icon_name = "search".to_string();
             input.properties.text_input_icon_size = 16.0;
+            // A style is what carries the icon's colour, and iced master has
+            // nowhere in `text_input::Style` to put it.
+            input.properties.custom_style_name = Some("Search Field".to_string());
         }
 
         let views = std::collections::BTreeMap::from([(view_id, view)]);
@@ -845,11 +848,66 @@ mod tests {
         let theme = iced::Theme::Dark;
         let type_system = crate::enum_builder::TypeSystem::new();
 
+        let mut themes = CustomThemes::new(&theme);
+        let mut styles = themes.styles().clone();
+        styles
+            .entry(ThemePaneEnum::TextInput)
+            .or_default()
+            .insert("Search Field".to_string(), search_field_style());
+        themes.restore_styles(styles);
+
         let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
-        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+        let files = generator.generate_project_structure(&themes);
 
         dump_project(&files);
         files
+    }
+
+    /// A text-input style whose icon colour comes off the palette, so the
+    /// companion that carries it has to resolve a theme rather than emit a
+    /// literal.
+    fn search_field_style() -> crate::styles::style_enum::SavedStyleDefinition {
+        use crate::styles::style_enum::{RuleFillMode, SavedStyleDefinition};
+        use crate::views::theme_and_stylefn_builder::ThemePaneEnum;
+        use iced::Color;
+
+        SavedStyleDefinition {
+            name: "Search Field".into(),
+            widget_type: ThemePaneEnum::TextInput,
+            text_color: Color::WHITE,
+            text_color_source: None,
+            background_color: Color::BLACK,
+            background_color_source: None,
+            border_color: Color::WHITE,
+            border_color_source: None,
+            border_width: 1.0,
+            border_radius_top_left: 4.0,
+            border_radius_top_right: 4.0,
+            border_radius_bottom_right: 4.0,
+            border_radius_bottom_left: 4.0,
+            shadow_enabled: false,
+            shadow_color: Color::TRANSPARENT,
+            shadow_color_source: None,
+            shadow_offset_x: 0.0,
+            shadow_offset_y: 0.0,
+            shadow_blur_radius: 0.0,
+            snap: false,
+            rule_fill_mode: RuleFillMode::Full,
+            icon_color: Color::from_rgb(0.5, 0.5, 0.5),
+            icon_color_source: Some("theme.palette().primary.base.color".to_string()),
+            placeholder_color: Color::from_rgb(0.6, 0.6, 0.6),
+            placeholder_color_source: None,
+            selection_color: Color::from_rgb(0.2, 0.3, 0.4),
+            selection_color_source: None,
+            selected_text_color: Color::BLACK,
+            selected_text_color_source: None,
+            selected_background_color: Color::WHITE,
+            selected_background_color_source: None,
+            status_hovered: None,
+            status_pressed: None,
+            status_disabled: None,
+            status_focused: None,
+        }
     }
 
     #[test]
@@ -879,6 +937,34 @@ mod tests {
         let cargo = files.get("Cargo.toml").expect("Cargo.toml is generated");
         assert!(cargo.contains("iced_lucide = { git ="));
         assert!(cargo.contains("features = [\"fontawesome\"]"));
+    }
+
+    #[test]
+    fn an_inputs_icon_takes_its_colour_from_the_style() {
+        let files = generate_icon_project();
+        let main = files.get("main.rs").expect("main.rs is generated");
+        let styles = files.get("styles.rs").expect("styles.rs is generated");
+
+        // The name has a space in it, which is not an identifier -- the
+        // reference and the definition have to agree on what it became.
+        assert!(
+            styles.contains("pub fn search_field(theme: &Theme, status: text_input::Status)"),
+            "the style function should be named for the style",
+        );
+        assert!(main.contains("styles::text_input::search_field)"));
+
+        // iced master has no `text_input::Style::icon`, so emitting one would
+        // not compile.
+        assert!(
+            !styles.contains("icon:"),
+            "a field iced master does not have reached `text_input::Style`",
+        );
+
+        // It goes on the composed icon instead, through the style closure so
+        // it can read the theme -- `view` has none to resolve it with.
+        assert!(styles.contains("pub fn search_field_icon(theme: &Theme) -> Color"));
+        assert!(styles.contains("palette.primary.base.color"));
+        assert!(main.contains("styles::text_input::search_field_icon(theme)"));
     }
 
     /// Generates a two-view project whose title bar holds the second view.

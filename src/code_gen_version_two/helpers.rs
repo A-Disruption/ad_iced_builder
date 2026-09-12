@@ -2,6 +2,16 @@ use iced::{Color, Element};
 use widgets::anchor::{Align, Side};
 use widgets::popover::{Popover, hover_popover};
 
+/// A style's name as the function `styles.rs` generates for it.
+///
+/// Every reference to a style has to spell the name the same way the
+/// definition does, and a style called "Search Field" would otherwise be
+/// referred to as `search field` — not an identifier, so the generated
+/// project would not compile.
+pub fn style_fn_name(style_name: &str) -> String {
+    style_name.to_lowercase().replace(' ', "_")
+}
+
 /// Format a color value as code, using theme source if available, otherwise RGBA.
 pub fn format_color_with_source(color: Color, source: &Option<String>) -> String {
     if let Some(src) = source {

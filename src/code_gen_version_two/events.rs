@@ -749,9 +749,6 @@ pub struct ImportTracker {
     pub uses_point: bool,
     pub uses_font: bool,
     pub uses_font_module: bool,
-    pub uses_border: bool,
-    pub uses_shadow: bool,
-    pub uses_background: bool,
     pub uses_vector: bool,
     /// True if any icon widget, or text_input/combo_box with icon enabled, is present.
     pub uses_icon: bool,
@@ -776,9 +773,6 @@ impl ImportTracker {
             uses_point: false,
             uses_font: false,
             uses_font_module: false,
-            uses_border: false,
-            uses_shadow: false,
-            uses_background: false,
             uses_vector: false,
             uses_icon: false,
         }
@@ -978,17 +972,11 @@ impl ImportTracker {
         }
 
         if widget.widget_type == WidgetType::Container {
-            if props.border_width > 0.0 {
-                self.uses_border = true;
-            }
-            if props.background_color.a > 0.0 {
-                self.uses_background = true;
-                self.uses_color = true;
-            }
-            if props.has_shadow {
-                self.uses_shadow = true;
-                self.uses_vector = true;
-            }
+            // A container's border, background and shadow reach the generated
+            // code only through a style in `styles.rs`, which carries its own
+            // imports -- the view file never spells `Border`, `Background` or
+            // `Shadow`, so claiming it does only leaves unused imports in
+            // every generated project.
             if props.align_x != ContainerAlignX::Left || props.align_y != ContainerAlignY::Top {
                 self.uses_alignment = true;
             }
@@ -1130,15 +1118,6 @@ pub fn generate_imports(
     }
     if tracker.uses_font_module {
         core_imports.push("font");
-    }
-    if tracker.uses_border {
-        core_imports.push("Border");
-    }
-    if tracker.uses_shadow {
-        core_imports.push("Shadow");
-    }
-    if tracker.uses_background {
-        core_imports.push("Background");
     }
     if tracker.uses_vector {
         core_imports.push("Vector");

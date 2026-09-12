@@ -84,6 +84,13 @@ fn bound_max(length: Length, max: Option<f32>) -> Length {
 /// in a row with the input, on the side the project asked for. It sits outside
 /// the input's border rather than inside it, which is the one visible
 /// difference from the widget iced used to draw.
+/// Composes an input's icon beside it.
+///
+/// `style` is the input's own style, whose icon colour iced master has nowhere
+/// to put — `text_input::Style` lost its `icon` field along with the built-in
+/// input icon, so it is applied here instead. The colour is resolved in the
+/// style closure rather than up front, so it tracks the live theme the same
+/// way the generated code does.
 fn with_input_icon<'a>(
     input: Element<'a, Message>,
     enabled: bool,
@@ -92,7 +99,7 @@ fn with_input_icon<'a>(
     size: f32,
     spacing: f32,
     side: TextInputIconSide,
-    color: Option<Color>,
+    style: Option<crate::styles::style_enum::SavedStyleDefinition>,
 ) -> Element<'a, Message> {
     if !enabled {
         return input;
@@ -104,9 +111,13 @@ fn with_input_icon<'a>(
         icon = icon.size(size);
     }
 
-    if let Some(color) = color {
-        icon = icon.color(color);
-    }
+    icon = icon.style(move |theme: &Theme| iced::widget::text::Style {
+        color: Some(match &style {
+            Some(definition) => definition.resolved_icon_color(theme),
+            // iced 0.14's own default for the field it removed.
+            None => theme.palette().background.weak.text,
+        }),
+    });
 
     let row = match side {
         TextInputIconSide::Left => row![icon, input],
@@ -2067,13 +2078,14 @@ fn build_text_input_preview<'a>(
     }
 
 
-    if let Some(style_name) = &props.custom_style_name {
-        if let Some(definition) =
-            custom_style_definition(custom_themes, ThemePaneEnum::TextInput, style_name)
-        {
-            input = input
-                .style(move |theme: &Theme, status| definition.to_text_input_style(theme, status));
-        }
+    let style = props
+        .custom_style_name
+        .as_deref()
+        .and_then(|name| custom_style_definition(custom_themes, ThemePaneEnum::TextInput, name));
+
+    if let Some(definition) = style.clone() {
+        input =
+            input.style(move |theme: &Theme, status| definition.to_text_input_style(theme, status));
     }
 
     with_input_icon(
@@ -2084,7 +2096,7 @@ fn build_text_input_preview<'a>(
         props.text_input_icon_size,
         props.text_input_icon_spacing,
         props.text_input_icon_side,
-        None,
+        style,
     )
 }
 
@@ -2617,11 +2629,15 @@ fn build_combo_box_preview<'a>(
     .width(props.width);
 
     let mut uses_split_styles = false;
+    // Whichever style pane the input half ends up coming from is what colours
+    // the composed icon.
+    let mut icon_style = None;
 
     if let Some(style_name) = props.custom_style_name.as_deref() {
         if let Some(definition) =
             custom_style_definition(custom_themes, ThemePaneEnum::TextInput, style_name)
         {
+            icon_style = Some(definition.clone());
             cb = cb.input_style(move |theme: &Theme, status| {
                 definition.to_text_input_style(theme, status)
             });
@@ -2643,6 +2659,8 @@ fn build_combo_box_preview<'a>(
             if let Some(definition) =
                 custom_style_definition(custom_themes, ThemePaneEnum::Combobox, style_name)
             {
+                icon_style = Some(definition.clone());
+
                 let def_input = definition.clone();
                 cb = cb.input_style(move |theme: &Theme, status| {
                     def_input.to_combo_box_input_style(theme, status)
@@ -2661,7 +2679,7 @@ fn build_combo_box_preview<'a>(
         props.combobox_icon_size,
         props.combobox_icon_spacing,
         props.combobox_icon_side,
-        None,
+        icon_style,
     )
 }
 

@@ -1,4 +1,5 @@
 use super::builder::{CodeBuilder, format_length, to_pascal_case, to_snake_case};
+use super::helpers::style_fn_name;
 use super::events::ViewRefInfo;
 use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::properties::properties::Properties;
@@ -309,7 +310,7 @@ fn generate_rule(b: &mut CodeBuilder, widget: &Widget, custom_styles: &CustomThe
             .unwrap_or(false);
         if is_custom {
             b.increase_indent();
-            b.add_style("styles::rule", &style_name.to_lowercase());
+            b.add_style("styles::rule", &style_fn_name(style_name));
             b.decrease_indent();
         }
     }
@@ -330,7 +331,7 @@ fn resolve_custom_style_fn(
     style_name: &str,
 ) -> Option<String> {
     has_custom_style(custom_styles, pane, style_name)
-        .then(|| format!("{}::{}", module, style_name.to_lowercase()))
+        .then(|| format!("{}::{}", module, style_fn_name(style_name)))
 }
 
 fn resolve_checkbox_style_fn(custom_styles: &CustomThemes, style_name: &str) -> Option<String> {
@@ -474,7 +475,7 @@ fn resolve_overlay_trigger_style_fn(
         .unwrap_or(false);
 
     if is_custom {
-        return Some(format!("styles::button_{}", style_name.to_lowercase()));
+        return Some(format!("styles::button_{}", style_fn_name(style_name)));
     }
 
     ButtonStyleType::get(style_name).map(|style| match style {
@@ -631,14 +632,53 @@ fn generate_svg(b: &mut CodeBuilder, widget: &Widget) {
 /// field's border. Composing a row is what replaces it: the icon sits outside
 /// the border rather than within it, which is a visual change, but it is the
 /// only shape the current API supports.
-fn input_icon_expr(family: &str, name: &str, size: f32) -> String {
-    let call = format!("icon::{}()", super::icon_fn_name(family, name));
+/// The icon composed beside an input.
+///
+/// Its colour is set through the style closure rather than `.color(..)` so it
+/// can read the theme — `view` has no theme of its own to resolve it with.
+fn input_icon_expr(family: &str, name: &str, size: f32, color_fn: Option<&str>) -> String {
+    let mut call = format!("icon::{}()", super::icon_fn_name(family, name));
 
     if size > 0.0 {
-        format!("{call}.size({size:.1})")
-    } else {
-        call
+        call = format!("{call}.size({size:.1})");
     }
+
+    // With no style to read, iced 0.14's own default for the `text_input`
+    // field it removed.
+    let color = match color_fn {
+        Some(path) => format!("{path}(theme)"),
+        None => "theme.palette().background.weak.text".to_string(),
+    };
+
+    format!(
+        "{call}.style(|theme: &Theme| iced::widget::text::Style {{ color: Some({color}) }})"
+    )
+}
+
+/// The style's icon-colour companion, if the input has a style that carries
+/// one.
+///
+/// iced master dropped `text_input::Style::icon`, so the colour a style
+/// defines for the icon lives in a function beside the style rather than in
+/// it. See `styles::input_icon_color_fn`.
+fn input_icon_color_fn(custom_styles: &CustomThemes, style_name: Option<&str>) -> Option<String> {
+    let style_name = style_name?;
+
+    if has_custom_style(custom_styles, ThemePaneEnum::TextInput, style_name) {
+        return Some(format!(
+            "styles::text_input::{}_icon",
+            style_fn_name(style_name)
+        ));
+    }
+
+    if has_custom_style(custom_styles, ThemePaneEnum::Combobox, style_name) {
+        return Some(format!(
+            "styles::combo_box::{}_input_style_icon",
+            style_fn_name(style_name)
+        ));
+    }
+
+    None
 }
 
 /// Opens the `row!` an input's icon is composed into, emitting the icon first
@@ -766,7 +806,7 @@ fn generate_button(
             .map(|m| m.contains_key(style))
             .unwrap_or(false);
         if is_custom {
-            Some(format!("styles::button_{}", style.to_lowercase()))
+            Some(format!("styles::button_{}", style_fn_name(style)))
         } else if let Some(bst) = ButtonStyleType::get(style) {
             match bst {
                 ButtonStyleType::Secondary => Some("button::secondary".to_string()),
@@ -1343,7 +1383,7 @@ fn generate_picklist(
 
     if let Some(style_name) = props.menu_style_name.as_deref() {
         if has_custom_style(custom_styles, ThemePaneEnum::Menu, style_name) {
-            b.add_menu_style("styles::menu", &style_name.to_lowercase());
+            b.add_menu_style("styles::menu", &style_fn_name(style_name));
         }
     }
 }
@@ -1456,10 +1496,13 @@ fn generate_textinput(
     let has_custom_name = !widget.properties.widget_name.trim().is_empty();
 
     let icon = props.text_input_icon_enabled.then(|| {
+        let color_fn = input_icon_color_fn(custom_styles, props.custom_style_name.as_deref());
+
         input_icon_expr(
             &props.text_input_icon_family,
             &props.text_input_icon_name,
             props.text_input_icon_size,
+            color_fn.as_deref(),
         )
     });
 
@@ -1519,7 +1562,7 @@ fn generate_textinput(
 
     if let Some(style_name) = props.custom_style_name.as_deref() {
         if has_custom_style(custom_styles, ThemePaneEnum::TextInput, style_name) {
-            b.add_style("styles::text_input", &style_name.to_lowercase());
+            b.add_style("styles::text_input", &style_fn_name(style_name));
         }
     }
 
@@ -1550,10 +1593,13 @@ fn generate_combobox(
     let has_custom_name = !widget.properties.widget_name.trim().is_empty();
 
     let icon = props.combobox_icon_enabled.then(|| {
+        let color_fn = input_icon_color_fn(custom_styles, props.custom_style_name.as_deref());
+
         input_icon_expr(
             &props.combobox_icon_family,
             &props.combobox_icon_name,
             props.combobox_icon_size,
+            color_fn.as_deref(),
         )
     });
 
@@ -1631,14 +1677,14 @@ fn generate_combobox(
     let mut uses_split_styles = false;
     if let Some(style_name) = props.custom_style_name.as_deref() {
         if has_custom_style(custom_styles, ThemePaneEnum::TextInput, style_name) {
-            b.add_input_style("styles::text_input", &style_name.to_lowercase());
+            b.add_input_style("styles::text_input", &style_fn_name(style_name));
             uses_split_styles = true;
         }
     }
 
     if let Some(style_name) = props.menu_style_name.as_deref() {
         if has_custom_style(custom_styles, ThemePaneEnum::Menu, style_name) {
-            b.add_menu_style("styles::menu", &style_name.to_lowercase());
+            b.add_menu_style("styles::menu", &style_fn_name(style_name));
             uses_split_styles = true;
         }
     }
@@ -1648,11 +1694,11 @@ fn generate_combobox(
             if has_custom_style(custom_styles, ThemePaneEnum::Combobox, style) {
                 b.add_input_style(
                     "styles::combo_box",
-                    &format!("{}_input_style", style.to_lowercase()),
+                    &format!("{}_input_style", style_fn_name(style)),
                 );
                 b.add_menu_style(
                     "styles::combo_box",
-                    &format!("{}_menu_style", style.to_lowercase()),
+                    &format!("{}_menu_style", style_fn_name(style)),
                 );
             }
         }

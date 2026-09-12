@@ -222,6 +222,16 @@ impl SavedStyleDefinition {
         }
     }
 
+    /// The colour this style gives an input's icon.
+    ///
+    /// iced master has no `text_input::Style::icon` to put it in, so the icon
+    /// the builder composes beside the field reads it from here. It takes no
+    /// status: the icon is a separate widget now and cannot see whether the
+    /// field beside it is hovered, focused or disabled.
+    pub fn resolved_icon_color(&self, theme: &Theme) -> Color {
+        self.resolve_color(theme, self.icon_color, &self.icon_color_source)
+    }
+
     pub fn to_text_input_style(
         &self,
         theme: &Theme,
@@ -229,11 +239,9 @@ impl SavedStyleDefinition {
     ) -> text_input::Style {
         let background_color =
             self.resolve_color(theme, self.background_color, &self.background_color_source);
-        // iced master dropped `icon` from `text_input::Style` along with the
-        // built-in input icon. The property is kept because the builder now
-        // composes that icon as its own widget, which is where the colour will
-        // be applied.
-        let _icon_color = self.resolve_color(theme, self.icon_color, &self.icon_color_source);
+        // The icon colour is not here: iced master dropped `icon` from
+        // `text_input::Style` along with the built-in input icon, so the
+        // composed icon reads it through `resolved_icon_color` instead.
         let placeholder_color = self.resolve_color(
             theme,
             self.placeholder_color,
@@ -245,7 +253,7 @@ impl SavedStyleDefinition {
 
         let base = text_input::Style {
             background: Background::Color(background_color),
-            border: self.resolved_border(theme),
+            border: self.resolved_border(theme),
             placeholder: placeholder_color,
             value: text_color,
             selection: selection_color,
@@ -261,7 +269,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.value),
+                            .unwrap_or(base.value),
                         background: ov
                             .background_color
                             .map(|c| {
@@ -302,7 +310,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.value),
+                            .unwrap_or(base.value),
                         background: ov
                             .background_color
                             .map(|c| {
@@ -345,7 +353,7 @@ impl SavedStyleDefinition {
                             .map(|c| {
                                 Self::resolve_ov(Some(c), &ov.text_color_source, text_color, theme)
                             })
-                            .unwrap_or(base.placeholder),
+                            .unwrap_or(base.placeholder),
                         background: Background::Color(Self::resolve_ov(
                             ov.background_color,
                             &ov.background_color_source,
@@ -366,7 +374,7 @@ impl SavedStyleDefinition {
                     }
                 } else {
                     text_input::Style {
-                        background: Background::Color(background_color.scale_alpha(0.5)),
+                        background: Background::Color(background_color.scale_alpha(0.5)),
                         value: base.placeholder,
                         placeholder: base.placeholder.scale_alpha(0.5),
                         ..base

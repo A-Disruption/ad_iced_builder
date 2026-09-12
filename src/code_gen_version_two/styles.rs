@@ -1,4 +1,4 @@
-use super::helpers::{format_color_with_source, format_radius, format_shadow};
+use super::helpers::{format_color_with_source, format_radius, format_shadow, style_fn_name};
 use crate::styles::style_enum::{RuleFillMode, StatusColorOverride};
 use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use iced::Color;
@@ -560,9 +560,6 @@ pub fn generate_text_input_style_code(
     ));
     code.push_str(",\n");
     code.push_str("        },\n");
-    code.push_str("        icon: ");
-    code.push_str(&format_color_with_source(icon_color, icon_color_source));
-    code.push_str(",\n");
     code.push_str("        placeholder: ");
     code.push_str(&format_color_with_source(
         placeholder_color,
@@ -585,10 +582,9 @@ pub fn generate_text_input_style_code(
     code.push_str("        text_input::Status::Hovered => ");
     if let Some(ov) = status_hovered {
         let has_text = ov.text_color.is_some() || ov.text_color_source.is_some();
-        let has_icon = ov.icon_color.is_some() || ov.icon_color_source.is_some();
         let has_background = ov.background_color.is_some() || ov.background_color_source.is_some();
         let has_border = ov.border_color.is_some() || ov.border_color_source.is_some();
-        if has_text || has_icon || has_background || has_border {
+        if has_text || has_background || has_border {
             code.push_str("text_input::Style {\n");
             if has_text {
                 code.push_str(&format!(
@@ -596,15 +592,6 @@ pub fn generate_text_input_style_code(
                     format_color_with_source(
                         ov.text_color.unwrap_or(text_color),
                         &ov.text_color_source
-                    )
-                ));
-            }
-            if has_icon {
-                code.push_str(&format!(
-                    "            icon: {},\n",
-                    format_color_with_source(
-                        ov.icon_color.unwrap_or(icon_color),
-                        &ov.icon_color_source
                     )
                 ));
             }
@@ -641,10 +628,9 @@ pub fn generate_text_input_style_code(
     code.push_str("        text_input::Status::Focused { .. } => ");
     if let Some(ov) = status_focused {
         let has_text = ov.text_color.is_some() || ov.text_color_source.is_some();
-        let has_icon = ov.icon_color.is_some() || ov.icon_color_source.is_some();
         let has_background = ov.background_color.is_some() || ov.background_color_source.is_some();
         let has_border = ov.border_color.is_some() || ov.border_color_source.is_some();
-        if has_text || has_icon || has_background || has_border {
+        if has_text || has_background || has_border {
             code.push_str("text_input::Style {\n");
             if has_text {
                 code.push_str(&format!(
@@ -652,15 +638,6 @@ pub fn generate_text_input_style_code(
                     format_color_with_source(
                         ov.text_color.unwrap_or(text_color),
                         &ov.text_color_source
-                    )
-                ));
-            }
-            if has_icon {
-                code.push_str(&format!(
-                    "            icon: {},\n",
-                    format_color_with_source(
-                        ov.icon_color.unwrap_or(icon_color),
-                        &ov.icon_color_source
                     )
                 ));
             }
@@ -712,10 +689,6 @@ pub fn generate_text_input_style_code(
             )
         ));
         code.push_str(&format!(
-            "            icon: {},\n",
-            format_color_with_source(ov.icon_color.unwrap_or(icon_color), &ov.icon_color_source)
-        ));
-        code.push_str(&format!(
             "            border: Border {{ color: {}, ..base.border }},\n",
             format_color_with_source(
                 ov.border_color.unwrap_or(border_color),
@@ -726,13 +699,48 @@ pub fn generate_text_input_style_code(
         code.push_str("            ..base\n        },\n");
     } else {
         code.push_str(
-            "text_input::Style { background: base.background.scale_alpha(0.5), icon: base.icon.scale_alpha(0.5), value: base.placeholder, placeholder: base.placeholder.scale_alpha(0.5), ..base },\n",
+            "text_input::Style { background: base.background.scale_alpha(0.5), value: base.placeholder, placeholder: base.placeholder.scale_alpha(0.5), ..base },\n",
         );
     }
 
     code.push_str("    }\n");
-    code.push_str("}");
+    code.push_str("}\n\n");
+    code.push_str(&input_icon_color_fn(
+        function_name,
+        icon_color,
+        icon_color_source,
+    ));
     code
+}
+
+/// The companion that colours an input's icon.
+///
+/// iced master dropped `text_input::Style::icon` along with the built-in input
+/// icon, so a style's icon colour has nowhere to go in the style itself — the
+/// builder composes the icon as its own widget, and this is what that widget
+/// reads. It takes no status: the icon is a separate widget now and cannot see
+/// whether the field beside it is hovered, focused or disabled.
+fn input_icon_color_fn(
+    style_fn_name: &str,
+    icon_color: Color,
+    icon_color_source: &Option<String>,
+) -> String {
+    let value = format_color_with_source(icon_color, icon_color_source);
+
+    // A literal colour has no use for the palette, and binding it would only
+    // be an unused variable in the generated file.
+    let (theme_arg, binding) = match icon_color_source {
+        Some(_) => ("theme: &Theme", "    let palette = theme.palette();\n\n"),
+        None => ("_theme: &Theme", ""),
+    };
+
+    format!(
+        "/// The icon colour for `{style_fn_name}`, applied to the icon composed\n\
+         /// beside the input rather than to the input's own style.\n\
+         pub fn {style_fn_name}_icon({theme_arg}) -> Color {{\n\
+         {binding}    {value}\n\
+         }}"
+    )
 }
 
 pub fn generate_text_editor_style_code(
@@ -1758,10 +1766,6 @@ pub fn generate_combo_box_style_code(
     code.push_str(",\n");
     code.push_str("        },\n");
 
-    code.push_str("        icon: ");
-    code.push_str(&format_color_with_source(icon_color, icon_color_source));
-    code.push_str(",\n");
-
     code.push_str("        placeholder: ");
     code.push_str(&format_color_with_source(
         placeholder_color,
@@ -1896,7 +1900,12 @@ pub fn generate_combo_box_style_code(
     code.push_str(",\n");
 
     code.push_str("    }\n");
-    code.push_str("}");
+    code.push_str("}\n\n");
+    code.push_str(&input_icon_color_fn(
+        &format!("{style_name}_input_style"),
+        icon_color,
+        icon_color_source,
+    ));
 
     code
 }
@@ -1981,22 +1990,17 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
 
     let mut out = String::new();
 
-    // Top-level imports
+    // Whether a style reads the palette or a shadow depends on where the user
+    // picked each of its colours from, which is not settled until the whole
+    // function has been written -- so the binding and the imports are emitted
+    // unconditionally and the unused ones forgiven.
+    out.push_str("#![allow(unused_imports, unused_variables)]\n\n");
+
+    // Top-level imports. The widget modules are *not* among them: each style
+    // module is named after its widget, so importing `text_input` here and
+    // then declaring `pub mod text_input` would define the name twice. Each
+    // module brings in the one it needs instead.
     out.push_str("use iced::{Background, Border, Color, Shadow, Theme, Vector};\n");
-    if has_text_input
-        || has_text_editor
-        || has_menu
-        || has_picklist
-        || has_slider
-        || has_progressbar
-        || has_radio
-        || has_toggler
-        || has_combobox
-    {
-        out.push_str(
-            "use iced::widget::{overlay::menu, pick_list, progress_bar, radio, slider, text_editor, text_input, toggler};\n",
-        );
-    }
     out.push_str("\n");
 
     // Button module
@@ -2008,7 +2012,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_button_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2050,7 +2054,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_container_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2089,7 +2093,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_checkbox_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2119,11 +2123,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_text_input {
         out.push_str("pub mod text_input {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::text_input;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::TextInput) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_text_input_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.background_color,
                     &def.background_color_source,
                     def.border_color,
@@ -2158,11 +2163,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_text_editor {
         out.push_str("pub mod text_editor {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::text_editor;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::TextEditor) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_text_editor_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.background_color,
                     &def.background_color_source,
                     def.border_color,
@@ -2195,11 +2201,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_menu {
         out.push_str("pub mod menu {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::overlay::menu;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Menu) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_menu_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.background_color,
                     &def.background_color_source,
                     def.border_color,
@@ -2235,11 +2242,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_picklist {
         out.push_str("pub mod pick_list {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::pick_list;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Picklist) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_pick_list_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2271,11 +2279,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_slider {
         out.push_str("pub mod slider {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::slider;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Slider) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_slider_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2305,11 +2314,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_progressbar {
         out.push_str("pub mod progress_bar {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::progress_bar;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Progressbar) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_progress_bar_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2335,11 +2345,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_radio {
         out.push_str("pub mod radio {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::radio;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Radio) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_radio_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2364,11 +2375,12 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_toggler {
         out.push_str("pub mod toggler {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::toggler;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Toggler) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_toggler_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.text_color,
                     &def.text_color_source,
                     def.background_color,
@@ -2399,11 +2411,13 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
     if has_combobox {
         out.push_str("pub mod combo_box {\n");
         out.push_str("    use super::*;\n");
+        out.push_str("    use iced::widget::overlay::menu;\n");
+        out.push_str("    use iced::widget::text_input;\n");
         if let Some(map) = styles.get(&ThemePaneEnum::Combobox) {
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_combo_box_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.background_color,
                     &def.background_color_source,
                     def.border_color,
@@ -2454,7 +2468,7 @@ pub fn generate_all_styles_file(custom_styles: &CustomThemes) -> Option<String> 
             for (_, def) in map {
                 out.push_str("\n");
                 let fn_code = generate_rule_style_code(
-                    &def.name.to_lowercase().replace(' ', "_"),
+                    &style_fn_name(&def.name),
                     def.border_color,
                     &def.border_color_source,
                     def.border_radius_top_left,
