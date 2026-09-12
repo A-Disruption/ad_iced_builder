@@ -8,6 +8,7 @@ use crate::code_gen_version_two::{
 use crate::styles::style_enum::{
     RuleFillMode, SavedStyleDefinition, StatusColorOverride, evaluate_theme_expression,
 };
+use crate::data_structures::types::types::WidgetType;
 use crate::{icon, styles};
 use iced::clipboard;
 use iced::widget::{
@@ -170,6 +171,34 @@ pub enum ThemePaneEnum {
     TextEditor,
     TextInput,
     Toggler,
+}
+
+impl ThemePaneEnum {
+    /// The style pane a widget type takes its styles from.
+    ///
+    /// The single-widget panels each name their pane inline; this is for the
+    /// places that only learn the type at runtime, such as batch editing.
+    /// `None` means the widget has no styles of its own.
+    pub fn for_widget(widget_type: WidgetType) -> Option<Self> {
+        Some(match widget_type {
+            WidgetType::Button | WidgetType::DatePicker => Self::Button,
+            WidgetType::Checkbox => Self::Checkbox,
+            WidgetType::ComboBox => Self::Combobox,
+            WidgetType::Container => Self::Container,
+            WidgetType::Menu => Self::Menu,
+            WidgetType::PickList => Self::Picklist,
+            WidgetType::ProgressBar => Self::Progressbar,
+            WidgetType::QRCode => Self::QRCode,
+            WidgetType::Radio => Self::Radio,
+            WidgetType::Rule => Self::Rule,
+            WidgetType::Slider | WidgetType::VerticalSlider => Self::Slider,
+            WidgetType::Table => Self::Table,
+            WidgetType::TextEditor => Self::TextEditor,
+            WidgetType::TextInput => Self::TextInput,
+            WidgetType::Toggler => Self::Toggler,
+            _ => return None,
+        })
+    }
 }
 
 impl std::fmt::Display for ThemePaneEnum {

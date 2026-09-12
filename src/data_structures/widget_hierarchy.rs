@@ -113,65 +113,119 @@ impl WidgetHierarchy {
     }
 
     pub fn can_add_child(&self, parent_id: WidgetId, widget_type: WidgetType) -> bool {
-        if let Some(parent) = self.get_widget_by_id(parent_id) {
-            if !can_have_children(&parent.widget_type) {
-                return false;
-            }
+        self.check_accepts_child(parent_id, widget_type, false).is_ok()
+    }
 
-            if parent_id == self.root.id {
-                return parent.children.is_empty()
-                    && matches!(
-                        widget_type,
-                        WidgetType::Column
-                            | WidgetType::Row
-                            | WidgetType::Stack
-                            | WidgetType::Split
-                            | WidgetType::Responsive
-                    );
-            }
+    /// Whether `parent_id` will take a `child_type`, and why not when it will not.
+    ///
+    /// This is the one place the rules live. `can_add_child` asks it on behalf
+    /// of the palette, `move_widget` on behalf of a drag, and the tree asks it
+    /// to decide whether to draw a drop as accepted — so a widget cannot be
+    /// dragged somewhere the palette would have refused, which is what let a
+    /// second child into a Container.
+    ///
+    /// `reordering` says the child is already this parent's, and so is not
+    /// asking for a new slot.
+    pub fn check_accepts_child(
+        &self,
+        parent_id: WidgetId,
+        child_type: WidgetType,
+        reordering: bool,
+    ) -> Result<(), String> {
+        let Some(parent) = self.get_widget_by_id(parent_id) else {
+            return Err("Parent not found".into());
+        };
 
-            match parent.widget_type {
-                WidgetType::Scrollable => {
-                    if !parent.children.is_empty() {
-                        return false;
-                    }
-                    matches!(
-                        widget_type,
-                        WidgetType::Column
-                            | WidgetType::Row
-                            | WidgetType::Container
-                            | WidgetType::Collapsible
-                            | WidgetType::CollapsibleGroup
-                            | WidgetType::Popover
-                            | WidgetType::Menu
-                            | WidgetType::Layer
-                            | WidgetType::Toast
-                            | WidgetType::Split
-                            | WidgetType::Responsive
-                            | WidgetType::Float
-                            | WidgetType::Sensor
-                    )
-                }
-                WidgetType::Container => parent.children.is_empty(),
-                WidgetType::Button => parent.children.is_empty(),
-                WidgetType::Collapsible => parent.children.is_empty(),
-                WidgetType::CollapsibleGroup => matches!(widget_type, WidgetType::Collapsible),
-                // Popover takes a trigger and its content; Layer is the content
-                // alone, positioned against the viewport; Menu takes a trigger
-                // and then one child per row.
-                WidgetType::Popover => parent.children.len() < 2,
-                WidgetType::Layer => parent.children.is_empty(),
-                WidgetType::Split => parent.children.len() < 2,
-                WidgetType::Responsive => parent.children.len() < 2,
-                WidgetType::Tooltip => parent.children.len() < 2, // <= 2 children
-                WidgetType::Float | WidgetType::Sensor => parent.children.is_empty(),
-                WidgetType::MouseArea => parent.children.is_empty(),
-                WidgetType::Pin => parent.children.is_empty(),
-                _ => true,
-            }
-        } else {
-            false
+        if !can_have_children(&parent.widget_type) {
+            return Err(format!("{:?} cannot have children", parent.widget_type));
         }
+
+        // The root is a container the project cannot replace, so it takes only
+        // the handful of widgets that make sense as a whole view.
+        let (capacity, allowed): (Option<usize>, Option<&[WidgetType]>) = if parent_id
+            == self.root.id
+        {
+            (
+                Some(1),
+                Some(&[
+                    WidgetType::Column,
+                    WidgetType::Row,
+                    WidgetType::Stack,
+                    WidgetType::Split,
+                    WidgetType::Responsive,
+                ]),
+            )
+        } else {
+            match parent.widget_type {
+                // A scrollable scrolls one thing, and that thing has to be
+                // something that can hold the rest of the content.
+                WidgetType::Scrollable => (
+                    Some(1),
+                    Some(&[
+                        WidgetType::Column,
+                        WidgetType::Row,
+                        WidgetType::Container,
+                        WidgetType::Collapsible,
+                        WidgetType::CollapsibleGroup,
+                        WidgetType::Popover,
+                        WidgetType::Menu,
+                        WidgetType::Layer,
+                        WidgetType::Toast,
+                        WidgetType::Split,
+                        WidgetType::Responsive,
+                        WidgetType::Float,
+                        WidgetType::Sensor,
+                    ]),
+                ),
+                WidgetType::CollapsibleGroup => (None, Some(&[WidgetType::Collapsible])),
+
+                // One child: the thing being wrapped.
+                WidgetType::Container
+                | WidgetType::Button
+                | WidgetType::Collapsible
+                | WidgetType::Layer
+                | WidgetType::Float
+                | WidgetType::Sensor
+                | WidgetType::MouseArea
+                | WidgetType::Pin => (Some(1), None),
+
+                // Two: a trigger and its content, two panes, or the hovered
+                // element and the tip.
+                WidgetType::Popover
+                | WidgetType::Split
+                | WidgetType::Responsive
+                | WidgetType::Tooltip => (Some(2), None),
+
+                // Menu takes a trigger and then one child per row; Toast one
+                // child per notification; the rest are plain layouts.
+                _ => (None, None),
+            }
+        };
+
+        if let Some(allowed) = allowed
+            && !allowed.contains(&child_type)
+        {
+            return Err(format!(
+                "{:?} does not hold a {child_type:?}",
+                parent.widget_type
+            ));
+        }
+
+        // Reordering inside the parent it already belongs to needs no slot.
+        if let Some(capacity) = capacity
+            && !reordering
+            && parent.children.len() >= capacity
+        {
+            return Err(match capacity {
+                1 => format!("{:?} holds a single child", parent.widget_type),
+                _ => format!(
+                    "{:?} holds no more than {capacity} children",
+                    parent.widget_type
+                ),
+            });
+        }
+
+        Ok(())
     }
 
     pub fn add_child(
@@ -362,105 +416,14 @@ impl WidgetHierarchy {
             return Err("Cannot move a widget into its own descendant".into());
         }
 
-        // Parent capability checks
-        let new_parent_ty = self.get_widget_by_id(new_parent_id).unwrap().widget_type;
-        if !can_have_children(&new_parent_ty) {
-            return Err(format!("{new_parent_ty:?} cannot have children"));
-        }
+        // The same rules the palette uses, so a drag cannot put a widget
+        // somewhere that adding it would have refused.
+        let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
+        let reordering = self.find_parent_id(id) == Some(new_parent_id);
+        self.check_accepts_child(new_parent_id, moving_ty, reordering)?;
 
-        if matches!(new_parent_ty, WidgetType::Tooltip) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Tooltip can only contain two children".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::MouseArea) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("MouseArea can only contain one child".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Collapsible) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Collapsible can only contain one child".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::CollapsibleGroup) {
-            let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
-            if moving_ty != WidgetType::Collapsible {
-                return Err("CollapsibleGroup can only contain Collapsible widgets".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Popover) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Popover holds a trigger and its content, and no more".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Layer) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Layer holds a single content widget".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Split) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Split can only contain two children".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Responsive) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 2 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Responsive can only contain two children".into());
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Float | WidgetType::Sensor) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err(format!("{:?} can only contain one child", new_parent_ty));
-            }
-        }
-
-        if matches!(new_parent_ty, WidgetType::Pin) {
-            let count = self.get_widget_by_id(new_parent_id).unwrap().children.len();
-            if count >= 1 && self.find_parent_id(id) != Some(new_parent_id) {
-                return Err("Pin can only contain one child".into());
-            }
-        }
-
-        // Root container constraints
         if new_parent_id == self.root.id {
-            // Only Column/Row allowed under root
-            let moving_ty = self.get_widget_by_id(id).unwrap().widget_type;
-            if !matches!(
-                moving_ty,
-                WidgetType::Column
-                    | WidgetType::Row
-                    | WidgetType::Stack
-                    | WidgetType::Split
-                    | WidgetType::Responsive
-            ) {
-                return Err(
-                    "Root can only contain Column, Row, Stack, Split, or Responsive".into(),
-                );
-            }
-            // Root can have only one child (unless we're reordering the same one)
-            let root_children = &self.root.children;
-            let already_under_root = self.find_parent_id(id) == Some(self.root.id);
-            if !already_under_root && !root_children.is_empty() {
-                return Err("Root container can only have one child".into());
-            }
-            // Clamp index for root (0 or existing 0)
+            // The root holds one child, so there is only one index to hold it.
             new_index = 0;
         }
 
@@ -906,6 +869,14 @@ impl WidgetHierarchy {
                     }
                 }
             }
+
+            // The whole selection now carries this style, so the picker that
+            // set it should say so rather than still reading "mixed".
+            PropertyChange::CustomStyle(style) => {
+                if let Some(prop) = &mut self.common_properties {
+                    prop.uniform_custom_style = style;
+                }
+            }
             _ => {}
         }
     }
@@ -936,4 +907,167 @@ fn can_have_children(widget_type: &WidgetType) -> bool {
             | WidgetType::Pin
             | WidgetType::Button
     )
+}
+
+#[cfg(test)]
+mod drop_rules {
+    use super::*;
+
+    /// A column holding one of each widget the rules treat differently.
+    fn fixture() -> (WidgetHierarchy, WidgetId) {
+        let mut hierarchy = WidgetHierarchy::new(WidgetType::Container);
+        let root = hierarchy.root().id;
+        let column = hierarchy.add_child(root, WidgetType::Column).unwrap();
+
+        (hierarchy, column)
+    }
+
+    #[test]
+    fn a_container_holds_one_child_however_it_arrives() {
+        let (mut hierarchy, column) = fixture();
+        let container = hierarchy.add_child(column, WidgetType::Container).unwrap();
+        let first = hierarchy.add_child(column, WidgetType::Text).unwrap();
+        let second = hierarchy.add_child(column, WidgetType::Text).unwrap();
+
+        assert!(hierarchy.move_widget(first, container, 0).is_ok());
+
+        // The second is the regression: `move_widget` used to have its own
+        // list of capacities, and Container was not on it.
+        assert!(hierarchy.move_widget(second, container, 1).is_err());
+        assert_eq!(hierarchy.get_widget_by_id(container).unwrap().children.len(), 1);
+
+        // And the palette agrees.
+        assert!(!hierarchy.can_add_child(container, WidgetType::Text));
+    }
+
+    #[test]
+    fn a_button_takes_a_layout_as_its_content() {
+        let (mut hierarchy, column) = fixture();
+        let button = hierarchy.add_child(column, WidgetType::Button).unwrap();
+
+        for layout in [WidgetType::Container, WidgetType::Column, WidgetType::Row] {
+            assert!(
+                hierarchy.can_add_child(button, layout),
+                "a button should accept a {layout:?} as its content",
+            );
+        }
+
+        let container = hierarchy.add_child(column, WidgetType::Container).unwrap();
+        assert!(hierarchy.move_widget(container, button, 0).is_ok());
+        assert_eq!(hierarchy.get_widget_by_id(button).unwrap().children.len(), 1);
+    }
+
+    #[test]
+    fn a_toast_holds_a_notification_per_child() {
+        let (mut hierarchy, column) = fixture();
+        let toast = hierarchy.add_child(column, WidgetType::Toast).unwrap();
+
+        assert!(hierarchy.add_child(toast, WidgetType::Container).is_ok());
+        assert!(hierarchy.add_child(toast, WidgetType::Container).is_ok());
+
+        let moved = hierarchy.add_child(column, WidgetType::Text).unwrap();
+        assert!(hierarchy.move_widget(moved, toast, 2).is_ok());
+        assert_eq!(hierarchy.get_widget_by_id(toast).unwrap().children.len(), 3);
+    }
+
+    #[test]
+    fn reordering_inside_a_full_parent_is_not_a_new_child() {
+        let (mut hierarchy, column) = fixture();
+        let split = hierarchy.add_child(column, WidgetType::Split).unwrap();
+        let left = hierarchy.add_child(split, WidgetType::Text).unwrap();
+        hierarchy.add_child(split, WidgetType::Text).unwrap();
+
+        // Full, but moving one of its own children is only a reorder.
+        assert!(hierarchy.move_widget(left, split, 1).is_ok());
+        assert_eq!(hierarchy.get_widget_by_id(split).unwrap().children.len(), 2);
+    }
+
+    #[test]
+    fn a_collapsible_group_still_takes_only_collapsibles() {
+        let (mut hierarchy, column) = fixture();
+        let group = hierarchy
+            .add_child(column, WidgetType::CollapsibleGroup)
+            .unwrap();
+        let stray = hierarchy.add_child(column, WidgetType::Text).unwrap();
+
+        assert!(!hierarchy.can_add_child(group, WidgetType::Text));
+        assert!(hierarchy.move_widget(stray, group, 0).is_err());
+    }
+}
+
+#[cfg(test)]
+mod batch_editing {
+    use super::*;
+    use crate::views::theme_and_stylefn_builder::ThemePaneEnum;
+
+    fn selection(types: &[WidgetType]) -> (WidgetHierarchy, Vec<WidgetId>) {
+        let mut hierarchy = WidgetHierarchy::new(WidgetType::Container);
+        let root = hierarchy.root().id;
+        let column = hierarchy.add_child(root, WidgetType::Column).unwrap();
+
+        let ids: Vec<WidgetId> = types
+            .iter()
+            .map(|&widget_type| hierarchy.add_child(column, widget_type).unwrap())
+            .collect();
+
+        hierarchy.set_selected_ids(ids.iter().copied().collect());
+
+        (hierarchy, ids)
+    }
+
+    #[test]
+    fn a_selection_of_one_kind_offers_that_kind_of_style() {
+        let (hierarchy, _) = selection(&[WidgetType::Button, WidgetType::Button]);
+        let common = hierarchy.common_properties.as_ref().unwrap();
+
+        assert_eq!(common.shared_widget_type, Some(WidgetType::Button));
+        assert_eq!(
+            common.shared_widget_type.and_then(ThemePaneEnum::for_widget),
+            Some(ThemePaneEnum::Button),
+        );
+    }
+
+    #[test]
+    fn a_mixed_selection_offers_none() {
+        let (hierarchy, _) = selection(&[WidgetType::Button, WidgetType::Text]);
+
+        assert_eq!(
+            hierarchy.common_properties.as_ref().unwrap().shared_widget_type,
+            None,
+        );
+    }
+
+    #[test]
+    fn setting_a_style_applies_to_every_selected_widget() {
+        let (mut hierarchy, ids) = selection(&[WidgetType::Button, WidgetType::Button]);
+        let type_system = TypeSystem::new();
+
+        hierarchy.apply_property_to_all_selected(
+            PropertyChange::CustomStyle(Some("Danger".to_string())),
+            &type_system,
+        );
+
+        for id in &ids {
+            assert_eq!(
+                hierarchy
+                    .get_widget_by_id(*id)
+                    .unwrap()
+                    .properties
+                    .custom_style_name
+                    .as_deref(),
+                Some("Danger"),
+            );
+        }
+
+        // And the picker stops reading "mixed".
+        assert_eq!(
+            hierarchy
+                .common_properties
+                .as_ref()
+                .unwrap()
+                .uniform_custom_style
+                .as_deref(),
+            Some("Danger"),
+        );
+    }
 }

@@ -277,6 +277,41 @@ pub fn view<'a>(
         .collapse_icon(icon::chevron_down())
         .quick()
         .on_drop(Message::TreeMove)
+        // Ask the hierarchy the same question the palette asks, so a drop the
+        // move would reject is drawn as refused rather than silently doing
+        // nothing when the mouse comes up.
+        .on_can_drop(move |dragged, target, position| {
+            let Some(target) = target else {
+                return false;
+            };
+
+            let target = WidgetId(target);
+
+            // Dropping *onto* a branch makes it the parent; dropping before or
+            // after makes it a sibling, so the parent is the branch's own.
+            let parent = match position {
+                DropPosition::Into => Some(target),
+                DropPosition::Before | DropPosition::After => hierarchy.find_parent_id(target),
+            };
+
+            let Some(parent) = parent else {
+                return false;
+            };
+
+            dragged.iter().all(|&dragged| {
+                let dragged = WidgetId(dragged);
+
+                hierarchy
+                    .get_widget_by_id(dragged)
+                    .is_some_and(|widget| {
+                        let reordering = hierarchy.find_parent_id(dragged) == Some(parent);
+
+                        hierarchy
+                            .check_accepts_child(parent, widget.widget_type, reordering)
+                            .is_ok()
+                    })
+            })
+        })
         .on_select(|selected_ids| Message::SelectWidgets(selected_ids));
 
     tree = tree.reset_order_state();
@@ -414,6 +449,7 @@ fn build_tree_item<'a>(
         | WidgetType::Popover
         | WidgetType::Menu
         | WidgetType::Layer
+        | WidgetType::Toast
         | WidgetType::Themer
         | WidgetType::Grid => {
             let content = row![

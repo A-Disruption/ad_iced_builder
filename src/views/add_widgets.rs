@@ -1,3 +1,4 @@
+use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::controls::batch_edit::batch_editor_controls;
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::data_structures::types::types::{WidgetId, WidgetType};
@@ -48,12 +49,16 @@ pub fn update<'a>(
     Task::none()
 }
 
-pub fn view<'a>(hierarchy: &'a WidgetHierarchy, parent_id: &'a WidgetId) -> Element<'a, Message> {
+pub fn view<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    parent_id: &'a WidgetId,
+    custom_themes: &'a CustomThemes,
+) -> Element<'a, Message> {
     let available_types = get_available_types(hierarchy, parent_id);
     let selected_count = hierarchy.selected_ids().len();
 
     let multi_selection_menu = if selected_count > 1 {
-        multi_selection_controls(hierarchy, selected_count)
+        multi_selection_controls(hierarchy, selected_count, custom_themes)
     } else {
         column![].height(0).width(0).into()
     };
@@ -658,6 +663,7 @@ pub fn get_available_types<'a>(
 fn multi_selection_controls<'a>(
     hierarchy: &'a WidgetHierarchy,
     selected_count: usize,
+    custom_themes: &'a CustomThemes,
 ) -> Element<'a, Message> {
     // Validate if wrapping is possible
     let can_wrap = hierarchy.validate_wrapping().is_ok();
@@ -718,7 +724,7 @@ fn multi_selection_controls<'a>(
         // this reads the same way the old self-contained overlay button did.
         popover(
             button(text("Edit All Properties")).style(button::primary),
-            container(batch_editor_controls(&hierarchy))
+            container(batch_editor_controls(&hierarchy, custom_themes))
                 .width(500)
                 .height(750),
         )

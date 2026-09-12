@@ -700,7 +700,11 @@ impl AdUiBuilder {
                         )
                         .map(|msg| Message::ViewMessages(ViewMessage::AddViews(msg))),
                         container(
-                            add_widgets::view(&preview_view.hierarchy, &selected_widget.id)
+                            add_widgets::view(
+                                &preview_view.hierarchy,
+                                &selected_widget.id,
+                                &self.custom_styles,
+                            )
                                 .map(|msg| Message::ViewMessages(ViewMessage::AddWidgets(msg)))
                         )
                         .align_bottom(Length::Shrink)

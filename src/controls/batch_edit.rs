@@ -5,13 +5,17 @@ use crate::data_structures::types::type_implementations::*;
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::styles::container::*;
 use crate::views::add_widgets::Message;
+use crate::views::theme_and_stylefn_builder::{CustomThemes, ThemePaneEnum};
 use iced::widget::{
     button, column, container, pick_list, radio, row, rule, scrollable, slider, space, text,
     text_input,
 };
 use iced::{Alignment, Color, Element, Length, Padding, Theme};
 
-pub fn batch_editor_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, Message> {
+pub fn batch_editor_controls<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    custom_themes: &'a CustomThemes,
+) -> Element<'a, Message> {
     let selected = hierarchy.get_selected_widgets();
     let selected_count = selected.len();
     let common = hierarchy
@@ -48,6 +52,11 @@ pub fn batch_editor_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, 
         content = content.push(batch_text_size_controls(common));
     }
 
+    // Style, when every selected widget is the same kind of widget.
+    if let Some(styles) = batch_style_controls(common, custom_themes) {
+        content = content.push(styles);
+    }
+
     // List the widgets being edited (for clarity)
     content = content.push(rule::horizontal(2));
     content = content.push(text("Editing:").size(SECTION_SIZE));
@@ -77,6 +86,55 @@ pub fn batch_editor_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, 
     }
 
     scrollable(content.padding(15)).into()
+}
+
+/// Batch style picker, for a selection that is all one kind of widget.
+///
+/// Styles belong to a widget kind — a button style is not a container style —
+/// so there is nothing to offer a mixed selection. `None` means no picker:
+/// either the kinds differ, the kind has no styles, or none are defined.
+fn batch_style_controls<'a>(
+    common: &'a CommonProperties,
+    custom_themes: &'a CustomThemes,
+) -> Option<Element<'a, Message>> {
+    let widget_type = common.shared_widget_type?;
+    let pane = ThemePaneEnum::for_widget(widget_type)?;
+    let options = super::style_options_for_widget_type(custom_themes, pane);
+
+    if options.is_empty() {
+        return None;
+    }
+
+    Some(
+        column![
+            text("Style").size(SECTION_SIZE),
+            match &common.uniform_custom_style {
+                Some(style) => text(format!("Current: {style}"))
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.5, 0.5, 0.5)),
+                None => text("(mixed or unset)")
+                    .size(LABEL_SIZE)
+                    .color(Color::from_rgb(0.8, 0.6, 0.3)),
+            },
+            pick_list(
+                common.uniform_custom_style.clone(),
+                options,
+                ToString::to_string,
+            )
+            .on_select(|style| Message::BatchPropertyChanged(PropertyChange::CustomStyle(
+                Some(style)
+            )))
+            .placeholder("default")
+            .width(250),
+            button(text("Clear style").size(LABEL_SIZE))
+                .on_press(Message::BatchPropertyChanged(PropertyChange::CustomStyle(
+                    None
+                )))
+                .style(iced::widget::button::secondary),
+        ]
+        .spacing(LABEL_SPACING)
+        .into(),
+    )
 }
 
 /// Batch width/height controls - mirrors size_controls_scrollable_aware

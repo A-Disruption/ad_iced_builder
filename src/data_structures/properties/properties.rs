@@ -1169,41 +1169,46 @@ impl Properties {
                 props.overlay_max_width = None;
                 props.overlay_animate = true;
 
-                // Each widget's own `new()`, so a widget placed here starts out
-                // looking like one written by hand.
+                // These four are wrappers: they position something and get out
+                // of its way. So the surface contributes no padding, no corner
+                // rounding and no style of its own, and whatever is placed
+                // inside brings its own look. Everything that is *placement*
+                // rather than decoration still matches each widget's own
+                // `new()`, so a widget put here sits where a hand-written one
+                // would.
+                props.overlay_padding = 0.0;
+                props.overlay_radius = 0.0;
+                props.overlay_style_name = None;
+
                 match widget_type {
                     // `Placement::new(Side::Bottom).align(Align::Center).gap(6)`,
-                    // padding 12, radius 8, `Motion::QUICK`.
+                    // `Motion::QUICK`.
                     WidgetType::Popover => {
                         props.overlay_hover_position = OverlayPosition::Bottom;
                         props.overlay_hover_alignment = ContainerAlignX::Center;
                         props.overlay_hover_gap = 6.0;
-                        props.overlay_padding = 12.0;
-                        props.overlay_radius = 8.0;
                         props.overlay_animation_preset = OverlayAnimationPreset::Quick;
                         props.overlay_hover_snap = true;
                         props.overlay_safe_triangle = true;
                         props.overlay_close_on_click_outside = true;
                     }
-                    // `Placement::new(Side::Bottom).gap(4)`, panel padding 4,
-                    // radius 6, `Motion::QUICK`.
+                    // `Placement::new(Side::Bottom).gap(4)`, `Motion::QUICK`.
+                    // Rows carry no padding either — a row is whatever widget
+                    // was put in it.
                     WidgetType::Menu => {
                         props.overlay_hover_position = OverlayPosition::Bottom;
                         props.overlay_hover_alignment = ContainerAlignX::Left;
                         props.overlay_hover_gap = 4.0;
-                        props.overlay_padding = 4.0;
-                        props.overlay_radius = 6.0;
                         props.overlay_animation_preset = OverlayAnimationPreset::Quick;
+                        props.menu_item_padding = Padding::new(0.0);
                     }
-                    // `Anchor::Center`, margin 16, padding 16, radius 10,
-                    // `Motion::SMOOTH`, no backdrop, and neither draggable nor
-                    // resizable. `dialog()` and `modal()` are the presets that
-                    // add those; a bare `layer()` has none of them.
+                    // `Anchor::Center`, margin 16, `Motion::SMOOTH`, no
+                    // backdrop, and neither draggable nor resizable.
+                    // `dialog()` and `modal()` are the presets that add those;
+                    // a bare `layer()` has none of them.
                     WidgetType::Layer => {
                         props.layer_anchor = OverlayAnchor::Center;
                         props.overlay_hover_gap = 16.0;
-                        props.overlay_padding = 16.0;
-                        props.overlay_radius = 10.0;
                         props.overlay_animation_preset = OverlayAnimationPreset::Default;
                         props.overlay_opaque = false;
                         props.overlay_block_dragging = true;
@@ -1212,11 +1217,10 @@ impl Properties {
                         props.overlay_close_on_click_outside = true;
                         props.layer_dismiss_on_escape = true;
                     }
-                    // `Anchor::BottomRight`, margin 16, spacing 10, padding 14,
-                    // radius 8, width 360, `Motion::SMOOTH`.
+                    // `Anchor::BottomRight`, margin 16, width 360,
+                    // `Motion::SMOOTH`. The gap between separate
+                    // notifications is structure, not decoration, so it stays.
                     _ => {
-                        props.overlay_padding = 14.0;
-                        props.overlay_radius = 8.0;
                         props.overlay_animation_preset = OverlayAnimationPreset::Default;
                     }
                 }
@@ -1336,6 +1340,15 @@ pub struct CommonProperties {
     pub uniform_spacing: Option<f32>,
     pub uniform_text_size: Option<f32>,
 
+    /// The type every selected widget shares, when they share one.
+    ///
+    /// Styles are per widget kind — a button style is not a container style —
+    /// so a style can only be set for the whole selection when the selection
+    /// is all one kind.
+    pub shared_widget_type: Option<WidgetType>,
+    /// The style they all carry, when they all carry the same one.
+    pub uniform_custom_style: Option<String>,
+
     pub draft_fixed_width: String,
     pub draft_fixed_height: String,
     pub draft_fill_portion_width: String,
@@ -1394,6 +1407,12 @@ impl CommonProperties {
             None
         };
 
+        let shared_widget_type = Self::get_uniform_property(widgets, |w| w.widget_type);
+        let uniform_custom_style = shared_widget_type.and_then(|_| {
+            Self::get_uniform_property(widgets, |w| w.properties.custom_style_name.clone())
+        })
+        .flatten();
+
         Self {
             has_width_height,
             has_padding,
@@ -1408,6 +1427,8 @@ impl CommonProperties {
             uniform_padding,
             uniform_spacing,
             uniform_text_size,
+            shared_widget_type,
+            uniform_custom_style,
             draft_fixed_width: String::new(),
             draft_fixed_height: String::new(),
             draft_fill_portion_width: String::new(),

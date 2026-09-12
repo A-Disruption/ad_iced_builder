@@ -5871,7 +5871,7 @@ fn condition_variants_for_custom_field(
     }
 }
 
-fn style_options_for_widget_type(
+pub(crate) fn style_options_for_widget_type(
     custom_themes: &CustomThemes,
     widget_type_enum: ThemePaneEnum,
 ) -> Vec<String> {
