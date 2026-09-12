@@ -3528,6 +3528,18 @@ fn menu_item_for<'a>(
         _ => widgets::menu::item(content),
     };
 
+    let item = if props.menu_item_icon_enabled {
+        let mut icon = crate::icon::by_name(&props.menu_item_icon_family, &props.menu_item_icon_name);
+
+        if props.menu_item_icon_size > 0.0 {
+            icon = icon.size(props.menu_item_icon_size);
+        }
+
+        item.icon(icon)
+    } else {
+        item
+    };
+
     item.enabled(props.menu_item_enabled)
 }
 fn build_menu_preview<'a>(

@@ -632,16 +632,28 @@ fn generate_svg(b: &mut CodeBuilder, widget: &Widget) {
 /// field's border. Composing a row is what replaces it: the icon sits outside
 /// the border rather than within it, which is a visual change, but it is the
 /// only shape the current API supports.
-/// The icon composed beside an input.
+/// An icon glyph, sized when a size was set.
 ///
-/// Its colour is set through the style closure rather than `.color(..)` so it
-/// can read the theme — `view` has no theme of its own to resolve it with.
-fn input_icon_expr(family: &str, name: &str, size: f32, color_fn: Option<&str>) -> String {
-    let mut call = format!("icon::{}()", super::icon_fn_name(family, name));
+/// No colour: an icon with none inherits the one around it, which is what a
+/// menu row or a button label wants.
+fn icon_expr(family: &str, name: &str, size: f32) -> String {
+    let call = format!("icon::{}()", super::icon_fn_name(family, name));
 
     if size > 0.0 {
-        call = format!("{call}.size({size:.1})");
+        format!("{call}.size({size:.1})")
+    } else {
+        call
     }
+}
+
+/// The icon composed beside an input.
+///
+/// Unlike [`icon_expr`], this one is coloured — the input's style says what
+/// the icon inside the field looks like, and there is nothing around it to
+/// inherit from. It goes through the style closure rather than `.color(..)`
+/// so it can read the theme, which `view` has none of.
+fn input_icon_expr(family: &str, name: &str, size: f32, color_fn: Option<&str>) -> String {
+    let call = icon_expr(family, name, size);
 
     // With no style to read, iced 0.14's own default for the `text_input`
     // field it removed.
@@ -3021,6 +3033,104 @@ fn generate_popover(
     b.decrease_indent();
 }
 
+/// One row of a menu panel.
+///
+/// The kind is not decoration: a Submenu emitted as a plain entry silently
+/// loses its nested rows, and a Toggle loses its checkmark. The preview reads
+/// it through `menu_item_for`, and this is its counterpart.
+fn generate_menu_row(
+    b: &mut CodeBuilder,
+    child: &Widget,
+    names: &HashMap<WidgetId, String>,
+    custom_styles: &CustomThemes,
+    use_self: bool,
+    type_system: &TypeSystem,
+    view_refs: &[ViewRefInfo],
+) {
+    let props = &child.properties;
+
+    // A rule drawn across the panel: no content, so nothing else applies.
+    if props.menu_item_kind == MenuItemKind::Separator {
+        b.line("widgets::menu::separator(),");
+        return;
+    }
+
+    b.indent();
+    b.push(match props.menu_item_kind {
+        MenuItemKind::Submenu => "widgets::menu::submenu(",
+        MenuItemKind::Toggle => "widgets::menu::toggle(",
+        _ => "widgets::menu::item(",
+    });
+    b.newline();
+    b.increase_indent();
+
+    generate_widget_code(
+        b,
+        child,
+        names,
+        use_self,
+        custom_styles,
+        type_system,
+        view_refs,
+    );
+
+    match props.menu_item_kind {
+        MenuItemKind::Submenu => {
+            b.push(",");
+            b.newline();
+            b.line("vec![");
+            b.increase_indent();
+
+            for grandchild in &child.children {
+                generate_menu_row(
+                    b,
+                    grandchild,
+                    names,
+                    custom_styles,
+                    use_self,
+                    type_system,
+                    view_refs,
+                );
+            }
+
+            b.decrease_indent();
+            b.line("],");
+        }
+        MenuItemKind::Toggle => {
+            b.push(",");
+            b.newline();
+            b.line(&format!("{},", props.menu_item_checked));
+        }
+        _ => b.newline(),
+    }
+
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    // The panel indents every row past the widest icon, so a row with one
+    // does not push its neighbours' labels out of line.
+    if props.menu_item_icon_enabled {
+        b.dot_method(
+            "icon",
+            &icon_expr(
+                &props.menu_item_icon_family,
+                &props.menu_item_icon_name,
+                props.menu_item_icon_size,
+            ),
+        );
+    }
+
+    if !props.menu_item_enabled {
+        b.dot_method("enabled", "false");
+    }
+
+    b.decrease_indent();
+    b.push(",");
+    b.newline();
+}
+
 fn generate_menu(
     b: &mut CodeBuilder,
     widget: &Widget,
@@ -3064,24 +3174,15 @@ fn generate_menu(
 
     if use_self && widget.children.len() > 1 {
         for child in &widget.children[1..] {
-            b.indent();
-            b.push("widgets::menu::item(");
-            b.newline();
-            b.increase_indent();
-            generate_widget_code(
+            generate_menu_row(
                 b,
                 child,
                 names,
-                use_self,
                 custom_styles,
+                use_self,
                 type_system,
                 view_refs,
             );
-            b.newline();
-            b.decrease_indent();
-            b.indent();
-            b.push("),");
-            b.newline();
         }
     } else {
         b.indent();
@@ -4160,7 +4261,10 @@ fn generate_view_reference(b: &mut CodeBuilder, widget: &Widget, view_refs: &[Vi
 /// emits a `.padding(..)` call rather than a bare value.
 fn format_padding(padding: &Padding) -> String {
     if padding.top == padding.bottom && padding.left == padding.right {
-        format!("[{:.1}, {:.1}].into()", padding.top, padding.left)
+        // No `.into()`: both call sites take `impl Into<Padding>`, and calling
+        // `into()` on something that is already the argument leaves the target
+        // type unfixed — `[f32; 2]` converts into more than one thing.
+        format!("[{:.1}, {:.1}]", padding.top, padding.left)
     } else {
         format!(
             "iced::Padding {{ top: {:.1}, right: {:.1}, bottom: {:.1}, left: {:.1} }}",

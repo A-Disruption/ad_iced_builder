@@ -332,6 +332,21 @@ pub struct Properties {
     /// A row that is drawn but does not respond.
     #[serde(default = "default_true")]
     pub menu_item_enabled: bool,
+    /// Whether this row draws an icon in the menu's leading gutter.
+    ///
+    /// Every row in a panel indents past the widest icon, so labels line up
+    /// whether or not their own row has one.
+    #[serde(default)]
+    pub menu_item_icon_enabled: bool,
+    #[serde(default = "default_icon_family")]
+    pub menu_item_icon_family: String,
+    #[serde(default)]
+    pub menu_item_icon_name: String,
+    /// `0.0` leaves the icon at the font's own size.
+    #[serde(default)]
+    pub menu_item_icon_size: f32,
+    #[serde(default, skip)]
+    pub menu_item_icon_picker_filter: String,
 
     // ── Layer ────────────────────────────────────────────────────────────────
     /// Lower bound on the surface height.
@@ -878,6 +893,11 @@ impl Default for Properties {
             menu_item_kind: MenuItemKind::default(),
             menu_item_checked: false,
             menu_item_enabled: true,
+            menu_item_icon_enabled: false,
+            menu_item_icon_family: default_icon_family(),
+            menu_item_icon_name: "circle".to_string(),
+            menu_item_icon_size: 0.0,
+            menu_item_icon_picker_filter: String::new(),
 
             layer_anchor: OverlayAnchor::Center,
             layer_min_height: 0.0,

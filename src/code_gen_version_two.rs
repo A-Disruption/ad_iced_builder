@@ -967,6 +967,162 @@ mod tests {
         assert!(main.contains("styles::text_input::search_field_icon(theme)"));
     }
 
+    /// Generates a project holding one menu with a row of every kind.
+    ///
+    /// The rows cover what the panel can be told about a row: its kind, its
+    /// checkmark, whether it responds, and its gutter icon.
+    fn generate_menu_project() -> std::collections::HashMap<String, String> {
+        use super::CodeGeneratorV2;
+        use crate::data_structures::types::type_implementations::MenuItemKind;
+        use crate::data_structures::types::types::{AppView, WidgetType};
+        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::{Window, WindowEnum};
+
+        let view_id = uuid::Uuid::new_v4();
+        let mut view = AppView::with_id(view_id, "Main View".to_string(), 0);
+
+        let root = view.hierarchy.root().id;
+        // The root holds a layout, so the menu goes inside one.
+        let column = view
+            .hierarchy
+            .add_child(root, WidgetType::Column)
+            .expect("a column goes in the root container");
+        let menu = view
+            .hierarchy
+            .add_child(column, WidgetType::Menu)
+            .expect("a menu goes in a column");
+
+        // The first child is the trigger; every one after it is a row.
+        let trigger = view
+            .hierarchy
+            .add_child(menu, WidgetType::Button)
+            .expect("a button is the trigger");
+
+        let entry = view
+            .hierarchy
+            .add_child(menu, WidgetType::Text)
+            .expect("a row goes in a menu");
+        let toggle = view
+            .hierarchy
+            .add_child(menu, WidgetType::Text)
+            .expect("a row goes in a menu");
+        let separator = view
+            .hierarchy
+            .add_child(menu, WidgetType::Text)
+            .expect("a row goes in a menu");
+        // A submenu row's own children are its nested rows, so the row itself
+        // has to be something that can hold them.
+        let submenu = view
+            .hierarchy
+            .add_child(menu, WidgetType::Row)
+            .expect("a row goes in a menu");
+
+        {
+            let trigger = view
+                .hierarchy
+                .get_widget_by_id_mut(trigger)
+                .expect("the trigger was just added");
+
+            trigger.properties.text_content = "File".to_string();
+        }
+
+        {
+            let entry = view
+                .hierarchy
+                .get_widget_by_id_mut(entry)
+                .expect("the row was just added");
+
+            entry.properties.text_content = "Open".to_string();
+            entry.properties.menu_item_icon_enabled = true;
+            entry.properties.menu_item_icon_family = "lucide".to_string();
+            entry.properties.menu_item_icon_name = "folder-open".to_string();
+            entry.properties.menu_item_icon_size = 14.0;
+        }
+
+        {
+            let toggle = view
+                .hierarchy
+                .get_widget_by_id_mut(toggle)
+                .expect("the row was just added");
+
+            toggle.properties.text_content = "Word Wrap".to_string();
+            toggle.properties.menu_item_kind = MenuItemKind::Toggle;
+            toggle.properties.menu_item_checked = true;
+        }
+
+        {
+            let separator = view
+                .hierarchy
+                .get_widget_by_id_mut(separator)
+                .expect("the row was just added");
+
+            separator.properties.menu_item_kind = MenuItemKind::Separator;
+        }
+
+        {
+            let submenu = view
+                .hierarchy
+                .get_widget_by_id_mut(submenu)
+                .expect("the row was just added");
+
+            submenu.properties.menu_item_kind = MenuItemKind::Submenu;
+            // A row that is drawn but does not respond.
+            submenu.properties.menu_item_enabled = false;
+        }
+
+        let nested = view
+            .hierarchy
+            .add_child(submenu, WidgetType::Text)
+            .expect("a nested row goes in a submenu");
+
+        {
+            let nested = view
+                .hierarchy
+                .get_widget_by_id_mut(nested)
+                .expect("the nested row was just added");
+
+            nested.properties.text_content = "main.rs".to_string();
+        }
+
+        let views = std::collections::BTreeMap::from([(view_id, view)]);
+        let windows = std::collections::BTreeMap::from([(
+            iced::window::Id::unique(),
+            Window::new(iced::window::Id::unique(), WindowEnum::Visualizer),
+        )]);
+
+        let theme = iced::Theme::Dark;
+        let type_system = crate::enum_builder::TypeSystem::new();
+
+        let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        dump_project(&files);
+        files
+    }
+
+    #[test]
+    fn every_kind_of_menu_row_reaches_generated_code() {
+        let files = generate_menu_project();
+        let main = files.get("main.rs").expect("main.rs is generated");
+
+        // A row's kind decides which constructor it gets: emitted as a plain
+        // entry, a submenu loses its nested rows and a toggle its checkmark.
+        assert!(main.contains("widgets::menu::item("));
+        assert!(main.contains("widgets::menu::toggle("));
+        assert!(main.contains("widgets::menu::separator(),"));
+        assert!(main.contains("widgets::menu::submenu("));
+
+        // The toggle's state, and the nested panel's own row.
+        assert!(main.contains("true,"));
+        assert!(main.contains("main.rs"));
+
+        // The gutter icon, uncoloured so it inherits the row's own colour.
+        assert!(main.contains(".icon(icon::folder_open().size(14.0))"));
+
+        // A row that is drawn but does not respond.
+        assert!(main.contains(".enabled(false)"));
+    }
+
     /// Generates a two-view project whose title bar holds the second view.
     fn generate_title_bar_project() -> std::collections::HashMap<String, String> {
         use super::CodeGeneratorV2;

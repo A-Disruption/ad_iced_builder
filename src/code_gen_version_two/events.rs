@@ -1045,6 +1045,12 @@ impl ImportTracker {
             }
         }
 
+        // A menu row's gutter icon belongs to the row, which is whatever the
+        // user put in the menu — so there is no widget type to key it to.
+        if props.menu_item_icon_enabled {
+            self.uses_icon = true;
+        }
+
         if widget.widget_type == WidgetType::Collapsible {
             if props.align_x != ContainerAlignX::Left {
                 self.uses_alignment = true;
@@ -1236,6 +1242,14 @@ fn collect_icons_recursive(widget: &Widget, icons: &mut BTreeSet<(String, String
         icons.insert((
             props.combobox_icon_family.clone(),
             props.combobox_icon_name.clone(),
+        ));
+    }
+    // A menu row's gutter icon. It is not keyed to a widget type: the row is
+    // whatever the user put in the menu.
+    if props.menu_item_icon_enabled {
+        icons.insert((
+            props.menu_item_icon_family.clone(),
+            props.menu_item_icon_name.clone(),
         ));
     }
     for child in &widget.children {

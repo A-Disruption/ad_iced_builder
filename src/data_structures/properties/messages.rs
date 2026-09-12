@@ -191,6 +191,12 @@ pub enum PropertyChange {
     MenuItemKind(MenuItemKind),
     MenuItemChecked(bool),
     MenuItemEnabled(bool),
+    MenuItemIconEnabled(bool),
+    /// Family, name, codepoint — as the icon picker reports a pick.
+    MenuItemIconSelected(String, String, u32),
+    MenuItemIconFamily(String),
+    MenuItemIconSize(f32),
+    MenuItemIconPickerFilter(String),
 
     // Layer
     LayerAnchor(OverlayAnchor),
@@ -924,6 +930,23 @@ pub fn apply_property_change(
         PropertyChange::MenuItemKind(value) => properties.menu_item_kind = value,
         PropertyChange::MenuItemChecked(value) => properties.menu_item_checked = value,
         PropertyChange::MenuItemEnabled(value) => properties.menu_item_enabled = value,
+        PropertyChange::MenuItemIconEnabled(value) => properties.menu_item_icon_enabled = value,
+        PropertyChange::MenuItemIconSelected(family, name, _) => {
+            properties.menu_item_icon_family = family;
+            properties.menu_item_icon_name = name;
+        }
+        PropertyChange::MenuItemIconFamily(family) => {
+            // Names collide across families, so the same icon has to be looked
+            // up again under the new one.
+            let (name, _) = crate::icon::retarget(&family, &properties.menu_item_icon_name);
+
+            properties.menu_item_icon_family = family;
+            properties.menu_item_icon_name = name;
+        }
+        PropertyChange::MenuItemIconSize(value) => properties.menu_item_icon_size = value,
+        PropertyChange::MenuItemIconPickerFilter(value) => {
+            properties.menu_item_icon_picker_filter = value
+        }
 
         PropertyChange::LayerAnchor(value) => properties.layer_anchor = value,
         PropertyChange::LayerMinHeight(value) => properties.layer_min_height = value,

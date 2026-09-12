@@ -6034,6 +6034,61 @@ pub fn overlay_child_controls<'a>(
                 column![].into()
             };
 
+            // A separator has no content, so it has no gutter icon either.
+            let icon: Element<'a, Message> = if kind == MenuItemKind::Separator {
+                column![].into()
+            } else {
+                let picker = icon_picker(
+                    &props.menu_item_icon_family,
+                    &props.menu_item_icon_name,
+                    &props.menu_item_icon_picker_filter,
+                    move |family| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuItemIconFamily(family),
+                        )
+                    },
+                    move |value| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuItemIconPickerFilter(value),
+                        )
+                    },
+                    move |family, name, codepoint| {
+                        Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuItemIconSelected(family, name, codepoint),
+                        )
+                    },
+                );
+
+                column![
+                    checkbox(props.menu_item_icon_enabled)
+                        .label("Gutter icon")
+                        .on_toggle(move |value| Message::PropertyChanged(
+                            widget_id,
+                            PropertyChange::MenuItemIconEnabled(value)
+                        )),
+                    if props.menu_item_icon_enabled {
+                        field_grid(vec![
+                            field("Icon", picker),
+                            float_field(
+                                "Size (0 keeps the font's)",
+                                props.menu_item_icon_size,
+                                move |value| Message::PropertyChanged(
+                                    widget_id,
+                                    PropertyChange::MenuItemIconSize(value)
+                                ),
+                            ),
+                        ])
+                    } else {
+                        nothing()
+                    },
+                ]
+                .spacing(LABEL_SPACING)
+                .into()
+            };
+
             column![
                 text("Menu Row").size(SECTION_SIZE),
                 rule::horizontal(1),
@@ -6054,6 +6109,7 @@ pub fn overlay_child_controls<'a>(
                         widget_id,
                         PropertyChange::MenuItemEnabled(value)
                     )),
+                icon,
                 rule::horizontal(1),
             ]
             .spacing(LABEL_SPACING)
