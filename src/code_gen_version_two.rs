@@ -1104,6 +1104,120 @@ mod tests {
         );
     }
 
+
+    /// Builds a flow the way the editor does -- palette, wiring, node edits --
+    /// and generates from it.
+    ///
+    /// The point is that the path a user actually takes reaches code
+    /// generation. Every other test here starts from a hand-built graph.
+    #[test]
+    fn a_flow_authored_through_the_editor_reaches_generated_code() {
+        use crate::action_system::flow::{AppFlow, FlowTrigger};
+        use crate::action_system::node_body::{self, NodeMessage};
+        use crate::action_system::node_graph::{
+            self, EditorState, FlowMessage, GraphMessage, PaletteMessage,
+        };
+        use crate::data_structures::types::types::AppView;
+        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::{Window, WindowEnum};
+        use iced::Point;
+        use iced_nodegraph::PinRef;
+
+        let mut flows: Vec<AppFlow> = Vec::new();
+        let mut editor = EditorState::default();
+
+        // A flow to work in.
+        assert!(node_graph::update_flows(
+            &mut flows,
+            &mut editor,
+            FlowMessage::Added,
+        ));
+        assert!(node_graph::update_flows(
+            &mut flows,
+            &mut editor,
+            FlowMessage::Renamed("on_save".to_string()),
+        ));
+
+        let graph = editor.selected_mut_graph(&mut flows).unwrap();
+        let trigger = graph.nodes[0].id;
+
+        // Right-click, pick "Navigate to View".
+        let _ = node_graph::update_palette(
+            graph,
+            &mut editor.palette,
+            PaletteMessage::CursorMoved(Point::new(300.0, 120.0)),
+        );
+        let _ = node_graph::update_palette(graph, &mut editor.palette, PaletteMessage::Opened);
+        assert!(node_graph::update_palette(
+            graph,
+            &mut editor.palette,
+            PaletteMessage::Picked(3),
+        ));
+
+        let navigate = *graph.z_order.last().unwrap();
+
+        // Wire the trigger's flow output into it.
+        let from = graph
+            .nodes
+            .iter()
+            .find(|node| node.id == trigger)
+            .unwrap()
+            .cached_ports_out[0]
+            .id
+            .0;
+        let to = graph
+            .nodes
+            .iter()
+            .find(|node| node.id == navigate)
+            .unwrap()
+            .cached_ports_in[0]
+            .id
+            .0;
+
+        assert!(node_graph::update(
+            graph,
+            GraphMessage::Connect(PinRef::new(trigger, from), PinRef::new(navigate, to)),
+        ));
+
+        // Point it at a view.
+        let target_id = uuid::Uuid::new_v4();
+        assert!(node_body::update(
+            graph,
+            NodeMessage::SetNavigateTarget(navigate, 0, target_id),
+        ));
+
+        // Two views, so navigation generates a `View` enum to switch on.
+        let main_id = uuid::Uuid::new_v4();
+        let views = std::collections::BTreeMap::from([
+            (main_id, AppView::with_id(main_id, "Main View".to_string(), 0)),
+            (
+                target_id,
+                AppView::with_id(target_id, "Second View".to_string(), 1),
+            ),
+        ]);
+
+        let windows = std::collections::BTreeMap::from([(
+            iced::window::Id::unique(),
+            Window::new(iced::window::Id::unique(), WindowEnum::Visualizer),
+        )]);
+
+        let theme = iced::Theme::Dark;
+        let type_system = crate::enum_builder::TypeSystem::new();
+
+        let mut generator =
+            super::CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &flows);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        let types = files
+            .get("types.rs")
+            .expect("navigation should generate a View enum");
+
+        assert!(
+            types.contains("enum View"),
+            "a NavigateToView node should produce the enum it switches on:\n{types}",
+        );
+        assert!(types.contains("SecondView"));
+    }
     #[test]
     fn generated_view_type_name_handles_spaces_and_numbers() {
         assert_eq!(generated_view_type_name("view 2"), "View2");
