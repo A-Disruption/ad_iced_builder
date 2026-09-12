@@ -1001,7 +1001,7 @@ mod tests {
     /// Grouped headers, all three sizing modes, a frozen leading column, sort
     /// controls, and row, column and cell selection — which between them cover
     /// every field the generated app grows and every message that writes one.
-    fn generate_data_table_project() -> std::collections::HashMap<String, String> {
+    fn generate_data_table_project(reorderable: bool) -> std::collections::HashMap<String, String> {
         use super::CodeGeneratorV2;
         use crate::data_structures::types::type_implementations::{
             ContainerAlignX, DataTableGroup, DataTableSelection, DataTableSizing,
@@ -1086,6 +1086,7 @@ mod tests {
             props.data_table_on_right_click = true;
             props.data_table_bold_headers = true;
             props.data_table_spacing = 1.0;
+            props.data_table_reorderable = reorderable;
         }
 
         let views = std::collections::BTreeMap::from([(view_id, view)]);
@@ -1105,7 +1106,7 @@ mod tests {
 
     #[test]
     fn a_data_table_reaches_generated_code() {
-        let files = generate_data_table_project();
+        let files = generate_data_table_project(false);
         let main = files.get("main.rs").expect("main.rs is generated");
 
         // The header tree: a frozen leaf, then a group over the two columns
@@ -1153,6 +1154,46 @@ mod tests {
             cargo.contains("advanced-table = { git ="),
             "the grid was generated without the crate it comes from:\n{cargo}",
         );
+    }
+
+    #[test]
+    fn a_reorderable_data_table_builds_its_header_from_the_live_order() {
+        let files = generate_data_table_project(true);
+        let main = files.get("main.rs").expect("main.rs is generated");
+
+        // The header is no longer a literal: the columns move at runtime, so
+        // it is built from the order the app holds.
+        assert!(main.contains("advanced_table::data_table(self.data_table_header())"));
+        assert!(main.contains(
+            "fn data_table_header(&self) -> Vec<advanced_table::HeaderNode<'_, Message, Theme, iced::Renderer>>"
+        ));
+        assert!(main.contains("let order = &self.data_table_column_order;"));
+
+        // A group's span is found in the live order, so a moved column is
+        // still under the header cell that names it.
+        assert!(
+            main.contains("const GROUPS: [Option<usize>; 4] = [None, Some(0), Some(0), None];")
+        );
+        assert!(main.contains("GROUPS[*candidate] != Some(group)"));
+
+        // Cells are keyed by the index a column was authored at, which is what
+        // the match arms can be written against.
+        assert!(main.contains(
+            "|row, column| Self::data_table_cell(row, self.data_table_column_order[column])"
+        ));
+        assert!(main.contains(
+            "fn data_table_cell(row: &Contact, column: usize) -> Element<'_, Message>"
+        ));
+
+        // And the order itself: held, initialised in place, and moved by the
+        // widget's own helper.
+        assert!(main.contains("data_table_column_order: Vec<usize>,"));
+        assert!(main.contains("data_table_column_order: (0..4).collect(),"));
+        assert!(main.contains("DataTableReordered(usize, usize),"));
+        assert!(
+            main.contains("advanced_table::reorder(&mut self.data_table_column_order, from, to);")
+        );
+        assert!(main.contains(".on_reorder(Message::DataTableReordered)"));
     }
     /// Generates a project whose widgets all ask for the Material style.
     ///

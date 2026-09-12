@@ -1547,6 +1547,11 @@ fn generate_message_variants(
                 b.line(&format!("{}RightClicked(advanced_table::Click),", v));
                 emitted = true;
             }
+
+            if props.data_table_reorderable && !props.data_table_columns.is_empty() {
+                b.line(&format!("{}Reordered(usize, usize),", v));
+                emitted = true;
+            }
         }
         WidgetType::PickList => {
             if has_custom_name {
@@ -1942,6 +1947,7 @@ fn has_any_message_variants(widget: &Widget) -> bool {
                 || props.data_table_sorting
                 || props.data_table_on_copy
                 || props.data_table_on_right_click
+                || props.data_table_reorderable
         }
         _ => false,
     };
@@ -2516,6 +2522,19 @@ fn generate_match_arms(
                 b.increase_indent();
                 b.line("let _ = click;");
                 b.line("// TODO: show a context menu for `click`.");
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_reorderable && !props.data_table_columns.is_empty() {
+                b.line(&format!("Message::{}Reordered(from, to) => {{", v));
+                b.increase_indent();
+                // Remove and re-insert, which is exactly what the widget's
+                // own helper does and what the two indices mean.
+                b.line(&format!(
+                    "advanced_table::reorder(&mut self.{}_column_order, from, to);",
+                    sname
+                ));
                 b.decrease_indent();
                 b.line("}");
             }

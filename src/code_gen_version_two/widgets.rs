@@ -4273,56 +4273,72 @@ fn generate_data_table(
         return;
     }
 
-    b.indent();
-    b.push("advanced_table::data_table(");
-    b.newline();
-    b.increase_indent();
+    // A reorderable table's columns move at runtime, so neither its header
+    // nor its cell mapping can be a literal here — both go through the
+    // generated methods that read the order the app is holding.
+    let reorderable = use_self && props.data_table_reorderable;
 
-    generate_data_table_header(b, props);
-
-    b.decrease_indent();
-    b.indent();
-    b.push(")");
-    b.increase_indent();
-
-    // ── The body ───────────────────────────────────────────────────────────
-    // The view function is indexed by *leaf column*, which is the order the
-    // columns are in here rather than the order the struct declares its
-    // fields in.
     let rows = if use_self {
         format!("&self.{field}_rows")
     } else {
         "&rows".to_string()
     };
 
-    b.newline();
-    b.indent();
-    b.push(&format!(
-        ".rows({rows}, |row: &{}, column| match column {{",
-        struct_def.name
-    ));
-    b.newline();
-    b.increase_indent();
-
-    let last = props.data_table_columns.len() - 1;
-
-    for (index, column) in props.data_table_columns.iter().enumerate() {
-        let cell = data_table_cell_expr(struct_def, &column.field);
-
+    if reorderable {
         b.indent();
-        // The last arm is the catch-all: `column` is a `usize`, so a match on
-        // it needs one whatever the column count.
-        if index == last {
-            b.push(&format!("_ => {cell},"));
-        } else {
-            b.push(&format!("{index} => {cell},"));
-        }
+        b.push(&format!("advanced_table::data_table(self.{field}_header())"));
+        b.increase_indent();
         b.newline();
-    }
+        b.indent();
+        b.push(&format!(
+            ".rows({rows}, |row, column| Self::{field}_cell(row, self.{field}_column_order[column]))"
+        ));
+    } else {
+        b.indent();
+        b.push("advanced_table::data_table(");
+        b.newline();
+        b.increase_indent();
 
-    b.decrease_indent();
-    b.indent();
-    b.push("})");
+        generate_data_table_header(b, props);
+
+        b.decrease_indent();
+        b.indent();
+        b.push(")");
+        b.increase_indent();
+
+        // ── The body ───────────────────────────────────────────────────────
+        // The view function is indexed by *leaf column*, which is the order
+        // the columns are in here rather than the order the struct declares
+        // its fields in.
+        b.newline();
+        b.indent();
+        b.push(&format!(
+            ".rows({rows}, |row: &{}, column| match column {{",
+            struct_def.name
+        ));
+        b.newline();
+        b.increase_indent();
+
+        let last = props.data_table_columns.len() - 1;
+
+        for (index, column) in props.data_table_columns.iter().enumerate() {
+            let cell = data_table_cell_expr(struct_def, &column.field);
+
+            b.indent();
+            // The last arm is the catch-all: `column` is a `usize`, so a
+            // match on it needs one whatever the column count.
+            if index == last {
+                b.push(&format!("_ => {cell},"));
+            } else {
+                b.push(&format!("{index} => {cell},"));
+            }
+            b.newline();
+        }
+
+        b.decrease_indent();
+        b.indent();
+        b.push("})");
+    }
 
     // ── The scalars, each omitted when it matches the widget's own default ──
     if props.data_table_spacing != 0.0 {
@@ -4449,6 +4465,16 @@ fn generate_data_table(
             let variant = variant("RightClicked");
 
             b.dot_method("on_right_click", &format!("Message::{variant}"));
+        }
+
+        // The table does not reorder itself, for the same reason it does not
+        // sort: the order belongs to the column definitions, and a widget
+        // keeping its own permutation would disagree with them the moment a
+        // column was added or removed.
+        if reorderable {
+            let variant = variant("Reordered");
+
+            b.dot_method("on_reorder", &format!("Message::{variant}"));
         }
     }
 
@@ -4708,4 +4734,252 @@ fn format_padding(padding: &Padding) -> String {
             padding.top, padding.right, padding.bottom, padding.left
         )
     }
+}
+
+/// Every reorderable data table in this view, in tree order.
+///
+/// A reorderable table's header cannot be a literal: the columns move at
+/// runtime, so the tree has to be built from the order the app is holding.
+/// That means generated methods rather than an expression inline in `view`.
+pub fn reorderable_data_tables<'a>(root: &'a Widget) -> Vec<&'a Widget> {
+    let mut found = Vec::new();
+    collect_reorderable_data_tables(root, &mut found);
+    found
+}
+
+fn collect_reorderable_data_tables<'a>(widget: &'a Widget, found: &mut Vec<&'a Widget>) {
+    if widget.widget_type == WidgetType::DataTable
+        && widget.properties.data_table_reorderable
+        && !widget.properties.data_table_columns.is_empty()
+    {
+        found.push(widget);
+    }
+
+    for child in &widget.children {
+        collect_reorderable_data_tables(child, found);
+    }
+}
+
+/// The three methods a reorderable data table needs: its header tree, one
+/// column's header, and one cell.
+///
+/// All three are keyed by a column's *original* index — the position it has in
+/// the builder — because that is what the `match` arms can be written against.
+/// The live order is a permutation of those indices, held by the app.
+pub fn generate_data_table_order_methods(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    type_system: &TypeSystem,
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let field = to_snake_case(&name);
+
+    let Some(struct_def) = props
+        .data_table_referenced_struct
+        .and_then(|id| type_system.get_struct(id))
+    else {
+        return;
+    };
+
+    let columns = &props.data_table_columns;
+
+    // Which group each column belongs to, in the original order. The live
+    // order indexes into this, so a run of equal entries is a group's span
+    // wherever those columns have been moved to.
+    let groups = columns
+        .iter()
+        .map(|column| match column.group {
+            Some(group) => format!("Some({group})"),
+            None => "None".to_string(),
+        })
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    b.line("/// The header tree, in the order the columns are currently in.");
+    b.line(&format!(
+        "fn {field}_header(&self) -> Vec<advanced_table::HeaderNode<'_, Message, Theme, iced::Renderer>> {{"
+    ));
+    b.increase_indent();
+    b.line(&format!(
+        "const GROUPS: [Option<usize>; {}] = [{groups}];",
+        columns.len()
+    ));
+
+    if !props.data_table_groups.is_empty() {
+        let headers = props
+            .data_table_groups
+            .iter()
+            .enumerate()
+            .map(|(index, group)| {
+                let header = if group.header.trim().is_empty() {
+                    format!("Group {}", index + 1)
+                } else {
+                    group.header.trim().to_string()
+                };
+
+                format!("\"{header}\"")
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        let sticky = props
+            .data_table_groups
+            .iter()
+            .map(|group| group.sticky.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        b.line(&format!(
+            "const HEADERS: [&str; {}] = [{headers}];",
+            props.data_table_groups.len()
+        ));
+        b.line(&format!(
+            "const STICKY: [bool; {}] = [{sticky}];",
+            props.data_table_groups.len()
+        ));
+    }
+
+    b.newline();
+    b.line(&format!("let order = &self.{field}_column_order;"));
+    b.line("let mut nodes = Vec::new();");
+    b.line("let mut index = 0;");
+    b.newline();
+    b.line("while index < order.len() {");
+    b.increase_indent();
+    b.line("let column = order[index];");
+    b.newline();
+    b.line("match GROUPS[column] {");
+    b.increase_indent();
+    b.line("None => {");
+    b.increase_indent();
+    b.line(&format!("nodes.push(Self::{field}_leaf(column));"));
+    b.line("index += 1;");
+    b.decrease_indent();
+    b.line("}");
+
+    if props.data_table_groups.is_empty() {
+        // No groups to span, so nothing can reach the other arm.
+        b.line("Some(_) => index += 1,");
+    } else {
+        b.line("Some(group) => {");
+        b.increase_indent();
+        b.line("// The run of columns under this group, wherever they have");
+        b.line("// been moved to — a group's columns stay adjacent, which is");
+        b.line("// what keeps it a rectangle.");
+        b.line("let end = order[index..]");
+        b.increase_indent();
+        b.line(".iter()");
+        b.line(".position(|candidate| GROUPS[*candidate] != Some(group))");
+        b.line(".map_or(order.len(), |offset| index + offset);");
+        b.decrease_indent();
+        b.newline();
+        b.line("let children: Vec<_> = order[index..end]");
+        b.increase_indent();
+        b.line(".iter()");
+        b.line(&format!(".map(|column| Self::{field}_leaf(*column))"));
+        b.line(".collect();");
+        b.decrease_indent();
+        b.newline();
+        b.line(&format!(
+            "let node = advanced_table::group({}, children);",
+            if props.data_table_bold_headers {
+                "text(HEADERS[group]).font(Font { weight: font::Weight::Bold, ..Font::DEFAULT })"
+            } else {
+                "text(HEADERS[group])"
+            }
+        ));
+        b.line("nodes.push(if STICKY[group] { node.sticky() } else { node });");
+        b.line("index = end;");
+        b.decrease_indent();
+        b.line("}");
+    }
+
+    b.decrease_indent();
+    b.line("}");
+    b.decrease_indent();
+    b.line("}");
+    b.newline();
+    b.line("nodes");
+    b.decrease_indent();
+    b.line("}");
+    b.newline();
+
+    // ── One column's header ────────────────────────────────────────────────
+    b.line("/// One column's header, by the index it was authored at.");
+    b.line(&format!(
+        "fn {field}_leaf(column: usize) -> advanced_table::HeaderNode<'static, Message, Theme, iced::Renderer> {{"
+    ));
+    b.increase_indent();
+    b.line("match column {");
+    b.increase_indent();
+
+    let last = columns.len() - 1;
+
+    for (index, column) in columns.iter().enumerate() {
+        let pattern = if index == last {
+            "_".to_string()
+        } else {
+            index.to_string()
+        };
+
+        b.line(&format!("{pattern} => {{"));
+        b.increase_indent();
+        b.indent();
+        b.push(&format!(
+            "advanced_table::leaf({})",
+            data_table_header_expr(props, &data_table_column_label(column))
+        ));
+        b.increase_indent();
+        generate_data_table_leaf_calls(b, column);
+
+        // Freezing is positional: a column dragged away from the leading edge
+        // stops being frozen, which the widget handles by ignoring the flag.
+        if column.sticky && column.group.is_none() {
+            b.dot_method_no_args("sticky");
+        }
+
+        b.decrease_indent();
+        b.newline();
+        b.decrease_indent();
+        b.line("}");
+    }
+
+    b.decrease_indent();
+    b.line("}");
+    b.decrease_indent();
+    b.line("}");
+    b.newline();
+
+    // ── One cell ───────────────────────────────────────────────────────────
+    b.line("/// One cell, by the index its column was authored at.");
+    b.line(&format!(
+        "fn {field}_cell(row: &{}, column: usize) -> Element<'_, Message> {{",
+        struct_def.name
+    ));
+    b.increase_indent();
+    b.line("match column {");
+    b.increase_indent();
+
+    for (index, column) in columns.iter().enumerate() {
+        let pattern = if index == last {
+            "_".to_string()
+        } else {
+            index.to_string()
+        };
+
+        b.line(&format!(
+            "{pattern} => {},",
+            data_table_cell_expr(struct_def, &column.field)
+        ));
+    }
+
+    b.decrease_indent();
+    b.line("}");
+    b.decrease_indent();
+    b.line("}");
 }

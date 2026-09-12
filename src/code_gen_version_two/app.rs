@@ -252,6 +252,14 @@ pub fn generate_impl(
         b.newline();
     }
 
+    // A reorderable data table's header is built from the order the app is
+    // holding rather than written out in `view`, so it needs methods of its
+    // own.
+    for table in super::widgets::reorderable_data_tables(root) {
+        super::widgets::generate_data_table_order_methods(b, table, names, type_system);
+        b.newline();
+    }
+
     // Only generate title, theme, and window settings if this is the Main App
     if let Some((window_config, theme)) = main_config {
         generate_title_method(b, &window_config.title);
@@ -666,6 +674,14 @@ fn generate_state_fields(
                     to_snake_case(&name)
                 ));
             }
+
+            // The live column order, as a permutation of the indices the
+            // columns were authored at. The header and the cell lookup both
+            // read it, which is why a reorderable table's header cannot be a
+            // literal.
+            if props.data_table_reorderable && !props.data_table_columns.is_empty() {
+                b.line(&format!("{}_column_order: Vec<usize>,", to_snake_case(&name)));
+            }
         }
         WidgetType::ViewReference => {
             if let Some(vr) = view_refs.iter().find(|vr| vr.widget_id == widget.id) {
@@ -1012,6 +1028,14 @@ fn generate_state_initializers(
 
             if props.data_table_sorting {
                 b.line(&format!("{}_sort: None,", to_snake_case(&name)));
+            }
+
+            if props.data_table_reorderable && !props.data_table_columns.is_empty() {
+                b.line(&format!(
+                    "{}_column_order: (0..{}).collect(),",
+                    to_snake_case(&name),
+                    props.data_table_columns.len()
+                ));
             }
         }
         WidgetType::ViewReference => {
