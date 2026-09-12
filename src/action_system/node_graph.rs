@@ -680,7 +680,9 @@ impl EditorState {
         flows.get(self.selected.min(flows.len().saturating_sub(1)))
     }
 
-    fn selected_mut<'f>(&self, flows: &'f mut [AppFlow]) -> Option<&'f mut AppFlow> {
+    /// The flow being edited, to mutate. A trigger edit lands on the flow
+    /// rather than on the graph, so this is public alongside the graph getter.
+    pub fn selected_mut<'f>(&self, flows: &'f mut [AppFlow]) -> Option<&'f mut AppFlow> {
         let index = self.selected.min(flows.len().saturating_sub(1));
         flows.get_mut(index)
     }

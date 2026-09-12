@@ -432,6 +432,16 @@ impl AdUiBuilder {
                                 .action_editor
                                 .selected_mut_graph(&mut self.flows)
                                 .is_some_and(|graph| node_graph::update(graph, msg)),
+                            // A trigger edit belongs to the flow, not to the
+                            // node that draws it.
+                            node_graph::Message::Node(
+                                action_system::node_body::NodeMessage::Trigger(msg),
+                            ) => self
+                                .action_editor
+                                .selected_mut(&mut self.flows)
+                                .is_some_and(|flow| {
+                                    action_system::node_body::update_trigger(flow, msg)
+                                }),
                             node_graph::Message::Node(msg) => self
                                 .action_editor
                                 .selected_mut_graph(&mut self.flows)
@@ -1009,6 +1019,8 @@ impl AdUiBuilder {
                 &self.views,
                 &self.flows,
                 action_system::state_ref::collect_state_fields(&self.views),
+                &self.type_system,
+                self.action_editor.selected(&self.flows),
             );
         }
         use crate::code_gen_version_two::CodeGeneratorV2;
