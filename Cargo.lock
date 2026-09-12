@@ -2400,6 +2400,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "material-colors"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e226ffda362d5bc26bb8f730d637a0851eedfb05e35d92108c9d8b48d2e47941"
+dependencies = [
+ "ahash",
+ "indexmap",
+ "serde",
+]
+
+[[package]]
+name = "material_theme"
+version = "0.1.0"
+source = "git+https://github.com/A-Disruption/material_theme#770c5877208b459a1b4e33f46bc5b4285e24c98b"
+dependencies = [
+ "iced",
+ "material-colors",
+]
+
+[[package]]
 name = "maybe-rayon"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5105,6 +5125,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "iced",
+ "material_theme",
 ]
 
 [[package]]

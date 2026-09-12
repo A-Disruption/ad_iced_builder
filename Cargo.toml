@@ -29,6 +29,9 @@ widgets = { path = "C:/Rust Projects/widgets", features = [
     "layer",
     "toast",
     "date_picker",
+    # Material Design 3 styles, offered as "Material" wherever a widget from
+    # this crate has a style picker.
+    "m3_theme",
 ] }
 #widgets = { git = "https://github.com/A-Disruption/widgets.git", features = ["collapsible", "tree", "color_picker_two", "menu", "popover", "layer", "toast", "date_picker"] }
 

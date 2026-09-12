@@ -1469,7 +1469,11 @@ fn generate_message_variants(
             }
             emitted = true;
         }
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
+        // Toast is not here: a toast stack has no `open()` and no
+        // `on_toggle()` — it shows whatever toasts are in it. The builder's
+        // canvas gives it a toggle of its own to stay selectable, and that
+        // handle is not part of the generated code.
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             if has_custom_name {
                 b.line(&format!("{}(bool),", v));
             } else {
@@ -2330,7 +2334,8 @@ fn generate_match_arms(
             b.decrease_indent();
             b.line("}");
         }
-        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer | WidgetType::Toast => {
+        // Toast has no toggle to handle — see the message enum above.
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
             let arm = if has_custom_name {
                 format!("{}(is_open)", v)
             } else {

@@ -435,6 +435,9 @@ fn resolve_collapsible_style_fn(style_name: &str) -> Option<String> {
         "Success" => Some("widgets::collapsible::success".to_string()),
         "Danger" => Some("widgets::collapsible::danger".to_string()),
         "Warning" => Some("widgets::collapsible::warning".to_string()),
+        crate::controls::MATERIAL_STYLE => {
+            Some("widgets::m3::collapsible::material".to_string())
+        }
         _ => None,
     }
 }
@@ -446,6 +449,12 @@ fn resolve_collapsible_style_fn(style_name: &str) -> Option<String> {
 /// so the generated code builds the same five over the widget's own default,
 /// the way the preview does. `module` is `popover`, `menu` or `layer`.
 fn resolve_overlay_style_fn(module: &str, style_name: &str) -> Option<String> {
+    // The M3 styles are real functions in the widgets crate rather than
+    // something built here, so they are named rather than derived.
+    if style_name == crate::controls::MATERIAL_STYLE {
+        return Some(format!("widgets::m3::{module}::material"));
+    }
+
     let swatch = match style_name {
         "Primary" => "primary",
         "Success" => "success",
@@ -3512,6 +3521,13 @@ fn generate_toast(
         }
     } else {
         b.dot_method_no_args("no_animation");
+    }
+
+    // A toast's style is per-variant, so the swatch presets the other three
+    // overlays offer cannot apply here — the panel offers only the M3 style,
+    // which keeps the variants apart.
+    if props.overlay_style_name.as_deref() == Some(crate::controls::MATERIAL_STYLE) {
+        b.dot_method("style", "widgets::m3::toast::material");
     }
 
     let _ = (name, has_custom_name);

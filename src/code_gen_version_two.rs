@@ -361,6 +361,23 @@ impl<'a> CodeGeneratorV2<'a> {
             }
             _ => {}
         }
+
+        // The M3 styles live behind their own feature, and any of the widgets
+        // above can be asked for one.
+        let material = crate::controls::MATERIAL_STYLE;
+
+        // `active_style_name` counts too: a collapsible switching to Material
+        // conditionally still calls into it.
+        if [
+            widget.properties.overlay_style_name.as_deref(),
+            widget.properties.custom_style_name.as_deref(),
+            widget.properties.active_style_name.as_deref(),
+        ]
+        .contains(&Some(material))
+        {
+            widget_features.insert("m3_theme");
+        }
+
         for child in &widget.children {
             Self::scan_cargo_features(
                 child,
@@ -968,6 +985,88 @@ mod tests {
     }
 
     /// Generates a project holding one menu with a row of every kind.
+
+    /// Generates a project whose widgets all ask for the Material style.
+    ///
+    /// One of each kind that can take it, so the feature and every style path
+    /// are exercised together.
+    fn generate_material_project() -> std::collections::HashMap<String, String> {
+        use super::CodeGeneratorV2;
+        use crate::controls::MATERIAL_STYLE;
+        use crate::data_structures::types::types::{AppView, WidgetType};
+        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::{Window, WindowEnum};
+
+        let view_id = uuid::Uuid::new_v4();
+        let mut view = AppView::with_id(view_id, "Main View".to_string(), 0);
+
+        let root = view.hierarchy.root().id;
+        let column = view
+            .hierarchy
+            .add_child(root, WidgetType::Column)
+            .expect("a column goes in the root container");
+
+        // Popover, Menu and Layer take a panel style; Collapsible takes a
+        // widget style; Toast's is per-variant.
+        for widget_type in [
+            WidgetType::Popover,
+            WidgetType::Menu,
+            WidgetType::Layer,
+            WidgetType::Toast,
+            WidgetType::Collapsible,
+        ] {
+            let id = view
+                .hierarchy
+                .add_child(column, widget_type)
+                .expect("the widget goes in a column");
+
+            let widget = view
+                .hierarchy
+                .get_widget_by_id_mut(id)
+                .expect("the widget was just added");
+
+            widget.properties.overlay_style_name = Some(MATERIAL_STYLE.to_string());
+            widget.properties.custom_style_name = Some(MATERIAL_STYLE.to_string());
+        }
+
+        let views = std::collections::BTreeMap::from([(view_id, view)]);
+        let windows = std::collections::BTreeMap::from([(
+            iced::window::Id::unique(),
+            Window::new(iced::window::Id::unique(), WindowEnum::Visualizer),
+        )]);
+
+        let theme = iced::Theme::Dark;
+        let type_system = crate::enum_builder::TypeSystem::new();
+
+        let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        dump_project(&files);
+        files
+    }
+
+    #[test]
+    fn the_material_style_reaches_generated_code_and_its_feature() {
+        let files = generate_material_project();
+        let main = files.get("main.rs").expect("main.rs is generated");
+
+        // Named functions in the widgets crate, not something built here from
+        // a palette swatch.
+        assert!(main.contains("widgets::m3::popover::material"));
+        assert!(main.contains("widgets::m3::menu::material"));
+        assert!(main.contains("widgets::m3::layer::material"));
+        assert!(main.contains("widgets::m3::toast::material"));
+        assert!(main.contains("widgets::m3::collapsible::material"));
+
+        // Those live behind a feature, and without it the module is not
+        // compiled at all.
+        let cargo = files.get("Cargo.toml").expect("Cargo.toml is generated");
+        assert!(
+            cargo.contains("\"m3_theme\""),
+            "the M3 styles were called without asking for the feature that \
+             compiles them:\n{cargo}",
+        );
+    }
     ///
     /// The rows cover what the panel can be told about a row: its kind, its
     /// checkmark, whether it responds, and its gutter icon.

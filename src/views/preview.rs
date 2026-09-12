@@ -324,6 +324,9 @@ fn resolve_collapsible_style(
         "Success" => Some(collapsible_widget::success(theme, status)),
         "Danger" => Some(collapsible_widget::danger(theme, status)),
         "Warning" => Some(collapsible_widget::warning(theme, status)),
+        crate::controls::MATERIAL_STYLE => {
+            Some(widgets::m3::collapsible::material(theme, status))
+        }
         _ => None,
     }
 }
@@ -3454,6 +3457,12 @@ fn build_popover_preview<'a>(
         let name = name.to_string();
 
         popover = popover.style(move |theme: &Theme| {
+            // An M3 style maps every field of the widget's `Style` onto a
+            // role, so it replaces the default rather than recolouring it.
+            if name == crate::controls::MATERIAL_STYLE {
+                return widgets::m3::popover::material(theme);
+            }
+
             let base = widgets::popover::default(theme);
 
             match overlay_preset(theme, &name) {
@@ -3626,6 +3635,12 @@ fn build_menu_preview<'a>(
         let name = name.to_string();
 
         menu = menu.style(move |theme: &Theme| {
+            // An M3 style maps every field of the widget's `Style` onto a
+            // role, so it replaces the default rather than recolouring it.
+            if name == crate::controls::MATERIAL_STYLE {
+                return widgets::m3::menu::material(theme);
+            }
+
             let base = widgets::menu::default(theme);
 
             match overlay_preset(theme, &name) {
@@ -3725,6 +3740,12 @@ fn build_layer_preview<'a>(
         let name = name.to_string();
 
         layer = layer.style(move |theme: &Theme| {
+            // An M3 style maps every field of the widget's `Style` onto a
+            // role, so it replaces the default rather than recolouring it.
+            if name == crate::controls::MATERIAL_STYLE {
+                return widgets::m3::layer::material(theme);
+            }
+
             let base = widgets::layer::default(theme);
 
             match overlay_preset(theme, &name) {
@@ -3819,6 +3840,13 @@ fn build_toast_preview<'a>(
     } else {
         toasts.no_animation()
     };
+
+    // A toast's style is per-variant, which is why only the M3 style is
+    // offered for it: one flat colour would make an error toast and a success
+    // toast look the same.
+    if props.overlay_style_name.as_deref() == Some(crate::controls::MATERIAL_STYLE) {
+        toasts = toasts.style(widgets::m3::toast::material);
+    }
 
     // A toast stack draws over the viewport and takes no space in the layout,
     // so on the canvas it needs a handle of its own to stay selectable. The

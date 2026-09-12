@@ -2586,15 +2586,30 @@ pub fn stack_controls<'a>(
         .into()
 }
 
+/// The name of the widgets crate's Material Design 3 style.
+///
+/// Behind that crate's `m3_theme` feature, which the builder turns on. Unlike
+/// the swatch presets beside it, an M3 style maps every field of the widget's
+/// `Style` onto a *role*, so it tracks the user's seed colour and light/dark
+/// mode rather than one palette entry.
+pub(crate) const MATERIAL_STYLE: &str = "Material";
+
 fn collapsible_style_options() -> Vec<String> {
-    ["Default", "Primary", "Success", "Danger", "Warning"]
-        .into_iter()
-        .map(str::to_string)
-        .collect()
+    [
+        "Default",
+        "Primary",
+        "Success",
+        "Danger",
+        "Warning",
+        MATERIAL_STYLE,
+    ]
+    .into_iter()
+    .map(str::to_string)
+    .collect()
 }
 
 fn overlay_style_options() -> Vec<String> {
-    ["Primary", "Success", "Danger", "Warning", "Blank"]
+    ["Primary", "Success", "Danger", "Warning", "Blank", MATERIAL_STYLE]
         .into_iter()
         .map(str::to_string)
         .collect()
@@ -2871,12 +2886,22 @@ pub fn overlay_controls<'a>(
     .spacing(SECTION_SPACING);
 
     // ── Appearance, shared by all four ───────────────────────────────────────
+    // A toast's style is per-variant, so the swatch presets cannot apply to
+    // it — one colour for every toast would flatten error, success and
+    // warning into each other. Only the M3 style, which keeps them apart,
+    // is offered.
+    let style_options = if is_toast {
+        vec![MATERIAL_STYLE.to_string()]
+    } else {
+        overlay_style_options()
+    };
+
     let mut appearance = vec![
         field(
             "Panel Style",
             pick_list(
                 props.overlay_style_name.clone(),
-                overlay_style_options(),
+                style_options,
                 ToString::to_string,
             )
             .on_select(move |selection| {
