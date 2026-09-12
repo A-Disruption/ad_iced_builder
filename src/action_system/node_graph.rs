@@ -15,7 +15,8 @@ use iced::widget::{column, container, row, text};
 use iced::{Alignment, Element, Length, Point};
 use iced_nodegraph::prelude::*;
 
-use super::flow_model::{PortDef, PortSide, PortType};
+use super::flow_model::PortType;
+use super::node_body::{self, NodeContext, NodeMessage};
 use super::flow::{AppFlow, FlowTrigger};
 use super::graph::{ActionEdge, ActionGraph, ActionNodeData, ActionNodeId, node_width};
 
@@ -80,58 +81,21 @@ pub enum GraphMessage {
     CameraChanged(Point, f32),
 }
 
-/// A port row: its label, and the pin the graph attaches an edge to.
-///
-/// The pin wraps the dot rather than the whole row, so an edge meets the dot
-/// and not the row's outer edge.
-fn port_row<'a>(port: &PortDef) -> Element<'a, GraphMessage> {
-    let dot = text("\u{25CF}").size(10);
-    let label = text(port.label.clone()).size(12);
+/// One node: what it is, and the body carrying its controls and pins.
+fn node_content<'a>(node: &'a ActionNodeData, ctx: &'a NodeContext) -> Element<'a, Message> {
+    // A trigger says which trigger it is, which the kind label cannot.
+    let title = node
+        .kind_label_override
+        .clone()
+        .unwrap_or_else(|| node.kind.display_name().to_string());
 
-    match port.side {
-        PortSide::Input => row![
-            pin!(Left, port.id.0, dot, Input, port.kind.clone()),
-            label,
-        ],
-        PortSide::Output => row![
-            label,
-            pin!(Right, port.id.0, dot, Output, port.kind.clone()),
-        ],
-    }
-    .spacing(6)
-    .align_y(Alignment::Center)
-    .into()
-}
-
-/// One node: a header and its ports.
-///
-/// Inputs and outputs are separate columns so a node with three of one and one
-/// of the other still reads as two lists rather than a ragged pairing.
-fn node_content<'a>(node: &ActionNodeData) -> Element<'a, GraphMessage> {
-    let header = container(text(node.kind.kind_label()).size(13))
-        .padding([4, 8])
+    let header = container(text(title).size(12))
+        .padding([3, 6])
         .width(Length::Fill);
 
-    let inputs = column(node.cached_ports_in.iter().map(port_row))
-        .spacing(4)
-        .width(Length::Shrink);
-
-    let outputs = column(node.cached_ports_out.iter().map(port_row))
-        .spacing(4)
-        .align_x(Alignment::End)
-        .width(Length::Shrink);
-
-    container(
-        column![
-            header,
-            row![inputs, iced::widget::space::horizontal(), outputs]
-                .spacing(16)
-                .padding([4, 8]),
-        ]
-        .spacing(2),
-    )
-    .width(Length::Fixed(node_width(&node.kind)))
-    .into()
+    container(column![header, node_body::body(node, ctx).map(Message::Node)].spacing(2))
+        .width(Length::Fixed(node_width(&node.kind)))
+        .into()
 }
 
 /// Everything the editor shows: the graph, and the palette over it.
@@ -143,11 +107,16 @@ pub enum Message {
     Graph(GraphMessage),
     Palette(PaletteMessage),
     Flow(FlowMessage),
+    Node(NodeMessage),
 }
 
 /// The action editor: a flow bar, and the flow's graph with right-click to
 /// add a node.
-pub fn editor<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, Message> {
+pub fn editor<'a>(
+    flows: &'a [AppFlow],
+    state: &'a EditorState,
+    ctx: &'a NodeContext,
+) -> Element<'a, Message> {
     let bar = flow_bar(flows, state);
 
     let Some(flow) = state.selected(flows) else {
@@ -166,7 +135,7 @@ pub fn editor<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, M
     // opens the palette is caught out here. `mouse_area` reports the cursor
     // relative to its own bounds, which is the coordinate space
     // `PaletteState::open_at_cursor` undoes the camera in.
-    let canvas = iced::widget::mouse_area(view(graph).map(Message::Graph))
+    let canvas = iced::widget::mouse_area(view(graph, ctx))
         .on_move(|position| Message::Palette(PaletteMessage::CursorMoved(position)))
         .on_right_press(Message::Palette(PaletteMessage::Opened));
 
@@ -188,17 +157,23 @@ pub fn editor<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, M
 }
 
 /// Builds the widget for a whole [`ActionGraph`].
-pub fn view<'a>(graph: &'a ActionGraph) -> Element<'a, GraphMessage> {
-    let mut widget = NodeGraph::<'a, ActionIds, GraphMessage>::new()
+///
+/// Everything the widget reports is a `Message::Graph`; everything a node's
+/// own controls report is a `Message::Node`. Both arrive here so the caller
+/// has one channel to route.
+pub fn view<'a>(graph: &'a ActionGraph, ctx: &'a NodeContext) -> Element<'a, Message> {
+    let graphed = |message: GraphMessage| Message::Graph(message);
+
+    let mut widget = NodeGraph::<'a, ActionIds, Message>::new()
         .camera(Point::new(graph.pan[0], graph.pan[1]), graph.zoom)
-        .on_connect(GraphMessage::Connect)
-        .on_disconnect(GraphMessage::Disconnect)
-        .on_move(GraphMessage::NodesMoved)
-        .on_select(GraphMessage::SelectionChanged)
-        .on_delete(GraphMessage::NodesDeleted)
-        .on_clone(GraphMessage::NodesCloned)
-        .on_edge_delete(GraphMessage::EdgesDeleted)
-        .on_camera(GraphMessage::CameraChanged)
+        .on_connect(move |from, to| graphed(GraphMessage::Connect(from, to)))
+        .on_disconnect(move |from, to| graphed(GraphMessage::Disconnect(from, to)))
+        .on_move(move |delta, ids| graphed(GraphMessage::NodesMoved(delta, ids)))
+        .on_select(move |ids| graphed(GraphMessage::SelectionChanged(ids)))
+        .on_delete(move |ids| graphed(GraphMessage::NodesDeleted(ids)))
+        .on_clone(move |ids| graphed(GraphMessage::NodesCloned(ids)))
+        .on_edge_delete(move |keys| graphed(GraphMessage::EdgesDeleted(keys)))
+        .on_camera(move |position, zoom| graphed(GraphMessage::CameraChanged(position, zoom)))
         // Outputs wire to inputs, and only where the port types agree — which
         // is the whole of the action system's connection rule.
         .can_connect(|from, to| from.direction() != to.direction() && from.info() == to.info());
@@ -210,7 +185,7 @@ pub fn view<'a>(graph: &'a ActionGraph) -> Element<'a, GraphMessage> {
             continue;
         };
 
-        widget = widget.push_node(node(*id, data.position, node_content(data)));
+        widget = widget.push_node(node(*id, data.position, node_content(data, ctx)));
     }
 
     for wire in &graph.edges {

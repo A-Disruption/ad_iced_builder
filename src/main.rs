@@ -92,6 +92,14 @@ struct AdUiBuilder {
     #[cfg(not(feature = "action_editor"))]
     action_editor: action_system::node_graph::EditorState,
 
+    /// The choices the node bodies offer -- state fields, views, flows.
+    ///
+    /// Held rather than built in `view` because the editor borrows it, and a
+    /// local would not outlive the frame. Refreshed by `regenerate_code`,
+    /// which already runs on every change that can move these.
+    #[cfg(not(feature = "action_editor"))]
+    node_context: action_system::node_body::NodeContext,
+
     save_path: Option<PathBuf>,
     unsaved_changes: bool,
     pending_new_project: bool,
@@ -178,6 +186,8 @@ impl AdUiBuilder {
             flows: Vec::new(),
             #[cfg(not(feature = "action_editor"))]
             action_editor: Default::default(),
+            #[cfg(not(feature = "action_editor"))]
+            node_context: Default::default(),
 
             save_path: None,
             unsaved_changes: false,
@@ -422,6 +432,12 @@ impl AdUiBuilder {
                                 .action_editor
                                 .selected_mut_graph(&mut self.flows)
                                 .is_some_and(|graph| node_graph::update(graph, msg)),
+                            node_graph::Message::Node(msg) => self
+                                .action_editor
+                                .selected_mut_graph(&mut self.flows)
+                                .is_some_and(|graph| {
+                                    action_system::node_body::update(graph, msg)
+                                }),
                             node_graph::Message::Palette(msg) => {
                                 let palette = &mut self.action_editor.palette;
                                 let mut state = std::mem::take(palette);
@@ -832,7 +848,11 @@ impl AdUiBuilder {
             // piece, and lives in the parked `action_editor` module.
             #[cfg(not(feature = "action_editor"))]
             navigation_bar::ViewSelection::Actions =>
-                action_system::node_graph::editor(&self.flows, &self.action_editor)
+                action_system::node_graph::editor(
+                    &self.flows,
+                    &self.action_editor,
+                    &self.node_context,
+                )
                     .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))),
 
             _ => container("No done, sorry :(").into(),
@@ -980,6 +1000,17 @@ impl AdUiBuilder {
 
     fn regenerate_code(&mut self) {
         self.unsaved_changes = true;
+
+        // The node bodies pick from these, and every change that can move them
+        // also regenerates.
+        #[cfg(not(feature = "action_editor"))]
+        {
+            self.node_context = action_system::node_body::NodeContext::gather(
+                &self.views,
+                &self.flows,
+                action_system::state_ref::collect_state_fields(&self.views),
+            );
+        }
         use crate::code_gen_version_two::CodeGeneratorV2;
 
         let mut generator = CodeGeneratorV2::new(
@@ -1167,6 +1198,8 @@ impl AdUiBuilder {
             flows,
             #[cfg(not(feature = "action_editor"))]
             action_editor: Default::default(),
+            #[cfg(not(feature = "action_editor"))]
+            node_context: Default::default(),
             save_path: None,
             unsaved_changes: false,
             pending_new_project: false,

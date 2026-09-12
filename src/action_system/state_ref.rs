@@ -206,3 +206,197 @@ fn to_snake_case(s: &str) -> String {
 fn uuid_short(id: &Uuid) -> String {
     id.to_string().replace('-', "")[..8].to_string()
 }
+
+use std::collections::BTreeMap;
+use uuid::Uuid as CollectUuid;
+
+use crate::data_structures::types::types::{AppView, Widget, WidgetType};
+
+// ─── Collecting the state fields a project exposes ───────────────────────────
+// Moved out of `views::action_editor` when that module was parked: these walk
+// the widget tree, not the editor, and the node bodies need them.
+
+pub(crate) fn collect_state_fields(all_views: &BTreeMap<Uuid, AppView>) -> Vec<StateFieldRef> {
+    let mut fields = Vec::new();
+    for view in all_views.values() {
+        collect_fields_from_widget(view.hierarchy.root(), view.id, &view.name, &mut fields);
+        collect_view_selection_fields(
+            view.hierarchy.root(),
+            view.id,
+            &view.name,
+            all_views,
+            &mut fields,
+        );
+        // Add custom state fields
+        for cf in &view.custom_state {
+            fields.push(StateFieldRef {
+                view_id: view.id,
+                source: StateRefSource::Custom {
+                    field_id: cf.id,
+                    field_name: cf.name.clone(),
+                },
+                field_type: cf.field_type.to_action_value_type(),
+                display_name: format!("{} / {} (custom)", view.name, cf.display_name),
+            });
+        }
+    }
+    fields
+}
+
+fn collect_view_selection_fields(
+    widget: &Widget,
+    view_id: Uuid,
+    view_name: &str,
+    all_views: &BTreeMap<Uuid, AppView>,
+    out: &mut Vec<StateFieldRef>,
+) {
+    if widget.widget_type == WidgetType::ViewReference {
+        if let Some(primary_id) = widget.properties.referenced_view_id {
+            if !widget.properties.extra_view_ids.is_empty() {
+                if let Some(primary_view) = all_views.get(&primary_id) {
+                    // Use the same naming logic as collect_view_refs_recursive in events.rs:
+                    // builder::to_snake_case = s.to_lowercase().replace(' ', "_")
+                    let primary_field = if !widget.properties.widget_name.trim().is_empty() {
+                        widget
+                            .properties
+                            .widget_name
+                            .trim()
+                            .to_lowercase()
+                            .replace(' ', "_")
+                    } else {
+                        primary_view.name.trim().to_lowercase().replace(' ', "_")
+                    };
+                    let type_name = format!("{}Selection", pascal_case(&primary_field));
+                    let field_name = format!("{}_selection", primary_field);
+                    // Primary variant uses actual view name, not widget alias
+                    let mut variants = vec![pascal_case(&snake_case(&primary_view.name))];
+                    for eid in &widget.properties.extra_view_ids {
+                        if let Some(ev) = all_views.get(eid) {
+                            variants.push(pascal_case(&snake_case(&ev.name)));
+                        }
+                    }
+                    out.push(StateFieldRef {
+                        view_id,
+                        source: StateRefSource::ViewSelection {
+                            widget_id: widget.id,
+                            field_name,
+                        },
+                        field_type: ActionValueType::Enum {
+                            type_name,
+                            variants,
+                        },
+                        display_name: format!("{} / {} (view selection)", view_name, primary_field),
+                    });
+                }
+            }
+        }
+    }
+    for child in &widget.children {
+        collect_view_selection_fields(child, view_id, view_name, all_views, out);
+    }
+}
+
+fn snake_case(s: &str) -> String {
+    s.chars()
+        .enumerate()
+        .flat_map(|(i, c)| {
+            if c.is_uppercase() && i > 0 {
+                vec!['_', c.to_lowercase().next().unwrap_or(c)]
+            } else {
+                vec![c.to_lowercase().next().unwrap_or(c)]
+            }
+        })
+        .collect::<String>()
+        .replace(' ', "_")
+}
+
+fn pascal_case(s: &str) -> String {
+    s.split(|c: char| c == '_' || c == ' ')
+        .filter(|p| !p.is_empty())
+        .map(|p| {
+            let mut chars = p.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(c) => c.to_uppercase().to_string() + chars.as_str(),
+            }
+        })
+        .collect()
+}
+
+fn collect_fields_from_widget(
+    widget: &Widget,
+    view_id: Uuid,
+    view_name: &str,
+    out: &mut Vec<StateFieldRef>,
+) {
+    let widget_label = if widget.properties.widget_name.is_empty() {
+        format!("{:?}", widget.widget_type)
+    } else {
+        widget.properties.widget_name.clone()
+    };
+    let prefix = format!("{view_name} / {widget_label}");
+
+    let make_widget_ref = |suffix: &str, ftype: ActionValueType, label: &str| StateFieldRef {
+        view_id,
+        source: StateRefSource::Widget {
+            widget_id: widget.id,
+            field_suffix: suffix.to_string(),
+        },
+        field_type: ftype,
+        display_name: format!("{prefix} / {label}"),
+    };
+
+    match widget.widget_type {
+        WidgetType::TextEditor => {
+            out.push(make_widget_ref("_text", ActionValueType::String, "text"));
+        }
+        WidgetType::TextInput => {
+            out.push(make_widget_ref("_value", ActionValueType::String, "value"));
+        }
+        WidgetType::Slider | WidgetType::VerticalSlider => {
+            out.push(make_widget_ref("_value", ActionValueType::F32, "value"));
+        }
+        WidgetType::Split => {
+            out.push(make_widget_ref(
+                "_split_at",
+                ActionValueType::F32,
+                "split position",
+            ));
+        }
+        WidgetType::Checkbox => {
+            out.push(make_widget_ref(
+                "_checked",
+                ActionValueType::Bool,
+                "checked",
+            ));
+        }
+        WidgetType::Toggler => {
+            out.push(make_widget_ref("_active", ActionValueType::Bool, "active"));
+        }
+        WidgetType::Popover | WidgetType::Menu | WidgetType::Layer => {
+            out.push(make_widget_ref("_open", ActionValueType::Bool, "open"));
+        }
+        WidgetType::DatePicker => {
+            out.push(make_widget_ref("_open", ActionValueType::Bool, "open"));
+        }
+        WidgetType::PickList => {
+            out.push(make_widget_ref(
+                "_selected",
+                ActionValueType::String,
+                "selected",
+            ));
+        }
+        WidgetType::Radio => {
+            out.push(make_widget_ref(
+                "_selected",
+                ActionValueType::Usize,
+                "selected",
+            ));
+        }
+        _ => {}
+    }
+
+    for child in &widget.children {
+        collect_fields_from_widget(child, view_id, view_name, out);
+    }
+}
