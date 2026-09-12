@@ -133,6 +133,46 @@ fn node_content<'a>(node: &ActionNodeData) -> Element<'a, GraphMessage> {
     .into()
 }
 
+/// Everything the editor shows: the graph, and the palette over it.
+///
+/// One message type rather than two nested ones, because the caller has to
+/// route both to the same flow anyway.
+#[derive(Debug, Clone)]
+pub enum Message {
+    Graph(GraphMessage),
+    Palette(PaletteMessage),
+}
+
+/// The action editor: the graph, with right-click to add a node.
+pub fn editor<'a>(
+    graph: &'a ActionGraph,
+    palette: &'a PaletteState,
+) -> Element<'a, Message> {
+    // The graph has no background-click callback, so the right-click that
+    // opens the palette is caught out here. `mouse_area` reports the cursor
+    // relative to its own bounds, which is the coordinate space
+    // `PaletteState::open_at_cursor` undoes the camera in.
+    let canvas = iced::widget::mouse_area(view(graph).map(Message::Graph))
+        .on_move(|position| Message::Palette(PaletteMessage::CursorMoved(position)))
+        .on_right_press(Message::Palette(PaletteMessage::Opened));
+
+    let Some(open) = &palette.open else {
+        return canvas.into();
+    };
+
+    // `layer` positions against the viewport and draws as an overlay, so it
+    // sits beside the canvas rather than wrapping it. `at` puts it exactly
+    // where the click landed rather than at an anchor.
+    let palette = widgets::layer::layer(palette_view(open).map(Message::Palette))
+        .at(open.at)
+        .dismiss_on_outside_press(true)
+        .dismiss_on_escape(true)
+        .on_dismiss(Message::Palette(PaletteMessage::Closed))
+        .padding(0.0);
+
+    iced::widget::stack![canvas, palette].into()
+}
+
 /// Builds the widget for a whole [`ActionGraph`].
 pub fn view<'a>(graph: &'a ActionGraph) -> Element<'a, GraphMessage> {
     let mut widget = NodeGraph::<'a, ActionIds, GraphMessage>::new()
@@ -377,5 +417,255 @@ mod tests {
             GraphMessage::CameraChanged(Point::new(1.0, 2.0), 1.5),
         ));
         assert_eq!(graph.zoom, 1.5);
+    }
+}
+
+// ─── Context palette ─────────────────────────────────────────────────────────
+// `iced_nodegraph` has no palette of its own: it draws and edits a graph, and
+// leaves deciding what a new node *is* to the application. So this is built
+// here, out of ordinary widgets, and only needs two things from the widget --
+// where the click landed and what the camera was doing -- both of which the
+// host already knows.
+
+/// Where the palette is open, and what has been typed into it.
+///
+/// `None` is closed, which is the whole of its state when nothing is happening.
+#[derive(Debug, Clone, Default)]
+pub struct PaletteState {
+    open: Option<OpenPalette>,
+    /// The cursor, in the graph widget's own coordinates.
+    ///
+    /// Tracked on every move because a right-click does not carry a position:
+    /// `mouse_area::on_right_press` reports that it happened, not where.
+    cursor: Point,
+}
+
+#[derive(Debug, Clone)]
+struct OpenPalette {
+    /// Where to draw it — the widget-relative point the user clicked.
+    at: Point,
+    /// Where the node goes — that point in world space.
+    world: Point,
+    filter: String,
+}
+
+impl PaletteState {
+    pub fn is_open(&self) -> bool {
+        self.open.is_some()
+    }
+
+    /// Opens the palette at the last known cursor position.
+    ///
+    /// `mouse_area` reports the cursor relative to its own bounds, and it wraps
+    /// the graph exactly, so the widget's viewport origin is the origin here
+    /// and the camera's documented transform reduces to this.
+    fn open_at_cursor(&mut self, camera: Point, zoom: f32) {
+        let world = Point::new(
+            self.cursor.x / zoom - camera.x,
+            self.cursor.y / zoom - camera.y,
+        );
+
+        self.open = Some(OpenPalette {
+            at: self.cursor,
+            world,
+            filter: String::new(),
+        });
+    }
+
+    fn close(&mut self) {
+        self.open = None;
+    }
+}
+
+/// What the palette reports.
+#[derive(Debug, Clone)]
+pub enum PaletteMessage {
+    CursorMoved(Point),
+    Opened,
+    Closed,
+    FilterChanged(String),
+    /// The id of the chosen [`PaletteEntry`].
+    Picked(u64),
+}
+
+/// Applies a palette message, adding a node when one was chosen.
+///
+/// Returns whether the graph changed, matching [`update`].
+pub fn update_palette(
+    graph: &mut ActionGraph,
+    palette: &mut PaletteState,
+    message: PaletteMessage,
+) -> bool {
+    match message {
+        PaletteMessage::CursorMoved(position) => {
+            palette.cursor = position;
+            false
+        }
+
+        PaletteMessage::Opened => {
+            palette.open_at_cursor(Point::new(graph.pan[0], graph.pan[1]), graph.zoom);
+            false
+        }
+
+        PaletteMessage::Closed => {
+            palette.close();
+            false
+        }
+
+        PaletteMessage::FilterChanged(filter) => {
+            if let Some(open) = &mut palette.open {
+                open.filter = filter;
+            }
+            false
+        }
+
+        PaletteMessage::Picked(entry) => {
+            let Some(open) = palette.open.take() else {
+                return false;
+            };
+
+            let Some(mut node) = super::graph::action_node_from_palette_id(
+                entry,
+                open.world,
+                graph.next_id,
+            ) else {
+                return false;
+            };
+
+            // Ports are derived from the kind, and a node arrives from the
+            // palette with none.
+            node.rebuild_ports();
+
+            graph.next_id += 1;
+            graph.z_order.push(node.id);
+            graph.nodes.push(node);
+
+            true
+        }
+    }
+}
+
+/// The palette itself: a search box over the node kinds that can be added.
+fn palette_view<'a>(open: &'a OpenPalette) -> Element<'a, PaletteMessage> {
+    let needle = open.filter.to_lowercase();
+
+    let entries: Vec<Element<'a, PaletteMessage>> = super::graph::action_palette_entries()
+        .into_iter()
+        .filter(|entry| {
+            needle.is_empty()
+                || entry.label.to_lowercase().contains(&needle)
+                || entry.kind_label.to_lowercase().contains(&needle)
+        })
+        .map(|entry| {
+            iced::widget::button(
+                row![
+                    // The accent is how a kind is recognised at a glance in the
+                    // graph, so the palette shows the same one.
+                    container(text(""))
+                        .width(Length::Fixed(3.0))
+                        .height(Length::Fixed(18.0))
+                        .style(move |_: &iced::Theme| container::Style {
+                            background: Some(entry.accent_color.into()),
+                            ..container::Style::default()
+                        }),
+                    text(entry.label).size(13),
+                    iced::widget::space::horizontal(),
+                    text(entry.kind_label).size(11),
+                ]
+                .spacing(8)
+                .align_y(Alignment::Center),
+            )
+            .on_press(PaletteMessage::Picked(entry.id))
+            .style(iced::widget::button::text)
+            .width(Length::Fill)
+            .into()
+        })
+        .collect();
+
+    container(
+        column![
+            iced::widget::text_input("Search nodes\u{2026}", &open.filter)
+                .on_input(PaletteMessage::FilterChanged)
+                .size(13),
+            column(entries).spacing(2),
+        ]
+        .spacing(6),
+    )
+    .padding(8)
+    .width(Length::Fixed(240.0))
+    .style(container::bordered_box)
+    .into()
+}
+
+#[cfg(test)]
+mod palette_tests {
+    use super::*;
+
+    #[test]
+    fn a_right_click_places_the_node_under_the_cursor() {
+        let mut graph = ActionGraph::new_named_action();
+        let mut palette = PaletteState::default();
+
+        // A camera panned to (100, 50) at 2x zoom: a click 200px right and
+        // 100px down the widget is world (0, 0).
+        graph.pan = [100.0, 50.0];
+        graph.zoom = 2.0;
+
+        let _ = update_palette(
+            &mut graph,
+            &mut palette,
+            PaletteMessage::CursorMoved(Point::new(200.0, 100.0)),
+        );
+        let _ = update_palette(&mut graph, &mut palette, PaletteMessage::Opened);
+
+        assert!(palette.is_open());
+
+        let before = graph.nodes.len();
+        assert!(update_palette(
+            &mut graph,
+            &mut palette,
+            PaletteMessage::Picked(4), // "If"
+        ));
+
+        assert_eq!(graph.nodes.len(), before + 1);
+        assert!(!palette.is_open(), "picking should close the palette");
+
+        let added = graph.nodes.last().unwrap();
+        assert_eq!(added.position, Point::new(0.0, 0.0));
+        assert!(
+            !added.cached_ports_out.is_empty(),
+            "a node from the palette arrives with no ports until they are rebuilt",
+        );
+        assert!(graph.z_order.contains(&added.id));
+    }
+
+    #[test]
+    fn an_unknown_entry_adds_nothing() {
+        let mut graph = ActionGraph::new_named_action();
+        let mut palette = PaletteState::default();
+        let before = graph.nodes.len();
+
+        let _ = update_palette(&mut graph, &mut palette, PaletteMessage::Opened);
+        assert!(!update_palette(
+            &mut graph,
+            &mut palette,
+            PaletteMessage::Picked(u64::MAX),
+        ));
+
+        assert_eq!(graph.nodes.len(), before);
+    }
+
+    #[test]
+    fn dismissing_closes_without_adding() {
+        let mut graph = ActionGraph::new_named_action();
+        let mut palette = PaletteState::default();
+        let before = graph.nodes.len();
+
+        let _ = update_palette(&mut graph, &mut palette, PaletteMessage::Opened);
+        assert!(palette.is_open());
+
+        assert!(!update_palette(&mut graph, &mut palette, PaletteMessage::Closed));
+        assert!(!palette.is_open());
+        assert_eq!(graph.nodes.len(), before);
     }
 }

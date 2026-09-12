@@ -88,6 +88,10 @@ struct AdUiBuilder {
     /// App-level flows (moved out of AppView — flows are not view-specific).
     flows: Vec<AppFlow>,
 
+    /// The action editor's right-click palette. Closed when nothing is open.
+    #[cfg(not(feature = "action_editor"))]
+    action_palette: action_system::node_graph::PaletteState,
+
     save_path: Option<PathBuf>,
     unsaved_changes: bool,
     pending_new_project: bool,
@@ -131,9 +135,9 @@ enum ViewMessage {
     AddViews(add_views::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
-    /// The action graph reported an edit.
+    /// The action editor reported an edit.
     #[cfg(not(feature = "action_editor"))]
-    ActionGraph(action_system::node_graph::GraphMessage),
+    ActionGraph(action_system::node_graph::Message),
     #[cfg(feature = "action_editor")]
     ActionEditor(action_editor::Message),
 }
@@ -172,6 +176,8 @@ impl AdUiBuilder {
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows: Vec::new(),
+            #[cfg(not(feature = "action_editor"))]
+            action_palette: Default::default(),
 
             save_path: None,
             unsaved_changes: false,
@@ -402,9 +408,24 @@ impl AdUiBuilder {
                     // reducer says whether anything generated changed.
                     #[cfg(not(feature = "action_editor"))]
                     ViewMessage::ActionGraph(msg) => {
-                        if let Some(flow) = self.flows.first_mut()
-                            && action_system::node_graph::update(&mut flow.graph, msg)
-                        {
+                        use action_system::node_graph;
+
+                        let Some(flow) = self.flows.first_mut() else {
+                            return Task::none();
+                        };
+
+                        let changed = match msg {
+                            node_graph::Message::Graph(msg) => {
+                                node_graph::update(&mut flow.graph, msg)
+                            }
+                            node_graph::Message::Palette(msg) => node_graph::update_palette(
+                                &mut flow.graph,
+                                &mut self.action_palette,
+                                msg,
+                            ),
+                        };
+
+                        if changed {
                             self.regenerate_code();
                         }
 
@@ -798,8 +819,10 @@ impl AdUiBuilder {
             // piece, and lives in the parked `action_editor` module.
             #[cfg(not(feature = "action_editor"))]
             navigation_bar::ViewSelection::Actions => match self.flows.first() {
-                Some(flow) => action_system::node_graph::view(&flow.graph)
-                    .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))),
+                Some(flow) => {
+                    action_system::node_graph::editor(&flow.graph, &self.action_palette)
+                        .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg)))
+                }
                 None => container(
                     text("No flows yet. The flow browser is the next piece.").size(14),
                 )
@@ -1138,6 +1161,8 @@ impl AdUiBuilder {
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows,
+            #[cfg(not(feature = "action_editor"))]
+            action_palette: Default::default(),
             save_path: None,
             unsaved_changes: false,
             pending_new_project: false,
