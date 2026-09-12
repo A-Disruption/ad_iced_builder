@@ -624,6 +624,49 @@ fn generate_state_fields(
                 }
             }
         }
+        // The data grid keeps none of its own state: it renders the selection
+        // and sort it is handed and reports what each should become. So each
+        // of those it is asked to report gets a field to hold.
+        WidgetType::DataTable => {
+            if let Some(struct_def) = props
+                .data_table_referenced_struct
+                .and_then(|id| type_system.get_struct(id))
+            {
+                b.line(&format!(
+                    "{}_rows: Vec<{}>,",
+                    to_snake_case(&name),
+                    struct_def.name
+                ));
+            }
+
+            if props.data_table_row_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_rows: std::collections::BTreeSet<usize>,",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_column_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_columns: std::collections::BTreeSet<usize>,",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_cell_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_cells: std::collections::BTreeSet<advanced_table::CellPosition>,",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_sorting {
+                b.line(&format!(
+                    "{}_sort: Option<advanced_table::Sort>,",
+                    to_snake_case(&name)
+                ));
+            }
+        }
         WidgetType::ViewReference => {
             if let Some(vr) = view_refs.iter().find(|vr| vr.widget_id == widget.id) {
                 b.line(&format!("pub {}: {},", vr.field_name, vr.struct_name));
@@ -932,6 +975,43 @@ fn generate_state_initializers(
                         struct_def.name
                     ));
                 }
+            }
+        }
+        WidgetType::DataTable => {
+            if let Some(struct_def) = props
+                .data_table_referenced_struct
+                .and_then(|id| type_system.get_struct(id))
+            {
+                b.line(&format!(
+                    "{}_rows: vec![],  // Add {} data here",
+                    to_snake_case(&name),
+                    struct_def.name
+                ));
+            }
+
+            if props.data_table_row_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_rows: std::collections::BTreeSet::new(),",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_column_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_columns: std::collections::BTreeSet::new(),",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_cell_selection.is_on() {
+                b.line(&format!(
+                    "{}_selected_cells: std::collections::BTreeSet::new(),",
+                    to_snake_case(&name)
+                ));
+            }
+
+            if props.data_table_sorting {
+                b.line(&format!("{}_sort: None,", to_snake_case(&name)));
             }
         }
         WidgetType::ViewReference => {

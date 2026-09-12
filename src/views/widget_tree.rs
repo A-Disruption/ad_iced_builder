@@ -837,6 +837,14 @@ fn build_editor_for_widget<'a>(
             custom_styles,
             preview_content,
         ),
+        WidgetType::DataTable => data_table_controls(
+            &hierarchy,
+            widget_id,
+            theme,
+            &type_system,
+            custom_styles,
+            preview_content,
+        ),
         WidgetType::ViewReference => view_reference_controls(
             &hierarchy,
             widget_id,

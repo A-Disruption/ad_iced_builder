@@ -208,6 +208,7 @@ pub fn generate_widget_code(
         WidgetType::TextEditor => generate_text_editor(b, widget, names, custom_styles, use_self),
         WidgetType::TextInput => generate_textinput(b, widget, names, custom_styles, use_self),
         WidgetType::Table => generate_table(b, widget, names, use_self, type_system),
+        WidgetType::DataTable => generate_data_table(b, widget, names, use_self, type_system),
         WidgetType::Themer => generate_themer(
             b,
             widget,
@@ -4225,6 +4226,426 @@ fn generate_table(
         b.newline();
         b.indent();
         b.push("text(\"Table: Select a struct type\")");
+    }
+}
+
+/// The `advanced-table` data grid.
+///
+/// Every part of this widget that reports something back leaves the state with
+/// the host: it renders the selection and the sort it is handed, and says what
+/// each should become. So a table with selection or sorting turned on has
+/// fields in the generated app (see `app.rs`) and messages that write them
+/// (see `events.rs`), and this is where they are read back out.
+fn generate_data_table(
+    b: &mut CodeBuilder,
+    widget: &Widget,
+    names: &HashMap<WidgetId, String>,
+    use_self: bool,
+    type_system: &TypeSystem,
+) {
+    let props = &widget.properties;
+    let name = names
+        .get(&widget.id)
+        .unwrap_or(&"widget".to_string())
+        .clone();
+    let field = to_snake_case(&name);
+    // A data table emits several messages, so they all keep their suffix --
+    // `msg_variant` drops it for a named widget, which would collapse them
+    // into one another.
+    let variant = |suffix: &str| format!("{}{suffix}", to_pascal_case(&name));
+
+    let struct_def = props
+        .data_table_referenced_struct
+        .and_then(|id| type_system.get_struct(id));
+
+    let Some(struct_def) = struct_def else {
+        b.indent();
+        b.push("text(\"Data Table: select a struct type\")");
+        return;
+    };
+
+    if props.data_table_columns.is_empty() {
+        b.indent();
+        b.push(&format!(
+            "text(\"Data Table: {} has no fields\")",
+            struct_def.name
+        ));
+        return;
+    }
+
+    b.indent();
+    b.push("advanced_table::data_table(");
+    b.newline();
+    b.increase_indent();
+
+    generate_data_table_header(b, props);
+
+    b.decrease_indent();
+    b.indent();
+    b.push(")");
+    b.increase_indent();
+
+    // ── The body ───────────────────────────────────────────────────────────
+    // The view function is indexed by *leaf column*, which is the order the
+    // columns are in here rather than the order the struct declares its
+    // fields in.
+    let rows = if use_self {
+        format!("&self.{field}_rows")
+    } else {
+        "&rows".to_string()
+    };
+
+    b.newline();
+    b.indent();
+    b.push(&format!(
+        ".rows({rows}, |row: &{}, column| match column {{",
+        struct_def.name
+    ));
+    b.newline();
+    b.increase_indent();
+
+    let last = props.data_table_columns.len() - 1;
+
+    for (index, column) in props.data_table_columns.iter().enumerate() {
+        let cell = data_table_cell_expr(struct_def, &column.field);
+
+        b.indent();
+        // The last arm is the catch-all: `column` is a `usize`, so a match on
+        // it needs one whatever the column count.
+        if index == last {
+            b.push(&format!("_ => {cell},"));
+        } else {
+            b.push(&format!("{index} => {cell},"));
+        }
+        b.newline();
+    }
+
+    b.decrease_indent();
+    b.indent();
+    b.push("})");
+
+    // ── The scalars, each omitted when it matches the widget's own default ──
+    if props.data_table_spacing != 0.0 {
+        b.dot_method("spacing", &format!("{:.1}", props.data_table_spacing));
+    }
+
+    let padding = Padding {
+        top: props.data_table_padding_y,
+        right: props.data_table_padding_x,
+        bottom: props.data_table_padding_y,
+        left: props.data_table_padding_x,
+    };
+
+    if props.data_table_padding_y != 6.0 || props.data_table_padding_x != 10.0 {
+        b.dot_method("padding", &format_padding(&padding));
+    }
+
+    if props.data_table_overflow != DataTableOverflow::Scroll {
+        b.dot_method("overflow", "advanced_table::Overflow::Shrink");
+    }
+
+    if props.data_table_measure_all {
+        b.dot_method_no_args("measure_all");
+    } else if props.data_table_measure_sample != 200.0 {
+        b.dot_method(
+            "measure_sample",
+            &format!("{}", props.data_table_measure_sample.max(0.0) as usize),
+        );
+    }
+
+    if props.data_table_min_row_height != 0.0 {
+        b.dot_method(
+            "min_row_height",
+            &format!("{:.1}", props.data_table_min_row_height),
+        );
+    }
+
+    if props.data_table_scrollbar_width != 10.0 {
+        b.dot_method(
+            "scrollbar_width",
+            &format!("{:.1}", props.data_table_scrollbar_width),
+        );
+    }
+
+    if props.data_table_vertical_scroll != DataTableScrollPolicy::Auto {
+        b.dot_method("vertical_scroll", "advanced_table::Policy::Hidden");
+    }
+
+    if props.data_table_horizontal_scroll != DataTableScrollPolicy::Auto {
+        b.dot_method("horizontal_scroll", "advanced_table::Policy::Hidden");
+    }
+
+    if props.data_table_gutter != 8.0 {
+        b.dot_method("gutter", &format!("{:.1}", props.data_table_gutter));
+    }
+
+    if !props.data_table_resizable {
+        b.dot_method("resizable", "false");
+    }
+
+    if props.data_table_min_column_width != 32.0 {
+        b.dot_method(
+            "min_column_width",
+            &format!("{:.1}", props.data_table_min_column_width),
+        );
+    }
+
+    // ── What it reports ────────────────────────────────────────────────────
+    // Only with `use_self`: without somewhere to store what comes back, a
+    // selection would render from nothing and a message would have no arm.
+    if use_self {
+        if props.data_table_row_selection.is_on() {
+            let variant = variant("RowsSelected");
+
+            b.dot_method(
+                "selection",
+                &format!(
+                    "{}, &self.{field}_selected_rows, Message::{variant}",
+                    props.data_table_row_selection.code()
+                ),
+            );
+        }
+
+        if props.data_table_column_selection.is_on() {
+            let variant = variant("ColumnsSelected");
+
+            b.dot_method(
+                "column_selection",
+                &format!(
+                    "{}, &self.{field}_selected_columns, Message::{variant}",
+                    props.data_table_column_selection.code()
+                ),
+            );
+        }
+
+        if props.data_table_cell_selection.is_on() {
+            let variant = variant("CellsSelected");
+
+            b.dot_method(
+                "cell_selection",
+                &format!(
+                    "{}, &self.{field}_selected_cells, Message::{variant}",
+                    props.data_table_cell_selection.code()
+                ),
+            );
+        }
+
+        if props.data_table_sorting {
+            let variant = variant("Sorted");
+
+            b.dot_method(
+                "sorting",
+                &format!("self.{field}_sort, Message::{variant}"),
+            );
+        }
+
+        if props.data_table_on_copy {
+            let variant = variant("Copied");
+
+            b.dot_method("on_copy", &format!("|| Message::{variant}"));
+        }
+
+        if props.data_table_on_right_click {
+            let variant = variant("RightClicked");
+
+            b.dot_method("on_right_click", &format!("Message::{variant}"));
+        }
+    }
+
+    if !matches!(props.width, Length::Fill) {
+        b.add_width(props.width);
+    }
+
+    if !matches!(props.height, Length::Fill) {
+        b.add_height(props.height);
+    }
+
+    if let Some(ref id) = props.widget_id
+        && !id.is_empty()
+    {
+        b.add_id(id);
+    }
+
+    b.decrease_indent();
+}
+
+/// The header tree: a leaf per column, wrapped in a group wherever a run of
+/// columns names one.
+///
+/// Grouped columns are always adjacent — `Properties` keeps them that way when
+/// a column joins or moves — so a run is a stretch of equal group indices.
+fn generate_data_table_header(b: &mut CodeBuilder, props: &Properties) {
+    b.line("vec![");
+    b.increase_indent();
+
+    let mut index = 0;
+
+    while index < props.data_table_columns.len() {
+        let column = &props.data_table_columns[index];
+
+        let Some(group) = column.group else {
+            b.indent();
+            b.push(&format!(
+                "advanced_table::leaf({})",
+                data_table_header_expr(props, &data_table_column_label(column))
+            ));
+            b.increase_indent();
+            generate_data_table_leaf_calls(b, column);
+
+            if column.sticky {
+                b.dot_method_no_args("sticky");
+            }
+
+            b.push(",");
+            b.decrease_indent();
+            b.newline();
+
+            index += 1;
+            continue;
+        };
+
+        let end = props.data_table_columns[index..]
+            .iter()
+            .position(|candidate| candidate.group != Some(group))
+            .map_or(props.data_table_columns.len(), |offset| index + offset);
+
+        let definition = props.data_table_groups.get(group);
+
+        let label = definition
+            .map(|definition| definition.header.clone())
+            .filter(|header| !header.trim().is_empty())
+            .unwrap_or_else(|| format!("Group {}", group + 1));
+
+        b.indent();
+        b.push(&format!(
+            "advanced_table::group({}, vec![",
+            data_table_header_expr(props, &label)
+        ));
+        b.newline();
+        b.increase_indent();
+
+        for column in &props.data_table_columns[index..end] {
+            b.indent();
+            b.push(&format!(
+                "advanced_table::leaf({})",
+                data_table_header_expr(props, &data_table_column_label(column))
+            ));
+            b.increase_indent();
+            generate_data_table_leaf_calls(b, column);
+            b.push(",");
+            b.decrease_indent();
+            b.newline();
+        }
+
+        b.decrease_indent();
+        b.indent();
+        b.push("])");
+        b.increase_indent();
+
+        // A sticky group takes every column beneath it, which is what keeps
+        // one from being split by the frozen boundary.
+        if definition.is_some_and(|definition| definition.sticky) {
+            b.dot_method_no_args("sticky");
+        }
+
+        b.push(",");
+        b.decrease_indent();
+        b.newline();
+
+        index = end;
+    }
+
+    b.decrease_indent();
+    b.line("]");
+}
+
+/// The calls that describe one leaf column: how wide, how aligned, and whether
+/// it sorts.
+fn generate_data_table_leaf_calls(b: &mut CodeBuilder, column: &DataTableColumn) {
+    let sizing = match column.sizing {
+        DataTableSizing::Fixed => {
+            format!("advanced_table::Sizing::Fixed({:.1})", column.width)
+        }
+        DataTableSizing::Fit => format!(
+            "advanced_table::Sizing::Fit {{ min: {:.1}, max: {} }}",
+            column.min_width,
+            // No cap entered means no cap, not a zero-width column.
+            if column.max_width > 0.0 {
+                format!("{:.1}", column.max_width)
+            } else {
+                "f32::INFINITY".to_string()
+            }
+        ),
+        DataTableSizing::Fill => format!(
+            "advanced_table::Sizing::Fill {{ weight: {}, min: {:.1} }}",
+            column.weight.max(1),
+            column.min_width
+        ),
+    };
+
+    b.dot_method("sizing", &sizing);
+
+    if column.align != ContainerAlignX::Left {
+        b.dot_method(
+            "align",
+            match column.align {
+                ContainerAlignX::Center => "iced::alignment::Horizontal::Center",
+                ContainerAlignX::Right => "iced::alignment::Horizontal::Right",
+                ContainerAlignX::Left => "iced::alignment::Horizontal::Left",
+            },
+        );
+    }
+
+    if column.sortable {
+        b.dot_method_no_args("sortable");
+    }
+}
+
+/// A header cell's content expression.
+fn data_table_header_expr(props: &Properties, label: &str) -> String {
+    if props.data_table_bold_headers {
+        format!(
+            "text(\"{label}\").font(Font {{ weight: font::Weight::Bold, ..Font::DEFAULT }})"
+        )
+    } else {
+        format!("text(\"{label}\")")
+    }
+}
+
+/// What a column's header reads: its own text, or the field name it shows.
+fn data_table_column_label(column: &DataTableColumn) -> String {
+    if column.header.trim().is_empty() {
+        column.field.clone()
+    } else {
+        column.header.trim().to_string()
+    }
+}
+
+/// One cell: the field, rendered.
+///
+/// A custom enum or struct has no `Display` for `text` to borrow, so it goes
+/// through `to_string` — the same rule `generate_table` follows.
+fn data_table_cell_expr(
+    struct_def: &crate::enum_builder::StructDef,
+    field_name: &str,
+) -> String {
+    use crate::enum_builder::FieldType;
+
+    let field_type = struct_def
+        .fields
+        .iter()
+        .find(|field| field.name == field_name)
+        .map(|field| field.field_type.clone());
+
+    match field_type {
+        Some(FieldType::CustomEnum(_)) | Some(FieldType::CustomStruct(_)) => {
+            format!("text(row.{field_name}.to_string()).into()")
+        }
+        Some(FieldType::String) => format!("text(&row.{field_name}).into()"),
+        Some(_) => format!("text(row.{field_name}.to_string()).into()"),
+        // The struct lost the field. Better an empty cell than a reference to
+        // something that is not there.
+        None => "text(\"\").into()".to_string(),
     }
 }
 

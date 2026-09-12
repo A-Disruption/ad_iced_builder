@@ -204,6 +204,7 @@ impl<'a> CodeGeneratorV2<'a> {
         let mut needs_markdown = false;
         let mut needs_qr_code = false;
         let mut needs_iced_split = false;
+        let mut needs_advanced_table = false;
         let mut widget_features = BTreeSet::new();
 
         for view_entry in views.values() {
@@ -220,6 +221,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 &mut needs_markdown,
                 &mut needs_qr_code,
                 &mut needs_iced_split,
+                &mut needs_advanced_table,
                 &mut widget_features,
             );
         }
@@ -241,6 +243,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 needs_markdown,
                 needs_qr_code,
                 needs_iced_split,
+                needs_advanced_table,
                 &widget_features,
             ),
         );
@@ -333,6 +336,7 @@ impl<'a> CodeGeneratorV2<'a> {
         needs_markdown: &mut bool,
         needs_qr_code: &mut bool,
         needs_iced_split: &mut bool,
+        needs_advanced_table: &mut bool,
         widget_features: &mut BTreeSet<&'static str>,
     ) {
         match widget.widget_type {
@@ -341,6 +345,7 @@ impl<'a> CodeGeneratorV2<'a> {
             WidgetType::Markdown => *needs_markdown = true,
             WidgetType::QRCode => *needs_qr_code = true,
             WidgetType::Split => *needs_iced_split = true,
+            WidgetType::DataTable => *needs_advanced_table = true,
             WidgetType::Collapsible | WidgetType::CollapsibleGroup => {
                 widget_features.insert("collapsible");
             }
@@ -386,6 +391,7 @@ impl<'a> CodeGeneratorV2<'a> {
                 needs_markdown,
                 needs_qr_code,
                 needs_iced_split,
+                needs_advanced_table,
                 widget_features,
             );
         }
@@ -691,6 +697,9 @@ impl<'a> CodeGeneratorV2<'a> {
                 WidgetType::Toggler => "toggler",
                 WidgetType::PickList => "pick_list",
                 WidgetType::DatePicker => "date_picker",
+                // The fallback lowercases the variant name, which would make
+                // this one `datatable`.
+                WidgetType::DataTable => "data_table",
                 _ => {
                     derp = format!("{:?}", widget.widget_type).to_lowercase();
                     &derp
@@ -986,6 +995,165 @@ mod tests {
 
     /// Generates a project holding one menu with a row of every kind.
 
+
+    /// Generates a project holding one data grid with everything turned on.
+    ///
+    /// Grouped headers, all three sizing modes, a frozen leading column, sort
+    /// controls, and row, column and cell selection — which between them cover
+    /// every field the generated app grows and every message that writes one.
+    fn generate_data_table_project() -> std::collections::HashMap<String, String> {
+        use super::CodeGeneratorV2;
+        use crate::data_structures::types::type_implementations::{
+            ContainerAlignX, DataTableGroup, DataTableSelection, DataTableSizing,
+        };
+        use crate::data_structures::types::types::{AppView, WidgetType};
+        use crate::enum_builder::FieldType;
+        use crate::views::theme_and_stylefn_builder::CustomThemes;
+        use crate::{Window, WindowEnum};
+
+        let mut type_system = crate::enum_builder::TypeSystem::new();
+
+        let struct_id = type_system
+            .add_struct("Contact".to_string())
+            .expect("a fresh type system takes a struct");
+
+        for (field, field_type) in [
+            ("name", FieldType::String),
+            ("email", FieldType::String),
+            ("phone", FieldType::String),
+            ("age", FieldType::U32),
+        ] {
+            type_system
+                .add_struct_field(struct_id, field.to_string(), field_type)
+                .expect("the struct takes a field");
+        }
+
+        let view_id = uuid::Uuid::new_v4();
+        let mut view = AppView::with_id(view_id, "Main View".to_string(), 0);
+
+        let root = view.hierarchy.root().id;
+        let column = view
+            .hierarchy
+            .add_child(root, WidgetType::Column)
+            .expect("a column goes in the root container");
+        let table = view
+            .hierarchy
+            .add_child(column, WidgetType::DataTable)
+            .expect("a data table goes in a column");
+
+        {
+            let table = view
+                .hierarchy
+                .get_widget_by_id_mut(table)
+                .expect("the table was just added");
+            let props = &mut table.properties;
+
+            props.data_table_referenced_struct = Some(struct_id);
+            props.sync_data_table_columns(&[
+                "name".to_string(),
+                "email".to_string(),
+                "phone".to_string(),
+                "age".to_string(),
+            ]);
+
+            props.data_table_groups = vec![DataTableGroup {
+                header: "Contact".to_string(),
+                sticky: false,
+            }];
+
+            // Name: frozen, fixed width, and the column that sorts.
+            props.data_table_columns[0].header = "Full name".to_string();
+            props.data_table_columns[0].sizing = DataTableSizing::Fixed;
+            props.data_table_columns[0].width = 180.0;
+            props.data_table_columns[0].sticky = true;
+            props.data_table_columns[0].sortable = true;
+
+            // Email and phone under one header cell.
+            props.data_table_columns[1].sizing = DataTableSizing::Fill;
+            props.data_table_columns[1].weight = 3;
+            props.data_table_columns[1].group = Some(0);
+            props.data_table_columns[2].group = Some(0);
+
+            // Age: right-aligned and capped.
+            props.data_table_columns[3].align = ContainerAlignX::Right;
+            props.data_table_columns[3].max_width = 80.0;
+
+            props.data_table_sorting = true;
+            props.data_table_row_selection = DataTableSelection::Multiple;
+            props.data_table_column_selection = DataTableSelection::Single;
+            props.data_table_cell_selection = DataTableSelection::Multiple;
+            props.data_table_on_copy = true;
+            props.data_table_on_right_click = true;
+            props.data_table_bold_headers = true;
+            props.data_table_spacing = 1.0;
+        }
+
+        let views = std::collections::BTreeMap::from([(view_id, view)]);
+        let windows = std::collections::BTreeMap::from([(
+            iced::window::Id::unique(),
+            Window::new(iced::window::Id::unique(), WindowEnum::Visualizer),
+        )]);
+
+        let theme = iced::Theme::Dark;
+
+        let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        dump_project(&files);
+        files
+    }
+
+    #[test]
+    fn a_data_table_reaches_generated_code() {
+        let files = generate_data_table_project();
+        let main = files.get("main.rs").expect("main.rs is generated");
+
+        // The header tree: a frozen leaf, then a group over the two columns
+        // that named it, then the ungrouped one.
+        assert!(main.contains("advanced_table::data_table("));
+        assert!(main.contains("advanced_table::group(text(\"Contact\")"));
+        assert!(main.contains(".sticky()"));
+
+        // One sizing expression per mode.
+        assert!(main.contains("advanced_table::Sizing::Fixed(180.0)"));
+        assert!(main.contains("advanced_table::Sizing::Fill { weight: 3"));
+        assert!(main.contains("max: 80.0"));
+        assert!(main.contains("iced::alignment::Horizontal::Right"));
+        assert!(main.contains(".sortable()"));
+
+        // The view function is indexed by leaf column, so the arms follow the
+        // column order rather than the struct's field order.
+        assert!(main.contains("|row: &Contact, column| match column {"));
+        assert!(main.contains("0 => text(&row.name).into(),"));
+        assert!(main.contains("_ => text(row.age.to_string()).into(),"));
+
+        // The widget keeps no state: what it reports is read back out of the
+        // app on the next `view`.
+        assert!(main.contains("&self.data_table_selected_rows"));
+        assert!(main.contains("&self.data_table_selected_columns"));
+        assert!(main.contains("&self.data_table_selected_cells"));
+        assert!(main.contains("self.data_table_sort"));
+
+        // And each of those has somewhere to live and a message that writes it.
+        assert!(main.contains("data_table_selected_rows: std::collections::BTreeSet<usize>,"));
+        assert!(main.contains(
+            "data_table_selected_cells: std::collections::BTreeSet<advanced_table::CellPosition>,"
+        ));
+        assert!(main.contains("data_table_sort: Option<advanced_table::Sort>,"));
+        assert!(main.contains("DataTableRowsSelected(std::collections::BTreeSet<usize>),"));
+        assert!(main.contains("DataTableSorted(Option<advanced_table::Sort>),"));
+        assert!(main.contains("DataTableRightClicked(advanced_table::Click),"));
+        assert!(main.contains("Message::DataTableCellsSelected(cells) => {"));
+
+        // The rows themselves, typed from the struct.
+        assert!(main.contains("data_table_rows: Vec<Contact>,"));
+
+        let cargo = files.get("Cargo.toml").expect("Cargo.toml is generated");
+        assert!(
+            cargo.contains("advanced-table = { git ="),
+            "the grid was generated without the crate it comes from:\n{cargo}",
+        );
+    }
     /// Generates a project whose widgets all ask for the Material style.
     ///
     /// One of each kind that can take it, so the feature and every style path
@@ -1657,6 +1825,7 @@ fn generate_cargo_toml(
     needs_markdown: bool,
     needs_qr_code: bool,
     needs_iced_split: bool,
+    needs_advanced_table: bool,
     widget_features: &BTreeSet<&'static str>,
 ) -> String {
     // `lazy` is not on this list: iced dropped the feature on the way to 0.15,
@@ -1724,6 +1893,14 @@ fn generate_cargo_toml(
         ""
     };
 
+    // The data grid. Unpublished, so a generated project takes the same
+    // checkout the builder does.
+    let advanced_table_dep = if needs_advanced_table {
+        "advanced-table = { git = \"https://github.com/A-Disruption/advanced-table.git\" }\n"
+    } else {
+        ""
+    };
+
     let native_frame_dep = if uses_native_frame {
         "iced-native-frame = { git = \"https://github.com/A-Disruption/iced-window-decorations.git\" }\n"
     } else {
@@ -1748,10 +1925,11 @@ fn generate_cargo_toml(
     );
 
     format!(
-        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.15.0-dev\", features = [\n{}\n] }}\n{}{}{}{}{}",
+        "[package]\nname = \"{}\"\nversion = \"0.1.0\"\nedition = \"2024\"\n\n[dependencies]\niced = {{ version = \"0.15.0-dev\", features = [\n{}\n] }}\n{}{}{}{}{}{}",
         to_snake_case(app_name),
         features_str,
         iced_split_dep,
+        advanced_table_dep,
         native_frame_dep,
         widgets_dep,
         build_deps,

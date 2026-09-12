@@ -4296,6 +4296,572 @@ pub fn pin_controls<'a>(
         .into()
 }
 
+
+/// The `advanced-table` data grid.
+///
+/// Distinct from [`table_controls`], which is iced's own `table`: a static
+/// layout with no scrolling, sorting or selection of its own. Everything here
+/// that reports something back adds a field to the generated app and a message
+/// that writes it — the widget holds no state, by design.
+pub fn data_table_controls<'a>(
+    h: &'a WidgetHierarchy,
+    widget_id: WidgetId,
+    theme: &Theme,
+    type_system: &'a TypeSystem,
+    _custom_styles: &CustomThemes,
+    preview_content: &'a text_editor::Content,
+) -> Element<'a, Message> {
+    let widget = h.get_widget_by_id(widget_id).expect("widget exists");
+    let props = &widget.properties;
+
+    let struct_names: Vec<String> = type_system
+        .all_structs()
+        .iter()
+        .map(|def| def.name.clone())
+        .collect();
+
+    let selected_struct = props
+        .data_table_referenced_struct
+        .and_then(|id| type_system.get_struct(id))
+        .map(|def| def.name.clone());
+
+    // ── Data source ──────────────────────────────────────────────────────────
+    let source: Element<'a, Message> = if struct_names.is_empty() {
+        text("Define a struct in the type editor first — its fields become the columns.")
+            .size(LABEL_SIZE)
+            .style(text::warning)
+            .into()
+    } else {
+        field(
+            "Struct",
+            pick_list(selected_struct, struct_names, ToString::to_string)
+                .on_select(move |name| {
+                    let id = type_system.get_struct_by_name(&name).map(|def| def.id);
+
+                    Message::PropertyChanged(widget_id, PropertyChange::DataTableStruct(id))
+                })
+                .placeholder("choose a struct")
+                .width(FIELD_WIDTH),
+        )
+    };
+
+    let mut sections = vec![
+        text("Data Table Properties").size(TITLE_SIZE).into(),
+        widget_name(widget_id, &props.widget_name),
+        section("Data Source", source),
+    ];
+
+    // Everything below is per-column, so there is nothing to show until the
+    // columns exist.
+    if !props.data_table_columns.is_empty() {
+        sections.push(section(
+            "Columns",
+            column(
+                props
+                    .data_table_columns
+                    .iter()
+                    .enumerate()
+                    .map(|(index, spec)| {
+                        data_table_column_row(widget_id, index, spec, props)
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .spacing(SECTION_SPACING),
+        ));
+
+        sections.push(section(
+            "Header Groups",
+            column![
+                text(
+                    "A group is a header cell spanning the columns assigned to it. \
+                     Joining one moves the column beside the group's others, since \
+                     a group needs an unbroken run to draw its label across."
+                )
+                .size(LABEL_SIZE)
+                .style(text::secondary),
+                column(
+                    props
+                        .data_table_groups
+                        .iter()
+                        .enumerate()
+                        .map(|(index, group)| data_table_group_row(widget_id, index, group))
+                        .collect::<Vec<_>>(),
+                )
+                .spacing(LABEL_SPACING),
+                button(text("+ group").size(LABEL_SIZE))
+                    .on_press(Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableGroupAdded
+                    ))
+                    .style(button::secondary),
+            ]
+            .spacing(LABEL_SPACING),
+        ));
+    }
+
+    sections.push(section(
+        "Appearance",
+        field_grid(vec![
+            float_field("Row spacing", props.data_table_spacing, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::DataTableSpacing(value))
+            }),
+            float_field("Cell padding X", props.data_table_padding_x, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::DataTablePaddingX(value))
+            }),
+            float_field("Cell padding Y", props.data_table_padding_y, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::DataTablePaddingY(value))
+            }),
+            float_field(
+                "Min row height",
+                props.data_table_min_row_height,
+                move |value| Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableMinRowHeight(value)
+                ),
+            ),
+            toggle_field("Bold headers", props.data_table_bold_headers, move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::DataTableBoldHeaders(value))
+            }),
+        ]),
+    ));
+
+    // ── Columns and fit ──────────────────────────────────────────────────────
+    let mut fit = vec![
+        pick_field(
+            "When columns overflow",
+            props.data_table_overflow,
+            DataTableOverflow::ALL,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableOverflowMode(value),
+                )
+            },
+        ),
+        toggle_field("Resizable columns", props.data_table_resizable, move |value| {
+            Message::PropertyChanged(widget_id, PropertyChange::DataTableResizable(value))
+        }),
+    ];
+
+    if props.data_table_resizable {
+        fit.push(float_field(
+            "Min column width",
+            props.data_table_min_column_width,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableMinColumnWidth(value),
+                )
+            },
+        ));
+    }
+
+    fit.push(toggle_field(
+        "Measure every row",
+        props.data_table_measure_all,
+        move |value| {
+            Message::PropertyChanged(widget_id, PropertyChange::DataTableMeasureAll(value))
+        },
+    ));
+
+    // Measuring every row is exact and costs a pass over all of them; the
+    // sample is the alternative, so the two are never both offered.
+    if !props.data_table_measure_all {
+        fit.push(float_field(
+            "Rows measured",
+            props.data_table_measure_sample,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableMeasureSample(value),
+                )
+            },
+        ));
+    }
+
+    sections.push(section("Column Fit", field_grid(fit)));
+
+    // ── Scrolling ────────────────────────────────────────────────────────────
+    sections.push(section(
+        "Scrolling",
+        column![
+            text(
+                "The body scrolls under the sticky header only when the table has a \
+                 bounded height — Fill, a fixed height, or a sized container. Same \
+                 rule as `scrollable`."
+            )
+            .size(LABEL_SIZE)
+            .style(text::secondary),
+            field_grid(vec![
+                pick_field(
+                    "Vertical",
+                    props.data_table_vertical_scroll,
+                    DataTableScrollPolicy::ALL,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableVerticalScroll(value)
+                    ),
+                ),
+                pick_field(
+                    "Horizontal",
+                    props.data_table_horizontal_scroll,
+                    DataTableScrollPolicy::ALL,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableHorizontalScroll(value)
+                    ),
+                ),
+                float_field(
+                    "Scrollbar width",
+                    props.data_table_scrollbar_width,
+                    move |value| Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableScrollbarWidth(value)
+                    ),
+                ),
+            ]),
+        ]
+        .spacing(LABEL_SPACING),
+    ));
+
+    // ── Selection and interaction ────────────────────────────────────────────
+    let mut interaction = vec![
+        pick_field(
+            "Rows",
+            props.data_table_row_selection,
+            DataTableSelection::ALL,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableRowSelection(value),
+                )
+            },
+        ),
+        pick_field(
+            "Columns",
+            props.data_table_column_selection,
+            DataTableSelection::ALL,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnSelection(value),
+                )
+            },
+        ),
+        pick_field(
+            "Cells",
+            props.data_table_cell_selection,
+            DataTableSelection::ALL,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableCellSelection(value),
+                )
+            },
+        ),
+    ];
+
+    // With cell selection on, a body click means "this cell" — the gutter is
+    // then the only place a click still means "this row", which is the whole
+    // reason it exists.
+    if props.data_table_cell_selection.is_on() && props.data_table_row_selection.is_on() {
+        interaction.push(float_field(
+            "Row gutter",
+            props.data_table_gutter,
+            move |value| {
+                Message::PropertyChanged(widget_id, PropertyChange::DataTableGutter(value))
+            },
+        ));
+    }
+
+    interaction.push(toggle_field(
+        "Sortable columns",
+        props.data_table_sorting,
+        move |value| Message::PropertyChanged(widget_id, PropertyChange::DataTableSorting(value)),
+    ));
+
+    interaction.push(toggle_field(
+        "Drag to reorder",
+        props.data_table_reorderable,
+        move |value| {
+            Message::PropertyChanged(widget_id, PropertyChange::DataTableReorderable(value))
+        },
+    ));
+
+    interaction.push(toggle_field(
+        "Report Ctrl+C",
+        props.data_table_on_copy,
+        move |value| Message::PropertyChanged(widget_id, PropertyChange::DataTableOnCopy(value)),
+    ));
+
+    interaction.push(toggle_field(
+        "Report right-click",
+        props.data_table_on_right_click,
+        move |value| {
+            Message::PropertyChanged(widget_id, PropertyChange::DataTableOnRightClick(value))
+        },
+    ));
+
+    let sorting_note: Element<'a, Message> = if props.data_table_sorting {
+        text(
+            "The table draws the control and reports the click — it does not \
+             reorder the rows. Sort your own data in update() and hand them \
+             back in the new order."
+        )
+        .size(LABEL_SIZE)
+        .style(text::secondary)
+        .into()
+    } else {
+        nothing()
+    };
+
+    sections.push(section(
+        "Selection",
+        column![field_grid(interaction), sorting_note].spacing(LABEL_SPACING),
+    ));
+
+    sections.push(size_controls_scrollable_aware(
+        props.width,
+        move |length| Message::PropertyChanged(widget_id, PropertyChange::Width(length)),
+        props.height,
+        move |length| Message::PropertyChanged(widget_id, PropertyChange::Height(length)),
+        h,
+        widget_id,
+    ));
+    sections.push(advanced_section(widget_id, props, theme));
+
+    scroll_y(container(add_code_preview(
+        column(sections).spacing(SECTION_SPACING).into(),
+        preview_content,
+    )))
+    .into()
+}
+
+/// One column: what it shows, how wide it is, and where it sits.
+fn data_table_column_row<'a>(
+    widget_id: WidgetId,
+    index: usize,
+    spec: &'a DataTableColumn,
+    props: &'a Properties,
+) -> Element<'a, Message> {
+    let mut fields = vec![
+        text_field(
+            "Header",
+            &spec.field,
+            spec.header.clone(),
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnHeader(index, value),
+                )
+            },
+        ),
+        pick_field(
+            "Width",
+            spec.sizing,
+            DataTableSizing::ALL,
+            move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnSizing(index, value),
+                )
+            },
+        ),
+    ];
+
+    // Each sizing mode reads a different pair of numbers, so only its own are
+    // offered.
+    match spec.sizing {
+        DataTableSizing::Fixed => fields.push(float_field("Exactly", spec.width, move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnWidth(index, value),
+            )
+        })),
+        DataTableSizing::Fit => {
+            fields.push(float_field("At least", spec.min_width, move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnMinWidth(index, value),
+                )
+            }));
+            fields.push(float_field(
+                "At most (0 = no cap)",
+                spec.max_width,
+                move |value| {
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableColumnMaxWidth(index, value),
+                    )
+                },
+            ));
+        }
+        DataTableSizing::Fill => {
+            fields.push(float_field("Share", f32::from(spec.weight), move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnWeight(index, value),
+                )
+            }));
+            fields.push(float_field("Shrink floor", spec.min_width, move |value| {
+                Message::PropertyChanged(
+                    widget_id,
+                    PropertyChange::DataTableColumnMinWidth(index, value),
+                )
+            }));
+        }
+    }
+
+    fields.push(pick_field(
+        "Align",
+        spec.align,
+        vec![
+            ContainerAlignX::Left,
+            ContainerAlignX::Center,
+            ContainerAlignX::Right,
+        ],
+        move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnAlign(index, value),
+            )
+        },
+    ));
+
+    // Only offered when the table reports sort clicks at all; a sort control
+    // nothing listens to would draw and do nothing.
+    if props.data_table_sorting {
+        fields.push(toggle_field("Sortable", spec.sortable, move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnSortable(index, value),
+            )
+        }));
+    }
+
+    // A grouped column takes its stickiness from the group — that is what
+    // keeps a group from being split by the frozen boundary.
+    if spec.group.is_none() {
+        fields.push(toggle_field("Frozen", spec.sticky, move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnSticky(index, value),
+            )
+        }));
+    }
+
+    if !props.data_table_groups.is_empty() {
+        let groups: Vec<String> = std::iter::once("—".to_string())
+            .chain(
+                props
+                    .data_table_groups
+                    .iter()
+                    .enumerate()
+                    .map(|(position, group)| data_table_group_label(position, group)),
+            )
+            .collect();
+
+        let selected = spec
+            .group
+            .and_then(|group| props.data_table_groups.get(group).map(|def| (group, def)))
+            .map(|(group, def)| data_table_group_label(group, def))
+            .unwrap_or_else(|| "—".to_string());
+
+        let labels = groups.clone();
+
+        fields.push(field(
+            "Group",
+            pick_list(Some(selected), groups, ToString::to_string)
+                .on_select(move |choice: String| {
+                    // Position in the list, less the leading "no group".
+                    let group = labels
+                        .iter()
+                        .position(|label| *label == choice)
+                        .filter(|position| *position > 0)
+                        .map(|position| position - 1);
+
+                    Message::PropertyChanged(
+                        widget_id,
+                        PropertyChange::DataTableColumnGroup(index, group),
+                    )
+                })
+                .width(FIELD_WIDTH),
+        ));
+    }
+
+    let order = row![
+        button(text("\u{2191}").size(LABEL_SIZE))
+            .on_press(Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnMoved(index, true)
+            ))
+            .style(button::secondary),
+        button(text("\u{2193}").size(LABEL_SIZE))
+            .on_press(Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableColumnMoved(index, false)
+            ))
+            .style(button::secondary),
+    ]
+    .spacing(LABEL_SPACING);
+
+    container(
+        column![
+            row![
+                text(format!("{}. {}", index + 1, spec.field)).size(LABEL_SIZE),
+                space::horizontal(),
+                order,
+            ]
+            .align_y(Alignment::Center),
+            field_grid(fields),
+        ]
+        .spacing(LABEL_SPACING),
+    )
+    .padding(6)
+    .style(container::bordered_box)
+    .into()
+}
+
+/// One header group: its label, and whether it and its columns are frozen.
+fn data_table_group_row<'a>(
+    widget_id: WidgetId,
+    index: usize,
+    group: &'a DataTableGroup,
+) -> Element<'a, Message> {
+    row![
+        text_field("Header", "Group", group.header.clone(), move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableGroupHeader(index, value),
+            )
+        }),
+        toggle_field("Frozen", group.sticky, move |value| {
+            Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableGroupSticky(index, value),
+            )
+        }),
+        button(text("\u{2715}").size(LABEL_SIZE))
+            .on_press(Message::PropertyChanged(
+                widget_id,
+                PropertyChange::DataTableGroupRemoved(index)
+            ))
+            .style(button::danger),
+    ]
+    .spacing(SECTION_SPACING)
+    .align_y(Alignment::End)
+    .into()
+}
+
+/// A group as it reads in a picker — numbered, since two groups may share a
+/// label and the picker matches on the text.
+fn data_table_group_label(index: usize, group: &DataTableGroup) -> String {
+    if group.header.trim().is_empty() {
+        format!("{}. (unnamed)", index + 1)
+    } else {
+        format!("{}. {}", index + 1, group.header.trim())
+    }
+}
 pub fn table_controls<'a>(
     h: &'a WidgetHierarchy,
     widget_id: WidgetId,

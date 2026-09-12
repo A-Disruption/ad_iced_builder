@@ -80,7 +80,12 @@ pub enum WidgetType {
     Themer,
     Grid,
     Pin,
+    /// iced's own `table`: a static layout that lines its columns up.
     Table,
+    /// The `advanced-table` data grid — grouped headers, its own scrolling
+    /// with a sticky header, sortable and resizable columns, and row, column
+    /// and cell selection. `Table` has none of those.
+    DataTable,
     ViewReference,
     Icon,
 }

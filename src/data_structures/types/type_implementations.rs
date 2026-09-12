@@ -1684,3 +1684,217 @@ impl std::fmt::Display for OverlayPreset {
         }
     }
 }
+
+// ─── DataTable ───────────────────────────────────────────────────────────────
+// The `advanced-table` data grid, as distinct from `WidgetType::Table` (which
+// is iced's own `table`: a static layout with no sorting, selection or
+// scrolling of its own).
+//
+// The widget's own rule throughout is that the *host* owns the state and the
+// widget reports what it should become — a selection, a sort, a column move.
+// So every one of these that is turned on adds a field to the generated app
+// and a message that writes it.
+
+/// How wide a `DataTable` column is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum DataTableSizing {
+    /// Exact width. Never grows, never shrinks, never takes slack.
+    Fixed,
+    /// The widest cell in the column, clamped between a floor and a ceiling.
+    #[default]
+    Fit,
+    /// Fits its content first, then takes a weighted share of what is left.
+    ///
+    /// The minimum is a shrink floor, not a starting width: a `Fill` column
+    /// still has to fit what is in it.
+    Fill,
+}
+
+impl DataTableSizing {
+    pub const ALL: &'static [Self] = &[Self::Fixed, Self::Fit, Self::Fill];
+}
+
+impl std::fmt::Display for DataTableSizing {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Fixed => write!(f, "Fixed"),
+            Self::Fit => write!(f, "Fit"),
+            Self::Fill => write!(f, "Fill"),
+        }
+    }
+}
+
+/// What a `DataTable` does when its columns do not fit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum DataTableOverflow {
+    /// Let the content run past the viewport and scroll it.
+    ///
+    /// The widget's own default, and deliberately so: shrinking every column
+    /// at once truncates text everywhere and reads as broken, where a
+    /// horizontal scroll reads as intentional.
+    #[default]
+    Scroll,
+    /// Shrink the columns that can shrink, in proportion to the headroom each
+    /// has above its own minimum.
+    Shrink,
+}
+
+impl DataTableOverflow {
+    pub const ALL: &'static [Self] = &[Self::Scroll, Self::Shrink];
+}
+
+impl std::fmt::Display for DataTableOverflow {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Scroll => write!(f, "Scroll"),
+            Self::Shrink => write!(f, "Shrink columns"),
+        }
+    }
+}
+
+/// Whether a `DataTable` axis shows a scrollbar.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum DataTableScrollPolicy {
+    /// Present once the content overflows.
+    #[default]
+    Auto,
+    /// Never shown; the content is clipped.
+    Hidden,
+}
+
+impl DataTableScrollPolicy {
+    pub const ALL: &'static [Self] = &[Self::Auto, Self::Hidden];
+}
+
+impl std::fmt::Display for DataTableScrollPolicy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Auto => write!(f, "Auto"),
+            Self::Hidden => write!(f, "Hidden"),
+        }
+    }
+}
+
+/// How much of a `DataTable` can be selected at once.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum DataTableSelection {
+    /// Not selectable. Clicks pass through.
+    #[default]
+    None,
+    /// One at a time.
+    Single,
+    /// Ctrl/Cmd toggles, Shift extends from the anchor.
+    Multiple,
+}
+
+impl DataTableSelection {
+    pub const ALL: &'static [Self] = &[Self::None, Self::Single, Self::Multiple];
+
+    /// The path to the widget's own mode, for generated code.
+    pub fn code(&self) -> &'static str {
+        match self {
+            Self::None => "advanced_table::SelectionMode::None",
+            Self::Single => "advanced_table::SelectionMode::Single",
+            Self::Multiple => "advanced_table::SelectionMode::Multiple",
+        }
+    }
+
+    pub fn is_on(&self) -> bool {
+        !matches!(self, Self::None)
+    }
+}
+
+impl std::fmt::Display for DataTableSelection {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => write!(f, "Off"),
+            Self::Single => write!(f, "Single"),
+            Self::Multiple => write!(f, "Multiple"),
+        }
+    }
+}
+
+/// One leaf column of a `DataTable`: a field of its struct, and how that
+/// field's column behaves.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DataTableColumn {
+    /// The struct field this column shows.
+    pub field: String,
+    /// Header text. The field name is used when this is blank.
+    pub header: String,
+    pub sizing: DataTableSizing,
+    /// Used by `Fixed`.
+    pub width: f32,
+    /// Used by `Fill`: its share of the leftover space.
+    pub weight: u16,
+    /// Shrink floor for `Fit` and `Fill`.
+    pub min_width: f32,
+    /// Ceiling for `Fit`.
+    pub max_width: f32,
+    pub align: ContainerAlignX,
+    /// Draws a sort control in the header and lets it be clicked.
+    pub sortable: bool,
+    /// Index into the table's groups, when this column sits under one.
+    ///
+    /// Columns sharing a group have to be adjacent: a group whose columns are
+    /// not contiguous has no rectangle to draw its label in.
+    pub group: Option<usize>,
+    /// Pins the column against the leading edge so it stays put while the rest
+    /// scrolls sideways.
+    ///
+    /// Only honoured on an unbroken run starting at the first column —
+    /// freezing is positional, and a frozen island with scrolling columns on
+    /// both sides has nowhere coherent to live. A grouped column takes its
+    /// stickiness from the group.
+    pub sticky: bool,
+}
+
+impl Default for DataTableColumn {
+    fn default() -> Self {
+        Self {
+            field: String::new(),
+            header: String::new(),
+            sizing: DataTableSizing::Fit,
+            width: 120.0,
+            weight: 1,
+            // The widget's own floor for a `Fill` column.
+            min_width: 48.0,
+            max_width: 0.0,
+            align: ContainerAlignX::Left,
+            sortable: false,
+            group: None,
+            sticky: false,
+        }
+    }
+}
+
+/// A header cell spanning the columns that name it.
+///
+/// One level of grouping: two header rows, groups above leaves. The widget
+/// nests arbitrarily, but a deeper tree needs a tree editor rather than a
+/// property grid.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+pub struct DataTableGroup {
+    pub header: String,
+    /// Pins the whole group, and with it every column beneath — which is what
+    /// keeps a group from being split by the frozen boundary.
+    pub sticky: bool,
+}
+
+impl From<DataTableOverflow> for advanced_table::Overflow {
+    fn from(overflow: DataTableOverflow) -> Self {
+        match overflow {
+            DataTableOverflow::Scroll => Self::Scroll,
+            DataTableOverflow::Shrink => Self::Shrink,
+        }
+    }
+}
+
+impl From<DataTableScrollPolicy> for advanced_table::Policy {
+    fn from(policy: DataTableScrollPolicy) -> Self {
+        match policy {
+            DataTableScrollPolicy::Auto => Self::Auto,
+            DataTableScrollPolicy::Hidden => Self::Hidden,
+        }
+    }
+}

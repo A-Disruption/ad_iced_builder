@@ -1589,6 +1589,16 @@ fn build_widget_preview<'a>(
             current_view_id,
             type_system,
         ),
+        WidgetType::DataTable => build_data_table_preview(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ),
         WidgetType::ViewReference => build_view_reference_preview(
             hierarchy,
             widget,
@@ -4001,6 +4011,218 @@ fn build_pin_preview<'a>(
     p.into()
 }
 
+
+/// The `advanced-table` data grid, drawn over sample rows.
+///
+/// The widget holds none of its own state, so the preview passes empty
+/// selections and no sort and ignores what it reports back — on the canvas
+/// there is nothing to store it in. What the preview is for is the *shape*:
+/// the header tree, the column widths, and where the frozen boundary falls.
+fn build_data_table_preview<'a>(
+    _hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    _theme: &'a Theme,
+    _custom_themes: &'a CustomThemes,
+    _highlight_selected: bool,
+    _all_views: &'a BTreeMap<Uuid, AppView>,
+    _current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Element<'a, Message> {
+    let props = &widget.properties;
+
+    let Some(struct_def) = props
+        .data_table_referenced_struct
+        .and_then(|id| type_system.get_struct(id))
+    else {
+        return container(
+            text("Data Table: pick a struct")
+                .size(14)
+                .style(text::warning),
+        )
+        .padding(8)
+        .style(container::bordered_box)
+        .into();
+    };
+
+    if props.data_table_columns.is_empty() {
+        return container(
+            text(format!("Data Table: {} has no fields", struct_def.name))
+                .size(14)
+                .style(text::warning),
+        )
+        .padding(8)
+        .style(container::bordered_box)
+        .into();
+    }
+
+    const SAMPLE_ROWS: usize = 6;
+
+    // One owned value per cell, so nothing borrowed from a local escapes into
+    // the returned element.
+    let sample: Vec<Vec<String>> = (0..SAMPLE_ROWS)
+        .map(|row| {
+            props
+                .data_table_columns
+                .iter()
+                .map(|column| {
+                    struct_def
+                        .fields
+                        .iter()
+                        .find(|field| field.name == column.field)
+                        .map(|field| sample_value_for_type(&field.field_type, type_system, row))
+                        .unwrap_or_default()
+                })
+                .collect()
+        })
+        .collect();
+
+    let mut table = advanced_table::data_table(data_table_header(props))
+        .spacing(props.data_table_spacing)
+        .padding(iced::Padding::from([
+            props.data_table_padding_y,
+            props.data_table_padding_x,
+        ]))
+        .overflow(props.data_table_overflow.into())
+        .min_row_height(props.data_table_min_row_height)
+        .scrollbar_width(props.data_table_scrollbar_width)
+        .vertical_scroll(props.data_table_vertical_scroll.into())
+        .horizontal_scroll(props.data_table_horizontal_scroll.into())
+        .gutter(props.data_table_gutter)
+        .resizable(props.data_table_resizable)
+        .min_column_width(props.data_table_min_column_width)
+        .width(props.width)
+        .height(props.height);
+
+    table = if props.data_table_measure_all {
+        table.measure_all()
+    } else {
+        table.measure_sample(props.data_table_measure_sample.max(0.0) as usize)
+    };
+
+    // The sort control only draws on a sortable column when sorting is on at
+    // all, so the preview has to turn it on to show it.
+    if props.data_table_sorting {
+        table = table.sorting(None, |_| Message::Noop);
+    }
+
+    for row in &sample {
+        table.push(row.iter().map(|cell| text(cell.clone()).into()));
+    }
+
+    container(table).into()
+}
+
+/// The header tree: a leaf per column, wrapped in a group wherever a run of
+/// columns names one.
+///
+/// Grouped columns are always adjacent — `Properties` keeps them that way —
+/// so a run is just a stretch of equal group indices.
+fn data_table_header<'a>(
+    props: &'a crate::data_structures::properties::properties::Properties,
+) -> Vec<advanced_table::HeaderNode<'a, Message, Theme, iced::Renderer>> {
+    let bold = props.data_table_bold_headers;
+
+    let header_text = |label: &str| -> Element<'a, Message> {
+        let label = label.to_string();
+
+        if bold {
+            text(label)
+                .font(Font {
+                    weight: font::Weight::Bold,
+                    ..Font::DEFAULT
+                })
+                .into()
+        } else {
+            text(label).into()
+        }
+    };
+
+    let leaf_for = |column: &'a DataTableColumn| {
+        let label = if column.header.trim().is_empty() {
+            column.field.clone()
+        } else {
+            column.header.clone()
+        };
+
+        let mut leaf = advanced_table::leaf(header_text(&label))
+            .sizing(data_table_sizing(column))
+            .align(column.align.into());
+
+        if column.sortable {
+            leaf = leaf.sortable();
+        }
+
+        leaf
+    };
+
+    let mut nodes = Vec::new();
+    let mut index = 0;
+
+    while index < props.data_table_columns.len() {
+        let column = &props.data_table_columns[index];
+
+        let Some(group) = column.group else {
+            let mut node = leaf_for(column);
+
+            if column.sticky {
+                node = node.sticky();
+            }
+
+            nodes.push(node);
+            index += 1;
+            continue;
+        };
+
+        // The whole run under this group becomes one group node.
+        let end = props.data_table_columns[index..]
+            .iter()
+            .position(|candidate| candidate.group != Some(group))
+            .map_or(props.data_table_columns.len(), |offset| index + offset);
+
+        let children: Vec<_> = props.data_table_columns[index..end]
+            .iter()
+            .map(leaf_for)
+            .collect();
+
+        let definition = props.data_table_groups.get(group);
+
+        let label = definition
+            .map(|definition| definition.header.clone())
+            .filter(|header| !header.trim().is_empty())
+            .unwrap_or_else(|| format!("Group {}", group + 1));
+
+        let mut node = advanced_table::group(header_text(&label), children);
+
+        if definition.is_some_and(|definition| definition.sticky) {
+            node = node.sticky();
+        }
+
+        nodes.push(node);
+        index = end;
+    }
+
+    nodes
+}
+
+/// A column's width policy as the widget's own type.
+fn data_table_sizing(column: &DataTableColumn) -> advanced_table::Sizing {
+    match column.sizing {
+        DataTableSizing::Fixed => advanced_table::Sizing::Fixed(column.width),
+        DataTableSizing::Fit => advanced_table::Sizing::Fit {
+            min: column.min_width,
+            // No cap entered means no cap, not a zero-width column.
+            max: if column.max_width > 0.0 {
+                column.max_width
+            } else {
+                f32::INFINITY
+            },
+        },
+        DataTableSizing::Fill => advanced_table::Sizing::Fill {
+            weight: column.weight.max(1),
+            min: column.min_width,
+        },
+    }
+}
 fn build_table_preview<'a>(
     _hierarchy: &'a WidgetHierarchy,
     widget: &'a Widget,

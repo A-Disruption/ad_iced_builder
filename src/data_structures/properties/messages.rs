@@ -313,6 +313,53 @@ pub enum PropertyChange {
     TableSeparatorY(f32),
     TableBoldHeaders(bool),
 
+    // DataTable — the whole table
+    /// Picking a struct rebuilds the column list from its fields; picking the
+    /// same one again leaves the columns alone.
+    DataTableStruct(Option<Uuid>),
+    DataTableSpacing(f32),
+    DataTablePaddingX(f32),
+    DataTablePaddingY(f32),
+    DataTableOverflowMode(DataTableOverflow),
+    DataTableMeasureAll(bool),
+    DataTableMeasureSample(f32),
+    DataTableMinRowHeight(f32),
+    DataTableScrollbarWidth(f32),
+    DataTableVerticalScroll(DataTableScrollPolicy),
+    DataTableHorizontalScroll(DataTableScrollPolicy),
+    DataTableGutter(f32),
+    DataTableResizable(bool),
+    DataTableMinColumnWidth(f32),
+    DataTableRowSelection(DataTableSelection),
+    DataTableColumnSelection(DataTableSelection),
+    DataTableCellSelection(DataTableSelection),
+    DataTableSorting(bool),
+    DataTableReorderable(bool),
+    DataTableOnCopy(bool),
+    DataTableOnRightClick(bool),
+    DataTableBoldHeaders(bool),
+
+    // DataTable — one column, by its position in the order
+    DataTableColumnHeader(usize, String),
+    DataTableColumnSizing(usize, DataTableSizing),
+    DataTableColumnWidth(usize, f32),
+    DataTableColumnWeight(usize, f32),
+    DataTableColumnMinWidth(usize, f32),
+    DataTableColumnMaxWidth(usize, f32),
+    DataTableColumnAlign(usize, ContainerAlignX),
+    DataTableColumnSortable(usize, bool),
+    DataTableColumnSticky(usize, bool),
+    /// `None` takes the column out of every group.
+    DataTableColumnGroup(usize, Option<usize>),
+    /// Moves a column one place earlier (`true`) or later (`false`).
+    DataTableColumnMoved(usize, bool),
+
+    // DataTable — the header cells spanning those columns
+    DataTableGroupAdded,
+    DataTableGroupRemoved(usize),
+    DataTableGroupHeader(usize, String),
+    DataTableGroupSticky(usize, bool),
+
     // Pin
     PinX(f32),
     PinY(f32),
@@ -1140,6 +1187,119 @@ pub fn apply_property_change(
         PropertyChange::TableSeparatorX(v) => properties.table_separator_x = v,
         PropertyChange::TableSeparatorY(v) => properties.table_separator_y = v,
         PropertyChange::TableBoldHeaders(v) => properties.table_bold_headers = v,
+
+        PropertyChange::DataTableStruct(v) => {
+            properties.data_table_referenced_struct = v;
+
+            // The struct's fields *are* the columns, so picking one rebuilds
+            // the list. Columns for a field that is still there keep their
+            // settings.
+            let fields: Vec<String> = v
+                .and_then(|id| type_system.get_struct(id))
+                .map(|def| def.fields.iter().map(|field| field.name.clone()).collect())
+                .unwrap_or_default();
+
+            properties.sync_data_table_columns(&fields);
+        }
+        PropertyChange::DataTableSpacing(v) => properties.data_table_spacing = v,
+        PropertyChange::DataTablePaddingX(v) => properties.data_table_padding_x = v,
+        PropertyChange::DataTablePaddingY(v) => properties.data_table_padding_y = v,
+        PropertyChange::DataTableOverflowMode(v) => properties.data_table_overflow = v,
+        PropertyChange::DataTableMeasureAll(v) => properties.data_table_measure_all = v,
+        PropertyChange::DataTableMeasureSample(v) => properties.data_table_measure_sample = v,
+        PropertyChange::DataTableMinRowHeight(v) => properties.data_table_min_row_height = v,
+        PropertyChange::DataTableScrollbarWidth(v) => properties.data_table_scrollbar_width = v,
+        PropertyChange::DataTableVerticalScroll(v) => properties.data_table_vertical_scroll = v,
+        PropertyChange::DataTableHorizontalScroll(v) => {
+            properties.data_table_horizontal_scroll = v
+        }
+        PropertyChange::DataTableGutter(v) => properties.data_table_gutter = v,
+        PropertyChange::DataTableResizable(v) => properties.data_table_resizable = v,
+        PropertyChange::DataTableMinColumnWidth(v) => properties.data_table_min_column_width = v,
+        PropertyChange::DataTableRowSelection(v) => properties.data_table_row_selection = v,
+        PropertyChange::DataTableColumnSelection(v) => properties.data_table_column_selection = v,
+        PropertyChange::DataTableCellSelection(v) => properties.data_table_cell_selection = v,
+        PropertyChange::DataTableSorting(v) => properties.data_table_sorting = v,
+        PropertyChange::DataTableReorderable(v) => properties.data_table_reorderable = v,
+        PropertyChange::DataTableOnCopy(v) => properties.data_table_on_copy = v,
+        PropertyChange::DataTableOnRightClick(v) => properties.data_table_on_right_click = v,
+        PropertyChange::DataTableBoldHeaders(v) => properties.data_table_bold_headers = v,
+
+        PropertyChange::DataTableColumnHeader(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.header = v;
+            }
+        }
+        PropertyChange::DataTableColumnSizing(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.sizing = v;
+            }
+        }
+        PropertyChange::DataTableColumnWidth(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.width = v;
+            }
+        }
+        PropertyChange::DataTableColumnWeight(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                // A weight of zero would take no share at all, which is what
+                // `Fit` already means.
+                column.weight = (v.round().max(1.0)) as u16;
+            }
+        }
+        PropertyChange::DataTableColumnMinWidth(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.min_width = v;
+            }
+        }
+        PropertyChange::DataTableColumnMaxWidth(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.max_width = v;
+            }
+        }
+        PropertyChange::DataTableColumnAlign(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.align = v;
+            }
+        }
+        PropertyChange::DataTableColumnSortable(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.sortable = v;
+            }
+        }
+        PropertyChange::DataTableColumnSticky(index, v) => {
+            if let Some(column) = properties.data_table_columns.get_mut(index) {
+                column.sticky = v;
+            }
+        }
+        PropertyChange::DataTableColumnGroup(index, group) => {
+            properties.assign_data_table_group(index, group);
+        }
+        PropertyChange::DataTableColumnMoved(index, earlier) => {
+            properties.move_data_table_column(index, earlier);
+        }
+
+        PropertyChange::DataTableGroupAdded => {
+            properties
+                .data_table_groups
+                .push(crate::data_structures::types::type_implementations::DataTableGroup {
+                    header: format!("Group {}", properties.data_table_groups.len() + 1),
+                    sticky: false,
+                });
+        }
+        PropertyChange::DataTableGroupRemoved(index) => {
+            properties.remove_data_table_group(index);
+        }
+        PropertyChange::DataTableGroupHeader(index, v) => {
+            if let Some(group) = properties.data_table_groups.get_mut(index) {
+                group.header = v;
+            }
+        }
+        PropertyChange::DataTableGroupSticky(index, v) => {
+            if let Some(group) = properties.data_table_groups.get_mut(index) {
+                group.sticky = v;
+            }
+        }
 
         PropertyChange::PinX(v) => properties.pin_point.x = v,
         PropertyChange::PinY(v) => properties.pin_point.y = v,

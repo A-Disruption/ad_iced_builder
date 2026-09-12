@@ -113,6 +113,11 @@ pub fn view<'a>(
                 .spacing(10)
                 .padding(5),
                 row![
+                    widget_button(WidgetType::DataTable, "Data Table"),
+                ]
+                .spacing(10)
+                .padding(5),
+                row![
                     widget_button(WidgetType::Grid, "Grid"),
                     widget_button(WidgetType::Stack, "Stack"),
                     widget_button(WidgetType::Split, "Split"),
@@ -302,6 +307,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
                 WidgetType::ViewReference,
@@ -350,6 +356,7 @@ pub fn get_available_types<'a>(
                 WidgetType::Markdown,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
             ]
@@ -395,6 +402,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
             ]
@@ -448,6 +456,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
                 WidgetType::ViewReference,
@@ -497,6 +506,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
                 WidgetType::ViewReference,
@@ -546,6 +556,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
                 WidgetType::ViewReference,
@@ -595,6 +606,7 @@ pub fn get_available_types<'a>(
                 WidgetType::MouseArea,
                 WidgetType::Pin,
                 WidgetType::Table,
+                WidgetType::DataTable,
                 WidgetType::QRCode,
                 WidgetType::Icon,
                 WidgetType::ViewReference,
@@ -648,6 +660,7 @@ pub fn get_available_types<'a>(
             WidgetType::MouseArea,
             WidgetType::Pin,
             WidgetType::Table,
+            WidgetType::DataTable,
             WidgetType::QRCode,
             WidgetType::Icon,
             WidgetType::ViewReference,

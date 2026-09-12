@@ -944,6 +944,16 @@ impl ImportTracker {
                     self.uses_font_module = true;
                 }
             }
+            // `advanced_table` is its own crate rather than an `iced::widget`,
+            // so it is reached by path and needs no import — only the `text`
+            // its cells and headers are built from.
+            WidgetType::DataTable => {
+                self.used_widgets.insert("text");
+                if props.data_table_bold_headers {
+                    self.uses_font = true;
+                    self.uses_font_module = true;
+                }
+            }
             WidgetType::Icon => {
                 // Icons use icon::name() - no text/Font imports needed at call site
                 self.uses_icon = true;
@@ -1494,6 +1504,50 @@ fn generate_message_variants(
             b.line(&format!("{}Closed,", v));
             emitted = true;
         }
+        // Every one of these reports what the state should become — the
+        // widget holds none of it. They all keep their suffix, since a table
+        // emits several and a named widget's variant would otherwise collapse
+        // them into one another.
+        WidgetType::DataTable => {
+            if props.data_table_row_selection.is_on() {
+                b.line(&format!(
+                    "{}RowsSelected(std::collections::BTreeSet<usize>),",
+                    v
+                ));
+                emitted = true;
+            }
+
+            if props.data_table_column_selection.is_on() {
+                b.line(&format!(
+                    "{}ColumnsSelected(std::collections::BTreeSet<usize>),",
+                    v
+                ));
+                emitted = true;
+            }
+
+            if props.data_table_cell_selection.is_on() {
+                b.line(&format!(
+                    "{}CellsSelected(std::collections::BTreeSet<advanced_table::CellPosition>),",
+                    v
+                ));
+                emitted = true;
+            }
+
+            if props.data_table_sorting {
+                b.line(&format!("{}Sorted(Option<advanced_table::Sort>),", v));
+                emitted = true;
+            }
+
+            if props.data_table_on_copy {
+                b.line(&format!("{}Copied,", v));
+                emitted = true;
+            }
+
+            if props.data_table_on_right_click {
+                b.line(&format!("{}RightClicked(advanced_table::Click),", v));
+                emitted = true;
+            }
+        }
         WidgetType::PickList => {
             if has_custom_name {
                 b.line(&format!("{}(String),", v));
@@ -1878,6 +1932,16 @@ fn has_any_message_variants(widget: &Widget) -> bool {
         }
         WidgetType::Sensor => {
             props.sensor_on_show || props.sensor_on_resize || props.sensor_on_hide
+        }
+        // A data grid reports only what it was asked to. A table with no
+        // selection, no sort and no click handlers emits nothing.
+        WidgetType::DataTable => {
+            props.data_table_row_selection.is_on()
+                || props.data_table_column_selection.is_on()
+                || props.data_table_cell_selection.is_on()
+                || props.data_table_sorting
+                || props.data_table_on_copy
+                || props.data_table_on_right_click
         }
         _ => false,
     };
@@ -2394,6 +2458,67 @@ fn generate_match_arms(
             b.line(&format!("self.{}_open = false;", sname));
             b.decrease_indent();
             b.line("}");
+        }
+        // Storing what the table reported is the whole of these arms: the
+        // widget renders the state and says what it should become, so the app
+        // holds it and hands it back on the next `view`.
+        WidgetType::DataTable => {
+            if props.data_table_row_selection.is_on() {
+                b.line(&format!("Message::{}RowsSelected(rows) => {{", v));
+                b.increase_indent();
+                b.line(&format!("self.{}_selected_rows = rows;", sname));
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_column_selection.is_on() {
+                b.line(&format!("Message::{}ColumnsSelected(columns) => {{", v));
+                b.increase_indent();
+                b.line(&format!("self.{}_selected_columns = columns;", sname));
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_cell_selection.is_on() {
+                b.line(&format!("Message::{}CellsSelected(cells) => {{", v));
+                b.increase_indent();
+                b.line(&format!("self.{}_selected_cells = cells;", sname));
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_sorting {
+                b.line(&format!("Message::{}Sorted(sort) => {{", v));
+                b.increase_indent();
+                b.line(&format!("self.{}_sort = sort;", sname));
+                // The table draws the control and reports the click; it does
+                // not touch the rows. Sorting them is the app's to do, and
+                // has to be, since only the app ever sees the values.
+                b.line(&format!("// TODO: sort `self.{}_rows` to match.", sname));
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_on_copy {
+                b.line(&format!("Message::{}Copied => {{", v));
+                b.increase_indent();
+                // The table only ever saw the `Element` built from a value,
+                // never the value, so it cannot do the copying itself.
+                b.line("// TODO: write the selection to the clipboard.");
+                b.line("// `advanced_table::selection::grid` lays it out as");
+                b.line("// the rectangle a spreadsheet expects.");
+                b.decrease_indent();
+                b.line("}");
+            }
+
+            if props.data_table_on_right_click {
+                b.line(&format!("Message::{}RightClicked(click) => {{", v));
+                b.increase_indent();
+                b.line("let _ = click;");
+                b.line("// TODO: show a context menu for `click`.");
+                b.decrease_indent();
+                b.line("}");
+            }
         }
         WidgetType::PickList => {
             let arm = if has_custom_name {

@@ -554,6 +554,70 @@ pub struct Properties {
     pub table_separator_y: f32,
     pub table_bold_headers: bool,
 
+    // ── DataTable ────────────────────────────────────────────────────────────
+    // The `advanced-table` data grid. Defaults match the widget's own so that
+    // codegen can leave out whatever was not changed.
+    /// The struct whose fields the columns are drawn from.
+    #[serde(default)]
+    pub data_table_referenced_struct: Option<Uuid>,
+    /// The leaf columns, in order. Derived from the struct's fields when the
+    /// struct is first picked, and editable after that.
+    #[serde(default)]
+    pub data_table_columns: Vec<DataTableColumn>,
+    /// The header cells spanning those columns.
+    #[serde(default)]
+    pub data_table_groups: Vec<DataTableGroup>,
+    #[serde(default)]
+    pub data_table_spacing: f32,
+    #[serde(default = "default_data_table_padding_y")]
+    pub data_table_padding_y: f32,
+    #[serde(default = "default_data_table_padding_x")]
+    pub data_table_padding_x: f32,
+    #[serde(default)]
+    pub data_table_overflow: DataTableOverflow,
+    /// Measures every row rather than a sample. Exact, and O(rows).
+    #[serde(default)]
+    pub data_table_measure_all: bool,
+    /// How many rows to measure when not measuring all of them.
+    #[serde(default = "default_data_table_measure_sample")]
+    pub data_table_measure_sample: f32,
+    #[serde(default)]
+    pub data_table_min_row_height: f32,
+    #[serde(default = "default_data_table_scrollbar_width")]
+    pub data_table_scrollbar_width: f32,
+    #[serde(default)]
+    pub data_table_vertical_scroll: DataTableScrollPolicy,
+    #[serde(default)]
+    pub data_table_horizontal_scroll: DataTableScrollPolicy,
+    /// The strip down the leading edge where a click still means "this row"
+    /// once cell selection is on.
+    #[serde(default = "default_data_table_gutter")]
+    pub data_table_gutter: f32,
+    #[serde(default = "default_true")]
+    pub data_table_resizable: bool,
+    #[serde(default = "default_data_table_min_column_width")]
+    pub data_table_min_column_width: f32,
+    #[serde(default)]
+    pub data_table_row_selection: DataTableSelection,
+    #[serde(default)]
+    pub data_table_column_selection: DataTableSelection,
+    #[serde(default)]
+    pub data_table_cell_selection: DataTableSelection,
+    /// Reports header clicks on the columns marked sortable. The table does
+    /// not reorder anything itself.
+    #[serde(default)]
+    pub data_table_sorting: bool,
+    /// Lets columns be dragged to new positions, and reports where they land.
+    #[serde(default)]
+    pub data_table_reorderable: bool,
+    /// Fires on Ctrl/Cmd+C while something is selected.
+    #[serde(default)]
+    pub data_table_on_copy: bool,
+    #[serde(default)]
+    pub data_table_on_right_click: bool,
+    #[serde(default)]
+    pub data_table_bold_headers: bool,
+
     // Pin properties
     #[serde(with = "serde_iced::point")]
     pub pin_point: Point,
@@ -1037,6 +1101,31 @@ impl Default for Properties {
             table_separator_y: 1.0,
             table_bold_headers: false,
 
+            data_table_referenced_struct: None,
+            data_table_columns: Vec::new(),
+            data_table_groups: Vec::new(),
+            data_table_spacing: 0.0,
+            data_table_padding_y: default_data_table_padding_y(),
+            data_table_padding_x: default_data_table_padding_x(),
+            data_table_overflow: DataTableOverflow::Scroll,
+            data_table_measure_all: false,
+            data_table_measure_sample: default_data_table_measure_sample(),
+            data_table_min_row_height: 0.0,
+            data_table_scrollbar_width: default_data_table_scrollbar_width(),
+            data_table_vertical_scroll: DataTableScrollPolicy::Auto,
+            data_table_horizontal_scroll: DataTableScrollPolicy::Auto,
+            data_table_gutter: default_data_table_gutter(),
+            data_table_resizable: true,
+            data_table_min_column_width: default_data_table_min_column_width(),
+            data_table_row_selection: DataTableSelection::None,
+            data_table_column_selection: DataTableSelection::None,
+            data_table_cell_selection: DataTableSelection::None,
+            data_table_sorting: false,
+            data_table_reorderable: false,
+            data_table_on_copy: false,
+            data_table_on_right_click: false,
+            data_table_bold_headers: false,
+
             // Pin defaults
             pin_point: Point::ORIGIN,
             draft_pin_x: String::new(),
@@ -1084,6 +1173,174 @@ impl Default for Properties {
 }
 
 impl Properties {
+
+    // ── DataTable columns ────────────────────────────────────────────────────
+    // A group has to cover an unbroken run of columns: a group whose columns
+    // are not adjacent has no rectangle to draw its label in. These three are
+    // the only places a column's group or position changes, so that rule lives
+    // here rather than in every caller.
+
+    /// Rebuilds the column list from a struct's fields.
+    ///
+    /// Called when the struct is picked. Columns already configured for a
+    /// field that is still there keep their settings, so adding a field to the
+    /// struct does not reset the table.
+    pub fn sync_data_table_columns(&mut self, fields: &[String]) {
+        let existing = std::mem::take(&mut self.data_table_columns);
+
+        self.data_table_columns = fields
+            .iter()
+            .map(|field| {
+                existing
+                    .iter()
+                    .find(|column| column.field == *field)
+                    .cloned()
+                    .unwrap_or_else(|| DataTableColumn {
+                        field: field.clone(),
+                        ..DataTableColumn::default()
+                    })
+            })
+            .collect();
+
+        // A group whose columns all went away with the old struct would draw
+        // an empty header cell.
+        self.prune_empty_data_table_groups();
+    }
+
+    /// Puts a column into a group, moving it next to that group's other
+    /// columns so the run stays unbroken.
+    pub fn assign_data_table_group(&mut self, index: usize, group: Option<usize>) {
+        if index >= self.data_table_columns.len() {
+            return;
+        }
+
+        if group.is_some_and(|group| group >= self.data_table_groups.len()) {
+            return;
+        }
+
+        self.data_table_columns[index].group = group;
+
+        // An emptied group is left alone: it was added deliberately, and
+        // pruning it here would take away the group a column was about to be
+        // moved into. The panel has a button for removing one.
+        let Some(group) = group else {
+            return;
+        };
+
+        // Land it beside the run it just joined. Without this, grouping a
+        // column that sits on the far side of the table would split the group
+        // in two.
+        let run_end = self
+            .data_table_columns
+            .iter()
+            .enumerate()
+            .filter(|(position, column)| *position != index && column.group == Some(group))
+            .map(|(position, _)| position)
+            .next_back();
+
+        if let Some(run_end) = run_end {
+            let destination = if index > run_end { run_end + 1 } else { run_end };
+            let column = self.data_table_columns.remove(index);
+            self.data_table_columns.insert(destination, column);
+        }
+    }
+
+    /// Moves a column one place earlier or later, keeping every group's run
+    /// unbroken.
+    ///
+    /// An ungrouped column steps over a whole group in one move rather than
+    /// landing inside it — which is the same rule the widget itself applies to
+    /// a dragged column.
+    pub fn move_data_table_column(&mut self, index: usize, earlier: bool) {
+        let columns = &mut self.data_table_columns;
+
+        if index >= columns.len() {
+            return;
+        }
+
+        let group = columns[index].group;
+
+        let destination = if earlier {
+            if index == 0 {
+                return;
+            }
+
+            let neighbour = index - 1;
+
+            match (group, columns[neighbour].group) {
+                // Inside a group: swap with the sibling beside it.
+                (Some(own), Some(other)) if own == other => neighbour,
+                // Ungrouped, stepping over a group: past its whole run.
+                (None, Some(other)) => columns[..=neighbour]
+                    .iter()
+                    .rposition(|column| column.group != Some(other))
+                    .map_or(0, |position| position + 1),
+                // Ungrouped beside ungrouped, or at the edge of its group.
+                (None, None) => neighbour,
+                // A grouped column cannot leave its group by moving.
+                _ => return,
+            }
+        } else {
+            let neighbour = index + 1;
+
+            if neighbour >= columns.len() {
+                return;
+            }
+
+            match (group, columns[neighbour].group) {
+                (Some(own), Some(other)) if own == other => neighbour,
+                (None, Some(other)) => columns[neighbour..]
+                    .iter()
+                    .position(|column| column.group != Some(other))
+                    .map_or(columns.len() - 1, |offset| neighbour + offset - 1),
+                (None, None) => neighbour,
+                _ => return,
+            }
+        };
+
+        let column = columns.remove(index);
+        columns.insert(destination, column);
+    }
+
+    /// Removes a group, freeing the columns under it and renumbering the rest.
+    pub fn remove_data_table_group(&mut self, index: usize) {
+        if index >= self.data_table_groups.len() {
+            return;
+        }
+
+        self.data_table_groups.remove(index);
+
+        for column in &mut self.data_table_columns {
+            match column.group {
+                Some(group) if group == index => column.group = None,
+                // The groups after it shifted down by one.
+                Some(group) if group > index => column.group = Some(group - 1),
+                _ => {}
+            }
+        }
+    }
+
+    /// Drops the groups no column is in any more.
+    ///
+    /// Only after a struct change, where the columns a group covered really
+    /// are gone. A group emptied by hand is left alone — see
+    /// [`Self::assign_data_table_group`].
+    fn prune_empty_data_table_groups(&mut self) {
+        let used: Vec<bool> = (0..self.data_table_groups.len())
+            .map(|group| {
+                self.data_table_columns
+                    .iter()
+                    .any(|column| column.group == Some(group))
+            })
+            .collect();
+
+        // Back to front, so an earlier index is still the index it was.
+        for group in (0..used.len()).rev() {
+            if !used[group] {
+                self.remove_data_table_group(group);
+            }
+        }
+    }
     pub fn for_widget_type(widget_type: WidgetType) -> Self {
         let mut props = Self::default();
 
@@ -1325,6 +1582,12 @@ impl Properties {
                 props.width = Length::Fill;
                 props.height = Length::Fill;
             }
+            // A bounded height is what makes the body scroll under the sticky
+            // header — the same rule `scrollable` follows.
+            WidgetType::DataTable => {
+                props.width = Length::Fill;
+                props.height = Length::Fill;
+            }
             WidgetType::Icon => {
                 props.width = Length::Shrink;
                 props.height = Length::Shrink;
@@ -1494,6 +1757,32 @@ fn default_menu_item_padding() -> Padding {
     Padding::from([4.0, 8.0])
 }
 
+// The `advanced-table` defaults, so codegen can leave out what the author did
+// not change. Keep these in step with `DataTable::new`.
+fn default_data_table_padding_y() -> f32 {
+    6.0
+}
+
+fn default_data_table_padding_x() -> f32 {
+    10.0
+}
+
+fn default_data_table_measure_sample() -> f32 {
+    200.0
+}
+
+fn default_data_table_scrollbar_width() -> f32 {
+    10.0
+}
+
+fn default_data_table_gutter() -> f32 {
+    8.0
+}
+
+fn default_data_table_min_column_width() -> f32 {
+    32.0
+}
+
 /// `widgets::menu::DEFAULT_TRIGGER_PADDING`
 fn default_menu_trigger_padding() -> Padding {
     Padding::from([4.0, 10.0])
@@ -1537,4 +1826,162 @@ pub const DEFAULT_OVERLAY_MAX_WIDTH: f32 = 320.0;
 /// name in an older `.adui` is a Lucide name.
 pub fn default_icon_family() -> String {
     "lucide".to_string()
+}
+
+#[cfg(test)]
+mod data_table_columns {
+    use super::*;
+
+    /// A table over four fields, none of them grouped yet.
+    fn table() -> Properties {
+        let mut props = Properties::for_widget_type(WidgetType::DataTable);
+
+        props.sync_data_table_columns(&[
+            "a".to_string(),
+            "b".to_string(),
+            "c".to_string(),
+            "d".to_string(),
+        ]);
+
+        props
+    }
+
+    fn fields(props: &Properties) -> Vec<&str> {
+        props
+            .data_table_columns
+            .iter()
+            .map(|column| column.field.as_str())
+            .collect()
+    }
+
+    fn groups(props: &Properties) -> Vec<Option<usize>> {
+        props
+            .data_table_columns
+            .iter()
+            .map(|column| column.group)
+            .collect()
+    }
+
+    #[test]
+    fn resyncing_keeps_what_was_configured_for_a_field_that_is_still_there() {
+        let mut props = table();
+        props.data_table_columns[1].header = "Bee".to_string();
+
+        // As if the struct gained a field and lost one.
+        props.sync_data_table_columns(&["b".to_string(), "e".to_string()]);
+
+        assert_eq!(fields(&props), ["b", "e"]);
+        assert_eq!(
+            props.data_table_columns[0].header, "Bee",
+            "a column for a field that survived should keep its settings",
+        );
+    }
+
+    #[test]
+    fn joining_a_group_moves_the_column_beside_its_new_siblings() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+
+        props.assign_data_table_group(0, Some(0));
+        // `d` is at the far end; joining the group has to bring it over.
+        props.assign_data_table_group(3, Some(0));
+
+        assert_eq!(
+            fields(&props),
+            ["a", "d", "b", "c"],
+            "a group's columns have to be adjacent — it has no rectangle to \
+             draw its label in otherwise",
+        );
+        assert_eq!(groups(&props), [Some(0), Some(0), None, None]);
+    }
+
+    #[test]
+    fn an_ungrouped_column_steps_over_a_whole_group() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+
+        // Group b and c, leaving a before them and d after.
+        props.assign_data_table_group(1, Some(0));
+        props.assign_data_table_group(2, Some(0));
+        assert_eq!(fields(&props), ["a", "b", "c", "d"]);
+
+        // `d` moving earlier lands before the group, not inside it.
+        props.move_data_table_column(3, true);
+
+        assert_eq!(fields(&props), ["a", "d", "b", "c"]);
+        assert_eq!(groups(&props), [None, None, Some(0), Some(0)]);
+    }
+
+    #[test]
+    fn a_grouped_column_cannot_move_out_of_its_group() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+
+        props.assign_data_table_group(1, Some(0));
+        props.assign_data_table_group(2, Some(0));
+
+        // `b` is the first of the group; moving it earlier would take it out.
+        props.move_data_table_column(1, true);
+
+        assert_eq!(fields(&props), ["a", "b", "c", "d"]);
+
+        // Inside the group it swaps with its sibling.
+        props.move_data_table_column(1, false);
+        assert_eq!(fields(&props), ["a", "c", "b", "d"]);
+        assert_eq!(groups(&props), [None, Some(0), Some(0), None]);
+    }
+
+    #[test]
+    fn a_group_emptied_by_hand_stays_until_it_is_removed() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+
+        props.assign_data_table_group(0, Some(0));
+        props.assign_data_table_group(0, None);
+
+        assert_eq!(
+            props.data_table_groups.len(),
+            1,
+            "taking the last column out should not take the group with it — \
+             there would be nothing left to move the next column into",
+        );
+    }
+
+    #[test]
+    fn a_group_whose_columns_left_with_the_struct_goes_away() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+
+        props.assign_data_table_group(0, Some(0));
+        props.assign_data_table_group(1, Some(0));
+
+        // The struct lost both of the fields that group covered.
+        props.sync_data_table_columns(&["c".to_string(), "d".to_string()]);
+
+        assert!(
+            props.data_table_groups.is_empty(),
+            "a group over columns that no longer exist would draw a header \
+             cell across nothing",
+        );
+    }
+
+    #[test]
+    fn removing_a_group_renumbers_the_ones_after_it() {
+        let mut props = table();
+        props.data_table_groups.push(DataTableGroup::default());
+        props.data_table_groups.push(DataTableGroup::default());
+
+        props.assign_data_table_group(0, Some(0));
+        props.assign_data_table_group(2, Some(1));
+
+        props.remove_data_table_group(0);
+
+        assert_eq!(props.data_table_groups.len(), 1);
+        assert_eq!(
+            groups(&props).iter().filter(|group| **group == Some(0)).count(),
+            1,
+            "the second group should have become the first, not point past \
+             the end",
+        );
+    }
 }
