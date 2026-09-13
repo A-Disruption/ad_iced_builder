@@ -27,12 +27,30 @@ use crate::icon;
 pub const SEARCH_INPUT_ID: iced::advanced::widget::Id =
     iced::advanced::widget::Id::new("widget-picker-search");
 
+/// The results list, so the arrow keys can scroll the highlight into view.
+pub const LIST_ID: iced::advanced::widget::Id =
+    iced::advanced::widget::Id::new("widget-picker-list");
+
 /// How wide the popover is, and how tall its list is allowed to grow.
 const PICKER_WIDTH: f32 = 328.0;
 const LIST_MAX_HEIGHT: f32 = 360.0;
 
+/// How wide the search box is.
+///
+/// Explicit rather than `Fill`, and that matters: a popover measures its
+/// content at `Shrink` to find its intrinsic width before laying it out again
+/// at the settled one. A `Fill` text input measures as nothing in that first
+/// pass and caches a scroll offset against it, which left the caret parked off
+/// the left edge — you could type and see nothing until an arrow key scrolled
+/// the view back.
+const SEARCH_WIDTH: f32 = PICKER_WIDTH - POPOVER_PADDING * 2.0 - SEARCH_ICON_WIDTH;
+
+/// The popover's own padding, and the room the search icon and its gap take.
+const POPOVER_PADDING: f32 = 12.0;
+const SEARCH_ICON_WIDTH: f32 = 22.0;
+
 /// Above this many hits the list is capped and scrolls.
-const LIST_SCROLL_THRESHOLD: usize = 14;
+const LIST_SCROLL_THRESHOLD: usize = 10;
 
 /// Which branch's picker is open, and what has been typed into it.
 #[derive(Debug, Clone, Default)]
@@ -41,6 +59,11 @@ pub struct PickerState {
     open_for: Option<WidgetId>,
     /// The current search text. Cleared whenever the picker opens.
     query: String,
+    /// Which result the arrow keys are on.
+    ///
+    /// A second focus: the search box keeps the real one so typing never
+    /// stops, and this rides alongside it so Return knows what to add.
+    highlight: usize,
 }
 
 impl PickerState {
@@ -80,10 +103,53 @@ impl PickerState {
 
     pub fn set_query(&mut self, query: String) {
         self.query = query;
+        // A different search is a different list; keeping the old index would
+        // point the highlight at whatever happened to land in that slot.
+        self.highlight = 0;
     }
 
     pub fn query(&self) -> &str {
         &self.query
+    }
+
+    pub fn open_for(&self) -> Option<WidgetId> {
+        self.open_for
+    }
+
+    pub fn highlight(&self) -> usize {
+        self.highlight
+    }
+
+    /// Moves the highlight, wrapping at both ends.
+    ///
+    /// Wrapping rather than clamping because the list is short and searched:
+    /// one press past the last hit is more likely to mean "back to the top"
+    /// than "stay here".
+    pub fn move_highlight(&mut self, delta: i32, len: usize) {
+        if len == 0 {
+            self.highlight = 0;
+            return;
+        }
+
+        let len = len as i32;
+        let next = (self.highlight as i32 + delta).rem_euclid(len);
+
+        self.highlight = next as usize;
+    }
+
+    /// Where the list has to be scrolled to for the highlight to be on screen.
+    ///
+    /// A ratio of the highlight's position through the list rather than a
+    /// measured offset: the entries are a uniform height, so walking from the
+    /// top to the bottom walks the scroll from one end to the other. The
+    /// category headings make it approximate, by about one heading's height at
+    /// worst, which is well inside the viewport.
+    pub fn scroll_offset(&self, len: usize) -> f32 {
+        if len <= 1 {
+            return 0.0;
+        }
+
+        self.highlight as f32 / (len - 1) as f32
     }
 }
 
@@ -105,25 +171,36 @@ pub enum Message {
     QueryChanged(String),
     /// A type was chosen. The child is added and the picker stays open.
     Picked(WidgetId, WidgetType),
-    /// Return was pressed in the search box: take the first match.
+    /// Return was pressed in the search box: take the highlighted result.
     ///
-    /// Carries nothing, because what the first match *is* depends on the
-    /// hierarchy as it stands when the message is handled — and after adding a
-    /// child that is not what it was when the box was drawn.
-    SubmitFirstMatch(WidgetId),
+    /// The result is resolved when the message is handled rather than when the
+    /// box was drawn — after adding a child, what the branch will accept has
+    /// usually changed.
+    SubmitHighlighted(WidgetId),
 }
 
-/// What a branch can take right now, filtered by a search.
+/// What a branch can take right now, filtered by a search, in the order the
+/// picker draws them.
 ///
-/// Public because Return in the search box is resolved when the message is
-/// handled rather than when the box is drawn: after adding a child, what the
-/// branch will accept has usually changed.
+/// The order matters twice over: the list is grouped by category, and the
+/// highlight is an index into it. If the keyboard counted one order and the
+/// list drew another, Return would add whatever happened to sit in that slot.
+/// So this is the only definition of the order, and both use it.
+///
+/// Public because Return is resolved when the message is handled rather than
+/// when the box was drawn: after adding a child, what the branch will accept
+/// has usually changed.
 pub fn first_matches(available: &[WidgetType], query: &str) -> Vec<WidgetType> {
-    available
+    let mut matches: Vec<WidgetType> = available
         .iter()
         .copied()
         .filter(|ty| ty.matches_search(query))
-        .collect()
+        .collect();
+
+    // Stable, so within a category the parent's own order survives.
+    matches.sort_by_key(|ty| ty.category());
+
+    matches
 }
 
 /// The `+` button for a branch, with its picker hanging off it.
@@ -158,7 +235,6 @@ pub fn trigger<'a>(
             .into(),
     )
 }
-
 /// The search box and the filtered list beneath it.
 fn picker_content<'a>(
     available: &[WidgetType],
@@ -170,9 +246,9 @@ fn picker_content<'a>(
         text_input("Search widgets", state.query())
             .id(SEARCH_INPUT_ID)
             .on_input(Message::QueryChanged)
-            .on_submit(Message::SubmitFirstMatch(parent_id))
+            .on_submit(Message::SubmitHighlighted(parent_id))
             .size(14)
-            .width(Length::Fill),
+            .width(SEARCH_WIDTH),
     ]
     .spacing(8)
     .align_y(Alignment::Center);
@@ -188,22 +264,25 @@ fn picker_content<'a>(
         .padding(padding::top(14).bottom(6))
         .into()
     } else {
-        // The first entry is what Return takes, so the order the sections are
-        // built in is the order `first_matches` returns.
-        let mut sections = column![].spacing(10);
+        // One entry per line, because the arrow keys walk this list and a grid
+        // would make "down" mean two different things depending on where you
+        // were. Walked in `first_matches` order — the same order the highlight
+        // indexes into — with a heading emitted wherever the category turns
+        // over, rather than regrouping and risking a different one.
+        let mut list = column![].spacing(2);
+        let mut current: Option<WidgetCategory> = None;
 
-        for category in WidgetCategory::ALL {
-            let in_category: Vec<WidgetType> = matches
-                .iter()
-                .copied()
-                .filter(|ty| ty.category() == category)
-                .collect();
+        for (index, &ty) in matches.iter().enumerate() {
+            if current != Some(ty.category()) {
+                current = Some(ty.category());
 
-            if in_category.is_empty() {
-                continue;
+                list = list.push(
+                    container(text(ty.category().label()).size(10).style(text::secondary))
+                        .padding(padding::top(6).bottom(2)),
+                );
             }
 
-            sections = sections.push(section(category, &in_category, parent_id));
+            list = list.push(entry(ty, parent_id, index == state.highlight()));
         }
 
         // Short lists size to their content; only a long one is capped and
@@ -214,7 +293,7 @@ fn picker_content<'a>(
             Length::Shrink
         };
 
-        scrollable(sections).height(height).into()
+        scrollable(list).id(LIST_ID).height(height).into()
     };
 
     container(
@@ -225,46 +304,32 @@ fn picker_content<'a>(
     .into()
 }
 
-/// One labelled group of types, two to a row.
-fn section<'a>(
-    category: WidgetCategory,
-    types: &[WidgetType],
+/// One widget type in the list.
+///
+/// The highlighted entry is drawn as the primary action rather than merely
+/// tinted, because it is what Return will take.
+fn entry<'a>(
+    widget_type: WidgetType,
     parent_id: WidgetId,
+    highlighted: bool,
 ) -> Element<'a, Message> {
-    let mut rows = column![
-        text(category.label())
-            .size(11)
-            .style(text::secondary),
-    ]
-    .spacing(4);
+    let style = if highlighted {
+        button::primary
+    } else {
+        button::text
+    };
 
-    for pair in types.chunks(2) {
-        let mut line = row![].spacing(6);
-
-        for ty in pair {
-            line = line.push(
-                button(
-                    row![
-                        icon::widget_type(*ty).size(13),
-                        text(ty.label()).size(13),
-                    ]
-                    .spacing(6)
-                    .align_y(Alignment::Center),
-                )
-                .style(button::secondary)
-                .width(Length::FillPortion(1))
-                .on_press(Message::Picked(parent_id, *ty)),
-            );
-        }
-
-        // A lone button on the last line should not stretch to the full width
-        // and break the grid.
-        if pair.len() == 1 {
-            line = line.push(iced::widget::space::horizontal().width(Length::FillPortion(1)));
-        }
-
-        rows = rows.push(line);
-    }
-
-    rows.into()
+    button(
+        row![
+            icon::widget_type(widget_type).size(13),
+            text(widget_type.label()).size(13),
+        ]
+        .spacing(8)
+        .align_y(Alignment::Center),
+    )
+    .style(style)
+    .padding(padding::left(6).right(6).top(3).bottom(3))
+    .width(Length::Fill)
+    .on_press(Message::Picked(parent_id, widget_type))
+    .into()
 }

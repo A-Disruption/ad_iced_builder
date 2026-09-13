@@ -40,6 +40,12 @@ fn main() {
     app.run().unwrap()
 }
 
+/// How many tree edits Ctrl+Z can walk back through.
+///
+/// Each entry is one view's serialized hierarchy, so the cost is a few
+/// kilobytes per step rather than a whole project.
+const UNDO_DEPTH: usize = 100;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum TypeEditorTab {
     Enums,
@@ -97,6 +103,13 @@ struct AdUiBuilder {
     /// JSON rather than a `Widget`, because `Widget` is not `Clone` and
     /// pasting twice has to produce two independent trees.
     widget_clipboard: Option<String>,
+
+    /// Widget trees as they were before each edit, for Ctrl+Z.
+    ///
+    /// One view's hierarchy per entry, serialized, because that is what a tree
+    /// edit changes and `WidgetHierarchy` is no more `Clone` than the widgets
+    /// in it. Oldest entries are dropped past [`UNDO_DEPTH`].
+    undo_stack: Vec<(Uuid, String)>,
 
     /// The tree row the keyboard is on, reported by the tree.
     ///
@@ -165,6 +178,12 @@ enum Message {
     CopyFocusedRow,
     /// Ctrl+V — paste that copy.
     PasteIntoFocusedRow,
+    /// Delete — remove the focused row.
+    DeleteFocusedRow,
+    /// Ctrl+Z — put the widget tree back the way it was.
+    Undo,
+    /// Up or Down while the add-widget picker is open.
+    PickerHighlight(i32),
 }
 
 #[derive(Clone, Debug)]
@@ -225,6 +244,7 @@ impl AdUiBuilder {
             focused_row: None,
             inspector_splits: views::inspector::Splits::default(),
             widget_clipboard: None,
+            undo_stack: Vec::new(),
             panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
@@ -337,6 +357,10 @@ impl AdUiBuilder {
                                 | widget_tree::Message::PropertyChanged(_, _)
                                 | widget_tree::Message::SwapKind(_)
                         );
+
+                        if should_regenerate {
+                            self.push_undo();
+                        }
 
                         let view = self
                             .views
@@ -463,6 +487,10 @@ impl AdUiBuilder {
                                         | widget_tree::Message::SwapKind(_)
                                 )
                         );
+
+                        if should_regenerate {
+                            self.push_undo();
+                        }
 
                         let result = add_views::update(
                             &mut self.views,
@@ -819,6 +847,85 @@ impl AdUiBuilder {
                 return Task::none();
             }
 
+            Message::PickerHighlight(delta) => {
+                let Some(parent) = self.widget_picker.open_for() else {
+                    return Task::none();
+                };
+
+                let count = self.picker_matches(parent).len();
+                self.widget_picker.move_highlight(delta, count);
+
+                // The highlight is no use off the bottom of the list.
+                return iced::widget::operation::snap_to(
+                    views::widget_picker::LIST_ID,
+                    iced::widget::operation::RelativeOffset {
+                        x: Some(0.0),
+                        y: Some(self.widget_picker.scroll_offset(count)),
+                    },
+                );
+            }
+
+            Message::DeleteFocusedRow => {
+                let Some(row) = self.focused_row else {
+                    return Task::none();
+                };
+
+                // Delete is a plain key, so it arrives from wherever it was
+                // pressed — including a text field the user is editing. Only
+                // act when nothing is asking for typed input.
+                if self.widget_picker.open_for().is_some() {
+                    return Task::none();
+                }
+
+                self.push_undo();
+
+                let view = self
+                    .views
+                    .get_mut(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                if view.hierarchy.delete_widget(row).is_ok() {
+                    self.focused_row = None;
+                    self.regenerate_code();
+                } else {
+                    // Nothing happened, so nothing to undo.
+                    self.undo_stack.pop();
+                }
+
+                return Task::none();
+            }
+
+            Message::Undo => {
+                let Some((view_id, json)) = self.undo_stack.pop() else {
+                    return Task::none();
+                };
+
+                let hierarchy: data_structures::widget_hierarchy::WidgetHierarchy =
+                    match serde_json::from_str(&json) {
+                        Ok(hierarchy) => hierarchy,
+                        Err(error) => {
+                            return Task::done(Message::PersistenceError(format!(
+                                "Could not undo: {error}"
+                            )));
+                        }
+                    };
+
+                let Some(view) = self.views.get_mut(&view_id) else {
+                    return Task::none();
+                };
+
+                view.hierarchy = hierarchy;
+                // The transient fields — next id, selection — are `serde(skip)`,
+                // so a restored tree needs the same repair a loaded one does.
+                view.hierarchy.post_load();
+
+                self.selected_view_id = view_id;
+                self.focused_row = None;
+                self.regenerate_code();
+
+                return Task::none();
+            }
+
             Message::CopyFocusedRow => {
                 let Some(row) = self.focused_row else {
                     return Task::none();
@@ -865,6 +972,15 @@ impl AdUiBuilder {
                         }
                     };
 
+                // Taken before the tree changes, and only pushed once the
+                // paste actually lands — a refused paste leaves no step to
+                // undo.
+                let before = self
+                    .views
+                    .get(&self.selected_view_id)
+                    .and_then(|view| serde_json::to_string(&view.hierarchy).ok())
+                    .unwrap_or_default();
+
                 let view = self
                     .views
                     .get_mut(&self.selected_view_id)
@@ -899,7 +1015,15 @@ impl AdUiBuilder {
                 };
 
                 match view.hierarchy.insert_subtree(parent, subtree, index) {
-                    Ok(_) => self.regenerate_code(),
+                    Ok(_) => {
+                        self.undo_stack.push((self.selected_view_id, before));
+
+                        if self.undo_stack.len() > UNDO_DEPTH {
+                            self.undo_stack.remove(0);
+                        }
+
+                        self.regenerate_code();
+                    }
                     Err(error) => {
                         return Task::done(Message::PersistenceError(error));
                     }
@@ -1386,19 +1510,12 @@ impl AdUiBuilder {
             Picker::Picked(parent_id, widget_type) => {
                 return self.add_from_picker(parent_id, widget_type);
             }
-            Picker::SubmitFirstMatch(parent_id) => {
+            Picker::SubmitHighlighted(parent_id) => {
                 // Resolved now rather than when the box was drawn: adding a
                 // child can change what the branch will accept next.
-                let view = self
-                    .views
-                    .get(&self.selected_view_id)
-                    .expect("Selected view must exist");
+                let matches = self.picker_matches(parent_id);
 
-                let available = add_widgets::get_available_types(&view.hierarchy, &parent_id);
-                let matches =
-                    views::widget_picker::first_matches(&available, self.widget_picker.query());
-
-                let Some(&widget_type) = matches.first() else {
+                let Some(&widget_type) = matches.get(self.widget_picker.highlight()) else {
                     return Task::none();
                 };
 
@@ -1407,6 +1524,43 @@ impl AdUiBuilder {
         }
 
         Task::none()
+    }
+
+    /// Records the selected view's tree as it stands, before something changes
+    /// it.
+    ///
+    /// Called on the way *in* to an edit rather than after it, so the top of
+    /// the stack is always the state to go back to. An edit that turns out to
+    /// be a no-op pops its own entry again, so Ctrl+Z never appears to do
+    /// nothing.
+    fn push_undo(&mut self) {
+        let Some(view) = self.views.get(&self.selected_view_id) else {
+            return;
+        };
+
+        let Ok(json) = serde_json::to_string(&view.hierarchy) else {
+            return;
+        };
+
+        self.undo_stack.push((self.selected_view_id, json));
+
+        if self.undo_stack.len() > UNDO_DEPTH {
+            self.undo_stack.remove(0);
+        }
+    }
+
+    /// What the open picker is currently offering, in the order it draws them.
+    fn picker_matches(
+        &self,
+        parent_id: WidgetId,
+    ) -> Vec<data_structures::types::types::WidgetType> {
+        let Some(view) = self.views.get(&self.selected_view_id) else {
+            return Vec::new();
+        };
+
+        let available = add_widgets::get_available_types(&view.hierarchy, &parent_id);
+
+        views::widget_picker::first_matches(&available, self.widget_picker.query())
     }
 
     /// Adds one child from the picker, leaving the picker open.
@@ -1422,12 +1576,15 @@ impl AdUiBuilder {
         parent_id: WidgetId,
         widget_type: data_structures::types::types::WidgetType,
     ) -> Task<Message> {
+        self.push_undo();
+
         let view = self
             .views
             .get_mut(&self.selected_view_id)
             .expect("Selected view must exist");
 
         if view.hierarchy.add_child(parent_id, widget_type).is_err() {
+            self.undo_stack.pop();
             return Task::none();
         }
 
@@ -1590,6 +1747,7 @@ impl AdUiBuilder {
             focused_row: None,
             inspector_splits: views::inspector::Splits::default(),
             widget_clipboard: None,
+            undo_stack: Vec::new(),
             panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
@@ -1679,10 +1837,24 @@ fn handle_event(
                     keyboard::Key::Character(c) if c.as_str() == "v" => {
                         Some(Message::PasteIntoFocusedRow)
                     }
+                    keyboard::Key::Character(c) if c.as_str() == "z" => Some(Message::Undo),
                     _ => None,
                 }
             } else {
-                None
+                match key {
+                    keyboard::Key::Named(keyboard::key::Named::Delete) => {
+                        Some(Message::DeleteFocusedRow)
+                    }
+                    // Only acted on while the picker is open — `update` checks,
+                    // because a listener cannot see the application's state.
+                    keyboard::Key::Named(keyboard::key::Named::ArrowDown) => {
+                        Some(Message::PickerHighlight(1))
+                    }
+                    keyboard::Key::Named(keyboard::key::Named::ArrowUp) => {
+                        Some(Message::PickerHighlight(-1))
+                    }
+                    _ => None,
+                }
             }
         }
         _ => None,

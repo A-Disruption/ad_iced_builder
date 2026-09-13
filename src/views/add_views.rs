@@ -199,7 +199,10 @@ pub fn view<'a>(
         crate::controls::scroll_y(CollapsibleGroup::new(view_list).spacing(5.0))
             .height(Length::Fill)
     ])
-    // The pane decides how wide the tree is now, not the tree.
+    // The pane decides how wide the tree is now, not the tree. Its own outline
+    // runs down the left edge, though, and a collapsible sitting flush against
+    // it reads as overlapping it.
+    .padding(padding::left(4))
     .width(Length::Fill)
     .height(Length::Fill)
     .into()
