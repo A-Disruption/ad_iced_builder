@@ -1977,3 +1977,62 @@ fn generate_cargo_toml(
         patch,
     )
 }
+
+#[cfg(test)]
+mod pasted_widgets {
+    use super::CodeGeneratorV2;
+    use crate::data_structures::types::types::{AppView, Widget, WidgetType};
+    use crate::views::theme_and_stylefn_builder::CustomThemes;
+    use crate::{Window, WindowEnum};
+
+    /// A row with two pick lists in it: one added, one pasted from the first.
+    fn main_rs_for_a_pasted_pick_list() -> String {
+        let type_system = crate::enum_builder::TypeSystem::new();
+
+        let view_id = uuid::Uuid::new_v4();
+        let mut view = AppView::with_id(view_id, "Main View".to_string(), 0);
+
+        let root = view.hierarchy.root().id;
+        let row = view.hierarchy.add_child(root, WidgetType::Row).unwrap();
+        let column = view.hierarchy.add_child(row, WidgetType::Column).unwrap();
+
+        view.hierarchy
+            .add_child(column, WidgetType::PickList)
+            .unwrap();
+
+        // Exactly what Ctrl+C then Ctrl+V does.
+        let json =
+            serde_json::to_string(view.hierarchy.get_widget_by_id(column).unwrap()).unwrap();
+        let copy: Widget = serde_json::from_str(&json).unwrap();
+
+        view.hierarchy.insert_subtree(row, copy, 1).unwrap();
+
+        let views = std::collections::BTreeMap::from([(view_id, view)]);
+        let windows = std::collections::BTreeMap::from([(
+            iced::window::Id::unique(),
+            Window::new(iced::window::Id::unique(), WindowEnum::Visualizer),
+        )]);
+
+        let theme = iced::Theme::Dark;
+        let mut generator = CodeGeneratorV2::new(&views, &windows, &theme, &type_system, &[]);
+        let files = generator.generate_project_structure(&CustomThemes::new(&theme));
+
+        files.get("main.rs").expect("main.rs is generated").clone()
+    }
+
+    /// A copy is a separate widget, so it needs separate state — otherwise
+    /// typing into one of two pasted inputs writes into both.
+    #[test]
+    fn a_pasted_pick_list_gets_its_own_field() {
+        let main = main_rs_for_a_pasted_pick_list();
+
+        assert!(
+            main.contains("pick_list_selected: Option<String>,"),
+            "the first pick list has no field:\n{main}"
+        );
+        assert!(
+            main.contains("pick_list_2_selected: Option<String>,"),
+            "the pasted pick list shares the first one's field:\n{main}"
+        );
+    }
+}

@@ -1118,3 +1118,88 @@ mod batch_editing {
         );
     }
 }
+
+#[cfg(test)]
+mod pasting {
+    use super::*;
+
+    /// Every id in the tree, in walk order.
+    fn ids(widget: &Widget, out: &mut Vec<WidgetId>) {
+        out.push(widget.id);
+
+        for child in &widget.children {
+            ids(child, out);
+        }
+    }
+
+    fn all_ids(hierarchy: &WidgetHierarchy) -> Vec<WidgetId> {
+        let mut out = Vec::new();
+        ids(hierarchy.root(), &mut out);
+        out
+    }
+
+    fn assert_ids_unique(hierarchy: &WidgetHierarchy, what: &str) {
+        let all = all_ids(hierarchy);
+        let unique: std::collections::HashSet<_> = all.iter().copied().collect();
+
+        assert_eq!(
+            all.len(),
+            unique.len(),
+            "{what}: two widgets share an id, so one of them is unreachable — {all:?}"
+        );
+    }
+
+    /// A row holding a column of two widgets, plus the column's JSON.
+    fn fixture() -> (WidgetHierarchy, WidgetId, String) {
+        let mut hierarchy = WidgetHierarchy::new(WidgetType::Container);
+        let root = hierarchy.root().id;
+        let row = hierarchy.add_child(root, WidgetType::Row).unwrap();
+        let column = hierarchy.add_child(row, WidgetType::Column).unwrap();
+
+        hierarchy.add_child(column, WidgetType::Text).unwrap();
+        hierarchy.add_child(column, WidgetType::PickList).unwrap();
+
+        let json = serde_json::to_string(hierarchy.get_widget_by_id(column).unwrap()).unwrap();
+
+        (hierarchy, row, json)
+    }
+
+    #[test]
+    fn a_pasted_subtree_is_its_own_widgets() {
+        let (mut hierarchy, row, json) = fixture();
+
+        let copy: Widget = serde_json::from_str(&json).unwrap();
+        hierarchy.insert_subtree(row, copy, 1).unwrap();
+
+        assert_ids_unique(&hierarchy, "after one paste");
+    }
+
+    #[test]
+    fn pasting_the_same_copy_twice_makes_two_independent_subtrees() {
+        let (mut hierarchy, row, json) = fixture();
+
+        for index in 1..3 {
+            let copy: Widget = serde_json::from_str(&json).unwrap();
+            hierarchy.insert_subtree(row, copy, index).unwrap();
+        }
+
+        assert_ids_unique(&hierarchy, "after two pastes");
+    }
+
+    #[test]
+    fn a_widget_added_after_a_paste_is_a_new_widget() {
+        let (mut hierarchy, row, json) = fixture();
+
+        let copy: Widget = serde_json::from_str(&json).unwrap();
+        hierarchy.insert_subtree(row, copy, 1).unwrap();
+
+        let added = hierarchy.add_child(row, WidgetType::Column).unwrap();
+
+        assert_ids_unique(&hierarchy, "after pasting then adding");
+        assert!(
+            hierarchy.get_widget_by_id(added).unwrap().children.is_empty(),
+            "a freshly added Column arrived with children"
+        );
+    }
+}
+

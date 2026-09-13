@@ -658,7 +658,7 @@ pub fn text_controls<'a>(
                             ),
                         )
                         .step(0.05)
-                        .width(FIELD_WIDTH - 55.0),
+                        .width(Length::Fill),
                         text(match props.line_height {
                             text::LineHeight::Relative(v) => format!("{v:.2}"),
                             _ => "1.00".into(),
@@ -852,7 +852,7 @@ pub fn text_input_controls<'a>(
                                         )
                                     })
                                     .step(1.0)
-                                    .width(FIELD_WIDTH - 55.0),
+                                    .width(Length::Fill),
                                     text(if props.text_input_icon_size > 0.0 {
                                         format!("{:.0}", props.text_input_icon_size)
                                     } else {
@@ -998,7 +998,7 @@ pub fn text_editor_controls<'a>(
                                 ),
                             )
                             .step(0.05)
-                            .width(FIELD_WIDTH - 55.0),
+                            .width(Length::Fill),
                             text(match props.text_editor_line_height {
                                 text::LineHeight::Relative(value) => format!("{value:.2}"),
                                 _ => "1.00".into(),
@@ -1345,7 +1345,7 @@ pub fn picklist_controls<'a>(
                         widget_id,
                         PropertyChange::PickListSelected(Some(selection)),
                     ))
-                    .width(FIELD_WIDTH),
+                    .width(Length::Fill),
                 ),
             ]),
         ),
@@ -1493,7 +1493,7 @@ pub fn slider_controls<'a>(
                             ),
                         )
                         .step(props.slider_step.max(0.000_001))
-                        .width(FIELD_WIDTH - 55.0),
+                        .width(Length::Fill),
                         text(format!("{:.3}", props.slider_value))
                             .size(LABEL_SIZE)
                             .width(50),
@@ -1596,7 +1596,7 @@ pub fn vertical_slider_controls<'a>(
                             ),
                         )
                         .step(props.slider_step.max(0.000_001))
-                        .width(FIELD_WIDTH - 55.0),
+                        .width(Length::Fill),
                         text(format!("{:.3}", props.slider_value))
                             .size(LABEL_SIZE)
                             .width(50),
@@ -1678,7 +1678,7 @@ pub fn rule_controls<'a>(
                                 )
                             })
                             .step(0.5)
-                            .width(FIELD_WIDTH - 55.0),
+                            .width(Length::Fill),
                             text(format!("{:.1}", p.rule_thickness))
                                 .size(LABEL_SIZE)
                                 .width(50),
@@ -1887,7 +1887,7 @@ pub fn progress_controls<'a>(
                             Message::PropertyChanged(widget_id, PropertyChange::ProgressValue(v))
                         })
                         .step(clamp_step)
-                        .width(FIELD_WIDTH - 55.0),
+                        .width(Length::Fill),
                         text(format!("{:.02}", p.progress_value))
                             .size(LABEL_SIZE)
                             .width(50),
@@ -2350,7 +2350,7 @@ pub fn combobox_controls<'a>(
                                         )
                                     })
                                     .step(1.0)
-                                    .width(FIELD_WIDTH - 55.0),
+                                    .width(Length::Fill),
                                     text(if props.combobox_icon_size > 0.0 {
                                         format!("{:.0}", props.combobox_icon_size)
                                     } else {
@@ -2633,7 +2633,7 @@ pub fn collapsible_controls<'a>(
                         PropertyChange::CustomStyle(Some(selection)),
                     ))
                     .placeholder("default")
-                    .width(FIELD_WIDTH),
+                    .width(Length::Fill),
                 ),
                 field(
                     "Alternate style",
@@ -2647,7 +2647,7 @@ pub fn collapsible_controls<'a>(
                         PropertyChange::ActiveStyle(Some(selection)),
                     ))
                     .placeholder("none")
-                    .width(FIELD_WIDTH),
+                    .width(Length::Fill),
                 ),
             ]),
         ),
@@ -2778,7 +2778,7 @@ pub fn overlay_controls<'a>(
                     )
                 })
                 .placeholder("preset…")
-                .width(FIELD_WIDTH),
+                .width(Length::Fill),
         )
     };
 
@@ -2825,7 +2825,7 @@ pub fn overlay_controls<'a>(
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayStyle(Some(selection)))
             })
             .placeholder("default")
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ),
         field(
             "Padding",
@@ -2909,7 +2909,7 @@ pub fn overlay_controls<'a>(
             .on_select(move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverPosition(value))
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
         placement.push(field(
             "Align",
@@ -2925,7 +2925,7 @@ pub fn overlay_controls<'a>(
             .on_select(move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverAlignment(value))
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
         placement.push(field(
             "Gap",
@@ -2943,7 +2943,7 @@ pub fn overlay_controls<'a>(
             .on_select(move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayHoverMode(value))
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
         placement.push(toggle_field(
             "Flip to fit",
@@ -2980,7 +2980,7 @@ pub fn overlay_controls<'a>(
                 .on_select(move |value| {
                     Message::PropertyChanged(widget_id, PropertyChange::LayerAnchor(value))
                 })
-                .width(FIELD_WIDTH),
+                .width(Length::Fill),
             ));
             placement.push(field(
                 "Margin",
@@ -3017,7 +3017,7 @@ pub fn overlay_controls<'a>(
             .on_select(move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::ToastAnchor(value))
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
         placement.push(field(
             "Margin",
@@ -3055,7 +3055,7 @@ pub fn overlay_controls<'a>(
                     .on_input(move |value| {
                         Message::PropertyChanged(widget_id, PropertyChange::OverlayTitle(value))
                     })
-                    .width(FIELD_WIDTH),
+                    .width(Length::Fill),
             ));
             window.push(toggle_field(
                 "Close button",
@@ -3090,7 +3090,7 @@ pub fn overlay_controls<'a>(
             .on_select(move |value| {
                 Message::PropertyChanged(widget_id, PropertyChange::OverlayResizable(value))
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
     }
 
@@ -3112,7 +3112,7 @@ pub fn overlay_controls<'a>(
                     Message::PropertyChanged(widget_id, PropertyChange::OverlayOpaqueAlpha(value))
                 })
                 .step(0.05)
-                .width(FIELD_WIDTH),
+                .width(Length::Fill),
             ));
         }
 
@@ -3181,7 +3181,7 @@ pub fn overlay_controls<'a>(
                             widget_id,
                             PropertyChange::MenuCheckSide(value)
                         ))
-                        .width(FIELD_WIDTH),
+                        .width(Length::Fill),
                     ),
                 ]),
                 padding_field("Row Padding", props.menu_item_padding, move |padding| {
@@ -3324,7 +3324,7 @@ pub fn overlay_controls<'a>(
                     PropertyChange::OverlayAnimationPreset(value),
                 )
             })
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
         ));
     }
 
@@ -3568,7 +3568,7 @@ pub fn split_controls<'a>(
                     Message::PropertyChanged(widget_id, PropertyChange::SplitAt(value))
                 })
                 .step(0.01)
-                .width(FIELD_WIDTH - 55.0),
+                .width(Length::Fill),
                 text(format!("{:.2}", props.split_at))
                     .size(LABEL_SIZE)
                     .width(50),
@@ -3678,7 +3678,7 @@ pub fn float_controls<'a>(
                                 )
                             })
                             .step(0.05)
-                            .width(FIELD_WIDTH - 55.0),
+                            .width(Length::Fill),
                             text(format!("{:.2}x", props.float_scale))
                                 .size(LABEL_SIZE)
                                 .width(50),
@@ -4038,7 +4038,7 @@ pub fn themer_controls<'a>(
                             PropertyChange::ThemerTheme(Some(theme)),
                         ))
                         .placeholder("Inherit from parent")
-                        .width(FIELD_WIDTH),
+                        .width(Length::Fill),
                 )]),
                 text("Themer applies a theme to all its children.")
                     .size(LABEL_SIZE)
@@ -4230,7 +4230,7 @@ pub fn data_table_controls<'a>(
                     Message::PropertyChanged(widget_id, PropertyChange::DataTableStruct(id))
                 })
                 .placeholder("choose a struct")
-                .width(FIELD_WIDTH),
+                .width(Length::Fill),
         )
     };
 
@@ -4669,7 +4669,7 @@ fn data_table_column_row<'a>(
                         PropertyChange::DataTableColumnGroup(index, group),
                     )
                 })
-                .width(FIELD_WIDTH),
+                .width(Length::Fill),
         ));
     }
 
@@ -6663,7 +6663,7 @@ pub fn float_field<'a>(
         label,
         text_input("0", format!("{value}"))
             .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
     )
 }
 
@@ -6718,6 +6718,20 @@ pub fn padding_field<'a>(
 /// across the editor at its default width.
 pub const FIELD_WIDTH: f32 = 168.0;
 
+/// How wide the label column is, down the left of every field.
+///
+/// Fixed, because a column that each field sized for itself would not be a
+/// column. Wide enough for "Align children" and "Line spacing" at
+/// `LABEL_SIZE`; anything longer wraps rather than pushing the controls out of
+/// line.
+pub const LABEL_COLUMN: f32 = 104.0;
+
+/// The gap between one field and the next.
+///
+/// Tighter than `SECTION_SPACING`: fields within a section are a list, and the
+/// card's own edge already says where the section stops.
+pub const FIELD_SPACING: f32 = 4.0;
+
 /// The height of one control in the property grid.
 ///
 /// A pick list, a text entry and a checkbox are all different heights on their
@@ -6730,31 +6744,31 @@ pub fn field<'a, M: 'a>(
     label: &'a str,
     control: impl Into<Element<'a, M>>,
 ) -> Element<'a, M> {
-    column![
-        text(label).size(LABEL_SIZE).style(text::secondary),
+    row![
+        container(text(label).size(LABEL_SIZE).style(text::secondary))
+            .width(LABEL_COLUMN)
+            .height(CONTROL_HEIGHT)
+            .align_y(Alignment::Center),
         container(control.into())
+            .width(Length::Fill)
             .height(CONTROL_HEIGHT)
             .align_y(Alignment::Center),
     ]
     .spacing(LABEL_SPACING)
-    .width(FIELD_WIDTH)
     .into()
 }
 
-/// A label row's worth of blank space.
+/// Lays fields out one to a line, labels lined up down the left.
 ///
-/// A control with no label of its own — a checkbox that carries its own text —
-/// still has to start where the labelled controls beside it start, or it floats
-/// half a row above them.
-fn field_label_spacer<'a, M: 'a>() -> Element<'a, M> {
-    text(" ").size(LABEL_SIZE).into()
-}
-
-/// Lays fields out across the available width, wrapping onto further rows.
+/// These used to be a wrapping row of fixed-width columns, which in a pane
+/// narrow enough for two of them left a ragged edge of dead space, and which
+/// put each label above its own control — a line of vertical space per field,
+/// and no column for the eye to run down. One field per line is what a settings
+/// panel is for.
 pub fn field_grid<'a, M: 'a>(fields: Vec<Element<'a, M>>) -> Element<'a, M> {
-    Row::with_children(fields)
-        .spacing(SECTION_SPACING)
-        .wrap()
+    Column::with_children(fields)
+        .spacing(FIELD_SPACING)
+        .width(Length::Fill)
         .into()
 }
 
@@ -6814,7 +6828,7 @@ pub fn float_input<'a, M: Clone + 'a>(
 ) -> Element<'a, M> {
     text_input("0", format!("{value}"))
         .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
-        .width(FIELD_WIDTH)
+        .width(Length::Fill)
         .into()
 }
 
@@ -6829,7 +6843,7 @@ pub fn text_field<'a, M: Clone + 'a>(
         label,
         text_input(placeholder, value)
             .on_input(on_change)
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
     )
 }
 
@@ -6849,7 +6863,7 @@ where
         label,
         pick_list(Some(selected), options, ToString::to_string)
             .on_select(on_select)
-            .width(FIELD_WIDTH),
+            .width(Length::Fill),
     )
 }
 
@@ -6872,7 +6886,7 @@ pub fn slider_field<'a, M: Clone + 'a>(
         row![
             slider(range, value, on_change)
                 .step(1.0)
-                .width(FIELD_WIDTH - READOUT_WIDTH - LABEL_SPACING),
+                .width(Length::Fill),
             text(format!("{value:.0}"))
                 .size(LABEL_SIZE)
                 .width(READOUT_WIDTH),
@@ -6882,22 +6896,17 @@ pub fn slider_field<'a, M: Clone + 'a>(
     )
 }
 
-/// A checkbox laid out to line up with the labelled fields beside it.
+/// A checkbox in the control column, with its name in the label column.
 ///
-/// The label sits inside the checkbox rather than above it, so an empty label
-/// row keeps it on the same baseline as the controls it wraps alongside.
+/// The checkbox used to carry its own label, because the fields around it put
+/// theirs above the control and a checkbox has nowhere to put one. With the
+/// label in a column of its own there is somewhere, and a toggle that names
+/// itself in a different place from everything else is the sort of thing that
+/// makes a panel feel unplanned.
 pub fn toggle_field<'a, M: Clone + 'a>(
     label: &'a str,
     checked: bool,
     on_toggle: impl Fn(bool) -> M + 'a,
 ) -> Element<'a, M> {
-    column![
-        field_label_spacer(),
-        container(checkbox(checked).label(label).on_toggle(on_toggle))
-            .height(CONTROL_HEIGHT)
-            .align_y(Alignment::Center),
-    ]
-    .spacing(LABEL_SPACING)
-    .width(FIELD_WIDTH)
-    .into()
+    field(label, checkbox(checked).on_toggle(on_toggle))
 }
