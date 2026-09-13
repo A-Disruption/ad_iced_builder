@@ -1721,6 +1721,40 @@ fn build_container_preview<'a>(
     container.into()
 }
 
+/// Every child of a widget, previewed, in order.
+///
+/// One place, because there was a version of this written out by hand that
+/// bound the child and then previewed `children[0]` regardless — so a row drew
+/// its first child once per child it had, and a pasted sibling looked like a
+/// second copy of the original.
+fn preview_children<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    theme: &'a Theme,
+    custom_themes: &'a CustomThemes,
+    highlight_selected: bool,
+    all_views: &'a BTreeMap<Uuid, AppView>,
+    current_view_id: Option<Uuid>,
+    type_system: &'a TypeSystem,
+) -> Vec<Element<'a, Message>> {
+    widget
+        .children
+        .iter()
+        .map(|child| {
+            build_widget_preview(
+                hierarchy,
+                child,
+                theme,
+                custom_themes,
+                highlight_selected,
+                all_views,
+                current_view_id,
+                type_system,
+            )
+        })
+        .collect()
+}
+
 fn build_row_preview<'a>(
     hierarchy: &'a WidgetHierarchy,
     widget: &'a Widget,
@@ -1732,22 +1766,16 @@ fn build_row_preview<'a>(
     type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let props = &widget.properties;
-    let children: Vec<Element<'a, Message>> = widget
-        .children
-        .iter()
-        .map(|_child| {
-            build_widget_preview(
-                hierarchy,
-                &widget.children[0],
-                theme,
-                custom_themes,
-                highlight_selected,
-                all_views,
-                current_view_id,
-                type_system,
-            )
-        })
-        .collect();
+    let children = preview_children(
+        hierarchy,
+        widget,
+        theme,
+        custom_themes,
+        highlight_selected,
+        all_views,
+        current_view_id,
+        type_system,
+    );
 
     if props.is_wrapping_row {
         // Wrapping rows MUST use row(children) pattern
@@ -1832,17 +1860,17 @@ fn build_column_preview<'a>(
         content = content.push(text("Column Item 1"));
         content = content.push(text("Column Item 2"));
     } else {
-        for child in &widget.children {
-            content = content.push(build_widget_preview(
-                hierarchy,
-                child,
-                theme,
-                custom_themes,
-                highlight_selected,
-                all_views,
-                current_view_id,
-                type_system,
-            ));
+        for child in preview_children(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        ) {
+            content = content.push(child);
         }
     }
 
