@@ -1,20 +1,20 @@
-use crate::views::theme_and_stylefn_builder::CustomThemes;
-use crate::controls::batch_edit::batch_editor_controls;
+//! Operations on a widget selection, and the rules about what can hold what.
+//!
+//! This module used to draw the fixed palette: a button for every
+//! [`WidgetType`], forty-three of them, under the widget tree. The palette is
+//! now a popover on each branch (see [`crate::views::widget_picker`]) and the
+//! batch controls live in [`crate::views::inspector`], so what is left here is
+//! the model behind both — [`get_available_types`] — plus the updates that
+//! apply to a whole selection.
+
 use crate::data_structures::properties::messages::PropertyChange;
 use crate::data_structures::types::types::{WidgetId, WidgetType};
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::enum_builder::TypeSystem;
-use iced::{
-    Element, Length, Task,
-    widget::{button, column, container, row, rule, text},
-};
-use widgets::anchor::{Align, Side};
-use widgets::popover::popover;
+use iced::Task;
 // Application messages
 #[derive(Debug, Clone)]
 pub enum Message {
-    AddChild(WidgetId, WidgetType),
-
     // Wrapping operations
     WrapSelectedInContainer(WidgetType), // Wraps selection in Row/Column/MouseArea/Tooltip
 
@@ -28,13 +28,6 @@ pub fn update<'a>(
     message: Message,
 ) -> Task<Message> {
     match message {
-        Message::AddChild(parent_id, widget_type) => {
-            if let Ok(_) = hierarchy.add_child(parent_id, widget_type) {
-            } else {
-                println!("Failed to add child");
-            }
-        }
-
         Message::WrapSelectedInContainer(container_type) => {
             match hierarchy.wrap_selected_in_container(container_type) {
                 Ok(_) => {}
@@ -47,158 +40,6 @@ pub fn update<'a>(
         }
     }
     Task::none()
-}
-
-pub fn view<'a>(
-    hierarchy: &'a WidgetHierarchy,
-    parent_id: &'a WidgetId,
-    custom_themes: &'a CustomThemes,
-) -> Element<'a, Message> {
-    let available_types = get_available_types(hierarchy, parent_id);
-    let selected_count = hierarchy.selected_ids().len();
-
-    let multi_selection_menu = if selected_count > 1 {
-        multi_selection_controls(hierarchy, selected_count, custom_themes)
-    } else {
-        column![].height(0).width(0).into()
-    };
-
-    // Helper to create a button if the type is available
-    let widget_button = |widget_type: WidgetType, label: &'a str| -> Element<'a, Message> {
-        if available_types.contains(&widget_type) {
-            button(text(label).center())
-                .on_press(Message::AddChild(*parent_id, widget_type))
-                .style(button::secondary)
-                .width(Length::FillPortion(1))
-                .into()
-        } else {
-            button(text(label).center())
-                .style(button::secondary)
-                .width(Length::FillPortion(1))
-                .into()
-        }
-    };
-
-    crate::controls::scroll_y(match selected_count {
-        n if n < 2 => column![
-            column![
-                text("Containers").size(18),
-                rule::horizontal(2),
-                row![
-                    widget_button(WidgetType::Container, "Container"),
-                    widget_button(WidgetType::Scrollable, "Scrollable"),
-                    widget_button(WidgetType::ViewReference, "View"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Collapsible, "Collapsible"),
-                    widget_button(WidgetType::CollapsibleGroup, "Coll. Group"),
-                    widget_button(WidgetType::Popover, "Popover"),
-                    widget_button(WidgetType::Menu, "Menu"),
-                    widget_button(WidgetType::Layer, "Layer"),
-                    widget_button(WidgetType::Toast, "Toasts"),
-                ]
-                .spacing(10)
-                .padding(5),
-            ],
-            column![
-                text("Layout").size(18),
-                rule::horizontal(2),
-                row![
-                    widget_button(WidgetType::Row, "Row"),
-                    widget_button(WidgetType::Column, "Column"),
-                    widget_button(WidgetType::Table, "Table"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::DataTable, "Data Table"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Grid, "Grid"),
-                    widget_button(WidgetType::Stack, "Stack"),
-                    widget_button(WidgetType::Split, "Split"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Responsive, "Responsive"),
-                    widget_button(WidgetType::Float, "Float"),
-                    widget_button(WidgetType::Themer, "Themer"),
-                ]
-                .spacing(10)
-                .padding(5),
-            ],
-            column![
-                text("Widgets").size(18),
-                rule::horizontal(2),
-                row![
-                    widget_button(WidgetType::Text, "Text"),
-                    widget_button(WidgetType::TextEditor, "Text Editor"),
-                    widget_button(WidgetType::TextInput, "Text Input"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Checkbox, "Checkbox"),
-                    widget_button(WidgetType::Radio, "Radio"),
-                    widget_button(WidgetType::Toggler, "Toggler")
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Slider, "Slider"),
-                    widget_button(WidgetType::VerticalSlider, "Vert. Slider"),
-                    widget_button(WidgetType::ProgressBar, "Progress")
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::PickList, "Pick List"),
-                    widget_button(WidgetType::Button, "Button"),
-                    widget_button(WidgetType::Rule, "Rule")
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Image, "Image"),
-                    widget_button(WidgetType::Svg, "SVG"),
-                    widget_button(WidgetType::Tooltip, "Tooltip")
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::ComboBox, "ComboBox"),
-                    widget_button(WidgetType::Markdown, "Markdown"),
-                    widget_button(WidgetType::MouseArea, "MouseArea")
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Sensor, "Sensor"),
-                    widget_button(WidgetType::Pin, "Pin"),
-                    widget_button(WidgetType::QRCode, "QRCode"),
-                ]
-                .spacing(10)
-                .padding(5),
-                row![
-                    widget_button(WidgetType::Icon, "Icon"),
-                    widget_button(WidgetType::DatePicker, "Date Picker"),
-                    widget_button(WidgetType::Space, "Space"),
-                ]
-                .spacing(10)
-                .padding(5),
-            ],
-        ]
-        .spacing(10),
-        _ => column![multi_selection_menu].spacing(10),
-    })
-    .width(Length::Fill)
-    .height(Length::Fill)
-    .into()
 }
 
 /// Whether one of the overlay widgets can take another child.
@@ -672,80 +513,3 @@ pub fn get_available_types<'a>(
     available_types
 }
 
-/// Builds controls that appear when multiple widgets are selected
-fn multi_selection_controls<'a>(
-    hierarchy: &'a WidgetHierarchy,
-    selected_count: usize,
-    custom_themes: &'a CustomThemes,
-) -> Element<'a, Message> {
-    // Validate if wrapping is possible
-    let can_wrap = hierarchy.validate_wrapping().is_ok();
-
-    column![
-        // Header showing selection count
-        text(format!("{} widgets selected", selected_count)).size(16),
-        rule::horizontal(2),
-        // Wrapping controls
-        text("Wrap in:").size(14),
-        column![
-            // Row wrapping button
-            button(text("Row"))
-                .on_press_maybe(if can_wrap {
-                    Some(Message::WrapSelectedInContainer(WidgetType::Row))
-                } else {
-                    None
-                })
-                .width(Length::Fill),
-            // Column wrapping button
-            button(text("Column"))
-                .on_press_maybe(if can_wrap {
-                    Some(Message::WrapSelectedInContainer(WidgetType::Column))
-                } else {
-                    None
-                })
-                .width(Length::Fill),
-            // MouseArea wrapping button
-            button(text("MouseArea"))
-                .on_press_maybe(if can_wrap {
-                    Some(Message::WrapSelectedInContainer(WidgetType::MouseArea))
-                } else {
-                    None
-                })
-                .width(Length::Fill),
-            // Container wrapping (for single widget only)
-            button(text("Container"))
-                .on_press_maybe(if can_wrap && selected_count == 1 {
-                    Some(Message::WrapSelectedInContainer(WidgetType::Container))
-                } else {
-                    None
-                })
-                .width(Length::Fill),
-            // Tooltip wrapping (requires exactly 2 widgets)
-            button(text("Tooltip (2 widgets only)"))
-                .on_press_maybe(if can_wrap && selected_count == 2 {
-                    Some(Message::WrapSelectedInContainer(WidgetType::Tooltip))
-                } else {
-                    None
-                })
-                .width(Length::Fill),
-        ]
-        .spacing(5),
-        rule::horizontal(2),
-        // Batch edit button
-        text("Batch Edit:").size(14),
-        // `popover` keeps its own open state when `.open()` is never called, so
-        // this reads the same way the old self-contained overlay button did.
-        popover(
-            button(text("Edit All Properties")).style(button::primary),
-            container(batch_editor_controls(&hierarchy, custom_themes))
-                .width(500)
-                .height(750),
-        )
-        .side(Side::Bottom)
-        .align(Align::Start)
-        .max_width(500.0)
-        .dismiss_on_outside_press(true),
-    ]
-    .spacing(10)
-    .into()
-}

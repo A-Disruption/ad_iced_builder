@@ -1,6 +1,6 @@
 use iced::clipboard;
-use iced::widget::{button, column, container, row, space, text, text_editor};
-use iced::{Element, Length, Task, Theme};
+use iced::widget::{button, column, container, mouse_area, row, space, text, text_editor};
+use iced::{Alignment, Element, Length, Task, Theme, padding};
 use std::collections::{BTreeMap, HashSet};
 use uuid::Uuid;
 use widgets::tree::{Branch, DropInfo, DropPosition, branch, tree_handle};
@@ -15,7 +15,8 @@ use crate::icon;
 use crate::styles;
 use crate::views::enum_editor::EnumEditorView;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
-use widgets::layer;
+use crate::views::add_widgets::get_available_types;
+use crate::views::widget_picker::{self, PickerState};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -28,10 +29,27 @@ pub enum Message {
     PropertyChanged(WidgetId, PropertyChange),
     SwapKind(WidgetId),
 
+    /// The cursor entered a row.
+    ///
+    /// Held by the application so the row under the cursor can show its
+    /// actions and every other row can stay quiet.
+    RowEntered(WidgetId),
+    /// The cursor left a row.
+    RowLeft(WidgetId),
+
+    /// The keyboard moved to a different row.
+    ///
+    /// The tree owns focus — it knows the row order and which rows are on
+    /// screen — so the application is told rather than asked.
+    RowFocused(Option<WidgetId>),
+
+    /// The add-widget picker hanging off a branch's `+`.
+    ///
+    /// Handled in `main.rs`: the picker's open state lives on the application,
+    /// not on the hierarchy, and adding a child has to trigger regeneration.
+    Picker(widget_picker::Message),
+
     OpenEnumEditor,
-    //    EnumEditor(enum_editor::Message),
-    OverlayOpened(WidgetId),
-    OverlayClosed(WidgetId),
 
     CodeTabSelected(String),
     CopyCode(String),
@@ -162,8 +180,10 @@ pub fn update(
         Message::OpenEnumEditor => {
             // open the enum editor view
         }
-        Message::OverlayOpened(_id) => {} // Handled in main.rs
-        Message::OverlayClosed(_id) => {}                // Handled in main.rs
+        Message::Picker(_) => {}     // Handled in main.rs
+        Message::RowEntered(_) => {} // Handled in main.rs
+        Message::RowLeft(_) => {}    // Handled in main.rs
+        Message::RowFocused(_) => {} // Handled in main.rs
         Message::CopyCode(code) => return clipboard::write(code).discard(),
         Message::CodeTabSelected(_) => {}   // Handled in main.rs
         Message::CodeViewEdit(_) => {}      // Handled in main.rs
@@ -173,108 +193,38 @@ pub fn update(
     Task::none()
 }
 
+/// One view's widget tree.
+///
+/// Takes only the hierarchy and the picker now. It used to take the type
+/// system, the themes, every other view and the preview's editor content as
+/// well — not because a tree row needs any of them, but because each row built
+/// a whole property modal that did. Those properties live in
+/// [`crate::views::inspector`], which is handed the selection once.
 pub fn view<'a>(
     hierarchy: &'a WidgetHierarchy,
-    type_system: &'a TypeSystem,
-    theme: &'a Theme,
-    views: &'a BTreeMap<Uuid, AppView>,
-    custom_themes: &'a CustomThemes,
-    widget_preview_content: &'a text_editor::Content,
-    open_editor_widget_id: Option<WidgetId>,
-    view_id: Uuid,
+    picker: &'a PickerState,
+    hovered: Option<WidgetId>,
 ) -> Element<'a, Message> {
     let widget = hierarchy.root();
-    let overlay_content = build_editor_for_widget(
-        hierarchy,
-        type_system,
-        theme,
-        widget,
-        widget.id,
-        views,
-        custom_themes,
-        widget_preview_content,
-        open_editor_widget_id,
-        view_id,
-    );
-
-    let display_name = if widget.properties.widget_name.is_empty() {
-        &widget.name
-    } else {
-        &widget.properties.widget_name
-    };
-
-    // Determine if this widget can be swapped and the button label
-    let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> =
-        match widget.widget_type {
-            WidgetType::Row => Some(icon::arrow_right_left()),
-            WidgetType::Column => Some(icon::arrow_right_left()),
-            WidgetType::Container => Some(icon::arrow_right_left()),
-            WidgetType::Scrollable => Some(icon::arrow_right_left()),
-            _ => None,
-        };
-
-    // Optional Swap button element
-    let swap_button: Option<Element<Message>> = swap_label.map(|label| {
-        button(label)
-            .on_press(Message::SwapKind(widget.id))
-            .style(button::text)
-            .into()
-    });
-
-    let disabled_delete_button: Element<Message> = {
-        // Don't allow deleting root
-        button(icon::trash_2())
-            .style(styles::button::cancel)
-            .into()
-    };
 
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(
-            hierarchy,
-            type_system,
-            theme,
-            child,
-            views,
-            custom_themes,
-            widget_preview_content,
-            open_editor_widget_id,
-            view_id,
-        ));
+        children.push(build_tree_item(hierarchy, child, picker, hovered));
     }
 
-    let root_widget_id = widget.id;
-    let root = branch(
-        row![
-            container(text(format!("{}", display_name))).padding(5),
-            space::horizontal(),
-            swap_button,
-            button(icon::pencil())
-                .style(styles::button::edit)
-                .on_press(Message::OverlayOpened(root_widget_id)),
-            // `layer` takes no trigger of its own: the button above opens it and
-            // the application owns the open flag, where `generic_overlay` kept
-            // that state inside the widget.
-            layer::modal(overlay_content, format!("Editing {}", display_name))
-                .open(open_editor_widget_id == Some(root_widget_id))
-                .min_width(EDITOR_MODAL_MIN_WIDTH)
-                .max_width(EDITOR_MODAL_WIDTH)
-                .min_height(EDITOR_MODAL_HEIGHT)
-                .dismiss_on_backdrop(true)
-                .dismiss_on_escape(true)
-                .on_dismiss(Message::OverlayClosed(root_widget_id)),
-            disabled_delete_button //place_holder
-        ]
-        .spacing(5),
-    )
-    .block_dragging()
-    .with_children(children)
-    .with_id(widget.id.0);
+    let root = branch(row_content(hierarchy, widget, picker, hovered))
+        .block_dragging()
+        .with_children(children)
+        .with_id(widget.id.0);
 
     let mut tree = tree_handle(vec![root])
         .expand_icon(icon::chevron_right())
         .collapse_icon(icon::chevron_down())
+        // The tree's own floor used to be 32, which beat the row's height and
+        // left every row taller than it asked to be.
+        .line_height(ROW_HEIGHT)
+        .indent(16.0)
         .quick()
         .on_drop(Message::TreeMove)
         // Ask the hierarchy the same question the palette asks, so a drop the
@@ -312,33 +262,136 @@ pub fn view<'a>(
                     })
             })
         })
-        .on_select(|selected_ids| Message::SelectWidgets(selected_ids));
+        .on_select(|selected_ids| Message::SelectWidgets(selected_ids))
+        .on_focus(|id| Message::RowFocused(id.map(WidgetId)));
 
     tree = tree.reset_order_state();
 
     tree.into()
 }
 
-fn build_tree_item<'a>(
-    hierarchy: &'a WidgetHierarchy,
-    type_system: &'a TypeSystem,
-    theme: &'a Theme,
-    widget: &'a Widget,
-    views: &'a BTreeMap<Uuid, AppView>,
-    custom_themes: &'a CustomThemes,
-    widget_preview_content: &'a text_editor::Content,
-    open_editor_widget_id: Option<WidgetId>,
-    view_id: Uuid,
-) -> Branch<'a, Message, Theme, iced::Renderer> {
-    let is_selected = hierarchy.selected_ids().contains(&widget.id);
-    let selection_count = hierarchy.selected_ids().len();
+/// How wide one action button is, including the gap after it.
+///
+/// The actions only appear on the row under the cursor, and a row that changes
+/// width when the cursor arrives is a row that shoves its neighbours' names
+/// around. So the space is always there; only the buttons come and go.
+const ACTION_SLOT_WIDTH: f32 = 26.0;
 
-    let display_name = if widget.properties.widget_name.is_empty() {
-        &widget.name
+/// How tall every row is, whatever it happens to contain.
+///
+/// Pinned rather than left to the content, because the content changes: the
+/// actions appear under the cursor and a bare `text` is shorter than a
+/// `button`. Without this the row grew as the cursor arrived and everything
+/// below it stepped down the screen.
+const ROW_HEIGHT: f32 = 28.0;
+
+/// One tree row: what the widget is, what it is called, and what you can do to
+/// it.
+///
+/// The actions are drawn only for the row under the cursor. Three buttons on
+/// every row of a deep tree is most of what you see, and none of them is what
+/// you came to the tree to read — and drawing them for the selection too meant
+/// the selected row never went quiet.
+fn row_content<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    picker: &'a PickerState,
+    hovered: Option<WidgetId>,
+) -> Element<'a, Message> {
+    let is_named = !widget.properties.widget_name.is_empty();
+
+    let display_name = if is_named {
+        widget.properties.widget_name.as_str()
     } else {
-        &widget.properties.widget_name
+        widget.name.as_str()
     };
 
+    // A named widget's name hides its type, so say the type beside it. An
+    // unnamed one is already called `Button`, and repeating that is noise.
+    let type_label: Option<Element<'a, Message>> = is_named.then(|| {
+        text(widget.widget_type.label())
+            .size(11)
+            .style(text::secondary)
+            .into()
+    });
+
+    let available = get_available_types(hierarchy, &widget.id);
+
+    let can_swap = matches!(
+        widget.widget_type,
+        WidgetType::Row | WidgetType::Column | WidgetType::Container | WidgetType::Scrollable
+    );
+    // Root is the one widget that cannot be deleted.
+    let can_delete = widget.id.0 != 0;
+
+    let slots = usize::from(!available.is_empty()) + usize::from(can_swap) + usize::from(can_delete);
+
+    // The picker's own popover has to stay in the tree while it is open, or
+    // the surface it is anchored to disappears from under it — so a row whose
+    // picker is open keeps its actions even once the cursor has moved on.
+    let show_actions = hovered == Some(widget.id) || picker.is_open_for(widget.id);
+
+    let actions: Element<'a, Message> = if show_actions {
+        // Padding kept tight so a button is no taller than the text beside it;
+        // `ROW_HEIGHT` pins the row either way, but a button that overflows it
+        // would be clipped rather than centred.
+        let add = widget_picker::trigger(widget.id, &available, picker)
+            .map(|element| element.map(Message::Picker));
+
+        let swap = can_swap.then(|| {
+            button(icon::arrow_right_left().size(13))
+                .padding(3)
+                .on_press(Message::SwapKind(widget.id))
+                .style(button::text)
+        });
+
+        let delete = can_delete.then(|| {
+            button(icon::trash_2().size(13))
+                .padding(3)
+                .on_press(Message::DeleteWidget(widget.id))
+                .style(styles::button::cancel)
+        });
+
+        row![add, swap, delete]
+            .spacing(2)
+            .align_y(Alignment::Center)
+            .into()
+    } else {
+        space::horizontal()
+            .width(Length::Fixed(slots as f32 * ACTION_SLOT_WIDTH))
+            .into()
+    };
+
+    mouse_area(
+        container(
+            row![
+                icon::widget_type(widget.widget_type)
+                    .size(14)
+                    .style(text::secondary),
+                text(display_name).size(13),
+                type_label,
+                space::horizontal(),
+                actions,
+            ]
+            .spacing(6)
+            .align_y(Alignment::Center)
+            .padding(padding::left(2).right(4)),
+        )
+        .height(Length::Fixed(ROW_HEIGHT))
+        .align_y(Alignment::Center),
+    )
+    .on_enter(Message::RowEntered(widget.id))
+    .on_exit(Message::RowLeft(widget.id))
+    .into()
+}
+fn build_tree_item<'a>(
+    hierarchy: &'a WidgetHierarchy,
+    widget: &'a Widget,
+    picker: &'a PickerState,
+    hovered: Option<WidgetId>,
+) -> Branch<'a, Message, Theme, iced::Renderer> {
+    // The view's outermost widget stays put: it is what the view *is*, and
+    // dragging it out would leave the view with no root.
     let is_first_child_of_root = hierarchy
         .root()
         .children
@@ -346,157 +399,63 @@ fn build_tree_item<'a>(
         .map(|c| c.id == widget.id)
         .unwrap_or(false);
 
-    // Determine if this widget can be swapped and the button label
-    let swap_label: Option<iced::advanced::widget::Text<'_, Theme, iced::Renderer>> =
-        match widget.widget_type {
-            WidgetType::Row => Some(icon::arrow_right_left()),
-            WidgetType::Column => Some(icon::arrow_right_left()),
-            WidgetType::Container => Some(icon::arrow_right_left()),
-            WidgetType::Scrollable => Some(icon::arrow_right_left()),
-            _ => None,
-        };
-
-    // Optional Swap button element
-    let swap_button: Option<Element<Message>> = swap_label.map(|label| {
-        button(label)
-            .on_press(Message::SwapKind(widget.id))
-            .style(button::text)
-            .into()
-    });
-
-    let delete_button: Option<Element<Message>> = if widget.id.0 != 0 {
-        // Don't allow deleting root
-        Some(
-            button(icon::trash_2())
-                .on_press(Message::DeleteWidget(widget.id))
-                .style(styles::button::cancel)
-                .into(),
-        )
-    } else {
-        None
-    };
-
-    let widget_id = widget.id;
-    let edit_button: Element<Message> = if selection_count == 1 {
-        // Original single-widget edit overlay
-        row![
-            button(icon::pencil())
-                .style(styles::button::edit)
-                .on_press(Message::OverlayOpened(widget_id)),
-            layer::modal(
-                build_editor_for_widget(
-                    hierarchy,
-                    type_system,
-                    theme,
-                    widget,
-                    widget.id,
-                    views,
-                    custom_themes,
-                    widget_preview_content,
-                    open_editor_widget_id,
-                    view_id,
-                ),
-                format!("Editing {}", display_name),
-            )
-            .open(open_editor_widget_id == Some(widget_id))
-            .min_width(EDITOR_MODAL_MIN_WIDTH)
-            .max_width(EDITOR_MODAL_WIDTH)
-            .min_height(EDITOR_MODAL_HEIGHT)
-            .dismiss_on_backdrop(true)
-            .dismiss_on_escape(true)
-            .on_dismiss(Message::OverlayClosed(widget_id)),
-        ]
-        .into()
-    } else if is_selected {
-        // Show indicator that this is in batch selection
-        Some(button(text("Selected")).style(button::secondary)).into()
-    } else {
-        Some(button(text("Edit")).style(button::text)).into()
-    };
-
     let mut children = Vec::new();
 
     for child in &widget.children {
-        children.push(build_tree_item(
-            hierarchy,
-            type_system,
-            theme,
-            child,
-            views,
-            custom_themes,
-            widget_preview_content,
-            open_editor_widget_id,
-            view_id,
-        ));
+        children.push(build_tree_item(hierarchy, child, picker, hovered));
     }
 
-    let branch = match widget.widget_type {
+    // Whether a branch takes drops is a question about the widget type, not
+    // about whether it happens to be full right now — a full branch still
+    // accepts a drop that reorders its own children.
+    let accepts_drops = matches!(
+        widget.widget_type,
         WidgetType::Row
-        | WidgetType::Column
-        | WidgetType::Container
-        | WidgetType::Scrollable
-        | WidgetType::Split
-        | WidgetType::Responsive
-        | WidgetType::Tooltip
-        | WidgetType::Float
-        | WidgetType::Sensor
-        | WidgetType::MouseArea
-        | WidgetType::Pin
-        | WidgetType::Button
-        | WidgetType::Stack
-        | WidgetType::Collapsible
-        | WidgetType::CollapsibleGroup
-        | WidgetType::Popover
-        | WidgetType::Menu
-        | WidgetType::Layer
-        | WidgetType::Toast
-        | WidgetType::Themer
-        | WidgetType::Grid => {
-            let content = row![
-                container(text(format!("{}", display_name))).padding(5),
-                space::horizontal(),
-                swap_button,
-                edit_button,
-                delete_button
-            ]
-            .spacing(5);
+            | WidgetType::Column
+            | WidgetType::Container
+            | WidgetType::Scrollable
+            | WidgetType::Split
+            | WidgetType::Responsive
+            | WidgetType::Tooltip
+            | WidgetType::Float
+            | WidgetType::Sensor
+            | WidgetType::MouseArea
+            | WidgetType::Pin
+            | WidgetType::Button
+            | WidgetType::Stack
+            | WidgetType::Collapsible
+            | WidgetType::CollapsibleGroup
+            | WidgetType::Popover
+            | WidgetType::Menu
+            | WidgetType::Layer
+            | WidgetType::Toast
+            | WidgetType::Themer
+            | WidgetType::Grid
+    );
 
-            if !is_first_child_of_root {
-                branch(content)
-                    .with_id(widget.id.0)
-                    .with_children(children)
-                    .accepts_drops()
-            } else {
-                branch(content)
-                    .with_id(widget.id.0)
-                    .with_children(children)
-                    .accepts_drops()
-                    .block_dragging()
-            }
-        }
-        _ => {
-            let content = row![
-                container(text(format!("{}", display_name))).padding(5),
-                space::horizontal(),
-                swap_button,
-                edit_button,
-                delete_button
-            ]
-            .spacing(5);
+    let mut branch = branch(row_content(hierarchy, widget, picker, hovered))
+        .with_id(widget.id.0)
+        .with_children(children);
 
-            if !is_first_child_of_root {
-                branch(content).with_id(widget.id.0)
-            } else {
-                // Block dragging for first child of root
-                branch(content).with_id(widget.id.0).block_dragging()
-            }
-        }
-    };
+    if accepts_drops {
+        branch = branch.accepts_drops();
+    }
+
+    if is_first_child_of_root {
+        branch = branch.block_dragging();
+    }
 
     branch
 }
 
-fn build_editor_for_widget<'a>(
+/// Every control for one widget, as one panel.
+///
+/// This used to be private, and guarded: it built nothing unless the widget's
+/// modal was the open one, because a tree of fifty branches would otherwise
+/// construct fifty `text_editor`s and run tree-sitter over all of them on every
+/// frame. The guard is gone with the modals — [`crate::views::inspector`] calls
+/// this exactly once, for the selection.
+pub fn controls_for_widget<'a>(
     hierarchy: &'a WidgetHierarchy,
     type_system: &'a TypeSystem,
     theme: &'a Theme,
@@ -505,15 +464,8 @@ fn build_editor_for_widget<'a>(
     views: &'a BTreeMap<Uuid, AppView>,
     custom_styles: &'a CustomThemes,
     preview_content: &'a text_editor::Content,
-    open_editor_widget_id: Option<WidgetId>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
-    // Return empty element if this widget's overlay isn't open
-    // This avoids expensive text_editor + tree-sitter construction for closed overlays
-    if Some(widget_id) != open_editor_widget_id {
-        return space::horizontal().width(0).into();
-    }
-
     let controls_view: Element<Message> = match widget.widget_type {
         WidgetType::Container => container_controls(
             &hierarchy,

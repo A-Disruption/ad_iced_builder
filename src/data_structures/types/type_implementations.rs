@@ -13,6 +13,172 @@ impl std::fmt::Display for WidgetType {
     }
 }
 
+/// The three groups the add-widget picker sorts its results into.
+///
+/// These are the sections the old fixed palette had, kept because they are the
+/// way the widgets are already thought about: things that hold other things,
+/// things that arrange them, and things that draw.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum WidgetCategory {
+    Containers,
+    Layout,
+    Widgets,
+}
+
+impl WidgetCategory {
+    pub const ALL: [WidgetCategory; 3] = [
+        WidgetCategory::Containers,
+        WidgetCategory::Layout,
+        WidgetCategory::Widgets,
+    ];
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            WidgetCategory::Containers => "Containers",
+            WidgetCategory::Layout => "Layout",
+            WidgetCategory::Widgets => "Widgets",
+        }
+    }
+}
+
+impl WidgetType {
+    /// The name shown to the user.
+    ///
+    /// `Display` writes the variant, which is what code generation and saved
+    /// projects want. This is the reading version — the same strings the fixed
+    /// palette used to hard-code next to each button.
+    pub fn label(&self) -> &'static str {
+        match self {
+            WidgetType::Container => "Container",
+            WidgetType::Scrollable => "Scrollable",
+            WidgetType::Row => "Row",
+            WidgetType::Column => "Column",
+            WidgetType::Button => "Button",
+            WidgetType::Text => "Text",
+            WidgetType::TextEditor => "Text Editor",
+            WidgetType::TextInput => "Text Input",
+            WidgetType::Checkbox => "Checkbox",
+            WidgetType::Radio => "Radio",
+            WidgetType::Slider => "Slider",
+            WidgetType::VerticalSlider => "Vertical Slider",
+            WidgetType::ProgressBar => "Progress Bar",
+            WidgetType::Toggler => "Toggler",
+            WidgetType::PickList => "Pick List",
+            WidgetType::Space => "Space",
+            WidgetType::Rule => "Rule",
+            WidgetType::Image => "Image",
+            WidgetType::Svg => "SVG",
+            WidgetType::Tooltip => "Tooltip",
+            WidgetType::ComboBox => "ComboBox",
+            WidgetType::Markdown => "Markdown",
+            WidgetType::MouseArea => "Mouse Area",
+            WidgetType::QRCode => "QR Code",
+            WidgetType::Stack => "Stack",
+            WidgetType::Collapsible => "Collapsible",
+            WidgetType::CollapsibleGroup => "Collapsible Group",
+            WidgetType::Popover => "Popover",
+            WidgetType::Menu => "Menu",
+            WidgetType::Layer => "Layer",
+            WidgetType::Toast => "Toasts",
+            WidgetType::DatePicker => "Date Picker",
+            WidgetType::Split => "Split",
+            WidgetType::Float => "Float",
+            WidgetType::Responsive => "Responsive",
+            WidgetType::Sensor => "Sensor",
+            WidgetType::Themer => "Themer",
+            WidgetType::Grid => "Grid",
+            WidgetType::Pin => "Pin",
+            WidgetType::Table => "Table",
+            WidgetType::DataTable => "Data Table",
+            WidgetType::ViewReference => "View",
+            WidgetType::Icon => "Icon",
+        }
+    }
+
+    /// Which section of the picker this type belongs to.
+    pub fn category(&self) -> WidgetCategory {
+        match self {
+            WidgetType::Container
+            | WidgetType::Scrollable
+            | WidgetType::ViewReference
+            | WidgetType::Collapsible
+            | WidgetType::CollapsibleGroup
+            | WidgetType::Popover
+            | WidgetType::Menu
+            | WidgetType::Layer
+            | WidgetType::Toast => WidgetCategory::Containers,
+
+            WidgetType::Row
+            | WidgetType::Column
+            | WidgetType::Table
+            | WidgetType::DataTable
+            | WidgetType::Grid
+            | WidgetType::Stack
+            | WidgetType::Split
+            | WidgetType::Responsive
+            | WidgetType::Float
+            | WidgetType::Themer => WidgetCategory::Layout,
+
+            _ => WidgetCategory::Widgets,
+        }
+    }
+
+    /// Extra words the picker's search should match on.
+    ///
+    /// Lets someone reach `ViewReference` by typing "sub", or `Space` by
+    /// typing "gap", without those words being on screen.
+    pub fn search_aliases(&self) -> &'static [&'static str] {
+        match self {
+            WidgetType::ViewReference => &["subview", "component", "embed"],
+            WidgetType::Space => &["gap", "spacer", "filler"],
+            WidgetType::Rule => &["divider", "separator", "line"],
+            WidgetType::MouseArea => &["click", "press", "hover"],
+            WidgetType::Sensor => &["resize", "visibility"],
+            WidgetType::Popover => &["overlay", "dropdown"],
+            WidgetType::Layer => &["overlay", "modal", "dialog"],
+            WidgetType::Toast => &["notification", "snackbar"],
+            WidgetType::Collapsible => &["accordion", "expander", "disclosure"],
+            WidgetType::CollapsibleGroup => &["accordion"],
+            WidgetType::DataTable => &["grid", "datagrid", "advanced table"],
+            WidgetType::PickList => &["dropdown", "select"],
+            WidgetType::ComboBox => &["dropdown", "select", "autocomplete"],
+            WidgetType::TextInput => &["field", "entry"],
+            WidgetType::TextEditor => &["multiline", "textarea"],
+            WidgetType::Toggler => &["switch"],
+            WidgetType::ProgressBar => &["loading"],
+            WidgetType::Svg => &["vector"],
+            WidgetType::Icon => &["glyph", "lucide"],
+            WidgetType::Themer => &["theme"],
+            WidgetType::Split => &["pane", "resizable"],
+            _ => &[],
+        }
+    }
+
+    /// Whether `query` should surface this type in the picker.
+    ///
+    /// Empty queries match everything; otherwise it is a case-insensitive
+    /// substring test against the label, the variant name and the aliases.
+    pub fn matches_search(&self, query: &str) -> bool {
+        let query = query.trim().to_lowercase();
+
+        if query.is_empty() {
+            return true;
+        }
+
+        if self.label().to_lowercase().contains(&query) {
+            return true;
+        }
+
+        if format!("{:?}", self).to_lowercase().contains(&query) {
+            return true;
+        }
+
+        self.search_aliases()
+            .iter()
+            .any(|alias| alias.contains(&query))
+    }
+}
+
 impl std::fmt::Display for ContainerAlignX {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)

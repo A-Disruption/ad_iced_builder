@@ -1,13 +1,12 @@
 use crate::EnumEditorView;
 use crate::action_system::custom_state::CustomFieldType;
-use crate::data_structures::types::types::{AppView, WidgetId};
+use crate::data_structures::types::types::AppView;
 use crate::enum_builder::TypeSystem;
 use crate::icon;
-use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::widget_tree;
 use iced::{
-    Alignment, Element, Length, Task, Theme, padding,
-    widget::{button, column, container, row, space, text, text_editor},
+    Alignment, Element, Length, Task, padding,
+    widget::{button, column, container, row, space, text},
 };
 use std::collections::BTreeMap;
 use uuid::Uuid;
@@ -158,12 +157,9 @@ pub fn update<'a>(
 
 pub fn view<'a>(
     views: &'a BTreeMap<Uuid, AppView>,
-    _selected_view_id: &'a Uuid,
     type_system: &'a TypeSystem,
-    theme: &'a Theme,
-    custom_themes: &'a CustomThemes,
-    widget_preview_content: &'a text_editor::Content,
-    open_editor_widget_id: Option<WidgetId>,
+    picker: &'a crate::views::widget_picker::PickerState,
+    hovered: Option<crate::data_structures::types::types::WidgetId>,
 ) -> Element<'a, Message> {
     let header = row![
         space::horizontal(),
@@ -183,17 +179,8 @@ pub fn view<'a>(
         .map(|view| {
             collapsible(
                 &view.1.name,
-                crate::widget_tree::view(
-                    &view.1.hierarchy,
-                    type_system,
-                    theme,
-                    views,
-                    custom_themes,
-                    widget_preview_content,
-                    open_editor_widget_id,
-                    view.1.id,
-                )
-                .map(|msg| Message::TreeMessage(msg)),
+                crate::widget_tree::view(&view.1.hierarchy, picker, hovered)
+                    .map(|msg| Message::TreeMessage(msg)),
             )
             .expand_icon(icon::chevron_right())
             .on_toggle(|_| Message::ViewSelected(view.1.id))
@@ -212,7 +199,8 @@ pub fn view<'a>(
         crate::controls::scroll_y(CollapsibleGroup::new(view_list).spacing(5.0))
             .height(Length::Fill)
     ])
-    .width(400)
+    // The pane decides how wide the tree is now, not the tree.
+    .width(Length::Fill)
     .height(Length::Fill)
     .into()
 }

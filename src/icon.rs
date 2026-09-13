@@ -67,12 +67,12 @@ chrome_icons! {
     info => "info",
     /// The theme and style editor.
     palette => "palette",
-    /// Edit in place.
-    pencil => "pencil",
     /// Add.
     plus => "plus",
     /// Save the project.
     save => "save",
+    /// The add-widget picker's search box.
+    search => "search",
     /// Save the project under a new name.
     save_all => "save-all",
     /// Settings.
@@ -111,6 +111,72 @@ fn resolve(name: &str) -> Icon {
     find_in(CHROME_FAMILY, name)
         .or_else(|| find_in(CHROME_FAMILY, "circle-help"))
         .unwrap_or(MISSING)
+}
+
+/// The glyph a widget type is drawn with in the tree.
+///
+/// A tree row shows the widget's name, and a named widget's name says nothing
+/// about what it is — `save_row` could be a `Row`, a `Container` or a
+/// `MouseArea`. The icon carries the type at a glance, at no cost in width.
+///
+/// Where a type has an obvious shape the icon draws it: `Row` arranges children
+/// side by side, so it gets vertical bars (`columns-3`), and `Column` stacks
+/// them, so it gets horizontal ones (`rows-3`).
+pub fn widget_type<'a>(widget_type: crate::data_structures::types::types::WidgetType) -> Text<'a> {
+    use crate::data_structures::types::types::WidgetType as W;
+
+    let name = match widget_type {
+        W::Container => "square",
+        W::Scrollable => "scroll",
+        W::Row => "columns-3",
+        W::Column => "rows-3",
+        W::Button => "rectangle-horizontal",
+        W::Text => "type",
+        W::TextEditor => "align-left",
+        W::TextInput => "text-cursor-input",
+        W::Checkbox => "square-check",
+        W::Radio => "circle-dot",
+        W::Slider => "sliders-horizontal",
+        W::VerticalSlider => "sliders-vertical",
+        W::ProgressBar => "loader",
+        W::Toggler => "toggle-left",
+        W::PickList => "list",
+        W::Space => "move-horizontal",
+        W::Rule => "minus",
+        W::Image => "image",
+        W::Svg => "shapes",
+        W::Tooltip => "message-square",
+        W::ComboBox => "list-filter",
+        W::Markdown => "file-text",
+        W::MouseArea => "mouse-pointer",
+        W::QRCode => "qr-code",
+        W::Stack => "layers",
+        W::Collapsible => "chevrons-up-down",
+        W::CollapsibleGroup => "list-collapse",
+        W::Popover => "app-window",
+        W::Menu => "menu",
+        W::Layer => "app-window",
+        W::Toast => "bell",
+        W::DatePicker => "calendar",
+        W::Split => "columns-2",
+        W::Float => "move",
+        W::Responsive => "monitor-smartphone",
+        W::Sensor => "scan",
+        W::Themer => "palette",
+        W::Grid => "grid-3x3",
+        W::Pin => "pin",
+        W::Table => "table",
+        W::DataTable => "sheet",
+        W::ViewReference => "component",
+        W::Icon => "sparkles",
+    };
+
+    // `resolve` scans the whole index, and this runs once per tree row per
+    // frame — so the family is indexed by name the first time one is asked for.
+    static BY_NAME: LazyLock<std::collections::HashMap<&'static str, Icon>> =
+        LazyLock::new(|| in_family(CHROME_FAMILY).map(|icon| (icon.name, *icon)).collect());
+
+    icon_lucide::render(BY_NAME.get(name).copied().unwrap_or_else(|| resolve(name)))
 }
 
 /// The `u32` a project stores alongside an icon's name.

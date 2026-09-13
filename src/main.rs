@@ -81,7 +81,25 @@ struct AdUiBuilder {
     code_view_content: text_editor::Content,
     widget_preview_content: text_editor::Content,
 
-    open_editor_widget_id: Option<WidgetId>,
+    /// Which branch's `+` is showing the add-widget picker, and what has been
+    /// typed into its search box.
+    widget_picker: views::widget_picker::PickerState,
+
+    /// The tree row under the cursor, which is the only row that shows its
+    /// actions.
+    hovered_row: Option<WidgetId>,
+
+    /// The tree row the keyboard is on, reported by the tree.
+    ///
+    /// What the keyboard shortcuts act on: the cursor may be anywhere, or
+    /// nowhere, while you are working from the keyboard.
+    focused_row: Option<WidgetId>,
+
+    /// The Main view's pane layout — tree, inspector and code, resizable and
+    /// rearrangeable. The live preview takes a pane here once it moves in from
+    /// the Visualizer window.
+    panes: iced::widget::pane_grid::State<views::editor_panes::PaneKind>,
+
     #[cfg(feature = "action_editor")]
     action_editor: views::action_editor::ActionEditorState,
 
@@ -129,6 +147,11 @@ enum Message {
     /// Carries the raw JSON string from disk (avoids Clone requirement on ProjectData).
     ProjectLoaded(PathBuf, String),
     PersistenceError(String),
+
+    /// Ctrl+A — open the add-widget picker on the focused tree row.
+    AddToFocusedRow,
+    /// Ctrl+E — put the focused tree row in the inspector.
+    EditFocusedRow,
 }
 
 #[derive(Clone, Debug)]
@@ -141,6 +164,8 @@ enum ViewMessage {
     ThemeBuilder(theme_and_stylefn_builder::Message),
     AddWidgets(add_widgets::Message),
     AddViews(add_views::Message),
+    /// A pane was resized, dragged or maximised.
+    EditorPanes(editor_panes::Message),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
     /// The action editor reported an edit.
@@ -180,7 +205,10 @@ impl AdUiBuilder {
             code_view_content: text_editor::Content::new(),
             widget_preview_content: text_editor::Content::new(),
 
-            open_editor_widget_id: None,
+            widget_picker: views::widget_picker::PickerState::default(),
+            hovered_row: None,
+            focused_row: None,
+            panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows: Vec::new(),
@@ -249,6 +277,16 @@ impl AdUiBuilder {
                         }
                     },
                     ViewMessage::WidgetTree(msg) => {
+                        // The picker's open state belongs to the application,
+                        // not the hierarchy, so it never reaches
+                        // `widget_tree::update`.
+                        let msg = match msg {
+                            widget_tree::Message::Picker(picker_msg) => {
+                                return self.handle_picker(picker_msg);
+                            }
+                            other => other,
+                        };
+
                         if let widget_tree::Message::CodeTabSelected(file) = msg {
                             if self.active_code_tab != file {
                                 self.active_code_tab = file;
@@ -338,21 +376,57 @@ impl AdUiBuilder {
                         return result.map(|m| Message::ViewMessages(ViewMessage::AddWidgets(m)));
                     }
                     ViewMessage::AddViews(msg) => {
-                        // Handle overlay open/close from AddViews tree
+                        // Every widget tree is drawn inside this panel, so a
+                        // tree message arrives wrapped here rather than on
+                        // `ViewMessage::WidgetTree` — the add-widget picker's
+                        // included.
+                        let msg = match msg {
+                            add_views::Message::TreeMessage(widget_tree::Message::Picker(
+                                picker_msg,
+                            )) => {
+                                return self.handle_picker(picker_msg);
+                            }
+                            // Hover is only ever about which row draws its
+                            // actions, so it stops here rather than travelling
+                            // down into the hierarchy.
+                            add_views::Message::TreeMessage(widget_tree::Message::RowEntered(
+                                row,
+                            )) => {
+                                self.hovered_row = Some(row);
+                                return Task::none();
+                            }
+                            add_views::Message::TreeMessage(widget_tree::Message::RowFocused(
+                                row,
+                            )) => {
+                                self.focused_row = row;
+                                return Task::none();
+                            }
+                            add_views::Message::TreeMessage(widget_tree::Message::RowLeft(
+                                row,
+                            )) => {
+                                // Leaving A and entering B publish in no
+                                // guaranteed order, so a late exit must not
+                                // clear the hover B has already claimed.
+                                if self.hovered_row == Some(row) {
+                                    self.hovered_row = None;
+                                }
+
+                                return Task::none();
+                            }
+                            other => other,
+                        };
+
+                        // Selection drives the inspector, and the inspector
+                        // shows a widget's generated code beside its
+                        // properties. That code used to be regenerated when the
+                        // modal opened; now it follows the selection.
                         if let add_views::Message::TreeMessage(
-                            widget_tree::Message::OverlayOpened(widget_id),
-                        ) = msg
+                            widget_tree::Message::SelectWidgets(ids),
+                        ) = &msg
                         {
-                            self.open_editor_widget_id = Some(widget_id);
-                            self.update_widget_preview_content_for(widget_id);
-                            return Task::none();
-                        }
-                        if let add_views::Message::TreeMessage(
-                            widget_tree::Message::OverlayClosed(_),
-                        ) = msg
-                        {
-                            self.open_editor_widget_id = None;
-                            return Task::none();
+                            if let (1, Some(&id)) = (ids.len(), ids.iter().next()) {
+                                self.update_widget_preview_content_for(WidgetId(id));
+                            }
                         }
 
                         let should_regenerate = matches!(
@@ -385,6 +459,10 @@ impl AdUiBuilder {
                             self.regenerate_code();
                         }
                         return result.map(|m| Message::ViewMessages(ViewMessage::AddViews(m)));
+                    }
+                    ViewMessage::EditorPanes(msg) => {
+                        editor_panes::update(&mut self.panes, msg);
+                        return Task::none();
                     }
                     ViewMessage::Preview(preview::Message::NavigatedToView(view_id)) => {
                         if self.views.contains_key(&view_id) {
@@ -678,6 +756,48 @@ impl AdUiBuilder {
                 }
             }
 
+            Message::AddToFocusedRow => {
+                let Some(row) = self.focused_row else {
+                    return Task::none();
+                };
+
+                // Ctrl+A is select-all inside a text field, and this listener
+                // sees keys wherever they were typed — so it stands aside while
+                // the picker's own search box is up.
+                if self.widget_picker.is_open_for(row) {
+                    return Task::none();
+                }
+
+                let view = self
+                    .views
+                    .get(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                if add_widgets::get_available_types(&view.hierarchy, &row).is_empty() {
+                    return Task::none();
+                }
+
+                return self.handle_picker(views::widget_picker::Message::Toggled(row, true));
+            }
+
+            Message::EditFocusedRow => {
+                let Some(row) = self.focused_row else {
+                    return Task::none();
+                };
+
+                let view = self
+                    .views
+                    .get_mut(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                view.hierarchy
+                    .set_selected_ids(std::collections::HashSet::from([row]));
+
+                self.update_widget_preview_content_for(row);
+
+                return Task::none();
+            }
+
             Message::LoadProject => {
                 return Task::future(async {
                     let handle = rfd::AsyncFileDialog::new()
@@ -736,14 +856,6 @@ impl AdUiBuilder {
     }
 
     fn view<'a>(&'a self, window_id: window::Id) -> Element<'a, Message> {
-        let preview_view = self
-            .views
-            .get(&self.selected_view_id)
-            .expect("Selected view must exist");
-        let selected_widget = preview_view
-            .hierarchy
-            .get_single_selected()
-            .unwrap_or(preview_view.hierarchy.root());
         let _selected_window = match self.selected_window {
             Some(selected_window) => self.windows.get(&selected_window),
             None => None,
@@ -760,37 +872,7 @@ impl AdUiBuilder {
         .map(|msg| Message::ViewMessages(ViewMessage::WidgetTree(msg)));
 
         let view = match self.selected_view {
-            navigation_bar::ViewSelection::Main => {
-                row![
-                    column![
-                        // Left Side
-                        add_views::view(
-                            &self.views,
-                            &self.selected_view_id,
-                            &self.type_system,
-                            &self.theme,
-                            &self.custom_styles,
-                            &self.widget_preview_content,
-                            self.open_editor_widget_id
-                        )
-                        .map(|msg| Message::ViewMessages(ViewMessage::AddViews(msg))),
-                        container(
-                            add_widgets::view(
-                                &preview_view.hierarchy,
-                                &selected_widget.id,
-                                &self.custom_styles,
-                            )
-                                .map(|msg| Message::ViewMessages(ViewMessage::AddWidgets(msg)))
-                        )
-                        .align_bottom(Length::Shrink)
-                        .width(400),
-                    ]
-                    .spacing(5),
-                    // Right side
-                    code_view
-                ]
-                .into()
-            }
+            navigation_bar::ViewSelection::Main => self.main_panes(),
             //             navigation_bar::ViewSelection::Code => {}
             navigation_bar::ViewSelection::ThemeBuilder => self
                 .custom_styles
@@ -1067,6 +1149,192 @@ impl AdUiBuilder {
         self.widget_preview_content = text_editor::Content::with_text(&code);
     }
 
+    /// The Main view: tree, inspector and code as resizable panes.
+    ///
+    /// Each pane's body is built inside the closure rather than passed in,
+    /// because `PaneGrid::new` takes an `Fn` and calls it once per pane — an
+    /// element built outside could only be handed to one of them.
+    fn main_panes<'a>(&'a self) -> Element<'a, Message> {
+        use iced::widget::pane_grid::{self, PaneGrid};
+        use views::editor_panes::PaneKind;
+
+        let selected_view = self
+            .views
+            .get(&self.selected_view_id)
+            .expect("Selected view must exist");
+
+        let grid = PaneGrid::new(&self.panes, move |pane, kind, is_maximized| {
+            let body: Element<'a, Message> = match kind {
+                PaneKind::Tree => add_views::view(
+                    &self.views,
+                    &self.type_system,
+                    &self.widget_picker,
+                    self.hovered_row,
+                )
+                .map(|msg| Message::ViewMessages(ViewMessage::AddViews(msg)))
+                .into(),
+
+                PaneKind::Inspector => controls::scroll_y(
+                    inspector::view(
+                        &selected_view.hierarchy,
+                        &self.type_system,
+                        &self.theme,
+                        &self.views,
+                        &self.custom_styles,
+                        &self.widget_preview_content,
+                        selected_view.id,
+                    )
+                    .map(|msg| match msg {
+                        // A single widget's controls are the same
+                        // `PropertyChanged` messages the modal used to send, and
+                        // they reach the hierarchy through the tree.
+                        inspector::Message::Single(msg) => Message::ViewMessages(
+                            ViewMessage::AddViews(add_views::Message::TreeMessage(msg)),
+                        ),
+                        inspector::Message::Batch(msg) => {
+                            Message::ViewMessages(ViewMessage::AddWidgets(msg))
+                        }
+                    }),
+                )
+                .height(Length::Fill)
+                .into(),
+
+                PaneKind::Code => full_code_view::view(
+                    &self.generated_files,
+                    &self.active_code_tab,
+                    &self.code_view_content,
+                )
+                .map(|msg| Message::ViewMessages(ViewMessage::WidgetTree(msg))),
+            };
+
+            // The title bar is also the drag handle: a pane can only be
+            // rearranged by something the cursor can grab.
+            let title_bar = pane_grid::TitleBar::new(
+                text(kind.title()).size(12).style(text::secondary),
+            )
+            .controls(pane_grid::Controls::new(
+                button(text(if is_maximized { "\u{2013}" } else { "\u{2922}" }).size(12))
+                    .style(button::text)
+                    .padding(2)
+                    .on_press(Message::ViewMessages(ViewMessage::EditorPanes(
+                        editor_panes::Message::ToggleMaximize(pane),
+                    ))),
+            ))
+            .padding(iced::padding::left(8).right(4).top(2).bottom(2));
+
+            pane_grid::Content::new(body)
+                .title_bar(title_bar)
+                .style(styles::container::pane)
+        })
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .spacing(6)
+        .min_size(140.0)
+        .on_resize(8.0, |event| {
+            Message::ViewMessages(ViewMessage::EditorPanes(
+                editor_panes::Message::Resized(event),
+            ))
+        })
+        .on_drag(|event| {
+            Message::ViewMessages(ViewMessage::EditorPanes(
+                editor_panes::Message::Dragged(event),
+            ))
+        });
+
+        grid.into()
+    }
+
+    /// Everything the add-widget picker can report.
+    ///
+    /// Lives here rather than in `widget_tree::update` because the open flag is
+    /// application state, and because adding a child has to regenerate code.
+    /// Reachable from two arms — the tree is drawn inside the views panel, so
+    /// its messages usually arrive wrapped in `AddViews`.
+    fn handle_picker(&mut self, message: views::widget_picker::Message) -> Task<Message> {
+        use views::widget_picker::Message as Picker;
+
+        match message {
+            // The `+` only needs to look pressable; the popover reports the
+            // toggle itself. See `widget_picker::Message::TriggerPressed`.
+            Picker::TriggerPressed => {}
+            Picker::Toggled(widget_id, true) => {
+                self.widget_picker.open(widget_id);
+
+                // Opening on the keyboard is the point: the search box takes
+                // the next keystroke.
+                return iced::widget::operation::focus(views::widget_picker::SEARCH_INPUT_ID);
+            }
+            Picker::Toggled(widget_id, false) => {
+                self.widget_picker.close(widget_id);
+            }
+            Picker::QueryChanged(query) => {
+                self.widget_picker.set_query(query);
+            }
+            Picker::Picked(parent_id, widget_type) => {
+                return self.add_from_picker(parent_id, widget_type);
+            }
+            Picker::SubmitFirstMatch(parent_id) => {
+                // Resolved now rather than when the box was drawn: adding a
+                // child can change what the branch will accept next.
+                let view = self
+                    .views
+                    .get(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                let available = add_widgets::get_available_types(&view.hierarchy, &parent_id);
+                let matches =
+                    views::widget_picker::first_matches(&available, self.widget_picker.query());
+
+                let Some(&widget_type) = matches.first() else {
+                    return Task::none();
+                };
+
+                return self.add_from_picker(parent_id, widget_type);
+            }
+        }
+
+        Task::none()
+    }
+
+    /// Adds one child from the picker, leaving the picker open.
+    ///
+    /// Staying open is the point: adding four buttons to a row should be four
+    /// keystrokes, not four trips through the `+`. The search text is kept too,
+    /// so typing "button" once and pressing Return three times adds three.
+    ///
+    /// It closes itself only when the branch is full — a `Container` takes one
+    /// child — because the `+` it is anchored to is about to disappear.
+    fn add_from_picker(
+        &mut self,
+        parent_id: WidgetId,
+        widget_type: data_structures::types::types::WidgetType,
+    ) -> Task<Message> {
+        let view = self
+            .views
+            .get_mut(&self.selected_view_id)
+            .expect("Selected view must exist");
+
+        if view.hierarchy.add_child(parent_id, widget_type).is_err() {
+            return Task::none();
+        }
+
+        self.regenerate_code();
+
+        let view = self
+            .views
+            .get(&self.selected_view_id)
+            .expect("Selected view must exist");
+
+        if add_widgets::get_available_types(&view.hierarchy, &parent_id).is_empty() {
+            self.widget_picker.dismiss();
+            return Task::none();
+        }
+
+        // A click on a type button took focus out of the search box; put it
+        // back so Return keeps adding.
+        iced::widget::operation::focus(views::widget_picker::SEARCH_INPUT_ID)
+    }
+
     fn update_widget_preview_content_for(&mut self, widget_id: WidgetId) {
         use crate::code_gen_version_two::CodeGeneratorV2;
 
@@ -1204,7 +1472,10 @@ impl AdUiBuilder {
             generated_files: std::collections::HashMap::new(),
             code_view_content: text_editor::Content::new(),
             widget_preview_content: text_editor::Content::new(),
-            open_editor_widget_id: None,
+            widget_picker: views::widget_picker::PickerState::default(),
+            hovered_row: None,
+            focused_row: None,
+            panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
             flows,
@@ -1276,6 +1547,12 @@ fn handle_event(
                         }
                     }
                     keyboard::Key::Character(c) if c.as_str() == "o" => Some(Message::LoadProject),
+                    keyboard::Key::Character(c) if c.as_str() == "a" => {
+                        Some(Message::AddToFocusedRow)
+                    }
+                    keyboard::Key::Character(c) if c.as_str() == "e" => {
+                        Some(Message::EditFocusedRow)
+                    }
                     _ => None,
                 }
             } else {
