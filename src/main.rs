@@ -89,6 +89,15 @@ struct AdUiBuilder {
     /// actions.
     hovered_row: Option<WidgetId>,
 
+    /// Where the inspector's two dividers sit.
+    inspector_splits: views::inspector::Splits,
+
+    /// A copied widget subtree, as JSON.
+    ///
+    /// JSON rather than a `Widget`, because `Widget` is not `Clone` and
+    /// pasting twice has to produce two independent trees.
+    widget_clipboard: Option<String>,
+
     /// The tree row the keyboard is on, reported by the tree.
     ///
     /// What the keyboard shortcuts act on: the cursor may be anywhere, or
@@ -148,10 +157,14 @@ enum Message {
     ProjectLoaded(PathBuf, String),
     PersistenceError(String),
 
-    /// Ctrl+A — open the add-widget picker on the focused tree row.
+    /// Ctrl+Shift+A — open the add-widget picker on the focused tree row.
     AddToFocusedRow,
     /// Ctrl+E — put the focused tree row in the inspector.
     EditFocusedRow,
+    /// Ctrl+C — take a copy of the focused row and everything under it.
+    CopyFocusedRow,
+    /// Ctrl+V — paste that copy.
+    PasteIntoFocusedRow,
 }
 
 #[derive(Clone, Debug)]
@@ -166,6 +179,8 @@ enum ViewMessage {
     AddViews(add_views::Message),
     /// A pane was resized, dragged or maximised.
     EditorPanes(editor_panes::Message),
+    /// One of the inspector's dividers was dragged.
+    InspectorSplit(inspector::Divider, f32),
     Preview(preview::Message),
     WindowSettings(settings_views::window_settings::Message),
     /// The action editor reported an edit.
@@ -208,6 +223,8 @@ impl AdUiBuilder {
             widget_picker: views::widget_picker::PickerState::default(),
             hovered_row: None,
             focused_row: None,
+            inspector_splits: views::inspector::Splits::default(),
+            widget_clipboard: None,
             panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
@@ -462,6 +479,10 @@ impl AdUiBuilder {
                     }
                     ViewMessage::EditorPanes(msg) => {
                         editor_panes::update(&mut self.panes, msg);
+                        return Task::none();
+                    }
+                    ViewMessage::InspectorSplit(divider, ratio) => {
+                        self.inspector_splits.set(divider, ratio);
                         return Task::none();
                     }
                     ViewMessage::Preview(preview::Message::NavigatedToView(view_id)) => {
@@ -794,6 +815,95 @@ impl AdUiBuilder {
                     .set_selected_ids(std::collections::HashSet::from([row]));
 
                 self.update_widget_preview_content_for(row);
+
+                return Task::none();
+            }
+
+            Message::CopyFocusedRow => {
+                let Some(row) = self.focused_row else {
+                    return Task::none();
+                };
+
+                let view = self
+                    .views
+                    .get(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                let Some(widget) = view.hierarchy.get_widget_by_id(row) else {
+                    return Task::none();
+                };
+
+                // A `Widget` is not `Clone` — `Properties` carries a pile of
+                // iced types that have no business growing that bound — but the
+                // whole tree is `Serialize`, for saving. So the copy is JSON,
+                // through the same `serde_iced` helpers a project file uses.
+                match serde_json::to_string(widget) {
+                    Ok(json) => self.widget_clipboard = Some(json),
+                    Err(error) => {
+                        return Task::done(Message::PersistenceError(format!(
+                            "Could not copy widget: {error}"
+                        )));
+                    }
+                }
+
+                return Task::none();
+            }
+
+            Message::PasteIntoFocusedRow => {
+                let (Some(row), Some(json)) = (self.focused_row, self.widget_clipboard.clone())
+                else {
+                    return Task::none();
+                };
+
+                let subtree: data_structures::types::types::Widget =
+                    match serde_json::from_str(&json) {
+                        Ok(widget) => widget,
+                        Err(error) => {
+                            return Task::done(Message::PersistenceError(format!(
+                                "Could not paste widget: {error}"
+                            )));
+                        }
+                    };
+
+                let view = self
+                    .views
+                    .get_mut(&self.selected_view_id)
+                    .expect("Selected view must exist");
+
+                // Into the focused row if it will take it, otherwise beside it.
+                // Copying a button to paste three more of them means aiming at
+                // one of the buttons, not at the row above them.
+                let target = if view.hierarchy.can_add_child(row, subtree.widget_type) {
+                    let index = view
+                        .hierarchy
+                        .get_widget_by_id(row)
+                        .map_or(0, |widget| widget.children.len());
+
+                    Some((row, index))
+                } else {
+                    view.hierarchy.find_parent_id(row).map(|parent| {
+                        let index = view
+                            .hierarchy
+                            .get_widget_by_id(parent)
+                            .and_then(|widget| {
+                                widget.children.iter().position(|child| child.id == row)
+                            })
+                            .map_or(0, |position| position + 1);
+
+                        (parent, index)
+                    })
+                };
+
+                let Some((parent, index)) = target else {
+                    return Task::none();
+                };
+
+                match view.hierarchy.insert_subtree(parent, subtree, index) {
+                    Ok(_) => self.regenerate_code(),
+                    Err(error) => {
+                        return Task::done(Message::PersistenceError(error));
+                    }
+                }
 
                 return Task::none();
             }
@@ -1174,30 +1284,33 @@ impl AdUiBuilder {
                 .map(|msg| Message::ViewMessages(ViewMessage::AddViews(msg)))
                 .into(),
 
-                PaneKind::Inspector => controls::scroll_y(
-                    inspector::view(
-                        &selected_view.hierarchy,
-                        &self.type_system,
-                        &self.theme,
-                        &self.views,
-                        &self.custom_styles,
-                        &self.widget_preview_content,
-                        selected_view.id,
-                    )
-                    .map(|msg| match msg {
-                        // A single widget's controls are the same
-                        // `PropertyChanged` messages the modal used to send, and
-                        // they reach the hierarchy through the tree.
-                        inspector::Message::Single(msg) => Message::ViewMessages(
-                            ViewMessage::AddViews(add_views::Message::TreeMessage(msg)),
-                        ),
-                        inspector::Message::Batch(msg) => {
-                            Message::ViewMessages(ViewMessage::AddWidgets(msg))
-                        }
-                    }),
+                // The inspector scrolls its own properties region, between its
+                // own dividers — a scrollable out here would be a second one
+                // around the first.
+                PaneKind::Inspector => inspector::view(
+                    &selected_view.hierarchy,
+                    &self.type_system,
+                    &self.theme,
+                    &self.views,
+                    &self.custom_styles,
+                    &self.widget_preview_content,
+                    selected_view.id,
+                    self.inspector_splits,
                 )
-                .height(Length::Fill)
-                .into(),
+                .map(|msg| match msg {
+                    // A single widget's controls are the same `PropertyChanged`
+                    // messages the modal used to send, and they reach the
+                    // hierarchy through the tree.
+                    inspector::Message::Single(msg) => Message::ViewMessages(
+                        ViewMessage::AddViews(add_views::Message::TreeMessage(msg)),
+                    ),
+                    inspector::Message::Batch(msg) => {
+                        Message::ViewMessages(ViewMessage::AddWidgets(msg))
+                    }
+                    inspector::Message::SplitMoved(divider, ratio) => Message::ViewMessages(
+                        ViewMessage::InspectorSplit(divider, ratio),
+                    ),
+                }),
 
                 PaneKind::Code => full_code_view::view(
                     &self.generated_files,
@@ -1475,6 +1588,8 @@ impl AdUiBuilder {
             widget_picker: views::widget_picker::PickerState::default(),
             hovered_row: None,
             focused_row: None,
+            inspector_splits: views::inspector::Splits::default(),
+            widget_clipboard: None,
             panes: views::editor_panes::new_state(),
             #[cfg(feature = "action_editor")]
             action_editor: views::action_editor::ActionEditorState::default(),
@@ -1547,11 +1662,22 @@ fn handle_event(
                         }
                     }
                     keyboard::Key::Character(c) if c.as_str() == "o" => Some(Message::LoadProject),
-                    keyboard::Key::Character(c) if c.as_str() == "a" => {
+                    // Shifted, because plain Ctrl+A is select-all inside every
+                    // text field in the editor and this listener sees keys
+                    // wherever they were typed.
+                    keyboard::Key::Character(c)
+                        if c.as_str().eq_ignore_ascii_case("a") && modifiers.shift() =>
+                    {
                         Some(Message::AddToFocusedRow)
                     }
                     keyboard::Key::Character(c) if c.as_str() == "e" => {
                         Some(Message::EditFocusedRow)
+                    }
+                    keyboard::Key::Character(c) if c.as_str() == "c" => {
+                        Some(Message::CopyFocusedRow)
+                    }
+                    keyboard::Key::Character(c) if c.as_str() == "v" => {
+                        Some(Message::PasteIntoFocusedRow)
                     }
                     _ => None,
                 }

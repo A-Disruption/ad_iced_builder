@@ -5,3 +5,6 @@ pub const LABEL_SIZE: f32 = 12.0;
 pub const MAIN_SPACING: f32 = 15.0;
 pub const SECTION_SPACING: f32 = 10.0;
 pub const LABEL_SPACING: f32 = 5.0;
+
+/// The breathing room inside a section card.
+pub const SECTION_PADDING: f32 = 10.0;

@@ -15,6 +15,7 @@ use std::collections::BTreeMap;
 
 use iced::widget::{button, column, container, row, rule, space, text};
 use iced::{Alignment, Element, Length, Theme, padding};
+use iced_split::horizontal_split;
 use uuid::Uuid;
 
 use crate::controls::batch_edit::batch_editor_controls;
@@ -22,6 +23,7 @@ use crate::data_structures::types::types::{AppView, WidgetType};
 use crate::data_structures::widget_hierarchy::WidgetHierarchy;
 use crate::enum_builder::TypeSystem;
 use crate::icon;
+use crate::controls::scroll_y;
 use crate::views::theme_and_stylefn_builder::CustomThemes;
 use crate::views::{add_widgets, widget_tree};
 
@@ -38,6 +40,50 @@ pub enum Message {
     /// Something that applies to the whole selection — a batch property, or
     /// wrapping it all in a new parent.
     Batch(add_widgets::Message),
+    /// One of the panel's dividers was dragged.
+    SplitMoved(Divider, f32),
+}
+
+/// The two dividers down the inspector.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Divider {
+    /// Between the properties and everything under them.
+    Body,
+    /// Between the generated code and the wrapping controls.
+    Code,
+}
+
+/// Where the inspector's dividers sit, as fractions of the space they split.
+///
+/// The properties used to be boxed at a fixed 400px with the code preview
+/// nailed under them, so a widget with many settings scrolled in a short
+/// window no matter how tall the pane was.
+#[derive(Debug, Clone, Copy)]
+pub struct Splits {
+    pub body: f32,
+    pub code: f32,
+}
+
+impl Default for Splits {
+    fn default() -> Self {
+        Self {
+            // Properties get most of the panel; the code is a glance, and the
+            // wrap buttons are two rows.
+            body: 0.62,
+            code: 0.74,
+        }
+    }
+}
+
+impl Splits {
+    pub fn set(&mut self, divider: Divider, ratio: f32) {
+        let ratio = ratio.clamp(0.05, 0.95);
+
+        match divider {
+            Divider::Body => self.body = ratio,
+            Divider::Code => self.code = ratio,
+        }
+    }
 }
 
 /// The inspector's body for the current selection.
@@ -49,6 +95,7 @@ pub fn view<'a>(
     custom_styles: &'a CustomThemes,
     preview_content: &'a iced::widget::text_editor::Content,
     view_id: Uuid,
+    splits: Splits,
 ) -> Element<'a, Message> {
     let selected = hierarchy.selected_ids();
 
@@ -69,16 +116,16 @@ pub fn view<'a>(
                 return empty("Selection is gone", "That widget no longer exists.");
             };
 
-            let display_name = if widget.properties.widget_name.is_empty() {
-                widget.name.as_str()
-            } else {
-                widget.properties.widget_name.as_str()
-            };
-
+            // The name is the title: an unnamed widget shows its type as
+            // placeholder, and naming it replaces that in place.
             let header = row![
                 icon::widget_type(widget.widget_type).size(15),
-                text(display_name).size(16),
-                space::horizontal(),
+                crate::controls::widget_name(
+                    widget_id,
+                    &widget.properties.widget_name,
+                    widget.widget_type.label(),
+                )
+                .map(Message::Single),
                 text(widget.widget_type.label())
                     .size(12)
                     .style(text::secondary),
@@ -86,7 +133,7 @@ pub fn view<'a>(
             .align_y(Alignment::Center)
             .spacing(8);
 
-            let controls = widget_tree::controls_for_widget(
+            let properties = widget_tree::controls_for_widget(
                 hierarchy,
                 type_system,
                 theme,
@@ -103,12 +150,22 @@ pub fn view<'a>(
             // where its `Container` button was gated on exactly one widget being
             // selected — so that button could never fire. `validate_wrapping`
             // has always accepted a single widget.
-            panel(
-                header.into(),
-                column![controls, rule::horizontal(1), wrap_controls(hierarchy)]
-                    .spacing(10)
-                    .into(),
-            )
+            let under = horizontal_split(
+                titled("Widget Code", crate::controls::widget_code_view(preview_content)
+                    .map(Message::Single)),
+                titled("Wrap in", wrap_controls(hierarchy)),
+                splits.code,
+                |ratio| Message::SplitMoved(Divider::Code, ratio),
+            );
+
+            let body = horizontal_split(
+                scroll_y(properties).height(Length::Fill),
+                under,
+                splits.body,
+                |ratio| Message::SplitMoved(Divider::Body, ratio),
+            );
+
+            panel(header.into(), body.into())
         }
 
         count => {
@@ -182,15 +239,32 @@ fn wrap_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, Message> {
     .into()
 }
 
+/// A small caption over a region of the panel.
+fn titled<'a>(label: &'a str, body: Element<'a, Message>) -> Element<'a, Message> {
+    column![
+        text(label).size(11).style(text::secondary),
+        body,
+    ]
+    .spacing(4)
+    .height(Length::Fill)
+    .into()
+}
+
 /// A header, a rule, and whatever the selection calls for.
+///
+/// The panel pads its own edges and the scrollable inside it runs to that same
+/// edge, so the scrollbar lands under the rule's right end rather than a
+/// gutter's width inside it.
 fn panel<'a>(header: Element<'a, Message>, body: Element<'a, Message>) -> Element<'a, Message> {
     container(
         column![header, rule::horizontal(1), body]
             .spacing(8)
-            .width(Length::Fill),
+            .width(Length::Fill)
+            .height(Length::Fill),
     )
     .padding(padding::all(10))
     .width(Length::Fill)
+    .height(Length::Fill)
     .into()
 }
 

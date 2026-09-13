@@ -19,6 +19,26 @@ pub fn pane(theme: &Theme) -> Style {
     }
 }
 
+/// One group of properties in the inspector.
+///
+/// A section used to be a title, a hairline and a loose pile of fields, so
+/// Layout, Padding and Advanced all read as one undifferentiated stream. The
+/// surface is barely lifted off the pane — enough to say where a group starts
+/// and stops, not enough to turn a scrolling panel into a stack of boxes.
+pub fn card(theme: &Theme) -> Style {
+    let palette = theme.palette();
+
+    Style {
+        background: Some(Background::Color(palette.background.weak.color)),
+        border: Border {
+            color: palette.background.strong.color,
+            width: 1.0,
+            radius: 6.0.into(),
+        },
+        ..Default::default()
+    }
+}
+
 pub fn error_box(theme: &Theme) -> Style {
     let palette = theme.palette();
 

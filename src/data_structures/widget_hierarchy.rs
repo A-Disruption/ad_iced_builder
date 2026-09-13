@@ -291,6 +291,53 @@ impl WidgetHierarchy {
         }
     }
 
+    /// Inserts a whole subtree under `parent_id`, at `index`.
+    ///
+    /// The subtree arrives with whatever ids it was copied under, which will
+    /// collide with the ones already here — so every widget in it is given a
+    /// fresh id before it goes in. Only the root of the subtree is checked
+    /// against the parent's rules: the children were already a legal
+    /// arrangement when they were copied, and re-checking them would reject a
+    /// paste for the shape it is *supposed* to reproduce.
+    pub fn insert_subtree(
+        &mut self,
+        parent_id: WidgetId,
+        mut subtree: Widget,
+        index: usize,
+    ) -> Result<WidgetId, String> {
+        if !self.can_add_child(parent_id, subtree.widget_type) {
+            return Err(format!(
+                "Cannot paste {:?} into this parent",
+                subtree.widget_type
+            ));
+        }
+
+        let new_id = self.reassign_ids(&mut subtree);
+
+        let Some(parent) = self.get_widget_by_id_mut(parent_id) else {
+            return Err("Parent widget not found".to_string());
+        };
+
+        let index = index.min(parent.children.len());
+        parent.children.insert(index, subtree);
+
+        Ok(new_id)
+    }
+
+    /// Gives every widget in a subtree an id this hierarchy has not used,
+    /// returning the new id of its root.
+    fn reassign_ids(&mut self, widget: &mut Widget) -> WidgetId {
+        let id = WidgetId(self.next_id);
+        self.next_id += 1;
+        widget.id = id;
+
+        for child in &mut widget.children {
+            self.reassign_ids(child);
+        }
+
+        id
+    }
+
     pub fn delete_widget(&mut self, id: WidgetId) -> Result<(), String> {
         if id == self.root.id {
             return Err("Cannot delete root widget".to_string());

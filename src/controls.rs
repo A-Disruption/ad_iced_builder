@@ -16,7 +16,7 @@ use iced::widget::{
     slider, space, text, text_editor, text_input, toggler, tooltip,
 };
 use iced::advanced::graphics::core::length::{Bounds, Constraint, Sizing};
-use iced::{Alignment, Color, Element, Length, Padding, Theme, padding};
+use iced::{Alignment, Border, Color, Element, Length, Padding, Theme, padding};
 use std::collections::BTreeMap;
 use uuid::Uuid;
 use widgets::anchor;
@@ -154,7 +154,7 @@ pub fn container_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     view_id: Uuid,
     views: &'a BTreeMap<Uuid, AppView>,
 ) -> Element<'a, Message> {
@@ -162,14 +162,7 @@ pub fn container_controls<'a>(
     let props = &widget.properties;
 
     let content = column![
-        // Title
-        text("Container Properties").size(TITLE_SIZE),
-        // Widget Name
-        row![
-            widget_name(widget_id, &props.widget_name),
-            custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Container),
-        ]
-        .spacing(MAIN_SPACING),
+        custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Container),
         conditional_style_section(
             widget_id,
             props,
@@ -322,8 +315,7 @@ pub fn container_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn row_controls<'a>(
@@ -332,14 +324,12 @@ pub fn row_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Row Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Layout",
             field_grid(vec![
@@ -429,8 +419,7 @@ pub fn row_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn column_controls<'a>(
@@ -439,14 +428,12 @@ pub fn column_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Column Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Layout",
             field_grid(vec![
@@ -482,8 +469,7 @@ pub fn column_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn button_controls<'a>(
@@ -492,7 +478,7 @@ pub fn button_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -515,8 +501,6 @@ pub fn button_controls<'a>(
 
     let content =
         column![
-        text("Button Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         column![
             text("Button Text").size(LABEL_SIZE),
             text_input("Text", &props.text_content)
@@ -602,8 +586,7 @@ pub fn button_controls<'a>(
         .spacing(MAIN_SPACING)
         .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn text_controls<'a>(
@@ -612,14 +595,12 @@ pub fn text_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Text Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Text",
             field_grid(vec![
@@ -724,8 +705,7 @@ pub fn text_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn text_input_controls<'a>(
@@ -734,14 +714,12 @@ pub fn text_input_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Text Input Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         named_style_picker(
             custom_styles,
             widget_id,
@@ -915,8 +893,7 @@ pub fn text_input_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn text_editor_controls<'a>(
@@ -925,7 +902,7 @@ pub fn text_editor_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     _views: &'a BTreeMap<Uuid, AppView>,
     _view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -952,8 +929,6 @@ pub fn text_editor_controls<'a>(
     }
 
     let content = column![
-        text("Text Editor Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::TextEditor),
         section(
             "Editor",
@@ -1064,8 +1039,7 @@ pub fn text_editor_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn checkbox_controls<'a>(
@@ -1074,7 +1048,7 @@ pub fn checkbox_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1082,8 +1056,6 @@ pub fn checkbox_controls<'a>(
     let props = &widget.properties;
 
     let content = column![
-        text("Checkbox Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Checkbox),
         conditional_style_section(
             widget_id,
@@ -1131,8 +1103,7 @@ pub fn checkbox_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn toggler_controls<'a>(
@@ -1141,7 +1112,7 @@ pub fn toggler_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1149,8 +1120,6 @@ pub fn toggler_controls<'a>(
     let props = &widget.properties;
 
     let content = column![
-        text("Toggler Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Toggler),
         conditional_style_section(
             widget_id,
@@ -1194,8 +1163,7 @@ pub fn toggler_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn radio_controls<'a>(
@@ -1204,7 +1172,7 @@ pub fn radio_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1212,8 +1180,6 @@ pub fn radio_controls<'a>(
     let props = &widget.properties;
 
     let content = column![
-        text("Radio Button Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Radio),
         conditional_style_section(
             widget_id,
@@ -1321,8 +1287,7 @@ pub fn radio_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn picklist_controls<'a>(
@@ -1331,7 +1296,7 @@ pub fn picklist_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1339,8 +1304,6 @@ pub fn picklist_controls<'a>(
     let props = &widget.properties;
 
     let content = column![
-        text("Pick List Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Picklist),
         conditional_style_section(
             widget_id,
@@ -1465,8 +1428,7 @@ pub fn picklist_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn slider_controls<'a>(
@@ -1475,7 +1437,7 @@ pub fn slider_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1488,8 +1450,6 @@ pub fn slider_controls<'a>(
     let slider_height = format!("{:.0}", props.slider_height);
 
     let content = column![
-        text("Slider Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Slider),
         conditional_style_section(
             widget_id,
@@ -1574,8 +1534,7 @@ pub fn slider_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn vertical_slider_controls<'a>(
@@ -1584,7 +1543,7 @@ pub fn vertical_slider_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1597,8 +1556,6 @@ pub fn vertical_slider_controls<'a>(
     let slider_width = format!("{:.0}", props.slider_width);
 
     let content = column![
-        text("Vertical Slider Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Slider),
         conditional_style_section(
             widget_id,
@@ -1680,8 +1637,7 @@ pub fn vertical_slider_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn rule_controls<'a>(
@@ -1690,13 +1646,12 @@ pub fn rule_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).unwrap();
     let p = &widget.properties;
 
     let content = column![
-        text("Rule Properties").size(TITLE_SIZE),
         custom_style_picker(custom_styles, widget_id, p, ThemePaneEnum::Rule),
         section(
             "Rule",
@@ -1757,8 +1712,7 @@ pub fn rule_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn scrollable_controls<'a>(
@@ -1767,14 +1721,12 @@ pub fn scrollable_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
     let content = column![
-        text("Scrollable Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         size_controls_scrollable_aware(
             props.width,
             move |l| Message::PropertyChanged(widget_id, PropertyChange::Width(l)),
@@ -1819,8 +1771,7 @@ pub fn scrollable_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn space_controls<'a>(
@@ -1829,14 +1780,12 @@ pub fn space_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = hierarchy.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
     let content = column![
-        text("Space Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Space",
             field_grid(vec![pick_field(
@@ -1858,8 +1807,7 @@ pub fn space_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn progress_controls<'a>(
@@ -1868,7 +1816,7 @@ pub fn progress_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -1879,8 +1827,6 @@ pub fn progress_controls<'a>(
     let clamp_step = ((p.progress_max - p.progress_min) / 100.0).abs().max(0.001);
 
     let content = column![
-        text("Progress Bar Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &p.widget_name),
         custom_style_picker(custom_styles, widget_id, p, ThemePaneEnum::Progressbar),
         conditional_style_section(widget_id, p, theme, view_id, h.root(), views, type_system),
         section(
@@ -1955,8 +1901,7 @@ pub fn progress_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn image_controls<'a>(
@@ -1965,14 +1910,12 @@ pub fn image_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
 
     let content = column![
-        text("Image Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Image",
             field_grid(vec![
@@ -1996,8 +1939,7 @@ pub fn image_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn svg_controls<'a>(
@@ -2006,14 +1948,12 @@ pub fn svg_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).unwrap();
     let props = &widget.properties;
 
     let content = column![
-        text("SVG Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "SVG",
             field_grid(vec![
@@ -2037,8 +1977,7 @@ pub fn svg_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn tooltip_controls<'a>(
@@ -2047,14 +1986,12 @@ pub fn tooltip_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let p = &w.properties;
 
     let content = column![
-        text("Tooltip Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &p.widget_name),
         section(
             "Tooltip",
             column![
@@ -2089,8 +2026,7 @@ pub fn tooltip_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn combobox_controls<'a>(
@@ -2099,7 +2035,7 @@ pub fn combobox_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -2115,8 +2051,6 @@ pub fn combobox_controls<'a>(
     };
 
     let content = column![
-        text("ComboBox Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         row![
             named_style_picker(
                 custom_styles,
@@ -2457,8 +2391,7 @@ pub fn combobox_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn markdown_controls<'a>(
@@ -2467,14 +2400,12 @@ pub fn markdown_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Markdown Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         column![
             text("Markdown Content").size(LABEL_SIZE),
             text_editor(&props.markdown_source)
@@ -2511,8 +2442,7 @@ pub fn markdown_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn qrcode_controls<'a>(
@@ -2521,14 +2451,12 @@ pub fn qrcode_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("QR Code Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "QR Code",
             field_grid(vec![
@@ -2544,8 +2472,7 @@ pub fn qrcode_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn stack_controls<'a>(
@@ -2554,14 +2481,12 @@ pub fn stack_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Stack Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Stack",
             text(
@@ -2582,8 +2507,7 @@ pub fn stack_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 /// The name of the widgets crate's Material Design 3 style.
@@ -2621,7 +2545,7 @@ pub fn collapsible_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     _custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -2630,8 +2554,6 @@ pub fn collapsible_controls<'a>(
     let style_options = collapsible_style_options();
 
     let content = column![
-        text("Collapsible Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         text(
             "Collapsible uses the real custom widget and renders a single expandable content child."
         )
@@ -2742,8 +2664,7 @@ pub fn collapsible_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn collapsible_group_controls<'a>(
@@ -2752,14 +2673,12 @@ pub fn collapsible_group_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Collapsible Group Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Group",
             column![
@@ -2792,8 +2711,7 @@ pub fn collapsible_group_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn overlay_controls<'a>(
@@ -2802,7 +2720,7 @@ pub fn overlay_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -2878,7 +2796,6 @@ pub fn overlay_controls<'a>(
         ]
         .spacing(SECTION_SPACING)
         .align_y(Alignment::Start),
-        widget_name(widget_id, &props.widget_name),
         // All four take an `id`, and the generated code emits one when it is
         // set, so the panel has to be able to set it.
         widget_id_control(widget_id, props.widget_id.clone(), theme),
@@ -3458,8 +3375,7 @@ pub fn overlay_controls<'a>(
         .spacing(MAIN_SPACING)
         .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn date_picker_controls<'a>(
@@ -3468,7 +3384,7 @@ pub fn date_picker_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
     views: &'a BTreeMap<Uuid, AppView>,
     view_id: Uuid,
 ) -> Element<'a, Message> {
@@ -3536,8 +3452,6 @@ pub fn date_picker_controls<'a>(
         nothing()
     };
     let content = column![
-        text("Date Picker Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         custom_style_picker(custom_styles, widget_id, props, ThemePaneEnum::Button),
         conditional_style_section(
             widget_id,
@@ -3621,8 +3535,7 @@ pub fn date_picker_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn split_controls<'a>(
@@ -3631,7 +3544,7 @@ pub fn split_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -3672,8 +3585,6 @@ pub fn split_controls<'a>(
     };
 
     let content = column![
-        text("Split Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Split",
             column![
@@ -3733,8 +3644,7 @@ pub fn split_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn float_controls<'a>(
@@ -3743,14 +3653,12 @@ pub fn float_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Float Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Float",
             column![
@@ -3813,8 +3721,7 @@ pub fn float_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn responsive_controls<'a>(
@@ -3823,14 +3730,12 @@ pub fn responsive_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Responsive Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Responsive",
             column![
@@ -3864,8 +3769,7 @@ pub fn responsive_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn sensor_controls<'a>(
@@ -3874,14 +3778,12 @@ pub fn sensor_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &'a CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Sensor Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         text("Sensor fires actions when its child appears, resizes while visible, or leaves view.")
             .size(LABEL_SIZE)
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
@@ -3950,8 +3852,7 @@ pub fn sensor_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn mousearea_controls<'a>(
@@ -3960,14 +3861,12 @@ pub fn mousearea_controls<'a>(
     theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Mouse Area Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         text("Mouse Area captures mouse events over its child widget.")
             .size(LABEL_SIZE)
             .color(Color::from_rgb(0.6, 0.6, 0.6)),
@@ -4113,8 +4012,7 @@ pub fn mousearea_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn themer_controls<'a>(
@@ -4123,14 +4021,12 @@ pub fn themer_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
 
     let content = column![
-        text("Themer Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Themer",
             column![
@@ -4154,8 +4050,7 @@ pub fn themer_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn grid_controls<'a>(
@@ -4164,7 +4059,7 @@ pub fn grid_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -4178,8 +4073,6 @@ pub fn grid_controls<'a>(
     let fluid_max_str = format!("{}", props.grid_fluid_max_width);
 
     let content = column![
-        text("Grid Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Grid",
             column![
@@ -4238,8 +4131,7 @@ pub fn grid_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn pin_controls<'a>(
@@ -4248,7 +4140,7 @@ pub fn pin_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
@@ -4265,8 +4157,6 @@ pub fn pin_controls<'a>(
     };
 
     let content = column![
-        text("Pin Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Position",
             field_grid(vec![
@@ -4292,8 +4182,7 @@ pub fn pin_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 
@@ -4309,7 +4198,7 @@ pub fn data_table_controls<'a>(
     theme: &Theme,
     type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -4347,7 +4236,6 @@ pub fn data_table_controls<'a>(
 
     let mut sections = vec![
         text("Data Table Properties").size(TITLE_SIZE).into(),
-        widget_name(widget_id, &props.widget_name),
         section("Data Source", source),
     ];
 
@@ -4630,11 +4518,7 @@ pub fn data_table_controls<'a>(
     ));
     sections.push(advanced_section(widget_id, props, theme));
 
-    scroll_y(container(add_code_preview(
-        column(sections).spacing(SECTION_SPACING).into(),
-        preview_content,
-    )))
-    .into()
+    column(sections).spacing(SECTION_SPACING).into()
 }
 
 /// One column: what it shows, how wide it is, and where it sits.
@@ -4868,7 +4752,7 @@ pub fn table_controls<'a>(
     _theme: &Theme,
     type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let w = h.get_widget_by_id(widget_id).unwrap();
     let props = &w.properties;
@@ -4889,8 +4773,6 @@ pub fn table_controls<'a>(
         .collect();
 
     let content = column![
-        text("Table Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         column![
             text("Data Source (Struct)").size(SECTION_SIZE),
             rule::horizontal(1),
@@ -5018,8 +4900,7 @@ pub fn table_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn view_reference_controls<'a>(
@@ -5029,7 +4910,7 @@ pub fn view_reference_controls<'a>(
     _type_system: &'a TypeSystem,
     views: &'a BTreeMap<Uuid, AppView>,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -5047,8 +4928,6 @@ pub fn view_reference_controls<'a>(
         .map(|view| view.name.clone());
 
     let content = column![
-        text("View Reference Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         column![
             text("Referenced View").size(SECTION_SIZE),
             rule::horizontal(1),
@@ -5169,8 +5048,7 @@ pub fn view_reference_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 pub fn icon_controls<'a>(
@@ -5179,7 +5057,7 @@ pub fn icon_controls<'a>(
     _theme: &Theme,
     _type_system: &'a TypeSystem,
     _custom_styles: &CustomThemes,
-    preview_content: &'a text_editor::Content,
+    _preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     let widget = h.get_widget_by_id(widget_id).expect("widget exists");
     let props = &widget.properties;
@@ -5199,8 +5077,6 @@ pub fn icon_controls<'a>(
     );
 
     let content = column![
-        text("Icon Properties").size(TITLE_SIZE),
-        widget_name(widget_id, &props.widget_name),
         section(
             "Icon",
             field_grid(vec![
@@ -5222,8 +5098,7 @@ pub fn icon_controls<'a>(
     .spacing(MAIN_SPACING)
     .into();
 
-    scrollable(container(add_code_preview(content, preview_content)).padding(padding::right(10.0)))
-        .into()
+    content
 }
 
 fn parse_f32(s: &str, default: f32) -> f32 {
@@ -6132,15 +6007,43 @@ pub fn widget_id_control<'a>(
     )
 }
 
-pub fn widget_name<'a>(widget_id: WidgetId, name: &'a str) -> Element<'a, Message> {
-    column![
-        text("Widget Name").size(LABEL_SIZE),
-        text_input("Name", name)
-            .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::WidgetName(v)))
-            .width(250),
-    ]
-    .spacing(LABEL_SPACING)
-    .into()
+/// The widget's name, for the inspector's header.
+///
+/// It used to be a labelled field at the top of every property panel, under a
+/// title that said the type — three lines to carry one string. In the header it
+/// is the title: the type is the placeholder, so an unnamed widget reads as its
+/// type and naming it replaces that in place.
+pub fn widget_name<'a>(
+    widget_id: WidgetId,
+    name: &'a str,
+    placeholder: &'a str,
+) -> Element<'a, Message> {
+    text_input(placeholder, name)
+        .on_input(move |v| Message::PropertyChanged(widget_id, PropertyChange::WidgetName(v)))
+        .size(16)
+        .padding(padding::left(4).right(4).top(2).bottom(2))
+        .style(name_field_style)
+        .width(Length::Fill)
+        .into()
+}
+
+/// A text field that reads as a title until you touch it.
+fn name_field_style(theme: &Theme, status: text_input::Status) -> text_input::Style {
+    let palette = theme.palette();
+    let base = text_input::default(theme, status);
+
+    match status {
+        text_input::Status::Active => text_input::Style {
+            background: iced::Background::Color(iced::Color::TRANSPARENT),
+            border: Border {
+                color: iced::Color::TRANSPARENT,
+                ..base.border
+            },
+            placeholder: palette.background.strong.color,
+            ..base
+        },
+        _ => base,
+    }
 }
 
 /// Collects state fields available for conditional style: (display_label, field_path, variants).
@@ -6540,8 +6443,14 @@ fn named_style_picker<'a>(
     .into()
 }
 
-pub fn add_code_preview<'a>(
-    content: Element<'a, Message>,
+/// The generated code for the selected widget, syntax-highlighted.
+///
+/// This used to be glued onto the bottom of every `*_controls` panel, along
+/// with a scrollable and a 400px-tall box around the properties — three nested
+/// scrollables by the time the inspector had wrapped the result in its own.
+/// The panel is now just the properties; [`crate::views::inspector`] decides
+/// what sits underneath them and how much room it gets.
+pub fn widget_code_view<'a>(
     preview_content: &'a text_editor::Content,
 ) -> Element<'a, Message> {
     use std::sync::Arc;
@@ -6553,22 +6462,16 @@ pub fn add_code_preview<'a>(
         text: Arc::<str>::from(preview_content.text().as_str()),
     };
 
-    column![
-        column![scroll_y(content)].height(400),
-        container(rule::horizontal(2)).padding(padding::right(10)),
-        text("Widget Code").size(16),
-        text_editor(preview_content)
-            .highlight_with::<TreeSitterIcedHighlighter>(
-                settings,
-                TreeSitterIcedHighlighter::to_format,
-            )
-            .on_action(Message::WidgetPreviewEdit)
-            .style(code_gen_text_editor_style)
-            .size(14.0),
-    ]
-    .padding(5)
-    .spacing(10)
-    .into()
+    text_editor(preview_content)
+        .highlight_with::<TreeSitterIcedHighlighter>(
+            settings,
+            TreeSitterIcedHighlighter::to_format,
+        )
+        .on_action(Message::WidgetPreviewEdit)
+        .style(code_gen_text_editor_style)
+        .size(14.0)
+        .height(Length::Fill)
+        .into()
 }
 
 /// The role a widget plays inside an overlay parent, if any.
@@ -6753,17 +6656,15 @@ pub fn float_field<'a>(
     value: f32,
     on_change: impl Fn(f32) -> Message + 'a,
 ) -> Element<'a, Message> {
-    column![
-        text(label).size(LABEL_SIZE),
+    // Through `field` like every other labelled control: this used to build its
+    // own column at a different width, so a numeric entry never lined up with
+    // the pick list beside it.
+    field(
+        label,
         text_input("0", format!("{value}"))
-            .on_input(move |raw| {
-                let parsed = raw.trim().parse::<f32>().unwrap_or(0.0);
-                on_change(parsed)
-            })
-            .width(120),
-    ]
-    .spacing(LABEL_SPACING)
-    .into()
+            .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
+            .width(FIELD_WIDTH),
+    )
 }
 
 /// Four numeric fields for the sides of a `Padding`.
@@ -6830,7 +6731,7 @@ pub fn field<'a, M: 'a>(
     control: impl Into<Element<'a, M>>,
 ) -> Element<'a, M> {
     column![
-        text(label).size(LABEL_SIZE),
+        text(label).size(LABEL_SIZE).style(text::secondary),
         container(control.into())
             .height(CONTROL_HEIGHT)
             .align_y(Alignment::Center),
@@ -6838,6 +6739,15 @@ pub fn field<'a, M: 'a>(
     .spacing(LABEL_SPACING)
     .width(FIELD_WIDTH)
     .into()
+}
+
+/// A label row's worth of blank space.
+///
+/// A control with no label of its own — a checkbox that carries its own text —
+/// still has to start where the labelled controls beside it start, or it floats
+/// half a row above them.
+fn field_label_spacer<'a, M: 'a>() -> Element<'a, M> {
+    text(" ").size(LABEL_SIZE).into()
 }
 
 /// Lays fields out across the available width, wrapping onto further rows.
@@ -6848,17 +6758,28 @@ pub fn field_grid<'a, M: 'a>(fields: Vec<Element<'a, M>>) -> Element<'a, M> {
         .into()
 }
 
-/// A titled group of controls.
+/// A titled group of controls, as a card.
+///
+/// The title is set small and upper-case rather than as a heading: it marks
+/// where a group begins, and it should not compete with the widget's name in
+/// the inspector's header. The card's own edge does the separating that a
+/// hairline rule used to be asked to do on its own.
 pub fn section<'a, M: 'a>(
     title: &'a str,
     body: impl Into<Element<'a, M>>,
 ) -> Element<'a, M> {
-    column![
-        text(title).size(SECTION_SIZE),
-        rule::horizontal(1),
-        body.into(),
-    ]
-    .spacing(LABEL_SPACING)
+    container(
+        column![
+            text(title.to_uppercase())
+                .size(SECTION_SIZE - 3.0)
+                .style(text::secondary),
+            body.into(),
+        ]
+        .spacing(SECTION_SPACING),
+    )
+    .style(crate::styles::container::card)
+    .padding(SECTION_PADDING)
+    .width(Length::Fill)
     .into()
 }
 
@@ -6866,38 +6787,6 @@ pub fn section<'a, M: 'a>(
 pub fn nothing<'a, M: 'a>() -> Element<'a, M> {
     column![].into()
 }
-
-/// How wide the widget editor opens.
-///
-/// The property grid is a wrapping row of `FIELD_WIDTH` columns, which asks
-/// for whatever width it is given — so without a cap the layer opens as wide
-/// as the viewport and the grid lays itself out in one long line. Four columns
-/// across is the shape the sections were written for; the rest is the layer's
-/// own 16px padding on each side, the editor's 5px, and the scrollbar gutter.
-///
-/// The editor is resizable, so this is a starting size rather than a limit:
-/// `max_width` caps the width the layer *chooses*, not what the user can drag
-/// it to.
-pub const EDITOR_MODAL_WIDTH: f32 = editor_modal_width(4.0);
-
-/// The narrowest the widget editor can be dragged.
-///
-/// Three columns: below that the grid starts wrapping pairs awkwardly.
-pub const EDITOR_MODAL_MIN_WIDTH: f32 = editor_modal_width(3.0);
-
-/// The width `columns` of the property grid occupy, with the chrome around
-/// them: the layer's own 16px padding each side, the editor's 5px, and the
-/// scrollbar gutter.
-const fn editor_modal_width(columns: f32) -> f32 {
-    columns * FIELD_WIDTH + (columns - 1.0) * SECTION_SPACING + 2.0 * (16.0 + 5.0)
-        + SCROLLBAR_GUTTER
-}
-
-/// How tall the widget editor opens.
-///
-/// Tall enough for the code preview under the settings to be worth having,
-/// short enough to fit a 768px-high display with the layer's margin around it.
-pub const EDITOR_MODAL_HEIGHT: f32 = 720.0;
 
 /// The room a vertical scrollbar needs beside the content it scrolls.
 ///
@@ -7003,7 +6892,7 @@ pub fn toggle_field<'a, M: Clone + 'a>(
     on_toggle: impl Fn(bool) -> M + 'a,
 ) -> Element<'a, M> {
     column![
-        text(" ").size(LABEL_SIZE),
+        field_label_spacer(),
         container(checkbox(checked).label(label).on_toggle(on_toggle))
             .height(CONTROL_HEIGHT)
             .align_y(Alignment::Center),
