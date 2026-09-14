@@ -1766,19 +1766,23 @@ fn build_row_preview<'a>(
     type_system: &'a TypeSystem,
 ) -> Element<'a, Message> {
     let props = &widget.properties;
-    let children = preview_children(
-        hierarchy,
-        widget,
-        theme,
-        custom_themes,
-        highlight_selected,
-        all_views,
-        current_view_id,
-        type_system,
-    );
 
     if props.is_wrapping_row {
-        // Wrapping rows MUST use row(children) pattern
+        // A wrapping row has to be built from a `Vec`, where a plain one is
+        // pushed into — so the children are built inside each branch rather
+        // than above both, which built every child of a plain row twice and
+        // dropped one set.
+        let children = preview_children(
+            hierarchy,
+            widget,
+            theme,
+            custom_themes,
+            highlight_selected,
+            all_views,
+            current_view_id,
+            type_system,
+        );
+
         let mut wrapping = row(children)
             .spacing(props.spacing)
             .padding(props.padding)
