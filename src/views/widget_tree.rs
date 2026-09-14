@@ -43,6 +43,12 @@ pub enum Message {
     /// screen — so the application is told rather than asked.
     RowFocused(Option<WidgetId>),
 
+    /// The icon picker grid scrolled far enough to slide its window.
+    ///
+    /// Carries where the window lands and how far to nudge the view back, both
+    /// worked out in the view where the result count is known.
+    IconGridScrolled(WidgetId, usize, Option<f32>),
+
     /// The add-widget picker hanging off a branch's `+`.
     ///
     /// Handled in `main.rs`: the picker's open state lives on the application,
@@ -180,6 +186,7 @@ pub fn update(
         Message::OpenEnumEditor => {
             // open the enum editor view
         }
+        Message::IconGridScrolled(..) => {} // Handled in main.rs
         Message::Picker(_) => {}     // Handled in main.rs
         Message::RowEntered(_) => {} // Handled in main.rs
         Message::RowLeft(_) => {}    // Handled in main.rs

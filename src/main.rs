@@ -442,6 +442,11 @@ impl AdUiBuilder {
                                 self.focused_row = row;
                                 return Task::none();
                             }
+                            add_views::Message::TreeMessage(
+                                widget_tree::Message::IconGridScrolled(widget_id, start, snap),
+                            ) => {
+                                return self.slide_icon_grid(widget_id, start, snap);
+                            }
                             add_views::Message::TreeMessage(widget_tree::Message::RowLeft(
                                 row,
                             )) => {
@@ -1524,6 +1529,41 @@ impl AdUiBuilder {
         }
 
         Task::none()
+    }
+
+    /// Moves the icon grid's window of results, and puts the view back.
+    ///
+    /// Sliding the window moves every icon on screen, so the scrollable is
+    /// nudged back by as much as it shifted — without that the grid jumps, and
+    /// a jump at the moment you reach the bottom reads as the list fighting
+    /// you. No snap means the window did not move.
+    fn slide_icon_grid(
+        &mut self,
+        widget_id: WidgetId,
+        start: usize,
+        snap: Option<f32>,
+    ) -> Task<Message> {
+        let Some(view) = self.views.get_mut(&self.selected_view_id) else {
+            return Task::none();
+        };
+
+        view.hierarchy.apply_property_change(
+            widget_id,
+            data_structures::properties::messages::PropertyChange::IconPickerWindow(start),
+            &self.type_system,
+        );
+
+        let Some(y) = snap else {
+            return Task::none();
+        };
+
+        iced::widget::operation::snap_to(
+            iced::advanced::widget::Id::new(controls::ICON_GRID_ID),
+            iced::widget::operation::RelativeOffset {
+                x: Some(0.0),
+                y: Some(y),
+            },
+        )
     }
 
     /// Records the selected view's tree as it stands, before something changes

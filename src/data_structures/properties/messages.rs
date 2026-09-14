@@ -396,6 +396,11 @@ pub enum PropertyChange {
     /// Browses another icon family, keeping the icon if that family has it.
     IconFamily(String),
     IconPickerFilter(String),
+    /// The icon grid scrolled far enough to move its window of results.
+    ///
+    /// Shared by all three pickers a widget can carry, because only one of
+    /// them is open at a time.
+    IconPickerWindow(usize),
 
     // Grid properties
     GridColumns(usize),
@@ -660,13 +665,15 @@ pub fn apply_property_change(
 
             properties.text_input_icon_family = family;
             properties.text_input_icon_name = name;
+            properties.icon_picker_window = 0;
             properties.text_input_icon_codepoint = cp;
         }
         PropertyChange::TextInputIconSize(v) => properties.text_input_icon_size = v,
         PropertyChange::TextInputIconSpacing(v) => properties.text_input_icon_spacing = v,
         PropertyChange::TextInputIconSide(v) => properties.text_input_icon_side = v,
         PropertyChange::TextInputIconPickerFilter(v) => {
-            properties.text_input_icon_picker_filter = v
+            properties.text_input_icon_picker_filter = v;
+            properties.icon_picker_window = 0;
         }
 
         // Checkbox properties
@@ -989,10 +996,12 @@ pub fn apply_property_change(
 
             properties.menu_item_icon_family = family;
             properties.menu_item_icon_name = name;
+            properties.icon_picker_window = 0;
         }
         PropertyChange::MenuItemIconSize(value) => properties.menu_item_icon_size = value,
         PropertyChange::MenuItemIconPickerFilter(value) => {
-            properties.menu_item_icon_picker_filter = value
+            properties.menu_item_icon_picker_filter = value;
+            properties.icon_picker_window = 0;
         }
 
         PropertyChange::LayerAnchor(value) => properties.layer_anchor = value,
@@ -1134,12 +1143,16 @@ pub fn apply_property_change(
 
             properties.combobox_icon_family = family;
             properties.combobox_icon_name = name;
+            properties.icon_picker_window = 0;
             properties.combobox_icon_codepoint = cp;
         }
         PropertyChange::ComboBoxIconSize(v) => properties.combobox_icon_size = v,
         PropertyChange::ComboBoxIconSpacing(v) => properties.combobox_icon_spacing = v,
         PropertyChange::ComboBoxIconSide(v) => properties.combobox_icon_side = v,
-        PropertyChange::ComboBoxIconPickerFilter(v) => properties.combobox_icon_picker_filter = v,
+        PropertyChange::ComboBoxIconPickerFilter(v) => {
+            properties.combobox_icon_picker_filter = v;
+            properties.icon_picker_window = 0;
+        }
         PropertyChange::ComboBoxEnumId(id) => {
             //Set referenced_enum Id
             properties.referenced_enum = id;
@@ -1352,6 +1365,7 @@ pub fn apply_property_change(
             properties.icon_family = family;
             properties.icon_name = name;
             properties.icon_codepoint = codepoint;
+            properties.icon_picker_window = 0;
         }
         PropertyChange::IconFamily(family) => {
             let (name, codepoint) = crate::icon::retarget(&family, &properties.icon_name);
@@ -1360,7 +1374,13 @@ pub fn apply_property_change(
             properties.icon_name = name;
             properties.icon_codepoint = codepoint;
         }
-        PropertyChange::IconPickerFilter(v) => properties.icon_picker_filter = v,
+        PropertyChange::IconPickerFilter(v) => {
+            properties.icon_picker_filter = v;
+            // A different search is a different result set, so the window
+            // starts again from the top.
+            properties.icon_picker_window = 0;
+        }
+        PropertyChange::IconPickerWindow(start) => properties.icon_picker_window = start,
 
         // Grid properties
         PropertyChange::GridColumns(v) => properties.grid_columns = v,

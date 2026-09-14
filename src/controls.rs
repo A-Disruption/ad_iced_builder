@@ -42,12 +42,84 @@ pub fn stored_icon(family: &str, name: &str) -> icon_lucide::Icon {
         })
 }
 
-/// How many icons the picker grid draws before asking for a narrower search.
+/// The most icons the picker grid draws at once.
 ///
-/// Every family is enabled, which is eighty thousand icons; Nerd Fonts alone
-/// is eleven thousand. Building a button for each would stall the frame, and
-/// nobody scrolls that far anyway.
-const ICON_PICKER_LIMIT: usize = 400;
+/// Every family is enabled, which is eighty thousand icons; Nerd Fonts alone is
+/// eleven thousand. Building a button for each would stall the frame — so the
+/// grid draws a window of this size and *slides* it as you scroll, rather than
+/// capping the results and asking for a narrower search. A search matching
+/// twenty thousand icons costs the same as one matching sixteen hundred.
+const ICON_WINDOW: usize = 1600;
+
+/// How far the window slides each time a scroll reaches one of its ends.
+const ICON_STEP: usize = 400;
+
+/// How close to an end counts as asking for the next or previous step.
+const ICON_LOAD_MORE_AT: f32 = 0.85;
+const ICON_LOAD_BACK_AT: f32 = 0.15;
+
+/// Identifies the grid, so a slide can put the view back where it was.
+pub const ICON_GRID_ID: &str = "icon-picker-grid";
+
+/// Reports a slide of one widget's icon grid.
+///
+/// The same for all three pickers: what moves is the one that is open.
+pub fn icon_scroll_handler(
+    widget_id: WidgetId,
+) -> impl Fn(usize, Option<f32>) -> Message + 'static {
+    move |start, snap| Message::IconGridScrolled(widget_id, start, snap)
+}
+
+/// Where the window lands after a scroll, and how far to nudge the view back.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct IconSlide {
+    pub start: usize,
+    pub snap: Option<f32>,
+}
+
+/// Advances or retreats the icon window after a scroll to `offset`.
+///
+/// Because the window is a fixed size, moving it by `n` icons shifts everything
+/// on screen by `n / ICON_WINDOW` of the scrollable's height. Snapping back by
+/// that much leaves the icons under the cursor where they were, so a slide
+/// reads as ordinary scrolling rather than a jump.
+///
+/// Separate from the view because a `scrollable::Viewport` cannot be built by
+/// hand, and the arithmetic is the part worth testing.
+pub fn slide_icon_window(start: usize, total: usize, offset: f32) -> IconSlide {
+    if total <= ICON_WINDOW {
+        return IconSlide {
+            start: 0,
+            snap: None,
+        };
+    }
+
+    let shift = |from: usize, to: usize| {
+        let moved = to.abs_diff(from) as f32 / ICON_WINDOW as f32;
+        let snapped = if to > from {
+            offset - moved
+        } else {
+            offset + moved
+        };
+
+        IconSlide {
+            start: to,
+            snap: Some(snapped.clamp(0.0, 1.0)),
+        }
+    };
+
+    let last = total - ICON_WINDOW;
+
+    if offset >= ICON_LOAD_MORE_AT && start < last {
+        return shift(start, (start + ICON_STEP).min(last));
+    }
+
+    if offset <= ICON_LOAD_BACK_AT && start > 0 {
+        return shift(start, start.saturating_sub(ICON_STEP));
+    }
+
+    IconSlide { start, snap: None }
+}
 
 /// The icon picker: a family selector, a search box, and a grid of hits.
 ///
@@ -58,8 +130,10 @@ pub fn icon_picker<'a>(
     family: &'a str,
     name: &'a str,
     filter: &'a str,
+    window: usize,
     on_family: impl Fn(String) -> Message + 'a,
     on_filter: impl Fn(String) -> Message + 'a,
+    on_scroll: impl Fn(usize, Option<f32>) -> Message + 'a,
     on_select: impl Fn(String, String, u32) -> Message + 'a,
 ) -> Element<'a, Message> {
     let needle = filter.to_lowercase();
@@ -69,8 +143,13 @@ pub fn icon_picker<'a>(
 
     let total = matches.clone().count();
 
+    // Clamped rather than trusted: the window is left where it was when the
+    // family changes, and the new family may hold fewer icons than that.
+    let start = window.min(total.saturating_sub(ICON_WINDOW));
+
     let icon_buttons: Vec<Element<'a, Message>> = matches
-        .take(ICON_PICKER_LIMIT)
+        .skip(start)
+        .take(ICON_WINDOW)
         .map(|icon| {
             tooltip(
                 button(icon_lucide::render(*icon))
@@ -112,9 +191,12 @@ pub fn icon_picker<'a>(
 
     let search = text_input("Search icons\u{2026}", filter).on_input(on_filter);
 
-    // Saying how many were left out is the only cue that the grid is capped.
-    let tally = if total > ICON_PICKER_LIMIT {
-        format!("Showing {ICON_PICKER_LIMIT} of {total} — narrow the search")
+    // The window slides rather than capping, so this says where you are in the
+    // results rather than what was thrown away.
+    let shown = ICON_WINDOW.min(total.saturating_sub(start));
+
+    let tally = if total > ICON_WINDOW {
+        format!("{}\u{2013}{} of {total} icons", start + 1, start + shown)
     } else {
         format!("{total} icons")
     };
@@ -123,12 +205,20 @@ pub fn icon_picker<'a>(
         container(column![family_picker, search].spacing(4))
             .padding(padding::horizontal(5.0).top(5.0)),
         container(text(tally).size(LABEL_SIZE)).padding(padding::horizontal(5.0)),
-        scroll_y(
+        scrollable(
             Row::with_children(icon_buttons)
                 .spacing(4)
-                .padding(10)
+                .padding(padding::all(10.0).right(10.0 + SCROLLBAR_GUTTER))
                 .wrap(),
-        ),
+        )
+        .id(iced::advanced::widget::Id::new(ICON_GRID_ID))
+        // Where the window should land is worked out here, because this is
+        // where the result count is known — the handler only has the viewport.
+        .on_scroll(move |viewport| {
+            let slide = slide_icon_window(start, total, viewport.relative_offset().y);
+
+            on_scroll(slide.start, slide.snap)
+        }),
     ]
     .spacing(4);
 
@@ -799,6 +889,7 @@ pub fn text_input_controls<'a>(
                 &props.text_input_icon_family,
                 &props.text_input_icon_name,
                 &props.text_input_icon_picker_filter,
+                props.icon_picker_window,
                 move |family| {
                     Message::PropertyChanged(
                         widget_id,
@@ -811,6 +902,7 @@ pub fn text_input_controls<'a>(
                         PropertyChange::TextInputIconPickerFilter(v),
                     )
                 },
+                icon_scroll_handler(widget_id),
                 move |family, name, codepoint| {
                     Message::PropertyChanged(
                         widget_id,
@@ -2303,12 +2395,14 @@ pub fn combobox_controls<'a>(
                 &props.combobox_icon_family,
                 &props.combobox_icon_name,
                 &props.combobox_icon_picker_filter,
+                props.icon_picker_window,
                 move |family| {
                     Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconFamily(family))
                 },
                 move |v| {
                     Message::PropertyChanged(widget_id, PropertyChange::ComboBoxIconPickerFilter(v))
                 },
+                icon_scroll_handler(widget_id),
                 move |family, name, codepoint| {
                     Message::PropertyChanged(
                         widget_id,
@@ -5066,8 +5160,10 @@ pub fn icon_controls<'a>(
         &props.icon_family,
         &props.icon_name,
         &props.icon_picker_filter,
+                props.icon_picker_window,
         move |family| Message::PropertyChanged(widget_id, PropertyChange::IconFamily(family)),
         move |v| Message::PropertyChanged(widget_id, PropertyChange::IconPickerFilter(v)),
+        icon_scroll_handler(widget_id),
         move |family, name, codepoint| {
             Message::PropertyChanged(
                 widget_id,
@@ -6536,6 +6632,7 @@ pub fn overlay_child_controls<'a>(
                     &props.menu_item_icon_family,
                     &props.menu_item_icon_name,
                     &props.menu_item_icon_picker_filter,
+                    props.icon_picker_window,
                     move |family| {
                         Message::PropertyChanged(
                             widget_id,
@@ -6548,6 +6645,7 @@ pub fn overlay_child_controls<'a>(
                             PropertyChange::MenuItemIconPickerFilter(value),
                         )
                     },
+                    icon_scroll_handler(widget_id),
                     move |family, name, codepoint| {
                         Message::PropertyChanged(
                             widget_id,
@@ -6909,4 +7007,70 @@ pub fn toggle_field<'a, M: Clone + 'a>(
     on_toggle: impl Fn(bool) -> M + 'a,
 ) -> Element<'a, M> {
     field(label, checkbox(checked).on_toggle(on_toggle))
+}
+
+#[cfg(test)]
+mod icon_window {
+    use super::*;
+
+    /// Everything fits, so there is nothing to slide.
+    #[test]
+    fn a_short_result_set_stays_at_the_top() {
+        assert_eq!(
+            slide_icon_window(0, ICON_WINDOW, 1.0),
+            IconSlide {
+                start: 0,
+                snap: None
+            }
+        );
+    }
+
+    /// Scrolling around the middle is ordinary scrolling.
+    #[test]
+    fn the_window_only_moves_at_the_ends() {
+        let total = ICON_WINDOW * 10;
+
+        assert_eq!(
+            slide_icon_window(ICON_WINDOW, total, 0.5),
+            IconSlide {
+                start: ICON_WINDOW,
+                snap: None
+            }
+        );
+    }
+
+    /// A slide is compensated by exactly as much as it moved the icons, so it
+    /// lands short of the edge that triggered it and cannot fire again at once.
+    #[test]
+    fn sliding_forward_nudges_the_view_back() {
+        let total = ICON_WINDOW * 10;
+        let slide = slide_icon_window(0, total, 0.9);
+
+        assert_eq!(slide.start, ICON_STEP);
+
+        let snap = slide.snap.expect("a slide snaps");
+        let moved = ICON_STEP as f32 / ICON_WINDOW as f32;
+
+        assert!((snap - (0.9 - moved)).abs() < f32::EPSILON);
+        assert!(snap < ICON_LOAD_MORE_AT, "it would slide again immediately");
+    }
+
+    #[test]
+    fn sliding_back_nudges_the_view_forward() {
+        let total = ICON_WINDOW * 10;
+        let slide = slide_icon_window(ICON_STEP, total, 0.1);
+
+        assert_eq!(slide.start, 0);
+        assert!(slide.snap.expect("a slide snaps") > ICON_LOAD_BACK_AT);
+    }
+
+    /// The window stops with its end against the end of the results.
+    #[test]
+    fn the_window_does_not_run_off_the_end() {
+        let total = ICON_WINDOW * 2;
+        let last = total - ICON_WINDOW;
+
+        assert_eq!(slide_icon_window(last, total, 1.0).start, last);
+        assert!(slide_icon_window(last - 1, total, 1.0).start <= last);
+    }
 }

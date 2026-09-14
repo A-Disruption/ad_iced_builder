@@ -656,6 +656,15 @@ pub struct Properties {
     pub icon_size: f32,
     pub icon_picker_filter: String, // Live search filter for the icon picker
 
+    /// Where the icon picker's sliding window of results starts.
+    ///
+    /// Transient, and one field for all three pickers a widget can carry —
+    /// only one of them is open at a time. It exists because the index holds
+    /// every family at once, which is eighty thousand icons; the grid draws a
+    /// fixed slice of that and moves the slice as you scroll.
+    #[serde(skip, default)]
+    pub icon_picker_window: usize,
+
     // Grid properties
     pub grid_columns: usize,           // Number of columns (default 3)
     pub grid_spacing: f32,             // Spacing between cells (default 0.0)
@@ -1158,6 +1167,7 @@ impl Default for Properties {
             icon_codepoint: 0xE0F5,
             icon_size: 16.0,
             icon_picker_filter: String::new(),
+            icon_picker_window: 0,
 
             // Grid defaults
             grid_columns: 3,
