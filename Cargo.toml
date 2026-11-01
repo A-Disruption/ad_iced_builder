@@ -46,18 +46,18 @@ iced-native-frame = { path = "C:/Rust Projects/iced-window-decorations" }
 iced_nodegraph = { path = "C:/Rust Projects/iced_nodegraph/iced_nodegraph" }
 #iced_nodegraph = { git = "https://github.com/A-Disruption/iced_nodegraph.git" }
 
-iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide", features = ["all"] }
+iced_lucide = { path = "C:/Users/ktwinam/Documents/GitHub/iced_lucide", features = ["all"] }
 #iced_lucide = { git = "https://github.com/A-Disruption/iced_lucide.git", features = ["all"] }
 
 uuid = { version = "1.21.0", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.149"
-rfd = "0.15"
+rfd = "0.17"
 tree_sitter_highlighter = { path = "C:/Rust Projects/tree_sitter_highlighter" }
 #tree_sitter_highlighter = { git = "https://github.com/A-Disruption/tree_sitter_highlighter", branch = "master" }
 
 [build-dependencies]
-iced_lucide = { path = "C:/Rust Projects/testing/iced_lucide", features = ["all"] }
+iced_lucide = { path = "C:/Users/ktwinam/Documents/GitHub/iced_lucide", features = ["all"] }
 
 [features]
 default = []
@@ -75,7 +75,7 @@ action_editor = []
 # here. `iced_widget` and `iced_wgpu` are listed because `iced_nodegraph` asks
 # for them by version -- cargo honours `[patch]` only in the manifest being
 # built, so its own copy does nothing for us.
-iced = { git = "https://github.com/iced-rs/iced.git", rev = "f728e14a571e2932bd2bee58d7d78ebd39a8422e" }
-iced_runtime = { git = "https://github.com/iced-rs/iced.git", rev = "f728e14a571e2932bd2bee58d7d78ebd39a8422e" }
-iced_widget = { git = "https://github.com/iced-rs/iced.git", rev = "f728e14a571e2932bd2bee58d7d78ebd39a8422e" }
-iced_wgpu = { git = "https://github.com/iced-rs/iced.git", rev = "f728e14a571e2932bd2bee58d7d78ebd39a8422e" }
+iced = { git = "https://github.com/iced-rs/iced.git", rev = "8ff48c42b0d5188223501ea1ccc506fd5beaf36a" }
+iced_runtime = { git = "https://github.com/iced-rs/iced.git", rev = "8ff48c42b0d5188223501ea1ccc506fd5beaf36a" }
+iced_widget = { git = "https://github.com/iced-rs/iced.git", rev = "8ff48c42b0d5188223501ea1ccc506fd5beaf36a" }
+iced_wgpu = { git = "https://github.com/iced-rs/iced.git", rev = "8ff48c42b0d5188223501ea1ccc506fd5beaf36a" }

@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::{
     Alignment, Element, Length, Padding, Task, Theme, padding,
     widget::{button, column, container, pick_list, row, space, text, text_input},
@@ -665,7 +666,7 @@ pub fn view<'a>(
                                 field_type_options(type_system, enum_id, Some(&field.field_type));
 
                             row![
-                                text_input::<Message, Theme, iced::Renderer>(
+                                text_input::<Message, Theme>(
                                     "field_name",
                                     field_name.clone(),
                                 )
@@ -701,13 +702,13 @@ pub fn view<'a>(
                             ]
                             .spacing(10)
                             .align_y(Alignment::Center)
-                            .into()
+                            .boxed()
                         })
-                        .collect::<Vec<_>>();
+                        .collect::<Vec<Element<'_, Message>>>();
 
                     column![
                         row![
-                            text_input::<Message, Theme, iced::Renderer>(
+                            text_input::<Message, Theme>(
                                 "Variant Name",
                                 variant_name.clone(),
                             )
@@ -777,9 +778,9 @@ pub fn view<'a>(
                         }),
                     ]
                     .spacing(4)
-                    .into()
+                    .boxed()
                 })
-                .collect::<Vec<_>>();
+                .collect::<Vec<Element<'_, Message>>>();
 
             let error_row = validation_error
                 .map(|error| container(text(error).size(11)).padding([0, 10]))
@@ -839,7 +840,7 @@ pub fn view<'a>(
                     .padding(padding::right(10.0)),
             )
             .title_alignment(Alignment::Center)
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -852,5 +853,5 @@ pub fn view<'a>(
     )
     .height(Length::Fill)
     .width(400.0)
-    .into()
+    .boxed()
 }

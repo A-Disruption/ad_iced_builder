@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use crate::Window;
 use crate::data_structures::types::types::AppView;
 use crate::controls::control_styling::{LABEL_SIZE, LABEL_SPACING, SECTION_SPACING};
@@ -587,7 +588,7 @@ pub fn view<'a>(
             )
                 .expand_icon(icon::chevron_right())
                 .collapse_icon(icon::chevron_down())
-                .into()
+                .boxed()
         })
         .collect::<Vec<_>>();
     window_settings.remove(0);
@@ -622,7 +623,7 @@ pub fn view<'a>(
     })
     .spacing(10)
     .width(400)
-    .into()
+    .boxed()
 }
 
 /// The custom title bar: whether to draw one, and what it looks like.
@@ -648,7 +649,7 @@ fn native_frame_controls<'a>(
     .spacing(LABEL_SPACING);
 
     if !window.config.use_native_frame {
-        return enable.into();
+        return enable.boxed();
     }
 
     let frame = window.config.native_frame;
@@ -761,7 +762,7 @@ fn native_frame_controls<'a>(
         }),
     ]);
 
-    column![enable, content].spacing(SECTION_SPACING).into()
+    column![enable, content].spacing(SECTION_SPACING).boxed()
 }
 
 /// One entry in the title-bar contents picker.
@@ -812,7 +813,7 @@ fn section_header<'a>(title: &'a str) -> Element<'a, Message> {
             }),
         space::vertical().height(5),
     ]
-    .into()
+    .boxed()
 }
 
 fn labeled_text_input<'a>(
@@ -826,7 +827,7 @@ fn labeled_text_input<'a>(
     ]
     .spacing(3)
     .width(Length::Fill)
-    .into()
+    .boxed()
 }
 
 /// Text input with label (for non-numeric strings)
@@ -843,7 +844,7 @@ fn labeled_input<'a>(
             .width(Length::Fill),
     ]
     .spacing(5)
-    .into()
+    .boxed()
 }
 
 fn labeled_picklist<'a>(
@@ -900,7 +901,7 @@ fn labeled_picklist<'a>(
         .width(Length::Fill),
     ]
     .spacing(5)
-    .into()
+    .boxed()
 }
 
 /// Position controls with preset buttons
@@ -954,7 +955,7 @@ fn position_controls<'a>(
         },
     ]
     .spacing(8)
-    .into()
+    .boxed()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

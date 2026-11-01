@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use crate::code_gen_version_two::{
     generate_button_style_code, generate_checkbox_style_code, generate_combo_box_style_code,
     generate_container_style_code, generate_menu_style_code, generate_pick_list_style_code,
@@ -150,7 +151,7 @@ fn color_button<'a>(
 
     // The picker renders a one-pixel anchor in place and hangs its surface off
     // that, so it sits beside the swatch rather than over it.
-    row![swatch, picker].into()
+    row![swatch, picker].boxed()
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum ThemePaneEnum {
@@ -1248,7 +1249,7 @@ impl CustomThemes {
             content
         ]
         .spacing(10)
-        .into()
+        .boxed()
     }
 
     pub fn show_style_builder<'a>(&'a self, theme: &'a Theme) -> Element<'a, Message> {
@@ -1398,74 +1399,73 @@ impl CustomThemes {
                             .on_press(Message::SetEditingStatus(s)),
                     );
                 }
-                Element::from(r)
+                r.boxed()
             } else {
-                Element::from(row![])
+                Space::new().boxed()
             },
             if self.selected_view != ThemePaneEnum::Rule {
-                Element::from(
-                    row![
-                        column![
-                            container(text("text_color").size(16)).center_x(Length::Fill),
-                            color_button(
+                row![
+                    column![
+                        container(text("text_color").size(16)).center_x(Length::Fill),
+                        color_button(
+                            if is_active_status {
+                                "text_color"
+                            } else {
+                                "text_color (override)"
+                            },
+                            current_text_color,
+                            &self.theme,
+                            self.open_color_picker.as_deref(),
+                            50.0,
+                            true,
+                            move |color, source| {
                                 if is_active_status {
-                                    "text_color"
+                                    Message::UpdateTextColor { color, source }
                                 } else {
-                                    "text_color (override)"
-                                },
-                                current_text_color,
-                                &self.theme,
-                                self.open_color_picker.as_deref(),
-                                50.0,
-                                true,
-                                move |color, source| {
-                                    if is_active_status {
-                                        Message::UpdateTextColor { color, source }
-                                    } else {
-                                        Message::UpdateStatusColor {
-                                            status,
-                                            field: StatusColorField::Text,
-                                            color,
-                                            source,
-                                        }
+                                    Message::UpdateStatusColor {
+                                        status,
+                                        field: StatusColorField::Text,
+                                        color,
+                                        source,
                                     }
-                                },
-                            ),
-                        ]
-                        .width(Length::FillPortion(1)),
-                        column![
-                            container(text("background color").size(16)).center_x(Length::Fill),
-                            color_button(
-                                if is_active_status {
-                                    "background color"
-                                } else {
-                                    "background color (override)"
-                                },
-                                current_background_color,
-                                &self.theme,
-                                self.open_color_picker.as_deref(),
-                                50.0,
-                                true,
-                                move |color, source| {
-                                    if is_active_status {
-                                        Message::UpdateBackgroundColor { color, source }
-                                    } else {
-                                        Message::UpdateStatusColor {
-                                            status,
-                                            field: StatusColorField::Background,
-                                            color,
-                                            source,
-                                        }
-                                    }
-                                },
-                            ),
-                        ]
-                        .width(Length::FillPortion(1)),
+                                }
+                            },
+                        ),
                     ]
-                    .spacing(10),
-                )
+                    .width(Length::FillPortion(1)),
+                    column![
+                        container(text("background color").size(16)).center_x(Length::Fill),
+                        color_button(
+                            if is_active_status {
+                                "background color"
+                            } else {
+                                "background color (override)"
+                            },
+                            current_background_color,
+                            &self.theme,
+                            self.open_color_picker.as_deref(),
+                            50.0,
+                            true,
+                            move |color, source| {
+                                if is_active_status {
+                                    Message::UpdateBackgroundColor { color, source }
+                                } else {
+                                    Message::UpdateStatusColor {
+                                        status,
+                                        field: StatusColorField::Background,
+                                        color,
+                                        source,
+                                    }
+                                }
+                            },
+                        ),
+                    ]
+                    .width(Length::FillPortion(1)),
+                ]
+                .spacing(10)
+                .boxed()
             } else {
-                Element::from(row![])
+                Space::new().boxed()
             },
             if matches!(
                 self.selected_view,
@@ -1529,26 +1529,25 @@ impl CustomThemes {
                                 | ThemePaneEnum::Picklist
                                 | ThemePaneEnum::Combobox
                         ) {
-                            Element::from(
-                                column![
-                                    container(text("placeholder color").size(16))
-                                        .center_x(Length::Fill),
-                                    color_button(
-                                        "placeholder color",
-                                        self.placeholder_color,
-                                        &self.theme,
-                                        self.open_color_picker.as_deref(),
-                                        50.0,
-                                        true,
-                                        |color, source| {
-                                            Message::UpdatePlaceholderColor { color, source }
-                                        },
-                                    ),
-                                ]
-                                .width(Length::FillPortion(1)),
-                            )
+                            column![
+                                container(text("placeholder color").size(16))
+                                    .center_x(Length::Fill),
+                                color_button(
+                                    "placeholder color",
+                                    self.placeholder_color,
+                                    &self.theme,
+                                    self.open_color_picker.as_deref(),
+                                    50.0,
+                                    true,
+                                    |color, source| {
+                                        Message::UpdatePlaceholderColor { color, source }
+                                    },
+                                ),
+                            ]
+                            .width(Length::FillPortion(1))
+                            .boxed()
                         } else {
-                            Element::from(column![].width(Length::FillPortion(1)))
+                            Space::new().width(Length::FillPortion(1)).boxed()
                         },
                         if matches!(
                             self.selected_view,
@@ -1556,26 +1555,25 @@ impl CustomThemes {
                                 | ThemePaneEnum::TextEditor
                                 | ThemePaneEnum::Combobox
                         ) {
-                            Element::from(
-                                column![
-                                    container(text("selection color").size(16))
-                                        .center_x(Length::Fill),
-                                    color_button(
-                                        "selection color",
-                                        self.selection_color,
-                                        &self.theme,
-                                        self.open_color_picker.as_deref(),
-                                        50.0,
-                                        true,
-                                        |color, source| {
-                                            Message::UpdateSelectionColor { color, source }
-                                        },
-                                    ),
-                                ]
-                                .width(Length::FillPortion(1)),
-                            )
+                            column![
+                                container(text("selection color").size(16))
+                                    .center_x(Length::Fill),
+                                color_button(
+                                    "selection color",
+                                    self.selection_color,
+                                    &self.theme,
+                                    self.open_color_picker.as_deref(),
+                                    50.0,
+                                    true,
+                                    |color, source| {
+                                        Message::UpdateSelectionColor { color, source }
+                                    },
+                                ),
+                            ]
+                            .width(Length::FillPortion(1))
+                            .boxed()
                         } else {
-                            Element::from(column![].width(Length::FillPortion(1)))
+                            Space::new().width(Length::FillPortion(1)).boxed()
                         },
                     ]
                     .spacing(10),
@@ -1583,49 +1581,48 @@ impl CustomThemes {
                         self.selected_view,
                         ThemePaneEnum::Menu | ThemePaneEnum::Combobox
                     ) {
-                        Element::from(
-                            column![
-                                container(text("Menu Style").size(18)).center_x(Length::Fill),
-                                row![
-                                    column![
-                                        container(text("selected text color").size(16))
-                                            .center_x(Length::Fill),
-                                        color_button(
-                                            "selected text color",
-                                            self.selected_text_color,
-                                            &self.theme,
-                                            self.open_color_picker.as_deref(),
-                                            50.0,
-                                            true,
-                                            |color, source| {
-                                                Message::UpdateSelectedTextColor { color, source }
-                                            },
-                                        ),
-                                    ]
-                                    .width(Length::FillPortion(1)),
-                                    column![
-                                        container(text("selected bg color").size(16))
-                                            .center_x(Length::Fill),
-                                        color_button(
-                                            "selected background color",
-                                            self.selected_background_color,
-                                            &self.theme,
-                                            self.open_color_picker.as_deref(),
-                                            50.0,
-                                            true,
-                                            |color, source| {
-                                            Message::UpdateSelectedBackgroundColor { color, source }
+                        column![
+                            container(text("Menu Style").size(18)).center_x(Length::Fill),
+                            row![
+                                column![
+                                    container(text("selected text color").size(16))
+                                        .center_x(Length::Fill),
+                                    color_button(
+                                        "selected text color",
+                                        self.selected_text_color,
+                                        &self.theme,
+                                        self.open_color_picker.as_deref(),
+                                        50.0,
+                                        true,
+                                        |color, source| {
+                                            Message::UpdateSelectedTextColor { color, source }
                                         },
-                                        ),
-                                    ]
-                                    .width(Length::FillPortion(1)),
+                                    ),
                                 ]
-                                .spacing(10),
+                                .width(Length::FillPortion(1)),
+                                column![
+                                    container(text("selected bg color").size(16))
+                                        .center_x(Length::Fill),
+                                    color_button(
+                                        "selected background color",
+                                        self.selected_background_color,
+                                        &self.theme,
+                                        self.open_color_picker.as_deref(),
+                                        50.0,
+                                        true,
+                                        |color, source| {
+                                        Message::UpdateSelectedBackgroundColor { color, source }
+                                    },
+                                    ),
+                                ]
+                                .width(Length::FillPortion(1)),
                             ]
                             .spacing(10),
-                        )
+                        ]
+                        .spacing(10)
+                        .boxed()
                     } else {
-                        Element::from(column![])
+                        Space::new().boxed()
                     },
                 ]
                 .spacing(10)
@@ -1766,13 +1763,12 @@ impl CustomThemes {
                     ]
                     .width(Length::FillPortion(1)),
                     if has_statuses && !is_active_status {
-                        Element::from(
-                            button("Reset to auto")
-                                .style(button::text)
-                                .on_press(Message::ResetStatusOverride(status)),
-                        )
+                        button("Reset to auto")
+                            .style(button::text)
+                            .on_press(Message::ResetStatusOverride(status))
+                            .boxed()
                     } else {
-                        Element::from(Space::new())
+                        Space::new().boxed()
                     },
                 ]
                 .spacing(10)
@@ -1954,7 +1950,7 @@ impl CustomThemes {
             let styles_for_view = self.styles.get(&self.selected_view);
 
             if styles_for_view.is_none() {
-                container(text("No styles saved for this widget yet.").center()).into()
+                container(text("No styles saved for this widget yet.").center()).boxed()
             } else {
                 let list_content = column(
                     styles_for_view
@@ -1973,14 +1969,13 @@ impl CustomThemes {
                             .style(button::text)
                             .width(Length::Fill)
                             .on_press(Message::SelectStyle(name.clone()))
-                            .into()
                         })
                         .collect::<Vec<_>>(),
                 )
                 .padding(10)
                 .spacing(5);
 
-                crate::controls::scroll_y(list_content).into()
+                crate::controls::scroll_y(list_content).boxed()
             }
         };
 
@@ -2019,7 +2014,7 @@ impl CustomThemes {
                 button("Button Style Preview")
                     .style(move |theme, status| definition.to_button_style(theme, status))
                     .on_press(Message::Noop)
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Checkbox => {
                 let definition = current_definition.clone();
@@ -2027,14 +2022,14 @@ impl CustomThemes {
                     .label("Checkbox Style Preview")
                     .on_toggle(|_| Message::Noop)
                     .style(move |theme, status| definition.to_checkbox_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::TextInput => {
                 let definition = current_definition.clone();
                 text_input("Type to search...", &self.preview_value)
                     .on_input(Message::ComboboxSelected)
                     .style(move |theme, status| definition.to_text_input_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::TextEditor => {
                 let definition = current_definition.clone();
@@ -2044,7 +2039,7 @@ impl CustomThemes {
                     .width(260.0)
                     .padding(10)
                     .style(move |theme, status| definition.to_text_editor_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Menu => {
                 let menu_style = current_definition.to_menu_style(theme);
@@ -2079,7 +2074,7 @@ impl CustomThemes {
                 )
                 .width(Length::Fixed(220.0))
                 .style(move |_| outer_style)
-                .into()
+                .boxed()
             }
             ThemePaneEnum::Picklist => {
                 let definition = current_definition.clone();
@@ -2100,25 +2095,25 @@ impl CustomThemes {
                 .on_select(Message::ComboboxSelected)
                     .placeholder("Choose an option...")
                     .style(move |theme, status| definition.to_pick_list_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Slider => {
                 let definition = current_definition.clone();
                 slider(0.0..=100.0, 42.0, |_| Message::Noop)
                     .style(move |theme, status| definition.to_slider_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Progressbar => {
                 let definition = current_definition.clone();
                 progress_bar(0.0..=100.0, 62.0)
                     .style(move |theme| definition.to_progress_bar_style(theme))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Radio => {
                 let definition = current_definition.clone();
                 radio("Radio Style Preview", 1, Some(1), |_| Message::Noop)
                     .style(move |theme, status| definition.to_radio_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Rule => {
                 let rule_style = current_definition.to_rule_style(theme);
@@ -2127,7 +2122,7 @@ impl CustomThemes {
                     rule::horizontal(2).style(move |_| rule_style),
                 ]
                 .spacing(10)
-                .into()
+                .boxed()
             }
             ThemePaneEnum::Container => {
                 let preview_style = current_definition.to_container_style(theme);
@@ -2151,7 +2146,7 @@ impl CustomThemes {
                 )
                 .center_x(Length::Fill)
                 .style(move |_| preview_style)
-                .into()
+                .boxed()
             }
             ThemePaneEnum::Toggler => {
                 let definition = current_definition.clone();
@@ -2159,7 +2154,7 @@ impl CustomThemes {
                     .on_toggle(|_| Message::Noop)
                     .label("Toggler Style Preview")
                     .style(move |theme, status| definition.to_toggler_style(theme, status))
-                    .into()
+                    .boxed()
             }
             ThemePaneEnum::Combobox => {
                 let input_definition = current_definition.clone();
@@ -2178,7 +2173,7 @@ impl CustomThemes {
                     input_definition.to_combo_box_input_style(theme, status)
                 })
                 .menu_style(move |theme| menu_definition.to_combo_box_menu_style(theme))
-                .into()
+                .boxed()
             }
             _ => {
                 let preview_style = Self::preview_swatch_style(&current_definition, theme);
@@ -2186,7 +2181,7 @@ impl CustomThemes {
                     .center_x(Length::Fixed(220.0))
                     .padding(15)
                     .style(move |_| preview_style)
-                    .into()
+                    .boxed()
             }
         };
 
@@ -2221,11 +2216,11 @@ impl CustomThemes {
                             .style(code_gen_text_editor_style)
                             .font(EDITOR_FONT)
                             .size(14.0)
-                            .into();
+                            .boxed();
                         (element, code_string)
                     }
                     _ => {
-                        let element = container(text("Not Ready")).into();
+                        let element = container(text("Not Ready")).boxed();
                         let code_str = "Code Generation not prepared".to_string();
                         (element, code_str)
                     }
@@ -2267,7 +2262,7 @@ impl CustomThemes {
             left: 5.0,
             bottom: 10.0,
         })
-        .into()
+        .boxed()
     }
 
     fn current_style_definition(&self) -> SavedStyleDefinition {
@@ -3235,7 +3230,7 @@ impl CustomThemes {
             bottom: 10.0,
         })
         .width(Length::Fill)
-        .into()
+        .boxed()
     }
 
     pub fn styles(&self) -> &BTreeMap<ThemePaneEnum, BTreeMap<String, SavedStyleDefinition>> {

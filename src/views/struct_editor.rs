@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::{
     Alignment, Element, Length, Padding, Task, Theme, padding,
     widget::{button, column, container, pick_list, row, space, text, text_input},
@@ -480,7 +481,7 @@ pub fn view<'a>(
                         field_type_options(type_system, struct_id, Some(&field.field_type));
 
                     row![
-                        text_input::<Message, Theme, iced::Renderer>("field_name", field_name.clone())
+                        text_input::<Message, Theme>("field_name", field_name.clone())
                             .on_input(move |new_name| {
                                 Message::UpdateFieldName {
                                     struct_id,
@@ -511,7 +512,7 @@ pub fn view<'a>(
                     .spacing(10)
                     .padding(5)
                     .align_y(Alignment::Center)
-                    .into()
+                    .boxed()
                 })
                 .collect::<Vec<_>>();
 
@@ -585,7 +586,7 @@ pub fn view<'a>(
                     .padding(padding::right(10.0)),
             )
             .title_alignment(Alignment::Center)
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -598,5 +599,5 @@ pub fn view<'a>(
     )
     .height(Length::Fill)
     .width(400.0)
-    .into()
+    .boxed()
 }

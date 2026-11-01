@@ -11,6 +11,7 @@
 //! screen. Selecting several widgets shows the properties they have in common
 //! rather than nothing at all.
 
+use iced::Widget as _;
 use std::collections::BTreeMap;
 
 use iced::widget::{button, column, container, row, rule, space, text};
@@ -152,7 +153,7 @@ pub fn view<'a>(
             // has always accepted a single widget.
             let under = horizontal_split(
                 titled("Widget Code", crate::controls::widget_code_view(preview_content)
-                    .map(Message::Single)),
+                    .map(Message::Single).boxed()),
                 titled("Wrap in", wrap_controls(hierarchy)),
                 splits.code,
                 |ratio| Message::SplitMoved(Divider::Code, ratio),
@@ -165,7 +166,7 @@ pub fn view<'a>(
                 |ratio| Message::SplitMoved(Divider::Body, ratio),
             );
 
-            panel(header.into(), body.into())
+            panel(header.boxed(), body.boxed())
         }
 
         count => {
@@ -186,15 +187,15 @@ pub fn view<'a>(
                     batch_editor_controls(hierarchy, custom_styles).map(Message::Batch),
                 ]
                 .spacing(10)
-                .into()
+                .boxed()
             } else {
                 text("No properties in common.")
                     .size(13)
                     .style(text::secondary)
-                    .into()
+                    .boxed()
             };
 
-            panel(header.into(), body)
+            panel(header.boxed(), body)
         }
     }
 }
@@ -236,7 +237,7 @@ fn wrap_controls<'a>(hierarchy: &'a WidgetHierarchy) -> Element<'a, Message> {
         .spacing(6),
     ]
     .spacing(6)
-    .into()
+    .boxed()
 }
 
 /// A small caption over a region of the panel.
@@ -247,7 +248,7 @@ fn titled<'a>(label: &'a str, body: Element<'a, Message>) -> Element<'a, Message
     ]
     .spacing(4)
     .height(Length::Fill)
-    .into()
+    .boxed()
 }
 
 /// A header, a rule, and whatever the selection calls for.
@@ -265,7 +266,7 @@ fn panel<'a>(header: Element<'a, Message>, body: Element<'a, Message>) -> Elemen
     .padding(padding::all(10))
     .width(Length::Fill)
     .height(Length::Fill)
-    .into()
+    .boxed()
 }
 
 /// The pane with nothing to show, said plainly.
@@ -281,5 +282,5 @@ fn empty<'a>(title: &'a str, detail: &'a str) -> Element<'a, Message> {
     .center_x(Length::Fill)
     .center_y(Length::Fill)
     .padding(20)
-    .into()
+    .boxed()
 }

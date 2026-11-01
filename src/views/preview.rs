@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::advanced::graphics::core::length::Bounds;
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::{
@@ -117,6 +118,7 @@ fn with_input_icon<'a>(
             // iced 0.14's own default for the field it removed.
             None => theme.palette().background.weak.text,
         }),
+        selection: None,
     });
 
     let row = match side {
@@ -124,7 +126,7 @@ fn with_input_icon<'a>(
         TextInputIconSide::Right => row![input, icon],
     };
 
-    row.spacing(spacing).align_y(Alignment::Center).into()
+    row.spacing(spacing).align_y(Alignment::Center).boxed()
 }
 
 fn custom_style_definition(
@@ -1624,7 +1626,7 @@ fn build_widget_preview<'a>(
     if is_selected && highlight_selected {
         content
             .explain(theme.palette().success.strong.color)
-            .into()
+            .boxed()
     } else {
         content
     }
@@ -1642,7 +1644,7 @@ fn build_container_preview<'a>(
 ) -> Element<'a, Message> {
     let props = &widget.properties;
     let mut container = container(if widget.children.is_empty() {
-        text("Empty Container").into()
+        text("Empty Container").boxed()
     } else {
         build_widget_preview(
             hierarchy,
@@ -1718,7 +1720,7 @@ fn build_container_preview<'a>(
         container::Style::default()
     });
 
-    container.into()
+    container.boxed()
 }
 
 /// Every child of a widget, previewed, in order.
@@ -1798,7 +1800,7 @@ fn build_row_preview<'a>(
         // Apply horizontal alignment
         wrapping = wrapping.align_x(props.wrapping_align_x);
 
-        wrapping.into()
+        wrapping.boxed()
     } else {
         // Non-wrapping rows: Use the old working pattern
         let mut content = row![]
@@ -1813,8 +1815,8 @@ fn build_row_preview<'a>(
             });
 
         if widget.children.is_empty() {
-            content = content.push(text("Row Item 1"));
-            content = content.push(text("Row Item 2"));
+            content = content.push(text("Row Item 1").boxed());
+            content = content.push(text("Row Item 2").boxed());
         } else {
             for child in &widget.children {
                 content = content.push(build_widget_preview(
@@ -1834,7 +1836,7 @@ fn build_row_preview<'a>(
             content = content.clip(true);
         }
 
-        content.into()
+        content.boxed()
     }
 }
 
@@ -1861,8 +1863,8 @@ fn build_column_preview<'a>(
         });
 
     if widget.children.is_empty() {
-        content = content.push(text("Column Item 1"));
-        content = content.push(text("Column Item 2"));
+        content = content.push(text("Column Item 1").boxed());
+        content = content.push(text("Column Item 2").boxed());
     } else {
         for child in preview_children(
             hierarchy,
@@ -1884,7 +1886,7 @@ fn build_column_preview<'a>(
         content = content.clip(true);
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_button_preview<'a>(
@@ -1902,7 +1904,7 @@ fn build_button_preview<'a>(
     // Use child element as button content when one is present,
     // otherwise fall back to the text_content property.
     let button_content: Element<_> = if widget.children.is_empty() {
-        text(&props.text_content).into()
+        text(&props.text_content).boxed()
     } else {
         build_widget_preview(
             hierarchy,
@@ -1966,7 +1968,7 @@ fn build_button_preview<'a>(
         btn = btn.clip(true);
     }
 
-    btn.into()
+    btn.boxed()
 }
 
 fn build_text_preview<'a>(
@@ -1996,7 +1998,10 @@ fn build_text_preview<'a>(
         } else {
             user_color
         };
-        text::Style { color: Some(c) }
+        text::Style {
+            color: Some(c),
+            selection: None,
+        }
     });
     t = t.line_height(props.line_height);
     t = t.wrapping(match props.wrap {
@@ -2013,7 +2018,7 @@ fn build_text_preview<'a>(
     t = t.align_x(props.text_align_x).align_y(props.text_align_y);
 
     let _ = theme; // used via closure capture above
-    t.into()
+    t.boxed()
 }
 
 fn build_text_editor_preview<'a>(
@@ -2062,7 +2067,7 @@ fn build_text_editor_preview<'a>(
         wrapper = wrapper.clip(true);
     }
 
-    wrapper.into()
+    wrapper.boxed()
 }
 
 fn build_text_input_preview<'a>(
@@ -2134,7 +2139,7 @@ fn build_text_input_preview<'a>(
     }
 
     with_input_icon(
-        input.into(),
+        input.boxed(),
         props.text_input_icon_enabled,
         &props.text_input_icon_family,
         &props.text_input_icon_name,
@@ -2173,7 +2178,7 @@ fn build_checkbox_preview<'a>(
         });
     }
 
-    cb.into()
+    cb.boxed()
 }
 
 fn build_radio_preview<'a>(
@@ -2216,13 +2221,13 @@ fn build_radio_preview<'a>(
                         });
                     }
 
-                    radio_widget.into()
+                    radio_widget.boxed()
                 })
                 .collect::<Vec<Element<Message>>>(),
         )
-        .into()
+        .boxed()
     } else {
-        text("No radio options").into()
+        text("No radio options").boxed()
     }
 }
 
@@ -2253,7 +2258,7 @@ fn build_slider_preview<'a>(
         });
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_vertical_slider_preview<'a>(
@@ -2283,7 +2288,7 @@ fn build_vertical_slider_preview<'a>(
         });
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_progress_bar_preview<'a>(
@@ -2314,7 +2319,7 @@ fn build_progress_bar_preview<'a>(
         });
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_toggler_preview<'a>(
@@ -2345,7 +2350,7 @@ fn build_toggler_preview<'a>(
         });
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_pick_list_preview<'a>(
@@ -2384,7 +2389,7 @@ fn build_pick_list_preview<'a>(
         }
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn build_scrollable_preview<'a>(
@@ -2402,7 +2407,7 @@ fn build_scrollable_preview<'a>(
 
     if widget.children.is_empty() {
         for i in 1..=10 {
-            content = content.push(text(format!("Scrollable Item {}", i)));
+            content = content.push(text(format!("Scrollable Item {}", i)).boxed());
         }
     } else {
         for child in &widget.children {
@@ -2425,7 +2430,7 @@ fn build_scrollable_preview<'a>(
         .anchor_y(props.anchor_y)
         .width(props.width)
         .height(props.height)
-        .into()
+        .boxed()
 }
 
 fn build_space_preview<'a>(
@@ -2455,9 +2460,9 @@ fn build_space_preview<'a>(
                 },
                 ..Default::default()
             })
-            .into()
+            .boxed()
     } else {
-        s.into()
+        s.boxed()
     }
 }
 
@@ -2484,7 +2489,7 @@ fn build_rule_preview<'a>(
             }
         }
     }
-    r.into()
+    r.boxed()
 }
 
 fn build_image_preview<'a>(
@@ -2512,13 +2517,13 @@ fn build_image_preview<'a>(
                 background: Some(Background::Color(Color::from_rgba(0.5, 0.5, 0.5, 0.05))),
                 ..Default::default()
             })
-            .into()
+            .boxed()
     } else {
         image(image::Handle::from_path(&props.image_path))
             .content_fit(props.image_fit.into())
             .width(props.width)
             .height(props.height)
-            .into()
+            .boxed()
     };
     el
 }
@@ -2547,13 +2552,13 @@ fn build_svg_preview<'a>(
                 background: Some(Background::Color(Color::from_rgba(0.5, 0.5, 0.5, 0.05))),
                 ..Default::default()
             })
-            .into()
+            .boxed()
     } else {
         svg(svg::Handle::from_path(&props.svg_path))
             .content_fit(props.svg_fit.into())
             .width(props.width)
             .height(props.height)
-            .into()
+            .boxed()
     };
     el
 }
@@ -2586,7 +2591,7 @@ fn build_tooltip_preview<'a>(
                     type_system,
                 )
             })
-            .unwrap_or_else(|| text("Tooltip host").into());
+            .unwrap_or_else(|| text("Tooltip host").boxed());
 
         container(element)
             .padding(6)
@@ -2616,7 +2621,7 @@ fn build_tooltip_preview<'a>(
                     type_system,
                 )
             })
-            .unwrap_or_else(|| text(&props.tooltip_text).size(14).into());
+            .unwrap_or_else(|| text(&props.tooltip_text).size(14).boxed());
 
         container(element)
             .padding(6)
@@ -2633,10 +2638,11 @@ fn build_tooltip_preview<'a>(
             })
     };
 
+    // iced master's tooltip lost its own padding, which only ever added a
+    // transparent margin around the popup; the gap absorbs it.
     tooltip(host, popup, props.tooltip_position.into())
-        .gap(6)
-        .padding(8)
-        .into()
+        .gap(6 + 8)
+        .boxed()
 }
 
 fn build_combo_box_preview<'a>(
@@ -2717,7 +2723,7 @@ fn build_combo_box_preview<'a>(
     }
 
     with_input_icon(
-        cb.into(),
+        cb.boxed(),
         props.combobox_icon_enabled,
         &props.combobox_icon_family,
         &props.combobox_icon_name,
@@ -2744,7 +2750,7 @@ fn build_markdown_preview<'a>(
         markdown::Settings::with_text_size(props.markdown_text_size),
         theme.clone(),
     )
-    .map(|_| Message::Noop)
+    .map(|_| Message::Noop).boxed()
 }
 
 fn build_mouse_area_preview<'a>(
@@ -2774,7 +2780,7 @@ fn build_mouse_area_preview<'a>(
                 background: Some(Background::Color(Color::from_rgba(0.0, 0.0, 0.0, 0.05))),
                 ..Default::default()
             })
-            .into()
+            .boxed()
     } else {
         build_widget_preview(
             hierarchy,
@@ -2842,13 +2848,13 @@ fn build_mouse_area_preview<'a>(
     }
 
     // Apply common layout properties
-    let mut element: Element<_> = area.into();
+    let mut element: Element<_> = area.boxed();
 
     if props.width != Length::Shrink {
-        element = container(element).width(props.width).into();
+        element = container(element).width(props.width).boxed();
     }
     if props.height != Length::Shrink {
-        element = container(element).height(props.height).into();
+        element = container(element).height(props.height).boxed();
     }
 
     element
@@ -2870,8 +2876,8 @@ fn build_qr_code_preview<'a>(
     match &props.qrcode_data {
         Some(data) => qr_code::QRCode::new(data)
             .cell_size(props.qrcode_cell_size)
-            .into(),
-        _ => text("Invalid QR data").into(),
+            .boxed(),
+        _ => text("Invalid QR data").boxed(),
     }
 }
 
@@ -2894,14 +2900,14 @@ fn build_stack_preview<'a>(
                 .width(Length::Fill)
                 .height(Length::Fill)
                 .center(Length::Fill)
-                .into(),
+                .boxed(),
         );
         layers.push(
             container(text("Stack Layer 2").color(Color::from_rgb(1.0, 0.0, 0.0)))
                 .width(Length::Fill)
                 .height(Length::Fill)
                 .padding(20)
-                .into(),
+                .boxed(),
         );
     } else {
         for child in &widget.children {
@@ -2931,7 +2937,7 @@ fn build_stack_preview<'a>(
     } else {
         s
     };
-    s.into()
+    s.boxed()
 }
 
 fn build_collapsible_preview<'a>(
@@ -2957,7 +2963,7 @@ fn build_collapsible_preview<'a>(
             type_system,
         )
     } else {
-        space::horizontal().height(Length::Shrink).into()
+        space::horizontal().height(Length::Shrink).boxed()
     };
 
     let mut collapsible = collapsible_widget::collapsible(&props.collapsible_title, child_content)
@@ -2986,7 +2992,7 @@ fn build_collapsible_preview<'a>(
         });
     }
 
-    collapsible.into()
+    collapsible.boxed()
 }
 
 fn build_collapsible_group_preview<'a>(
@@ -3021,7 +3027,7 @@ fn build_collapsible_group_preview<'a>(
         .width(props.width)
         .height(props.height)
         .spacing(props.spacing)
-        .into()
+        .boxed()
 }
 
 fn build_date_picker_preview<'a>(
@@ -3088,17 +3094,17 @@ fn build_date_picker_preview<'a>(
                 Message::DatePickerChangedWithTime(widget.id, selection, time, current_view_id)
             })
             .on_close(move || Message::DatePickerClosed(widget.id, current_view_id))
-            .into()
+            .boxed()
     } else {
         date_picker_widget::date_picker(is_open, selection)
             .on_change(move |selection| {
                 Message::DatePickerChanged(widget.id, selection, current_view_id)
             })
             .on_close(move || Message::DatePickerClosed(widget.id, current_view_id))
-            .into()
+            .boxed()
     };
 
-    stack![trigger, picker].into()
+    stack![trigger, picker].boxed()
 }
 
 fn build_split_preview<'a>(
@@ -3129,7 +3135,7 @@ fn build_split_preview<'a>(
             .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
-            .into()
+            .boxed()
     };
 
     let end: Element<'a, Message> = if let Some(child) = widget.children.get(1) {
@@ -3148,7 +3154,7 @@ fn build_split_preview<'a>(
             .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
-            .into()
+            .boxed()
     };
 
     let split = match props.orientation {
@@ -3171,7 +3177,7 @@ fn build_split_preview<'a>(
         wrapper = wrapper.clip(true);
     }
 
-    wrapper.into()
+    wrapper.boxed()
 }
 
 fn build_float_preview<'a>(
@@ -3201,7 +3207,7 @@ fn build_float_preview<'a>(
             .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
-            .into()
+            .boxed()
     };
 
     let mut floating = float(content);
@@ -3222,7 +3228,7 @@ fn build_float_preview<'a>(
         wrapper = wrapper.clip(true);
     }
 
-    wrapper.into()
+    wrapper.boxed()
 }
 
 fn build_responsive_preview<'a>(
@@ -3271,7 +3277,7 @@ fn build_responsive_preview<'a>(
                     .center(Length::Fill)
                     .width(Length::Fill)
                     .height(Length::Fill)
-                    .into()
+                    .boxed()
             })
     })
     .width(props.width)
@@ -3284,7 +3290,7 @@ fn build_responsive_preview<'a>(
         wrapper = wrapper.clip(true);
     }
 
-    wrapper.into()
+    wrapper.boxed()
 }
 
 fn build_sensor_preview<'a>(
@@ -3314,7 +3320,7 @@ fn build_sensor_preview<'a>(
             .center(Length::Fill)
             .width(Length::Fill)
             .height(Length::Fill)
-            .into()
+            .boxed()
     };
 
     let mut sensed = sensor(content).anticipate(props.sensor_anticipate.max(0.0));
@@ -3345,7 +3351,7 @@ fn build_sensor_preview<'a>(
         wrapper = wrapper.clip(true);
     }
 
-    wrapper.into()
+    wrapper.boxed()
 }
 
 /// The child a trigger-driven overlay opens from, or a stand-in for it.
@@ -3397,7 +3403,7 @@ fn overlay_trigger_child<'a>(
                 trigger = trigger.style(button::secondary);
             }
 
-            trigger.into()
+            trigger.boxed()
         }
     }
 }
@@ -3457,7 +3463,7 @@ fn build_popover_preview<'a>(
             current_view_id,
             type_system,
         ),
-        None => text("Popover content").into(),
+        None => text("Popover content").boxed(),
     };
 
     let mut popover = widgets::popover::popover(trigger, content)
@@ -3518,7 +3524,7 @@ fn build_popover_preview<'a>(
         });
     }
 
-    popover.into()
+    popover.boxed()
 }
 
 
@@ -3696,7 +3702,7 @@ fn build_menu_preview<'a>(
         });
     }
 
-    menu.into()
+    menu.boxed()
 }
 
 fn build_layer_preview<'a>(
@@ -3723,7 +3729,7 @@ fn build_layer_preview<'a>(
             current_view_id,
             type_system,
         ),
-        None => text("Layer content").into(),
+        None => text("Layer content").boxed(),
     };
 
     let mut layer = widgets::layer::layer(content)
@@ -3814,7 +3820,7 @@ fn build_layer_preview<'a>(
             )),
         layer,
     ]
-    .into()
+    .boxed()
 }
 
 fn build_toast_preview<'a>(
@@ -3907,7 +3913,7 @@ fn build_toast_preview<'a>(
         )),
         toasts,
     ]
-    .into()
+    .boxed()
 }
 
 fn build_grid_preview<'a>(
@@ -3934,7 +3940,7 @@ fn build_grid_preview<'a>(
                         },
                         ..Default::default()
                     })
-                    .into()
+                    .boxed()
             })
             .collect()
     } else {
@@ -3968,7 +3974,7 @@ fn build_grid_preview<'a>(
     } else {
         g
     };
-    g.into()
+    g.boxed()
 }
 
 fn build_themer_preview<'a>(
@@ -3983,7 +3989,7 @@ fn build_themer_preview<'a>(
 ) -> Element<'a, Message> {
     let props = &widget.properties;
     let content = if widget.children.is_empty() {
-        container(text("Themed Content")).padding(10).into()
+        container(text("Themed Content")).padding(10).boxed()
     } else {
         let mut col = column![];
         for child in &widget.children {
@@ -3998,11 +4004,11 @@ fn build_themer_preview<'a>(
                 type_system,
             ));
         }
-        col.into()
+        col.boxed()
     };
 
     if let Some(theme) = &props.themer_theme {
-        themer(Some(theme.clone()), content).into()
+        themer(Some(theme.clone()), content).boxed()
     } else {
         content
     }
@@ -4020,7 +4026,7 @@ fn build_pin_preview<'a>(
 ) -> Element<'a, Message> {
     let props = &widget.properties;
     let content = if widget.children.is_empty() {
-        text("Pinned Content").into()
+        text("Pinned Content").boxed()
     } else {
         build_widget_preview(
             hierarchy,
@@ -4040,7 +4046,7 @@ fn build_pin_preview<'a>(
         p = p.position(props.pin_point);
     }
 
-    p.into()
+    p.boxed()
 }
 
 
@@ -4073,7 +4079,7 @@ fn build_data_table_preview<'a>(
         )
         .padding(8)
         .style(container::bordered_box)
-        .into();
+        .boxed();
     };
 
     if props.data_table_columns.is_empty() {
@@ -4084,7 +4090,7 @@ fn build_data_table_preview<'a>(
         )
         .padding(8)
         .style(container::bordered_box)
-        .into();
+        .boxed();
     }
 
     const SAMPLE_ROWS: usize = 6;
@@ -4138,10 +4144,10 @@ fn build_data_table_preview<'a>(
     }
 
     for row in &sample {
-        table.push(row.iter().map(|cell| text(cell.clone()).into()));
+        table.push(row.iter().map(|cell| text(cell.clone()).boxed()));
     }
 
-    container(table).into()
+    container(table).boxed()
 }
 
 /// The header tree: a leaf per column, wrapped in a group wherever a run of
@@ -4163,9 +4169,9 @@ fn data_table_header<'a>(
                     weight: font::Weight::Bold,
                     ..Font::DEFAULT
                 })
-                .into()
+                .boxed()
         } else {
-            text(label).into()
+            text(label).boxed()
         }
     };
 
@@ -4324,7 +4330,7 @@ fn build_table_preview<'a>(
             container(tbl)
                 .width(props.width)
                 .height(props.height)
-                .into()
+                .boxed()
         } else {
             // Struct was deleted
             container(
@@ -4344,7 +4350,7 @@ fn build_table_preview<'a>(
                 },
                 ..Default::default()
             })
-            .into()
+            .boxed()
         }
     } else {
         container(
@@ -4364,7 +4370,7 @@ fn build_table_preview<'a>(
             },
             ..Default::default()
         })
-        .into()
+        .boxed()
     }
 }
 
@@ -4384,7 +4390,7 @@ fn build_icon_preview<'a>(
         .size(props.icon_size)
         .width(props.width)
         .height(props.height)
-        .into()
+        .boxed()
 }
 
 fn build_view_reference_preview<'a>(
@@ -4426,7 +4432,7 @@ fn build_view_reference_preview<'a>(
                         background: Some(Background::Color(Color::from_rgba(1.0, 0.0, 0.0, 0.1))),
                         ..Default::default()
                     })
-                    .into()
+                    .boxed()
                 }
             }
         }
@@ -4443,7 +4449,7 @@ fn build_view_reference_preview<'a>(
                     background: Some(Background::Color(Color::from_rgba(0.0, 0.0, 0.0, 0.05))),
                     ..Default::default()
                 })
-                .into()
+                .boxed()
         }
     }
 }

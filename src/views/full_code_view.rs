@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use crate::code_gen_version_two::helpers::internal_overlay;
 use crate::icon;
 use crate::views::widget_tree::Message;
@@ -40,7 +41,7 @@ pub fn view<'a>(
             })
             .padding(Padding::new(5.0).horizontal(10.0))
             .on_press(Message::CodeTabSelected(filename))
-            .into()
+            .boxed()
     }))
     .spacing(5)
     .align_y(Alignment::Center);
@@ -84,5 +85,5 @@ pub fn view<'a>(
     ]
     .spacing(10)
     .padding(10)
-    .into()
+    .boxed()
 }

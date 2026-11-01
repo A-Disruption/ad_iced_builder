@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use super::control_styling::*;
 use crate::data_structures::properties::messages::*;
 use crate::data_structures::properties::properties::*;
@@ -58,8 +59,8 @@ pub fn batch_editor_controls<'a>(
     }
 
     // List the widgets being edited (for clarity)
-    content = content.push(rule::horizontal(2));
-    content = content.push(text("Editing:").size(SECTION_SIZE));
+    content = content.push(rule::horizontal(2).boxed());
+    content = content.push(text("Editing:").size(SECTION_SIZE).boxed());
 
     for widget in selected.iter().take(10) {
         // Check if widget has a custom name
@@ -74,18 +75,19 @@ pub fn batch_editor_controls<'a>(
             format!("  • {} ({})", widget.widget_type, widget.name)
         };
 
-        content = content.push(text(display_name).size(LABEL_SIZE));
+        content = content.push(text(display_name).size(LABEL_SIZE).boxed());
     }
 
     if selected.len() > 10 {
         content = content.push(
             text(format!("  ... and {} more", selected.len() - 10))
                 .size(LABEL_SIZE)
-                .color(Color::from_rgb(0.6, 0.6, 0.6)),
+                .color(Color::from_rgb(0.6, 0.6, 0.6))
+                .boxed(),
         );
     }
 
-    scrollable(content.padding(15)).into()
+    scrollable(content.padding(15)).boxed()
 }
 
 /// Batch style picker, for a selection that is all one kind of widget.
@@ -133,7 +135,7 @@ fn batch_style_controls<'a>(
                 .style(iced::widget::button::secondary),
         ]
         .spacing(LABEL_SPACING)
-        .into(),
+        .boxed(),
     )
 }
 
@@ -183,7 +185,7 @@ fn batch_size_controls<'a>(
         ),
     ]
     .spacing(SECTION_SPACING)
-    .into()
+    .boxed()
 }
 
 /// Batch length picker - mirrors length_picker_scrollable_aware but for batch mode
@@ -266,7 +268,7 @@ fn batch_length_picker<'a>(
         LengthChoice::Fixed => {
             column![
                 text("Pixels").size(LABEL_SIZE),
-                text_input::<Message, Theme, iced::Renderer>("e.g. 120", draft_fixed)
+                text_input::<Message, Theme>("e.g. 120", draft_fixed)
                     .on_input(move |text| {
                         // Update draft field
                         if is_height {
@@ -278,12 +280,12 @@ fn batch_length_picker<'a>(
                     .width(250)
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         }
         LengthChoice::FillPortion => {
             column![
                 text("Portion").size(LABEL_SIZE),
-                text_input::<Message, Theme, iced::Renderer>("e.g. 1", draft_fill_portion)
+                text_input::<Message, Theme>("e.g. 1", draft_fill_portion)
                     .on_input(move |text| {
                         // Update draft field
                         if is_height {
@@ -299,7 +301,7 @@ fn batch_length_picker<'a>(
                     .width(250)
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         }
         // These have no draft string of their own, so they go through the
         // shared editors and write the length straight out.
@@ -314,16 +316,16 @@ fn batch_length_picker<'a>(
                 }
             },
         ),
-        _ => space::horizontal().into(),
+        _ => space::horizontal().boxed(),
     };
 
     let content = row![picker, extra].spacing(SECTION_SPACING);
 
     // Add warning if present
     if let Some(warn) = warning {
-        column![content, warn].spacing(5).into()
+        column![content, warn].spacing(5).boxed()
     } else {
-        content.into()
+        content.boxed()
     }
 }
 
@@ -494,7 +496,7 @@ fn batch_padding_controls<'a>(common: &'a CommonProperties) -> Element<'a, Messa
         },
     ]
     .spacing(SECTION_SPACING)
-    .into()
+    .boxed()
 }
 
 /// Batch spacing controls - mirrors spacing controls in row/column editors
@@ -546,7 +548,7 @@ fn batch_spacing_controls<'a>(common: &'a CommonProperties) -> Element<'a, Messa
         .spacing(LABEL_SPACING),
     ]
     .spacing(SECTION_SPACING)
-    .into()
+    .boxed()
 }
 
 /// Batch text size controls
@@ -606,5 +608,5 @@ fn batch_text_size_controls<'a>(common: &'a CommonProperties) -> Element<'a, Mes
         .spacing(LABEL_SPACING),
     ]
     .spacing(SECTION_SPACING)
-    .into()
+    .boxed()
 }

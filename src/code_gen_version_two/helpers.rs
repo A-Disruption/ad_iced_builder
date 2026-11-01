@@ -85,8 +85,8 @@ pub fn format_shadow(
 /// element back over the trailing edge of the content instead of sitting
 /// outside it.
 pub fn internal_overlay<'a, Message, Theme, Renderer>(
-    content: impl Into<Element<'a, Message, Theme, Renderer>>,
-    corner: impl Into<Element<'a, Message, Theme, Renderer>>,
+    content: impl iced::advanced::Widget<Message, Theme, Renderer> + 'a,
+    corner: impl iced::advanced::Widget<Message, Theme, Renderer> + 'a,
 ) -> Popover<'a, Message, Theme, Renderer>
 where
     Theme: widgets::popover::Catalog,

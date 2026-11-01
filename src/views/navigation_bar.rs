@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::widget::{button, column, container, row, rule, space, tooltip};
 use iced::{Element, Length, Theme};
 
@@ -120,7 +121,7 @@ pub fn navigation_bar<'a>(
     })
     .center_y(Length::Fixed(35.0))
     .width(Length::Fill)
-    .into()
+    .boxed()
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]

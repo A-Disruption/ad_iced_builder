@@ -9,6 +9,7 @@
 //! Every kind gets a body even when it has no settings, because the pins are
 //! part of the body now.
 
+use iced::Widget as _;
 use iced::widget::{button, checkbox, column, container, pick_list, row, text, text_input};
 use iced::{Alignment, Element, Length};
 use iced_nodegraph::prelude::*;
@@ -265,33 +266,33 @@ fn pin_for<'a>(port: &PortDef) -> Element<'a, NodeMessage> {
     let dot = text(glyph).size(10);
 
     match port.side {
-        PortSide::Input => pin!(Left, port.id.0, dot, Input, port.kind.clone()).into(),
-        PortSide::Output => pin!(Right, port.id.0, dot, Output, port.kind.clone()).into(),
+        PortSide::Input => pin!(Left, port.id.0, dot, Input, port.kind.clone()).boxed(),
+        PortSide::Output => pin!(Right, port.id.0, dot, Output, port.kind.clone()).boxed(),
     }
 }
 
 /// One row of a node: whatever it shows, with the pins that belong to it.
 fn body_row<'a>(
     left: Option<&PortDef>,
-    content: impl Into<Element<'a, NodeMessage>>,
+    content: impl iced::Widget<NodeMessage> + 'a,
     right: Option<&PortDef>,
 ) -> Element<'a, NodeMessage> {
     let gutter = |port: Option<&PortDef>| -> Element<'a, NodeMessage> {
         match port {
             Some(port) => container(pin_for(port))
                 .width(Length::Fixed(PIN_GUTTER))
-                .into(),
+                .boxed(),
             None => container(text(""))
                 .width(Length::Fixed(PIN_GUTTER))
                 .height(Length::Fixed(14.0))
-                .into(),
+                .boxed(),
         }
     };
 
-    row![gutter(left), content.into(), gutter(right)]
+    row![gutter(left), content.boxed(), gutter(right)]
         .spacing(6)
         .align_y(Alignment::Center)
-        .into()
+        .boxed()
 }
 
 /// A row that is only a named pin — for ports that need labelling and nothing
@@ -466,7 +467,7 @@ pub fn body<'a>(node: &'a ActionNodeData, ctx: &'a NodeContext) -> Element<'a, N
                 // An enum match's arms are its variants: naming them here
                 // would only let them drift out of step with the enum.
                 let content: Element<'a, NodeMessage> = if enum_type.is_some() {
-                    text(arm).size(LABEL_SIZE).width(Length::Fill).into()
+                    text(arm).size(LABEL_SIZE).width(Length::Fill).boxed()
                 } else {
                     row![
                         text_input("arm", arm)
@@ -479,7 +480,7 @@ pub fn body<'a>(node: &'a ActionNodeData, ctx: &'a NodeContext) -> Element<'a, N
                     ]
                     .spacing(2)
                     .align_y(Alignment::Center)
-                    .into()
+                    .boxed()
                 };
 
                 rows.push(body_row(None, content, output(index)));
@@ -578,7 +579,7 @@ pub fn body<'a>(node: &'a ActionNodeData, ctx: &'a NodeContext) -> Element<'a, N
         rows.extend(remaining_pins(node, inputs, outputs));
     }
 
-    column(rows).spacing(4).padding([4, 6]).into()
+    column(rows).spacing(4).padding([4, 6]).boxed()
 }
 
 /// One assignment: what it writes, where the value comes from, and the value.
@@ -611,11 +612,11 @@ fn assignment_row<'a>(
             .on_input(move |value| NodeMessage::SetAssignmentLiteral(id, index, value))
             .size(LABEL_SIZE)
             .width(Length::Fixed(CONTROL_WIDTH))
-            .into(),
+            .boxed(),
         ValueSource::StateField(field) => {
-            text(field.display_name.clone()).size(LABEL_SIZE).into()
+            text(field.display_name.clone()).size(LABEL_SIZE).boxed()
         }
-        ValueSource::FromPort => text("wired").size(LABEL_SIZE).into(),
+        ValueSource::FromPort => text("wired").size(LABEL_SIZE).boxed(),
     };
 
     // Every assignment gets a data input from `rebuild_ports`, after the flow
@@ -639,7 +640,7 @@ fn assignment_row<'a>(
         .spacing(2),
     )
     .padding([2, 0])
-    .into()
+    .boxed()
 }
 
 
@@ -1762,7 +1763,7 @@ fn navigate_target_row<'a>(
         ));
     }
 
-    column(rows).spacing(2).into()
+    column(rows).spacing(2).boxed()
 }
 
 /// An enum and one of its variants, emitted as a value.
@@ -2050,11 +2051,11 @@ fn conditional_rows<'a>(
         ]
         .spacing(4)
         .align_y(Alignment::Center)
-        .into()
+        .boxed()
     } else if authored_wins {
-        text("if").size(LABEL_SIZE).width(Length::Fill).into()
+        text("if").size(LABEL_SIZE).width(Length::Fill).boxed()
     } else {
-        text("if wired").size(LABEL_SIZE).width(Length::Fill).into()
+        text("if wired").size(LABEL_SIZE).width(Length::Fill).boxed()
     };
 
     let mut rows = vec![
@@ -2159,7 +2160,7 @@ fn rhs_editor(
             .on_toggle(move |value| {
                 NodeMessage::SetConditionRhs(id, index, value.to_string())
             })
-            .into(),
+            .boxed(),
 
         ActionValueType::Enum { variants, .. } if !variants.is_empty() => {
             let selected = match &condition.rhs_literal {
@@ -2172,14 +2173,14 @@ fn rhs_editor(
                 .placeholder("variant")
                 .text_size(LABEL_SIZE)
                 .width(Length::Fixed(CONTROL_WIDTH))
-                .into()
+                .boxed()
         }
 
         _ => text_input("value", editable_text(&condition.rhs_literal))
             .on_input(move |value| NodeMessage::SetConditionRhs(id, index, value))
             .size(LABEL_SIZE)
             .width(Length::Fixed(CONTROL_WIDTH))
-            .into(),
+            .boxed(),
     }
 }
 
@@ -2247,13 +2248,13 @@ fn match_subject_rows<'a>(
                 .placeholder("variant")
                 .text_size(LABEL_SIZE)
                 .width(Length::Fixed(CONTROL_WIDTH))
-                .into()
+                .boxed()
         } else {
             text_input("value", editable_text(value))
                 .on_input(move |raw| NodeMessage::SetMatchSubjectLiteral(id, raw))
                 .size(LABEL_SIZE)
                 .width(Length::Fixed(CONTROL_WIDTH))
-                .into()
+                .boxed()
         };
 
         rows.push(body_row(None, editor, None));

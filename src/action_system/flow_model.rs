@@ -245,10 +245,10 @@ pub struct NodeContent<'a, Message, Theme = iced::Theme> {
 
 impl<'a, Message, Theme> NodeContent<'a, Message, Theme> {
     /// Content with a body widget only.
-    pub fn body(widget: impl Into<Element<'a, Message, Theme>>) -> Self {
+    pub fn body(widget: impl iced::Widget<Message, Theme> + 'a) -> Self {
         Self {
             header: None,
-            body: Some(widget.into()),
+            body: Some(widget.boxed()),
             selected_top: None,
             selected_bottom: None,
         }
@@ -265,20 +265,20 @@ impl<'a, Message, Theme> NodeContent<'a, Message, Theme> {
     }
 
     /// Attach a widget to the right portion of the header.
-    pub fn with_header(mut self, widget: impl Into<Element<'a, Message, Theme>>) -> Self {
-        self.header = Some(widget.into());
+    pub fn with_header(mut self, widget: impl iced::Widget<Message, Theme> + 'a) -> Self {
+        self.header = Some(widget.boxed());
         self
     }
 
     /// Attach a widget above the node while it is the primary selection.
-    pub fn with_selected_top(mut self, widget: impl Into<Element<'a, Message, Theme>>) -> Self {
-        self.selected_top = Some(widget.into());
+    pub fn with_selected_top(mut self, widget: impl iced::Widget<Message, Theme> + 'a) -> Self {
+        self.selected_top = Some(widget.boxed());
         self
     }
 
     /// Attach a widget below the node while it is the primary selection.
-    pub fn with_selected_bottom(mut self, widget: impl Into<Element<'a, Message, Theme>>) -> Self {
-        self.selected_bottom = Some(widget.into());
+    pub fn with_selected_bottom(mut self, widget: impl iced::Widget<Message, Theme> + 'a) -> Self {
+        self.selected_bottom = Some(widget.boxed());
         self
     }
 }

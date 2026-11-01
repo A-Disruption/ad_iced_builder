@@ -11,6 +11,7 @@
 //! gate the palette already computed and then spent on greying buttons out — to
 //! decide what to show. Nothing unavailable is drawn at all.
 
+use iced::Widget as _;
 use iced::widget::{button, column, container, row, rule, scrollable, text, text_input};
 use iced::{Alignment, Element, Length, padding};
 
@@ -232,7 +233,7 @@ pub fn trigger<'a>(
             .max_width(PICKER_WIDTH)
             .dismiss_on_outside_press(true)
             .on_toggle(move |open| Message::Toggled(parent_id, open))
-            .into(),
+            .boxed(),
     )
 }
 /// The search box and the filtered list beneath it.
@@ -262,7 +263,7 @@ fn picker_content<'a>(
                 .style(text::secondary),
         )
         .padding(padding::top(14).bottom(6))
-        .into()
+        .boxed()
     } else {
         // One entry per line, because the arrow keys walk this list and a grid
         // would make "down" mean two different things depending on where you
@@ -278,7 +279,8 @@ fn picker_content<'a>(
 
                 list = list.push(
                     container(text(ty.category().label()).size(10).style(text::secondary))
-                        .padding(padding::top(6).bottom(2)),
+                        .padding(padding::top(6).bottom(2))
+                        .boxed(),
                 );
             }
 
@@ -293,7 +295,7 @@ fn picker_content<'a>(
             Length::Shrink
         };
 
-        scrollable(list).id(LIST_ID).height(height).into()
+        scrollable(list).id(LIST_ID).height(height).boxed()
     };
 
     container(
@@ -301,7 +303,7 @@ fn picker_content<'a>(
             .spacing(8)
             .width(Length::Fill),
     )
-    .into()
+    .boxed()
 }
 
 /// One widget type in the list.
@@ -331,5 +333,5 @@ fn entry<'a>(
     .padding(padding::left(6).right(6).top(3).bottom(3))
     .width(Length::Fill)
     .on_press(Message::Picked(parent_id, widget_type))
-    .into()
+    .boxed()
 }

@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::clipboard;
 use iced::widget::{button, column, container, mouse_area, row, space, text, text_editor};
 use iced::{Alignment, Element, Length, Task, Theme, padding};
@@ -274,7 +275,7 @@ pub fn view<'a>(
 
     tree = tree.reset_order_state();
 
-    tree.into()
+    tree.boxed()
 }
 
 /// How wide one action button is, including the gap after it.
@@ -319,7 +320,7 @@ fn row_content<'a>(
         text(widget.widget_type.label())
             .size(11)
             .style(text::secondary)
-            .into()
+            .boxed()
     });
 
     let available = get_available_types(hierarchy, &widget.id);
@@ -362,11 +363,11 @@ fn row_content<'a>(
         row![add, swap, delete]
             .spacing(2)
             .align_y(Alignment::Center)
-            .into()
+            .boxed()
     } else {
         space::horizontal()
             .width(Length::Fixed(slots as f32 * ACTION_SLOT_WIDTH))
-            .into()
+            .boxed()
     };
 
     mouse_area(
@@ -389,7 +390,7 @@ fn row_content<'a>(
     )
     .on_enter(Message::RowEntered(widget.id))
     .on_exit(Message::RowLeft(widget.id))
-    .into()
+    .boxed()
 }
 fn build_tree_item<'a>(
     hierarchy: &'a WidgetHierarchy,
@@ -832,7 +833,7 @@ pub fn controls_for_widget<'a>(
             controls_view,
         ]
         .spacing(5)
-        .into(),
+        .boxed(),
         None => controls_view.into(),
     }
 }

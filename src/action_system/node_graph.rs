@@ -11,6 +11,7 @@
 //! `iced_nodegraph` derives a pin's position from where its wrapper lands in
 //! the node's own layout, so the offsets — and the constants — are gone.
 
+use iced::Widget as _;
 use iced::widget::{column, container, row, text};
 use iced::{Alignment, Element, Length, Point};
 use iced_nodegraph::prelude::*;
@@ -95,7 +96,7 @@ fn node_content<'a>(node: &'a ActionNodeData, ctx: &'a NodeContext) -> Element<'
 
     container(column![header, node_body::body(node, ctx).map(Message::Node)].spacing(2))
         .width(Length::Fixed(node_width(&node.kind)))
-        .into()
+        .boxed()
 }
 
 /// Everything the editor shows: the graph, and the palette over it.
@@ -126,7 +127,7 @@ pub fn editor<'a>(
                 .center_x(Length::Fill)
                 .center_y(Length::Fill),
         ]
-        .into();
+        .boxed();
     };
 
     let (graph, palette) = (&flow.graph, &state.palette);
@@ -140,7 +141,7 @@ pub fn editor<'a>(
         .on_right_press(Message::Palette(PaletteMessage::Opened));
 
     let Some(open) = &palette.open else {
-        return column![bar, canvas].into();
+        return column![bar, canvas].boxed();
     };
 
     // `layer` positions against the viewport and draws as an overlay, so it
@@ -153,7 +154,7 @@ pub fn editor<'a>(
         .on_dismiss(Message::Palette(PaletteMessage::Closed))
         .padding(0.0);
 
-    column![bar, iced::widget::stack![canvas, palette]].into()
+    column![bar, iced::widget::stack![canvas, palette]].boxed()
 }
 
 /// Builds the widget for a whole [`ActionGraph`].
@@ -196,7 +197,7 @@ pub fn view<'a>(graph: &'a ActionGraph, ctx: &'a NodeContext) -> Element<'a, Mes
         ));
     }
 
-    widget.into()
+    widget.boxed()
 }
 
 /// Applies an edit the graph reported to the flow's own model.
@@ -567,7 +568,7 @@ fn palette_view<'a>(open: &'a OpenPalette) -> Element<'a, PaletteMessage> {
             .on_press(PaletteMessage::Picked(entry.id))
             .style(iced::widget::button::text)
             .width(Length::Fill)
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -583,7 +584,7 @@ fn palette_view<'a>(open: &'a OpenPalette) -> Element<'a, PaletteMessage> {
     .padding(8)
     .width(Length::Fixed(240.0))
     .style(container::bordered_box)
-    .into()
+    .boxed()
 }
 
 #[cfg(test)]
@@ -748,7 +749,7 @@ fn flow_bar<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, Mes
             } else {
                 iced::widget::button::text
             })
-            .into()
+            .boxed()
     });
 
     let name = state.selected(flows).map(|flow| flow.name.as_str());
@@ -772,7 +773,7 @@ fn flow_bar<'a>(flows: &'a [AppFlow], state: &'a EditorState) -> Element<'a, Mes
     )
     .padding(6)
     .width(Length::Fill)
-    .into()
+    .boxed()
 }
 
 #[cfg(test)]

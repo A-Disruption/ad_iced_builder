@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use iced::widget::{button, column, container, row, text, text_editor};
 use iced::{Element, Length, Subscription, Task, Theme, event, keyboard, window};
 use std::collections::BTreeMap;
@@ -861,12 +862,13 @@ impl AdUiBuilder {
                 self.widget_picker.move_highlight(delta, count);
 
                 // The highlight is no use off the bottom of the list.
-                return iced::widget::operation::snap_to(
+                return iced::widget::operation::scrollable::snap_to(
                     views::widget_picker::LIST_ID,
-                    iced::widget::operation::RelativeOffset {
+                    iced::widget::operation::scrollable::RelativeOffset {
                         x: Some(0.0),
                         y: Some(self.widget_picker.scroll_offset(count)),
                     },
+                    iced::widget::operation::Animation::Instant,
                 );
             }
 
@@ -1116,7 +1118,7 @@ impl AdUiBuilder {
             navigation_bar::ViewSelection::ThemeBuilder => self
                 .custom_styles
                 .view(&self.theme)
-                .map(|msg| Message::ViewMessages(ViewMessage::ThemeBuilder(msg))),
+                .map(|msg| Message::ViewMessages(ViewMessage::ThemeBuilder(msg))).boxed(),
             //            navigation_bar::ViewSelection::WidgetStyleBuilder => {}
             navigation_bar::ViewSelection::EnumBuilder => {
                 let enum_tab_style = if self.type_editor_tab == TypeEditorTab::Enums {
@@ -1147,14 +1149,14 @@ impl AdUiBuilder {
 
                 let editor_content: Element<'_, Message> = match self.type_editor_tab {
                     TypeEditorTab::Enums => enum_editor::view(&self.type_system, &self.type_editor)
-                        .map(|msg| Message::ViewMessages(ViewMessage::EnumEditor(msg))),
+                        .map(|msg| Message::ViewMessages(ViewMessage::EnumEditor(msg))).boxed(),
                     TypeEditorTab::Structs => {
                         struct_editor::view(&self.type_system, &self.struct_editor)
-                            .map(|msg| Message::ViewMessages(ViewMessage::StructEditor(msg)))
+                            .map(|msg| Message::ViewMessages(ViewMessage::StructEditor(msg))).boxed()
                     }
                 };
 
-                row![column![tab_bar, editor_content,], code_view].into()
+                row![column![tab_bar, editor_content,], code_view].boxed()
             }
             navigation_bar::ViewSelection::Settings => {
                 row![
@@ -1163,7 +1165,7 @@ impl AdUiBuilder {
                     // Right side
                     code_view
                 ]
-                .into()
+                .boxed()
             }
             #[cfg(feature = "action_editor")]
             navigation_bar::ViewSelection::Actions => action_editor::view(
@@ -1184,9 +1186,9 @@ impl AdUiBuilder {
                     &self.action_editor,
                     &self.node_context,
                 )
-                    .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))),
+                    .map(|msg| Message::ViewMessages(ViewMessage::ActionGraph(msg))).boxed(),
 
-            _ => container("No done, sorry :(").into(),
+            _ => container("No done, sorry :(").boxed(),
         };
 
         let Some(window) = self.windows.get(&window_id) else {
@@ -1196,7 +1198,7 @@ impl AdUiBuilder {
                 "Something has gone terribly wrong. Window Id: {:?}",
                 window_id
             ))])
-            .into();
+            .boxed();
         };
 
         let content: Element<'a, Message> = match window.windowtype {
@@ -1216,7 +1218,7 @@ impl AdUiBuilder {
                     ),
                     content,
                 ]
-                .into()
+                .boxed()
             }
             WindowEnum::Visualizer => {
                 let view_id = window.view_to_display(self.selected_view_id);
@@ -1234,7 +1236,7 @@ impl AdUiBuilder {
                     Some(view_to_render.id),
                     &self.type_system,
                 )
-                .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))
+                .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg))).boxed()
             }
         };
 
@@ -1268,6 +1270,7 @@ impl AdUiBuilder {
                             &self.type_system,
                         )
                         .map(|msg| Message::ViewMessages(ViewMessage::Preview(msg)))
+                        .boxed()
                     });
 
                 self.preview_frame.view(
@@ -1411,7 +1414,7 @@ impl AdUiBuilder {
                     self.hovered_row,
                 )
                 .map(|msg| Message::ViewMessages(ViewMessage::AddViews(msg)))
-                .into(),
+                .boxed(),
 
                 // The inspector scrolls its own properties region, between its
                 // own dividers — a scrollable out here would be a second one
@@ -1439,14 +1442,14 @@ impl AdUiBuilder {
                     inspector::Message::SplitMoved(divider, ratio) => Message::ViewMessages(
                         ViewMessage::InspectorSplit(divider, ratio),
                     ),
-                }),
+                }).boxed(),
 
                 PaneKind::Code => full_code_view::view(
                     &self.generated_files,
                     &self.active_code_tab,
                     &self.code_view_content,
                 )
-                .map(|msg| Message::ViewMessages(ViewMessage::WidgetTree(msg))),
+                .map(|msg| Message::ViewMessages(ViewMessage::WidgetTree(msg))).boxed(),
             };
 
             // The title bar is also the drag handle: a pane can only be
@@ -1483,7 +1486,7 @@ impl AdUiBuilder {
             ))
         });
 
-        grid.into()
+        grid.boxed()
     }
 
     /// Everything the add-widget picker can report.
@@ -1557,12 +1560,13 @@ impl AdUiBuilder {
             return Task::none();
         };
 
-        iced::widget::operation::snap_to(
+        iced::widget::operation::scrollable::snap_to(
             iced::advanced::widget::Id::new(controls::ICON_GRID_ID),
-            iced::widget::operation::RelativeOffset {
+            iced::widget::operation::scrollable::RelativeOffset {
                 x: Some(0.0),
                 y: Some(y),
             },
+            iced::widget::operation::Animation::Instant,
         )
     }
 

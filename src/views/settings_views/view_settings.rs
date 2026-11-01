@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use crate::action_system::custom_state::CustomFieldType;
 use crate::code_gen_version_two::builder::sanitize_name;
 use crate::data_structures::types::types::{AppView, Widget, WidgetType};
@@ -179,7 +180,7 @@ pub fn view<'a>(
             ]
             .spacing(4)
             .align_y(iced::Alignment::Center)
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -218,7 +219,7 @@ pub fn view<'a>(
                     .padding(2),
             ]
             .spacing(4)
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -227,7 +228,7 @@ pub fn view<'a>(
         state_col = state_col.push(row);
     }
     if !stateful_widgets.is_empty() && !view.custom_state.is_empty() {
-        state_col = state_col.push(rule::horizontal(1));
+        state_col = state_col.push(rule::horizontal(1).boxed());
     }
     for row in state_rows {
         state_col = state_col.push(row);
@@ -274,7 +275,7 @@ pub fn view<'a>(
     .radius(10.0)
     .max_width(420.0)
     .dismiss_on_outside_press(true)
-    .into()
+    .boxed()
 }
 
 #[cfg(test)]

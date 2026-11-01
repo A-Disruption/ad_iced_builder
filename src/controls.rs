@@ -1,3 +1,4 @@
+use iced::Widget as _;
 pub mod batch_edit;
 pub mod control_styling;
 pub mod single_edit;
@@ -164,7 +165,7 @@ pub fn icon_picker<'a>(
                     .padding(5),
                 tooltip::Position::Top,
             )
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -215,7 +216,7 @@ pub fn icon_picker<'a>(
         // Where the window should land is worked out here, because this is
         // where the result count is known — the handler only has the viewport.
         .on_scroll(move |viewport| {
-            let slide = slide_icon_window(start, total, viewport.relative_offset().y);
+            let slide = slide_icon_window(start, total, viewport.viewport.relative_offset().y);
 
             on_scroll(slide.start, slide.snap)
         }),
@@ -235,7 +236,7 @@ pub fn icon_picker<'a>(
         .gap(5.0)
         .max_width(650.0)
         .dismiss_on_outside_press(true)
-        .into()
+        .boxed()
 }
 
 pub fn container_controls<'a>(
@@ -360,7 +361,7 @@ pub fn container_controls<'a>(
                         .color(Color::from_rgb(0.5, 0.5, 0.5)),
                 ]
                 .spacing(LABEL_SPACING)
-                .into()
+                .boxed()
             }
             ContainerSizingMode::CenterY => {
                 column![
@@ -380,7 +381,7 @@ pub fn container_controls<'a>(
                         .color(Color::from_rgb(0.5, 0.5, 0.5)),
                 ]
                 .spacing(LABEL_SPACING)
-                .into()
+                .boxed()
             }
             ContainerSizingMode::Center => {
                 column![length_picker_scrollable_aware(
@@ -395,7 +396,7 @@ pub fn container_controls<'a>(
                     false
                 ),]
                 .spacing(LABEL_SPACING)
-                .into()
+                .boxed()
             }
         },
         // Padding Controls
@@ -403,7 +404,7 @@ pub fn container_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -507,7 +508,7 @@ pub fn row_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -557,7 +558,7 @@ pub fn column_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -623,7 +624,7 @@ pub fn button_controls<'a>(
                         PropertyChange::ButtonPressHandler(OnHandler::None)
                     )
                 )
-                .into(),
+                .boxed(),
                 theme,
                 "Button will not respond to clicks",
             ),
@@ -634,7 +635,7 @@ pub fn button_controls<'a>(
                         PropertyChange::ButtonPressHandler(OnHandler::OnAction),
                     )
                 })
-                .into(),
+                .boxed(),
                 theme,
                 "Direct message dispatch - use when the action is always the same",
             ),
@@ -645,7 +646,7 @@ pub fn button_controls<'a>(
                         PropertyChange::ButtonPressHandler(OnHandler::OnActionWith),
                     )
                 })
-                .into(),
+                .boxed(),
                 theme,
                 "Closure returns the action - use when the action depends on runtime data",
             ),
@@ -656,7 +657,7 @@ pub fn button_controls<'a>(
                         PropertyChange::ButtonPressHandler(OnHandler::OnActionMaybe),
                     )
                 })
-                .into(),
+                .boxed(),
                 theme,
                 "Optional action - use when the button should only be enabled in certain states",
             ),
@@ -674,7 +675,7 @@ pub fn button_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
         .spacing(MAIN_SPACING)
-        .into();
+        .boxed();
 
     content
 }
@@ -793,7 +794,7 @@ pub fn text_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -983,7 +984,7 @@ pub fn text_input_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1129,7 +1130,7 @@ pub fn text_editor_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1193,7 +1194,7 @@ pub fn checkbox_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1253,7 +1254,7 @@ pub fn toggler_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1337,7 +1338,7 @@ pub fn radio_controls<'a>(
                         ]
                         .spacing(SECTION_SPACING)
                         .align_y(Alignment::Center)
-                        .into()
+                        .boxed()
                     })
                     .collect::<Vec<Element<'a, Message>>>()
             )
@@ -1377,7 +1378,7 @@ pub fn radio_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1484,7 +1485,7 @@ pub fn picklist_controls<'a>(
                         ]
                         .spacing(SECTION_SPACING)
                         .align_y(Alignment::Center)
-                        .into()
+                        .boxed()
                     })
                     .collect::<Vec<Element<'a, Message>>>()
             )
@@ -1518,7 +1519,7 @@ pub fn picklist_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1624,7 +1625,7 @@ pub fn slider_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1727,7 +1728,7 @@ pub fn vertical_slider_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1790,7 +1791,7 @@ pub fn rule_controls<'a>(
                                     PropertyChange::RuleThickness(px),
                                 ))
                                 .padding(6)
-                                .into()
+                                .boxed()
                         })
                         .collect::<Vec<_>>())
                     .spacing(LABEL_SPACING)
@@ -1802,7 +1803,7 @@ pub fn rule_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1861,7 +1862,7 @@ pub fn scrollable_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1897,7 +1898,7 @@ pub fn space_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -1991,7 +1992,7 @@ pub fn progress_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2029,7 +2030,7 @@ pub fn image_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2067,7 +2068,7 @@ pub fn svg_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2116,7 +2117,7 @@ pub fn tooltip_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2257,7 +2258,7 @@ pub fn combobox_controls<'a>(
                                         .map(|variant| {
                                             text(format!("• {}", variant.name))
                                                 .size(LABEL_SIZE)
-                                                .into()
+                                                .boxed()
                                         })
                                         .collect::<Vec<Element<'a, Message>>>()
                                 )
@@ -2323,7 +2324,7 @@ pub fn combobox_controls<'a>(
                             ]
                             .spacing(SECTION_SPACING)
                             .align_y(Alignment::Center)
-                            .into()
+                            .boxed()
                         })
                         .collect::<Vec<Element<'a, Message>>>()
                 )
@@ -2483,7 +2484,7 @@ pub fn combobox_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2534,7 +2535,7 @@ pub fn markdown_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2564,7 +2565,7 @@ pub fn qrcode_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2599,7 +2600,7 @@ pub fn stack_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2756,7 +2757,7 @@ pub fn collapsible_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -2803,7 +2804,7 @@ pub fn collapsible_group_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -3359,7 +3360,7 @@ pub fn overlay_controls<'a>(
                 ));
             }
 
-            rows.into()
+            rows.boxed()
         } else {
             column![
                 text("No trigger child, so the widget draws a button in its place.")
@@ -3387,7 +3388,7 @@ pub fn overlay_controls<'a>(
                 padding_controls(props.padding, widget_id, props.padding_mode, theme),
             ]
             .spacing(SECTION_SPACING)
-            .into()
+            .boxed()
         };
 
         section("Trigger", body)
@@ -3434,7 +3435,7 @@ pub fn overlay_controls<'a>(
     }
 
     // ── Assembly, in the order each widget reads ─────────────────────────────
-    let mut sections: Vec<Element<'a, Message>> = vec![header.into()];
+    let mut sections: Vec<Element<'a, Message>> = vec![header.boxed()];
 
     let mut push = |title: &'a str, fields: Vec<Element<'a, Message>>| {
         if !fields.is_empty() {
@@ -3467,7 +3468,7 @@ pub fn overlay_controls<'a>(
 
     let content = Column::with_children(sections)
         .spacing(MAIN_SPACING)
-        .into();
+        .boxed();
 
     content
 }
@@ -3627,7 +3628,7 @@ pub fn date_picker_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -3736,7 +3737,7 @@ pub fn split_controls<'a>(
         advanced_section(widget_id, props, _theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -3813,7 +3814,7 @@ pub fn float_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -3861,7 +3862,7 @@ pub fn responsive_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -3944,7 +3945,7 @@ pub fn sensor_controls<'a>(
         advanced_section(widget_id, props, theme),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -4104,7 +4105,7 @@ pub fn mousearea_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -4142,7 +4143,7 @@ pub fn themer_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -4223,7 +4224,7 @@ pub fn grid_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -4274,7 +4275,7 @@ pub fn pin_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -4313,7 +4314,7 @@ pub fn data_table_controls<'a>(
         text("Define a struct in the type editor first — its fields become the columns.")
             .size(LABEL_SIZE)
             .style(text::warning)
-            .into()
+            .boxed()
     } else {
         field(
             "Struct",
@@ -4329,7 +4330,7 @@ pub fn data_table_controls<'a>(
     };
 
     let mut sections = vec![
-        text("Data Table Properties").size(TITLE_SIZE).into(),
+        text("Data Table Properties").size(TITLE_SIZE).boxed(),
         section("Data Source", source),
     ];
 
@@ -4592,7 +4593,7 @@ pub fn data_table_controls<'a>(
         )
         .size(LABEL_SIZE)
         .style(text::secondary)
-        .into()
+        .boxed()
     } else {
         nothing()
     };
@@ -4612,7 +4613,7 @@ pub fn data_table_controls<'a>(
     ));
     sections.push(advanced_section(widget_id, props, theme));
 
-    column(sections).spacing(SECTION_SPACING).into()
+    column(sections).spacing(SECTION_SPACING).boxed()
 }
 
 /// One column: what it shows, how wide it is, and where it sits.
@@ -4797,7 +4798,7 @@ fn data_table_column_row<'a>(
     )
     .padding(6)
     .style(container::bordered_box)
-    .into()
+    .boxed()
 }
 
 /// One header group: its label, and whether it and its columns are frozen.
@@ -4828,7 +4829,7 @@ fn data_table_group_row<'a>(
     ]
     .spacing(SECTION_SPACING)
     .align_y(Alignment::End)
-    .into()
+    .boxed()
 }
 
 /// A group as it reads in a picker — numbered, since two groups may share a
@@ -4919,7 +4920,7 @@ pub fn table_controls<'a>(
                                         field.field_type.display_name()
                                     ))
                                     .size(LABEL_SIZE)
-                                    .into()
+                                    .boxed()
                                 })
                                 .collect::<Vec<Element<'a, Message>>>()
                         )
@@ -4992,7 +4993,7 @@ pub fn table_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -5114,7 +5115,7 @@ pub fn view_reference_controls<'a>(
                     ]
                     .spacing(4)
                     .align_y(Alignment::Center)
-                    .into()
+                    .boxed()
                 })
                 .collect();
             column(extra_rows).spacing(4)
@@ -5140,7 +5141,7 @@ pub fn view_reference_controls<'a>(
         },
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -5192,7 +5193,7 @@ pub fn icon_controls<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into();
+    .boxed();
 
     content
 }
@@ -5213,7 +5214,7 @@ where
             .width(160)
     ]
     .spacing(5)
-    .into()
+    .boxed()
 }
 
 /// Helper for scrollable-aware size controls
@@ -5277,7 +5278,7 @@ pub fn size_controls_scrollable_aware<'a>(
         ),
     ]
     .spacing(MAIN_SPACING)
-    .into()
+    .boxed()
 }
 
 /// A single labeled Length selector that's aware of scrollable constraints
@@ -5352,7 +5353,7 @@ fn pixel_field<'a, M: Clone + 'a>(
             .width(120)
     ]
     .spacing(5)
-    .into()
+    .boxed()
 }
 
 /// The controls that sit beside a length's kind, for whichever kind is chosen.
@@ -5398,7 +5399,7 @@ fn length_detail_controls<'a, M: Clone + 'a>(
                     .width(120)
             ]
             .spacing(5)
-            .into()
+            .boxed()
         }
 
         LengthChoice::Bounded => {
@@ -5454,7 +5455,8 @@ fn length_detail_controls<'a, M: Clone + 'a>(
                             })
                             .width(120),
                     ]
-                    .spacing(5),
+                    .spacing(5)
+                    .boxed(),
                 );
             }
 
@@ -5470,7 +5472,7 @@ fn length_detail_controls<'a, M: Clone + 'a>(
                 }));
             }
 
-            controls.into()
+            controls.boxed()
         }
 
         LengthChoice::Fluid => {
@@ -5505,10 +5507,10 @@ fn length_detail_controls<'a, M: Clone + 'a>(
                 }));
             }
 
-            controls.into()
+            controls.boxed()
         }
 
-        _ => Space::new().width(0).into(),
+        _ => Space::new().width(0).boxed(),
     }
 }
 
@@ -5628,7 +5630,7 @@ where
 
     row![picker, length_detail_controls(current, can_fill, on_change)]
         .spacing(15)
-        .into()
+        .boxed()
 }
 
 pub fn length_picker_with_draft<'a>(
@@ -5719,7 +5721,7 @@ pub fn length_picker_with_draft<'a>(
                     .width(75)
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         }
         LengthChoice::FillPortion if can_fill => {
             let committed_value = match current {
@@ -5736,18 +5738,18 @@ pub fn length_picker_with_draft<'a>(
                     .width(75)
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         }
         LengthChoice::Bounded | LengthChoice::Fluid => {
             length_detail_controls(current, can_fill, on_change)
         }
-        _ => space::horizontal().into(),
+        _ => space::horizontal().boxed(),
     };
 
     row![picker, extra]
         .width(Length::Fill)
         .spacing(SECTION_SPACING)
-        .into()
+        .boxed()
 }
 
 
@@ -5940,7 +5942,7 @@ pub fn padding_controls<'a>(
         },
     ]
     .spacing(SECTION_SPACING)
-    .into()
+    .boxed()
 }
 
 pub fn information<'a>(theme: &Theme, info: &'a str) -> Element<'a, Message> {
@@ -5955,7 +5957,7 @@ pub fn information<'a>(theme: &Theme, info: &'a str) -> Element<'a, Message> {
             .padding([5, 10]),
         tooltip::Position::Top,
     )
-    .into()
+    .boxed()
 }
 
 fn with_event_info<'a>(
@@ -5966,11 +5968,11 @@ fn with_event_info<'a>(
     row![control, information(theme, info)]
         .spacing(LABEL_SPACING)
         .align_y(Alignment::Center)
-        .into()
+        .boxed()
 }
 
 fn event_name_row<'a>(theme: &Theme, name: &'a str, info: &'a str) -> Element<'a, Message> {
-    with_event_info(text(name).size(LABEL_SIZE).into(), theme, info)
+    with_event_info(text(name).size(LABEL_SIZE).boxed(), theme, info)
 }
 
 fn event_checkbox_row<'a, F>(
@@ -5984,7 +5986,7 @@ where
     F: 'a + Fn(bool) -> Message,
 {
     with_event_info(
-        checkbox(enabled).label(name).on_toggle(on_toggle).into(),
+        checkbox(enabled).label(name).on_toggle(on_toggle).boxed(),
         theme,
         info,
     )
@@ -6034,8 +6036,8 @@ fn bounded_field<'a>(
         Some(value) => text_input("px", format!("{value}"))
             .on_input(move |raw| on_change(Some(raw.trim().parse().unwrap_or(value))))
             .width(FIELD_WIDTH - 30.0)
-            .into(),
-        None => text("off").size(LABEL_SIZE).into(),
+            .boxed(),
+        None => text("off").size(LABEL_SIZE).boxed(),
     };
 
     field(
@@ -6082,7 +6084,7 @@ pub fn widget_id_control<'a>(
                 Message::PropertyChanged(widget_id, PropertyChange::WidgetId(Some(v)))
             })
             .width(FIELD_WIDTH - 30.0)
-            .into(),
+            .boxed(),
         // With no id to edit there is room for the explanation instead.
         None => information(theme, "Use for programmatic access via widget::Id"),
     };
@@ -6120,7 +6122,7 @@ pub fn widget_name<'a>(
         .padding(padding::left(4).right(4).top(2).bottom(2))
         .style(name_field_style)
         .width(Length::Fill)
-        .into()
+        .boxed()
 }
 
 /// A text field that reads as a title until you touch it.
@@ -6245,7 +6247,7 @@ fn conditional_style_section<'a>(
     type_system: &TypeSystem,
 ) -> Element<'a, Message> {
     if props.active_style_name.is_none() {
-        return column![].into();
+        return Space::new().boxed();
     }
 
     let fields = collect_condition_fields(root, view_id, views, type_system);
@@ -6272,7 +6274,7 @@ fn conditional_style_section<'a>(
     let condition_value = props.style_condition_value.clone().unwrap_or_default();
 
     let condition_body: Element<'a, Message> = if !has_condition {
-        column![].into()
+        Space::new().boxed()
     } else if !field_options.is_empty() {
         let value_section: Element<'a, Message> = if !value_variants.is_empty() {
             column![
@@ -6289,7 +6291,7 @@ fn conditional_style_section<'a>(
                 .placeholder("select value"),
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         } else {
             column![
                 text("When equals").size(LABEL_SIZE),
@@ -6304,7 +6306,7 @@ fn conditional_style_section<'a>(
                     .size(LABEL_SIZE),
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         };
         let fields_for_closure = fields.clone();
         column![
@@ -6327,7 +6329,7 @@ fn conditional_style_section<'a>(
             value_section,
         ]
         .spacing(LABEL_SPACING)
-        .into()
+        .boxed()
     } else {
         column![
             text("State field").size(LABEL_SIZE),
@@ -6349,7 +6351,7 @@ fn conditional_style_section<'a>(
                 .size(LABEL_SIZE),
         ]
         .spacing(LABEL_SPACING)
-        .into()
+        .boxed()
     };
 
     column![
@@ -6370,14 +6372,14 @@ fn conditional_style_section<'a>(
                     }
                 })
                 .size(LABEL_SIZE)
-                .into(),
+                .boxed(),
             theme,
             "Use a view state field here, then update that state from the action system to switch to the alternate style.",
         ),
         condition_body,
     ]
     .spacing(LABEL_SPACING)
-    .into()
+    .boxed()
 }
 
 fn custom_style_picker<'a>(
@@ -6401,7 +6403,7 @@ fn custom_style_picker<'a>(
 
     if style_options.len() < 1 {
         // Don't show picker if there are no styles
-        return column![].into();
+        return Space::new().boxed();
     }
 
     let mut content = column![
@@ -6422,7 +6424,7 @@ fn custom_style_picker<'a>(
     .spacing(LABEL_SPACING);
 
     if supports_active_style {
-        content = content.push(text("Alternate style").size(LABEL_SIZE)).push(
+        content = content.push(text("Alternate style").size(LABEL_SIZE).boxed()).push(
             pick_list(
                 props.active_style_name.clone(),
                 style_options,
@@ -6434,11 +6436,12 @@ fn custom_style_picker<'a>(
                         PropertyChange::ActiveStyle(Some(selection.to_string())),
                     )
                 })
-            .placeholder("none"),
+            .placeholder("none")
+            .boxed(),
         );
     }
 
-    content.into()
+    content.boxed()
 }
 
 fn condition_variants_for_custom_field(
@@ -6520,7 +6523,7 @@ fn named_style_picker<'a>(
     let style_options = style_options_for_widget_type(custom_themes, widget_type_enum);
 
     if style_options.is_empty() {
-        return column![].into();
+        return Space::new().boxed();
     }
 
     column![
@@ -6536,7 +6539,7 @@ fn named_style_picker<'a>(
         .placeholder("default"),
     ]
     .spacing(LABEL_SPACING)
-    .into()
+    .boxed()
 }
 
 /// The generated code for the selected widget, syntax-highlighted.
@@ -6567,7 +6570,7 @@ pub fn widget_code_view<'a>(
         .style(code_gen_text_editor_style)
         .size(14.0)
         .height(Length::Fill)
-        .into()
+        .boxed()
 }
 
 /// The role a widget plays inside an overlay parent, if any.
@@ -6619,14 +6622,14 @@ pub fn overlay_child_controls<'a>(
                     .on_toggle(move |value| {
                         Message::PropertyChanged(widget_id, PropertyChange::MenuItemChecked(value))
                     })
-                    .into()
+                    .boxed()
             } else {
-                column![].into()
+                Space::new().boxed()
             };
 
             // A separator has no content, so it has no gutter icon either.
             let icon: Element<'a, Message> = if kind == MenuItemKind::Separator {
-                column![].into()
+                Space::new().boxed()
             } else {
                 let picker = icon_picker(
                     &props.menu_item_icon_family,
@@ -6678,7 +6681,7 @@ pub fn overlay_child_controls<'a>(
                     },
                 ]
                 .spacing(LABEL_SPACING)
-                .into()
+                .boxed()
             };
 
             column![
@@ -6705,7 +6708,7 @@ pub fn overlay_child_controls<'a>(
                 rule::horizontal(1),
             ]
             .spacing(LABEL_SPACING)
-            .into()
+            .boxed()
         }
         _ => column![
             text("Toast").size(SECTION_SIZE),
@@ -6741,7 +6744,7 @@ pub fn overlay_child_controls<'a>(
             rule::horizontal(1),
         ]
         .spacing(LABEL_SPACING)
-        .into(),
+        .boxed(),
     }
 }
 
@@ -6800,7 +6803,7 @@ pub fn padding_field<'a>(
         .spacing(LABEL_SPACING),
     ]
     .spacing(LABEL_SPACING)
-    .into()
+    .boxed()
 }
 
 // ── Property grid ────────────────────────────────────────────────────────────
@@ -6840,20 +6843,20 @@ pub const CONTROL_HEIGHT: f32 = 32.0;
 /// A labelled control, sized to the property grid.
 pub fn field<'a, M: 'a>(
     label: &'a str,
-    control: impl Into<Element<'a, M>>,
+    control: impl iced::Widget<M> + 'a,
 ) -> Element<'a, M> {
     row![
         container(text(label).size(LABEL_SIZE).style(text::secondary))
             .width(LABEL_COLUMN)
             .height(CONTROL_HEIGHT)
             .align_y(Alignment::Center),
-        container(control.into())
+        container(control.boxed())
             .width(Length::Fill)
             .height(CONTROL_HEIGHT)
             .align_y(Alignment::Center),
     ]
     .spacing(LABEL_SPACING)
-    .into()
+    .boxed()
 }
 
 /// Lays fields out one to a line, labels lined up down the left.
@@ -6867,7 +6870,7 @@ pub fn field_grid<'a, M: 'a>(fields: Vec<Element<'a, M>>) -> Element<'a, M> {
     Column::with_children(fields)
         .spacing(FIELD_SPACING)
         .width(Length::Fill)
-        .into()
+        .boxed()
 }
 
 /// A titled group of controls, as a card.
@@ -6878,26 +6881,26 @@ pub fn field_grid<'a, M: 'a>(fields: Vec<Element<'a, M>>) -> Element<'a, M> {
 /// hairline rule used to be asked to do on its own.
 pub fn section<'a, M: 'a>(
     title: &'a str,
-    body: impl Into<Element<'a, M>>,
+    body: impl iced::Widget<M> + 'a,
 ) -> Element<'a, M> {
     container(
         column![
             text(title.to_uppercase())
                 .size(SECTION_SIZE - 3.0)
                 .style(text::secondary),
-            body.into(),
+            body.boxed(),
         ]
         .spacing(SECTION_SPACING),
     )
     .style(crate::styles::container::card)
     .padding(SECTION_PADDING)
     .width(Length::Fill)
-    .into()
+    .boxed()
 }
 
 /// Nothing at all, for a section that does not apply to this widget.
 pub fn nothing<'a, M: 'a>() -> Element<'a, M> {
-    column![].into()
+    Space::new().boxed()
 }
 
 /// The room a vertical scrollbar needs beside the content it scrolls.
@@ -6911,12 +6914,12 @@ pub const SCROLLBAR_GUTTER: f32 = 14.0;
 ///
 /// Prefer this over a bare `scrollable` anywhere the content fills the width.
 pub fn scroll_y<'a, M>(
-    content: impl Into<Element<'a, M>>,
+    content: impl iced::Widget<M> + 'a,
 ) -> iced::widget::Scrollable<'a, M>
 where
     M: 'a,
 {
-    scrollable(container(content.into()).padding(padding::right(SCROLLBAR_GUTTER)))
+    scrollable(container(content.boxed()).padding(padding::right(SCROLLBAR_GUTTER)).boxed())
 }
 
 /// A numeric entry sized for the property grid.
@@ -6927,7 +6930,7 @@ pub fn float_input<'a, M: Clone + 'a>(
     text_input("0", format!("{value}"))
         .on_input(move |raw| on_change(raw.trim().parse::<f32>().unwrap_or(0.0)))
         .width(Length::Fill)
-        .into()
+        .boxed()
 }
 
 /// A labelled text entry sized for the property grid.

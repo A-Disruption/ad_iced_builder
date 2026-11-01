@@ -1,3 +1,4 @@
+use iced::Widget as _;
 use crate::EnumEditorView;
 use crate::action_system::custom_state::CustomFieldType;
 use crate::data_structures::types::types::AppView;
@@ -190,7 +191,7 @@ pub fn view<'a>(
                 type_system,
                 views.len() > 1 && !view.1.is_main,
             ))
-            .into()
+            .boxed()
         })
         .collect();
 
@@ -205,7 +206,7 @@ pub fn view<'a>(
     .padding(padding::left(4))
     .width(Length::Fill)
     .height(Length::Fill)
-    .into()
+    .boxed()
 }
 
 fn sorted_views<'a>(
